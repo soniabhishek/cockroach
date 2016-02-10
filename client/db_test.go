@@ -26,6 +26,7 @@ import (
 	"github.com/cockroachdb/cockroach/roachpb"
 	"github.com/cockroachdb/cockroach/security"
 	"github.com/cockroachdb/cockroach/server"
+	"github.com/cockroachdb/cockroach/util"
 	"github.com/cockroachdb/cockroach/util/caller"
 	"github.com/cockroachdb/cockroach/util/leaktest"
 	"github.com/cockroachdb/cockroach/util/log"
@@ -396,5 +397,27 @@ func TestCommonMethods(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+// Verifies that a nested transaction propagates an error from an inner txn.
+func TestNestedTransaction(t *testing.T) {
+	s, db := setup()
+	defer s.Stop()
+
+	txnProto := roachpb.NewTransaction("test", roachpb.Key("a"), 1, roachpb.SERIALIZABLE, roachpb.Timestamp{}, 0)
+	pErr := db.Txn(func(txn1 *client.Txn) *roachpb.Error {
+		return db.Txn(func(txn2 *client.Txn) *roachpb.Error {
+			return roachpb.NewErrorWithTxn(util.Errorf("err"), txnProto)
+		})
+	})
+	if pErr == nil {
+		t.Fatal("unexpected success of txn")
+	}
+	if pErr.GetTxn() == nil {
+		t.Fatal("err must have a txn")
+	}
+	if !pErr.GetTxn().Equal(txnProto) {
+		t.Errorf("unexpected txn. expected %s, but got %s", txnProto, pErr.GetTxn())
 	}
 }

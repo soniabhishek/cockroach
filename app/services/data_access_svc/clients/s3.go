@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"gitlab.com/playment-main/support/app/config"
+	"gitlab.com/playment-main/angel/app/config"
 )
 
 //type IS3Client interface {

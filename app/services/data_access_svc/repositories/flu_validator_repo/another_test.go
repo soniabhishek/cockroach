@@ -2,8 +2,8 @@ package flu_validator_repo
 
 import (
 	"fmt"
-	"gitlab.com/playment-main/support/app/models"
-	"gitlab.com/playment-main/support/app/services/data_access_svc/clients"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/services/data_access_svc/clients"
 	"testing"
 )
 

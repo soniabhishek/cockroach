@@ -4,9 +4,8 @@ import (
 	"os"
 
 	"github.com/codegangsta/cli"
-	"gitlab.com/playment-main/support/app/api"
-	"gitlab.com/playment-main/support/app/services/flu_svc"
-	"gitlab.com/playment-main/support/app/services/work_flow_svc"
+	"gitlab.com/playment-main/angel/app/api"
+	"gitlab.com/playment-main/angel/app/services/flu_svc"
 )
 
 func Start() {
@@ -39,7 +38,6 @@ func Start() {
 	app.Run(os.Args)
 
 	flu_svc.StartFeedLineSync()
-	work_flow_svc.Start()
 
 	api.Build()
 }

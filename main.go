@@ -1,6 +1,6 @@
 package main
 
-import "gitlab.com/playment-main/support/app"
+import "gitlab.com/playment-main/angel/app"
 
 func main() {
 

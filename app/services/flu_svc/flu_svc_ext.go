@@ -3,8 +3,8 @@ package flu_svc
 import (
 	"errors"
 
-	"gitlab.com/playment-main/support/app/models"
-	"gitlab.com/playment-main/support/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 type extendedFluService struct {

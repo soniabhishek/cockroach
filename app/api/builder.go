@@ -2,9 +2,9 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"gitlab.com/playment-main/support/app/api/handlers"
-	"gitlab.com/playment-main/support/app/config"
-	"gitlab.com/playment-main/support/app/services/flu_svc/flu_svc_transport"
+	"gitlab.com/playment-main/angel/app/api/handlers"
+	"gitlab.com/playment-main/angel/app/config"
+	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_svc_transport"
 )
 
 func Build() {

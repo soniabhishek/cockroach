@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"time"
 
-	"gitlab.com/playment-main/support/app/models"
-	"gitlab.com/playment-main/support/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gopkg.in/gorp.v1"
 )
 

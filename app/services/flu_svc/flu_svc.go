@@ -3,11 +3,11 @@ package flu_svc
 import (
 	"fmt"
 
-	"gitlab.com/playment-main/support/app/models"
-	"gitlab.com/playment-main/support/app/models/uuid"
-	"gitlab.com/playment-main/support/app/services/data_access_svc/repositories/feed_line_repo"
-	"gitlab.com/playment-main/support/app/services/data_access_svc/repositories/flu_validator_repo"
-	"gitlab.com/playment-main/support/app/services/data_access_svc/repositories/macro_task_repo"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/feed_line_repo"
+	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/flu_validator_repo"
+	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/macro_task_repo"
 )
 
 type fluService struct {

@@ -272,7 +272,6 @@ func getQ(aliasName string, col string, isNested bool) string {
 	}
 	aliasName = strings.TrimSpace(aliasName)
 	col = strings.TrimSpace(col)
-	fmt.Println("IsNested: ", isNested)
 	if isNested {
 		return aliasName + Dot + col + Spaced_Comma
 	} else {

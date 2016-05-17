@@ -1,4 +1,4 @@
-Playment Support Server
+Playment's Angel Server
 =======================
 
 Copyright 2016 Playment Inc.
@@ -13,7 +13,7 @@ This is a MicroService written in [go](https://golang.org/)
 ```
 $ mkdir -p $HOME/code/gocode/src/gitlab.com/playment-main
 $ cd $HOME/code/gocode/src/gitlab.com/playment-main
-$ git clone git@gitlab.com:playment-main/support.git
+$ git clone git@gitlab.com:playment-main/angel.git
 ```
 
 - Setup GOPATH:
@@ -26,7 +26,7 @@ $ source ~/.bash_profile
 - Install application:
 
 ```
-$ cd $HOME/code/gocode/src/gitlab.com/playment-main/support
+$ cd $HOME/code/gocode/src/gitlab.com/playment-main/angel
 $ git checkout develop
 $ go get
 $ go get -t

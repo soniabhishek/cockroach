@@ -3,7 +3,7 @@ package config_test
 import (
 	"fmt"
 
-	"gitlab.com/playment-main/support/app/config"
+	"gitlab.com/playment-main/angel/app/config"
 )
 
 func Example() {

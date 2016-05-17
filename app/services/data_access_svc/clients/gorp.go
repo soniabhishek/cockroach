@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	_ "github.com/lib/pq"
-	"gitlab.com/playment-main/support/app/config"
-	"gitlab.com/playment-main/support/app/models"
+	"gitlab.com/playment-main/angel/app/config"
+	"gitlab.com/playment-main/angel/app/models"
 	"gopkg.in/gorp.v1"
 )
 

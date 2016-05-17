@@ -6,8 +6,8 @@ import (
 
 	"errors"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/playment-main/support/app/models"
-	"gitlab.com/playment-main/support/app/services/image_svc/downloader"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/services/image_svc/downloader"
 	"io"
 	"os"
 )

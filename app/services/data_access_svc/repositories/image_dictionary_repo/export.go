@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"gitlab.com/playment-main/support/app/models"
+	"gitlab.com/playment-main/angel/app/models"
 )
 
 type IImageDictionaryRepo interface {

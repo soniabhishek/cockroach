@@ -1,6 +1,6 @@
 package bulk_transporter_svc
 
-import "gitlab.com/playment-main/support/app/models/uuid"
+import "gitlab.com/playment-main/angel/app/models/uuid"
 
 type ICarrier interface {
 	Pick() error

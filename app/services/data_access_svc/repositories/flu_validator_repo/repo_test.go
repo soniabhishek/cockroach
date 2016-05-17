@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/playment-main/support/app/models"
-	"gitlab.com/playment-main/support/app/models/uuid"
-	"gitlab.com/playment-main/support/app/services/data_access_svc/clients"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/services/data_access_svc/clients"
 	"gopkg.in/gorp.v1"
 	"os"
 )

@@ -1,8 +1,8 @@
 package task_repo
 
 import (
-	"gitlab.com/playment-main/support/app/models"
-	"gitlab.com/playment-main/support/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 type ITaskListRepo interface {

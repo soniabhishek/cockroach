@@ -4,7 +4,7 @@ package models
 //import (
 //	"database/sql"
 //	"github.com/lib/pq"
-//	"gitlab.com/playment-main/support/app/models/uuid"
+//	"gitlab.com/playment-main/angel/app/models/uuid"
 //)
 //
 //type Availabilities struct {

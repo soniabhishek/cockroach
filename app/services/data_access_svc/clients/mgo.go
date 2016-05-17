@@ -3,7 +3,7 @@ package clients
 import (
 	"sync"
 
-	"gitlab.com/playment-main/support/app/config"
+	"gitlab.com/playment-main/angel/app/config"
 	"gopkg.in/mgo.v2"
 )
 

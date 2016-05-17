@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.com/playment-main/support/app/models"
-	"gitlab.com/playment-main/support/app/models/uuid"
-	"gitlab.com/playment-main/support/app/services/data_access_svc/repositories/macro_task_repo"
-	"gitlab.com/playment-main/support/app/services/flu_svc"
-	"gitlab.com/playment-main/support/app/services/plerrors"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/macro_task_repo"
+	"gitlab.com/playment-main/angel/app/services/flu_svc"
+	"gitlab.com/playment-main/angel/app/services/plerrors"
 )
 
 //TODO Create another file for validator http transport. In future we may have to make a separate service for validatorss

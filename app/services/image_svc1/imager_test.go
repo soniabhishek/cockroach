@@ -2,8 +2,8 @@ package image_svc1
 
 import (
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/playment-main/support/app/models"
-	"gitlab.com/playment-main/support/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
 
 	"testing"
 )

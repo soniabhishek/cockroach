@@ -3,9 +3,9 @@ package flu_svc
 import (
 	"fmt"
 	"github.com/robfig/cron"
-	"gitlab.com/playment-main/support/app/services/data_access_svc/repositories/feed_line_repo"
-	"gitlab.com/playment-main/support/app/services/data_access_svc/repositories/flu_validator_repo"
-	"gitlab.com/playment-main/support/app/services/data_access_svc/repositories/macro_task_repo"
+	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/feed_line_repo"
+	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/flu_validator_repo"
+	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/macro_task_repo"
 )
 
 func New() IFluService {

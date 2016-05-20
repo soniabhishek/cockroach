@@ -8,6 +8,9 @@ import (
 )
 
 func TestSome(t *testing.T) {
+
+	t.SkipNow()
+
 	pg := clients.GetPostgresClient()
 
 	m := models.MacroTask{}

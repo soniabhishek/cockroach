@@ -5,19 +5,19 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"errors"
-	"gitlab.com/playment-main/angel/app/models/integer"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"strconv"
 )
 
-var minKeyLength = integer.Int(20)
+var minKeyLength = 20
 
 type author struct {
 	key []byte
 }
 
 func New(key string) (a author, err error) {
-	if len(key) < minKeyLength.I() {
-		err = errors.New("Key should be more than " + minKeyLength.String() + " characters")
+	if len(key) < minKeyLength {
+		err = errors.New("Key should be more than " + strconv.Itoa(minKeyLength) + " characters")
 		return
 	}
 	return author{[]byte(key)}, nil

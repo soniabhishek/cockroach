@@ -3,10 +3,10 @@ package image_svc1
 import (
 	"fmt"
 
+	"gitlab.com/playment-main/angel/app/DAL/repositories/batch_process_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/services/bulk_transporter_svc"
-	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/batch_process_repo"
 )
 
 //Transforms imager to a carrier. The imageCarrier knows how to transport an image.  A list of carriers can be passed to a bulkTransporter

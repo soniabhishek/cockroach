@@ -9,6 +9,7 @@ type IDatabase interface {
 	Exec(query string, args ...interface{}) (sql.Result, error)
 	Select(i interface{}, query string, args ...interface{}) ([]interface{}, error)
 	SelectOne(holder interface{}, query string, args ...interface{}) error
+	SelectById(holder interface{}, id string) error
 
 	//SelectInt(query string, args ...interface{}) (int64, error)
 	//SelectNullInt(query string, args ...interface{}) (sql.NullInt64, error)

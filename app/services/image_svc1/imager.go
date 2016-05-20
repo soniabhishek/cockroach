@@ -5,8 +5,8 @@ import (
 	"io"
 	"net/http"
 
+	"gitlab.com/playment-main/angel/app/DAL/clients"
 	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/services/data_access_svc/clients"
 )
 
 //Add Downloading and Uploading functionality to models.ImageDictionary

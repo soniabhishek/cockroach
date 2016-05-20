@@ -1,10 +1,10 @@
 package flu_svc
 
 import (
+	"gitlab.com/playment-main/angel/app/DAL/repositories/flu_validator_repo"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/macro_task_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/flu_validator_repo"
-	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/macro_task_repo"
 )
 
 //Does the data validation for incoming flu

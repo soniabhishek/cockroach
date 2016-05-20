@@ -3,10 +3,10 @@ package macro_task_repo
 import (
 	"database/sql"
 
+	"gitlab.com/playment-main/angel/app/DAL/repositories"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories"
-	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/queries"
 	"gopkg.in/mgo.v2"
 )
 

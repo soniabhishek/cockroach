@@ -1,4 +1,4 @@
-package api
+package auther
 
 import (
 	"encoding/hex"

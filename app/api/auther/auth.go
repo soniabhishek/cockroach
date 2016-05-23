@@ -1,8 +1,8 @@
-package api
+package auther
 
 import (
 	"crypto/hmac"
-	"crypto/sha512"
+	"crypto/sha1"
 	"encoding/hex"
 	"errors"
 	"gitlab.com/playment-main/angel/app/models/uuid"
@@ -24,7 +24,7 @@ func New(key string) (a author, err error) {
 }
 
 func (a author) GetAPIKey(id uuid.UUID) string {
-	mac := hmac.New(sha512.New512_256, a.key)
+	mac := hmac.New(sha1.New, a.key)
 
 	mac.Write(id.Bytes())
 
@@ -40,7 +40,11 @@ func (a author) Check(id uuid.UUID, key string) bool {
 		return false
 	}
 
-	mac := hmac.New(sha512.New512_256, a.key)
+	mac := hmac.New(sha1.New, a.key)
 	mac.Write(id.Bytes())
 	return hmac.Equal(mac.Sum(nil), bty)
 }
+
+//--------------------------------------------------------------------------------//
+
+var StdProdAuther = author{[]byte("sdfsrfydgigushhsurvhsourhvosur")}

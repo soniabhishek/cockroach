@@ -1,4 +1,4 @@
-package api
+package auther
 
 import (
 	"fmt"
@@ -8,9 +8,12 @@ import (
 )
 
 func Test(t *testing.T) {
-	id := uuid.NewV4()
+	id := uuid.FromStringOrNil("d1244145-bf59-4a05-8abd-254b41c0cafa")
 
 	auth, err := New("playmentlnsdjvds")
+	assert.Error(t, err)
+
+	auth, err = New("playmentlnsdjvds som e uefghv khgvhh")
 	assert.NoError(t, err)
 
 	key := auth.GetAPIKey(id)
@@ -43,4 +46,11 @@ func BenchmarkAuthor_Check(b *testing.B) {
 		key := auth.GetAPIKey(id)
 		auth.Check(id, key)
 	}
+}
+
+func TestProdAuther(t *testing.T) {
+	id := uuid.NewV4()
+	s := StdProdAuther.GetAPIKey(id)
+	fmt.Println(id.CEnc())
+	fmt.Println(s)
 }

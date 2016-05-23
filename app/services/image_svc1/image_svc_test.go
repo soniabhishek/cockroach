@@ -8,6 +8,8 @@ import (
 )
 
 func TestImageService_BulkDownloadImages(t *testing.T) {
+	t.SkipNow()
+
 	imageSvc := &imageService{}
 
 	images, err := downloader.ReadFromTempDir("images_myntra_top_pose.csv")

@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/macro_task_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/services/data_access_svc/repositories/macro_task_repo"
 	"gitlab.com/playment-main/angel/app/services/flu_svc"
 	"gitlab.com/playment-main/angel/app/services/plerrors"
 )

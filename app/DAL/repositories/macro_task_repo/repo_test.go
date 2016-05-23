@@ -5,10 +5,12 @@ import (
 
 	"time"
 
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/playment-main/angel/app/DAL/clients"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/services/data_access_svc/clients"
+	"gitlab.com/playment-main/angel/experiments/util"
 )
 
 //Divide this test in setup & tear down
@@ -139,4 +141,21 @@ func TestAutoSaveMgo(t *testing.T) {
 	if !ok {
 		return
 	}
+}
+
+func TestMacroTaskRepo_Get(t *testing.T) {
+	pgcl := clients.GetSQLxClient()
+
+	rq, err := util.ResolveSelectQuery(`
+	select macro_tasks.*, projects.*  from macro_tasks
+	inner join projects on projects.id = macro_tasks.project_id limit 1`)
+	assert.NoError(t, err)
+
+	fmt.Println(rq)
+	var macro models.MacroTask
+	err = pgcl.SelectOne(&macro, rq)
+
+	assert.NoError(t, err)
+
+	fmt.Println(macro)
 }

@@ -305,6 +305,11 @@ func (u *UUID) Scan(src interface{}) error {
 	return fmt.Errorf("uuid: cannot convert %T to UUID", src)
 }
 
+// Returns cEncoded string (our custom encoder)
+func (u *UUID) CEnc() string {
+	return toCEnc(*u)
+}
+
 // FromBytes returns UUID converted from raw byte slice input.
 // It will return error if the slice isn't 16 bytes long.
 func FromBytes(input []byte) (u UUID, err error) {

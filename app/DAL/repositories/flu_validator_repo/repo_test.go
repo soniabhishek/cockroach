@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/playment-main/angel/app/DAL/clients"
+	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gopkg.in/gorp.v1"
@@ -28,7 +28,7 @@ func TestInsertGetDelete(t *testing.T) {
 	}
 
 	r := fluValidatorRepo{
-		db: clients.GetPostgresClient(),
+		db: postgres.GetPostgresClient(),
 	}
 
 	err := r.insertMany([]models.FLUValidator{validator})
@@ -64,7 +64,7 @@ func TestSaveExisting(t *testing.T) {
 	}
 
 	r := fluValidatorRepo{
-		db: clients.GetPostgresClient(),
+		db: postgres.GetPostgresClient(),
 	}
 
 	err := r.insertMany([]models.FLUValidator{validator})
@@ -100,7 +100,7 @@ func TestSaveNew(t *testing.T) {
 	}
 
 	r := fluValidatorRepo{
-		db: clients.GetPostgresClient(),
+		db: postgres.GetPostgresClient(),
 	}
 
 	err := r.Save(&validator)
@@ -133,7 +133,7 @@ func setup() {
 
 	//Load any macro_task from db
 	//Make sure you have a macro_task in db
-	err := clients.GetPostgresClient().SelectOne(&testMacroTask, "select * from macro_tasks limit 1")
+	err := postgres.GetPostgresClient().SelectOne(&testMacroTask, "select * from macro_tasks limit 1")
 	if err != nil {
 		panic(err)
 	}

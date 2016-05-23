@@ -3,7 +3,8 @@ package util
 import (
 	"errors"
 	"fmt"
-	"../model"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/experiments/model"
 	"reflect"
 	"strings"
 )
@@ -15,6 +16,8 @@ const (
 	People_table   = "people"
 	City_table     = "cities"
 	Employee_table = "employees"
+	MacroTaskTable = "macro_tasks"
+	ProjectsTable  = "projects"
 )
 
 // SQL Keywords Constants
@@ -208,6 +211,11 @@ func getRelatedStruct(tableName string) interface{} /*, err error)*/ {
 
 	case Employee_table:
 		return model.Employee{}
+	case MacroTaskTable:
+		return models.MacroTask{}
+
+	case ProjectsTable:
+		return models.Project{}
 
 	default:
 		return nil
@@ -227,6 +235,11 @@ func getRelatedTable(structName interface{}) string /*, err error)*/ {
 	case model.Employee{}:
 		return Employee_table
 
+	case models.MacroTask{}:
+		return MacroTaskTable
+
+	case models.Project{}:
+		return ProjectsTable
 	default:
 		return NO_table
 	}

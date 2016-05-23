@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"gitlab.com/playment-main/angel/experiments/util"
 	"reflect"
-	"./util"
 )
 
 type typeA struct {
@@ -39,7 +39,7 @@ func main() {
 	fmt.Println(util.GetNestedQuery(`select t.* from (table) t`))*/
 	queryCall(`select people.* from (select * from people) people`)
 	queryCall(`select t.* from (select * from people) t`)
-	queryCall(`Select * from people`)
+	queryCall(`Select people.* from people`)
 	queryCall(`SELECT p.*, c.* from people p inner join cities c on c.id = p.city_id`)
 	queryCall(`SELECT * from people p inner join cities c on c.id = p.city_id`)
 	queryCall(`SELECT p.ID, c.* from people as p inner join cities c on c.id = p.city_id`)

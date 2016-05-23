@@ -28,6 +28,7 @@ type Company struct {
 	Users   []User  // one-to-many relationship
 	Address Address // one-to-one relationship
 }
+
 /*
 type New struct {
 	gorm.Model

@@ -19,13 +19,9 @@ func init() {
 
 func initSQLxClient() *sqlx.DB {
 
-	//Config package not working as expected
-	//again requiring setEnvironment
-	config.SetEnvironment(config.Development)
-
 	// connect to db using standard Go database/sql API
 	// use whatever database/sql driver you wish
-	dbName := config.GetVal(config.DB_DATABASE_NAME)
+	dbName := config.Get(config.PG_DATABASE_NAME)
 
 	db := sqlx.MustConnect("postgres", "dbname="+dbName+" user=postgres password=postgres host=localhost sslmode=disable")
 	return db

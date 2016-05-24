@@ -1,0 +1,62 @@
+{
+  "base" :{
+    "web" : "localhost",
+    "api" : "localhost:8999/api"
+  },
+
+  "postgres": {
+    "host": "localhost",
+    "port": "5432",
+    "database": "playment_local",
+    "username" : "postgres",
+    "password" : "postgres"
+  },
+
+  "mongo" : {
+    "name":"playment_mongo_local",
+    "host" : "localhost:27017"
+  },
+  "social": {
+    "google": {
+      "clientId": "63751646345-80ae0p1taltkqu00ith6je3jf0kcrl6a.apps.googleusercontent.com",
+      "clientSecret": "v0xbeulVqwGpvtdVSPko79tC"
+    },
+    "facebook": {
+      "appId": "1630019013908379",
+      "appSecret": "fc37adbe012a6936f12d64e707374eee"
+    }
+  },
+  "analytics": {
+    "amplitude": {
+      "apiKey": "e69d65b9e6c27b26cc75d05b5114869a"
+    },
+    "parse": {
+      "appId": "5KhOvkENB6nDR0yI21dmUAY92qtfa96x3sYVAeui",
+      "clientId": "7ME1c0VjAobut5ELKXrKDOVaWUPGfhqYRnlP0VS5"
+    }
+  },
+  "env": {
+    "logStackTraceEnabled": false
+  },
+  "sendgrid": {
+    "apiKey": "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"
+  },
+  "paytm":{
+    "MID": "9c9b7ac0-bd7e-452f-9e2e-15da3583434c",
+    "salesWalletGuid": "7c1c994a-4f56-471d-9c14-30603182ce48",
+    "AES": "lDOD9b#cstPqVAy7"
+  },
+  "ipAddress": "128.199.180.82",
+  "rate_limit" : {
+    "duration" : 1,
+    "limit": 10000
+  },
+
+  "aws" : {
+    "region":"ap-southeast-1",
+    "secretKey":"v0/dr/aXopQKwfwVdDhhZJlNVes/2VzjYQCnfeKS",
+    "accessId":"AKIAILPB5FXULHOVAO3Q",
+    "s3Bucket" :"playmentdevelopment"
+  }
+
+}

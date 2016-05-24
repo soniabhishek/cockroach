@@ -1,72 +1,29 @@
-package config
+package config_test
 
 import (
-	"testing"
-
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/playment-main/angel/app/config"
+	"testing"
 )
 
-//Check if both development & production config list
-//return the same set of keys
-func TestConfigKeys(t *testing.T) {
+func Test(t *testing.T) {
 
-	t.SkipNow()
-
-	developmentConfigValues := getDevelopmentConfiguration()
-	productionConfigValues := getProductionConfiguration()
-
-	developmentKeys := getKeys(developmentConfigValues)
-	productionKeys := getKeys(productionConfigValues)
-
-	//union of development & production keys
-	allKeys := append(developmentKeys, productionKeys...)
-
-	//get uniques from allKeys
-	uniqueKeys := getUniqueKeys(allKeys)
-
-	for _, key := range uniqueKeys {
-
-		//check if key is present in development config file
-		_, ok := developmentConfigValues[key]
-
-		assert.True(t, ok, newConfigurationError(key).Error()+" Development Config")
-
-		//check if key is present in production config file
-		_, ok = productionConfigValues[key]
-		assert.True(t, ok, newConfigurationError(key).Error()+" Production Config")
-
-	}
-
-	//assert.Fail(t, "asd")
+	s := config.Get(config.PG_HOST)
+	assert.EqualValues(t, "localhost", s)
 }
 
-//Get array of keys from configuration key value list
-func getKeys(c configKeyValues) []configKey {
+func ExampleGet() {
 
-	ch := make([]configKey, 0, len(c))
+	baseApi := config.Get(config.BASE_API_URL)
 
-	for configKey := range c {
-		ch = append(ch, configKey)
-	}
-
-	return ch
+	fmt.Println(baseApi)
+	// Output: localhost:8999/api
 }
 
-//remove duplicate config keys in a list of configKeys
-func getUniqueKeys(input []configKey) []configKey {
+func ExampleIsDevelopment() {
 
-	encountered := map[configKey]bool{}
-	result := []configKey{}
-
-	for index, key := range input {
-		if encountered[key] == true {
-			// Do not add duplicate.
-		} else {
-			// Record this element as an encountered element.
-			encountered[key] = true
-			// Append to result slice.
-			result = append(result, input[index])
-		}
-	}
-	return result
+	// Returns true if current env is development
+	fmt.Println(config.IsDevelopment())
+	// Output: true
 }

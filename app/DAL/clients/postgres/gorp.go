@@ -1,4 +1,4 @@
-package clients
+package postgres
 
 import (
 	"database/sql"
@@ -52,34 +52,6 @@ func addTableInfo(dbMap *gorp.DbMap) {
 	dbMap.AddTableWithName(models.Project{}, "projects").SetKeys(false, "id")
 }
 
-//--------------------------------------------------------------------------------//
-
-//This wrapper postgres_db is to have one place where we can write all the modifications on errors thrown by gorp & pq
-
-type postgres_db struct {
-	gorpDbMap *gorp.DbMap
-}
-
-func (pg *postgres_db) Insert(list ...interface{}) (err error) {
-	err = pg.gorpDbMap.Insert(list...)
-	return
-}
-func (pg *postgres_db) Update(list ...interface{}) (d int64, err error) {
-	return pg.gorpDbMap.Update(list...)
-}
-func (pg *postgres_db) Delete(list ...interface{}) (int64, error) {
-	return pg.gorpDbMap.Delete(list...)
-}
-func (pg *postgres_db) Exec(query string, args ...interface{}) (sql.Result, error) {
-	return pg.gorpDbMap.Exec(query, args...)
-}
-func (pg *postgres_db) Select(i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-	return pg.gorpDbMap.Select(i, query, args...)
-}
-func (pg *postgres_db) SelectOne(holder interface{}, query string, args ...interface{}) error {
-	return pg.gorpDbMap.SelectOne(holder, query, args...)
-}
-
-func GetPostgresClient() *postgres_db {
-	return &postgres_db{gorpDbMap}
+func GetGorpClient() *gorp.DbMap {
+	return gorpDbMap
 }

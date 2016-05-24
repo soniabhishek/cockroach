@@ -194,20 +194,22 @@ type MicroTaskRewardAssociator struct {
 }
 
 type MicroTask struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	MacroTaskId uuid.UUID      `db:"macro_task_id" json:"macro_task_id"`
-	CreatorId   uuid.UUID      `db:"creator_id" json:"creator_id"`
-	CreatedAt   gorp.NullTime  `db:"created_at" json:"created_at"`
-	UpdatedAt   gorp.NullTime  `db:"updated_at" json:"updated_at"`
-	Name        string         `db:"name" json:"name"`
-	Label       string         `db:"label" json:"label"`
-	Description sql.NullString `db:"description" json:"description"`
-	MetaData    JsonFake       `db:"meta_data" json:"meta_data"`
-	Duration    sql.NullInt64  `db:"duration" json:"duration"`
-	Power       sql.NullInt64  `db:"power" json:"power"`
-	Points      sql.NullInt64  `db:"points" json:"points"`
-	IsDeleted   sql.NullBool   `db:"is_deleted" json:"is_deleted"`
-	IsActive    sql.NullBool   `db:"is_active" json:"is_active"`
+	ID                  uuid.UUID      `db:"id" json:"id"`
+	MacroTaskId         uuid.UUID      `db:"macro_task_id" json:"macro_task_id"`
+	CreatorId           uuid.UUID      `db:"creator_id" json:"creator_id"`
+	CreatedAt           gorp.NullTime  `db:"created_at" json:"created_at"`
+	UpdatedAt           gorp.NullTime  `db:"updated_at" json:"updated_at"`
+	Name                string         `db:"name" json:"name"`
+	Label               string         `db:"label" json:"label"`
+	Description         sql.NullString `db:"description" json:"description"`
+	MetaData            JsonFake       `db:"meta_data" json:"meta_data"`
+	Duration            sql.NullInt64  `db:"duration" json:"duration"`
+	Power               sql.NullInt64  `db:"power" json:"power"`
+	Points              sql.NullInt64  `db:"points" json:"points"`
+	IsDeleted           sql.NullBool   `db:"is_deleted" json:"is_deleted"`
+	IsActive            sql.NullBool   `db:"is_active" json:"is_active"`
+	FallbackMicroTaskId *uuid.UUID     `db:"fallback_micro_task_id" json:"fallback_micro_task_id"`
+	Type                int            `db:"type" json:"type"`
 }
 
 type MissionQuestionAssociator struct {

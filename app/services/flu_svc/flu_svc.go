@@ -4,16 +4,16 @@ import (
 	"fmt"
 
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/flu_validator_repo"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/macro_task_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_validator"
 )
 
 type fluService struct {
-	fluRepo          feed_line_repo.IFluRepo
-	fluValidatorRepo flu_validator_repo.IFluValidatorRepo
-	macroTaskRepo    macro_task_repo.IMacroTaskRepo
+	fluRepo       feed_line_repo.IFluRepo
+	fluValidator  flu_validator.IFluValidatorService
+	macroTaskRepo macro_task_repo.IMacroTaskRepo
 }
 
 var _ IFluService = &fluService{}
@@ -24,7 +24,7 @@ func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 		return ErrReferenceIdMissing
 	}
 
-	_, err := validateFlu(i.fluValidatorRepo, *flu)
+	_, err := i.fluValidator.Validate(*flu)
 	if err != nil {
 		return err
 	}
@@ -85,4 +85,13 @@ func (i *fluService) GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, erro
 		err = ErrFluNotFound
 	}
 	return flu, err
+}
+
+//--------------------------------------------------------------------------------//
+//CHECK MACRO_TASK
+//--------------------------------------------------------------------------------//
+
+func checkMacroTaskExists(r macro_task_repo.IMacroTaskRepo, mId uuid.UUID) error {
+	_, err := r.Get(mId)
+	return err
 }

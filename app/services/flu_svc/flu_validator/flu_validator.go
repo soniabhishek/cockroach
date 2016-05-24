@@ -1,25 +1,26 @@
-package flu_svc
+package flu_validator
 
 import (
 	"errors"
 
+	"gitlab.com/playment-main/angel/app/DAL/repositories/flu_validator_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
-type extendedFluService struct {
-	fluService
+type fluValidator struct {
+	fluValidatorRepo flu_validator_repo.IFluValidatorRepo
 }
 
-var _ IValidatorService = &extendedFluService{}
+var _ IFluValidatorService = &fluValidator{}
 
-func (i *extendedFluService) GetValidators(macroTaskId uuid.UUID, tag string) (fvs []models.FLUValidator, err error) {
+func (i *fluValidator) GetValidators(macroTaskId uuid.UUID, tag string) (fvs []models.FLUValidator, err error) {
 
 	fvs, err = i.fluValidatorRepo.GetValidatorsForMacroTask(macroTaskId, tag)
 	return
 }
 
-func (i *extendedFluService) SaveValidator(fv *models.FLUValidator) (err error) {
+func (i *fluValidator) SaveValidator(fv *models.FLUValidator) (err error) {
 
 	existingFvs, err := i.GetValidators(fv.MacroTaskId, fv.Tag)
 
@@ -53,7 +54,7 @@ func (i *extendedFluService) SaveValidator(fv *models.FLUValidator) (err error) 
 	return nil
 }
 
-func (i *extendedFluService) DeleteValidator(fv models.FLUValidator) (err error) {
+func (i *fluValidator) DeleteValidator(fv models.FLUValidator) (err error) {
 
 	if fv.MacroTaskId == uuid.Nil {
 		return errors.New("MacroTaskId cant be empty")
@@ -69,4 +70,8 @@ func (i *extendedFluService) DeleteValidator(fv models.FLUValidator) (err error)
 
 	//err = i.fluValidatorRepo.Delete(fv)
 	return
+}
+
+func (i *fluValidator) Validate(flu models.FeedLineUnit) (IsValid bool, err error) {
+	return validateFlu(i.fluValidatorRepo, flu)
 }

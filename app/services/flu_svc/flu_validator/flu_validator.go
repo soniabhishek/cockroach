@@ -54,6 +54,7 @@ func (i *fluValidator) SaveValidator(fv *models.FLUValidator) (err error) {
 	return nil
 }
 
+// not implemented
 func (i *fluValidator) DeleteValidator(fv models.FLUValidator) (err error) {
 
 	if fv.MacroTaskId == uuid.Nil {
@@ -69,6 +70,7 @@ func (i *fluValidator) DeleteValidator(fv models.FLUValidator) (err error) {
 	}
 
 	//err = i.fluValidatorRepo.Delete(fv)
+	panic("Not implemented")
 	return
 }
 

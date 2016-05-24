@@ -61,7 +61,7 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, flu models.FeedLineUnit
 	if success {
 		return true, nil
 	} else {
-		return false, DataValidationError{ErrDataValidation, vErrs}
+		return false, DataValidationError{errDataValidation, vErrs}
 	}
 
 }

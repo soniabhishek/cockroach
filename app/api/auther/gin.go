@@ -9,8 +9,7 @@ import (
 func GinAuther() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		fmt.Println("called")
-
+		// Get Client ID
 		clId := c.Request.Header.Get("client_id")
 		if clId == "" {
 			c.Header("authenication error", "client_id required")
@@ -18,6 +17,7 @@ func GinAuther() gin.HandlerFunc {
 			return
 		}
 
+		// Get Client Secret
 		clSec := c.Request.Header.Get("client_secret")
 		if clSec == "" {
 			c.Header("authenication error", "client_secret required")
@@ -26,6 +26,7 @@ func GinAuther() gin.HandlerFunc {
 
 		}
 
+		// Get UUID from ClientID (client_id is cEncoded UUID)
 		id, err := uuid.FromCEnc(clId)
 		if err != nil {
 			c.Header("authenication error", "client_id invalid")

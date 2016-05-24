@@ -59,7 +59,8 @@ func (i *inputQueue) Add(flu models.FeedLineUnit) (id uuid.UUID, err error) {
 			MacroTaskIdString: flu.MacroTaskId.String(),
 		})
 	if err != nil {
-		//Error Code from mgo
+		// Error Code from mgo for duplicate id
+		// unsafe
 		if err.(*mgo.LastError).Code == 11000 {
 			return uuid.Nil, ErrDuplicateReferenceId
 		}

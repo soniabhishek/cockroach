@@ -8,7 +8,8 @@ import (
 	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
-//This is an example implementation of logger middleware
+// This is an example implementation of logger middleware
+// DO NOT USE
 func loggingMiddleware(logger log.Logger) func(IFluService) IFluService {
 	return func(next IFluService) IFluService {
 		return logmw{logger, next}

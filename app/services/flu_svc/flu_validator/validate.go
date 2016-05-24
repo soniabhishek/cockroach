@@ -1,16 +1,15 @@
-package flu_svc
+package flu_validator
 
 import (
 	"gitlab.com/playment-main/angel/app/DAL/repositories/flu_validator_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/macro_task_repo"
 	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 //Does the data validation for incoming flu
 //Third parameter has been called macroTaskId here & it will be called projectId in future once we have refactored the schema
 func validateFlu(v flu_validator_repo.IFluValidatorRepo, flu models.FeedLineUnit) (IsValid bool, err error) {
 
+	// fluVs -> flu validators
 	fluVs, err := v.GetValidatorsForMacroTask(flu.MacroTaskId, flu.Tag)
 
 	if err != nil {
@@ -25,20 +24,21 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, flu models.FeedLineUnit
 
 		name := fluV.FieldName
 
+		// Check if field value is present or not
 		fieldVal, ok := flu.Data[name]
-
 		if !ok {
 			fieldNotFound.AddMetaDataField(name)
 			continue
 		}
 
+		// Check if field value is string or not
 		fieldValStr, ok := fieldVal.(string)
-
 		if !ok {
 			wrongDataType.AddMetaDataField(name)
 			continue
 		}
 
+		// Check if field is mandatory & not empty
 		if fluV.IsMandatory && fieldValStr == "" {
 			mandatoryFieldEmpty.AddMetaDataField(name)
 			continue
@@ -48,7 +48,10 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, flu models.FeedLineUnit
 	success := true
 	var vErrs []validationError
 
+	// Loop over all the possible errors
 	for _, v := range []validationError{fieldNotFound, wrongDataType, mandatoryFieldEmpty} {
+
+		// Check if any error occurred
 		if len(v.MetaData.Fields) > 0 {
 			vErrs = append(vErrs, v)
 			success = false
@@ -58,7 +61,7 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, flu models.FeedLineUnit
 	if success {
 		return true, nil
 	} else {
-		return false, DataValidationError{ErrDataValidation, vErrs}
+		return false, DataValidationError{errDataValidation, vErrs}
 	}
 
 }
@@ -83,12 +86,3 @@ func (v *validationError) AddMetaDataField(field string) {
 const fieldNotFoundVCode = "FIELD_NOT_FOUND"
 const wrongDataTypeVCode = "WRONG_DATA_TYPE"
 const mandatoryFieldEmptyVCode = "MANDATORY_FIELD_EMPTY"
-
-//--------------------------------------------------------------------------------//
-//CHECK MACRO_TASK_ID
-//--------------------------------------------------------------------------------//
-
-func checkMacroTaskExists(r macro_task_repo.IMacroTaskRepo, mId uuid.UUID) error {
-	_, err := r.Get(mId)
-	return err
-}

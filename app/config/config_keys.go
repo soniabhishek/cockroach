@@ -1,55 +1,41 @@
 package config
 
-type configKey uint
+import "errors"
+
+type configKey string
 
 const (
-	BASE_WEB_URL configKey = iota
-	BASE_API_URL
-	SENDGRID_API_KEY
-	PAYTM_MID
-	PAYTM_SALES_WALLET_GUID
-	PAYTM_AES
-	AMPLITUDE_API_KEY
-	FACEBOOK_APP_ID
-	FACEBOOK_APP_SECRET
-	GOOGLE_CLIENT_ID
-	GOOGLE_CLIENT_SECRET
-	DB_DATABASE_NAME
-	DB_HOST
-	DB_USERNAME
-	IP_ADDRESS
-	AWS_REGION
-	AWS_SECRET_KEY
-	AWS_ACCESS_ID
-	S3_BUCKET
-	MONGO_HOST
-	MONGO_DB_NAME
+	BASE_WEB_URL            = configKey("base.web")
+	BASE_API_URL            = configKey("base.api")
+	SENDGRID_API_KEY        = configKey("sendgrid.apiKey")
+	PAYTM_MID               = configKey("paytm.mid")
+	PAYTM_SALES_WALLET_GUID = configKey("paytm.sales_wallet_guid")
+	PAYTM_AES               = configKey("paytm.aes")
+	FACEBOOK_APP_ID         = configKey("social.facebook.appId")
+	FACEBOOK_APP_SECRET     = configKey("social.facebook.appSecret")
+	GOOGLE_CLIENT_ID        = configKey("social.google.clientId")
+	GOOGLE_CLIENT_SECRET    = configKey("social.google.clientSecret")
+	PG_DATABASE_NAME        = configKey("postgres.database")
+	PG_HOST                 = configKey("postgres.host")
+	PG_USERNAME             = configKey("postgres.username")
+	PG_PASSWORD             = configKey("postgres.password")
+	IP_ADDRESS              = configKey("ipAddress")
+	AWS_REGION              = configKey("aws.region")
+	AWS_SECRET_KEY          = configKey("aws.secretKey")
+	AWS_ACCESS_ID           = configKey("aws.accessId")
+	S3_BUCKET               = configKey("aws.s3Bucket")
+	MONGO_HOST              = configKey("mongo.host")
+	MONGO_DB_NAME           = configKey("mongo.name")
 )
 
-var configKeyNames = map[configKey]string{
-	BASE_WEB_URL:            "BASE_WEB_URL",
-	BASE_API_URL:            "BASE_API_URL",
-	SENDGRID_API_KEY:        "SENDGRID_API_KEY",
-	PAYTM_MID:               "PAYTM_MID",
-	PAYTM_SALES_WALLET_GUID: "PAYTM_SALES_WALLET_GUID",
-	PAYTM_AES:               "PAYTM_AES",
-	AMPLITUDE_API_KEY:       "AMPLITUDE_API_KEY",
-	FACEBOOK_APP_ID:         "FACEBOOK_APP_ID",
-	FACEBOOK_APP_SECRET:     "FACEBOOK_APP_SECRET",
-	GOOGLE_CLIENT_ID:        "GOOGLE_CLIENT_ID",
-	GOOGLE_CLIENT_SECRET:    "GOOGLE_CLIENT_SECRET",
-	DB_DATABASE_NAME:        "DB_DATABASE_NAME",
-	DB_HOST:                 "DB_HOST",
-	DB_USERNAME:             "DB_USERNAME",
-	IP_ADDRESS:              "IP_ADDRESS",
-	AWS_REGION:              "AWS_REGION",
-	AWS_SECRET_KEY:          "AWS_SECRET_KEY",
-	AWS_ACCESS_ID:           "AWS_ACCESS_ID",
-	S3_BUCKET:               "S3_BUCKET",
-	MONGO_HOST:              "MONGO_HOST",
-	MONGO_DB_NAME:           "MONGO_DB_NAME",
-}
-
-func (c *configKey) String() string {
-	return configKeyNames[*c]
+// Gets the value for given key from the config file.
+// It accepts only configKey type, which is private, so
+// only the above consts can be passed
+// It panics no configuration value is present
+func Get(c configKey) string {
+	val := configProvider.GetString(string(c))
+	if val == "" {
+		panic(errors.New("Configuration value not found"))
+	}
+	return val
 }

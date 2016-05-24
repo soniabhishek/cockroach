@@ -1,4 +1,4 @@
-package flu_svc
+package flu_validator
 
 import (
 	"testing"

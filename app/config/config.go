@@ -1,54 +1,51 @@
-/*
-This package is for managing the configuration keys & environments.
-	config.GetVal(config.BASE_API_URL)
-*/
 package config
 
 import (
-	"sync"
+	"github.com/spf13/viper"
+	"os"
+	"strings"
 )
 
-type configKeyValues map[configKey]string
+const (
+	Development = "development"
+	Production  = "production"
+	Staging     = "staging"
+)
 
-var singleTonConfig configKeyValues
+var env string
+var configProvider = viper.New()
 
-var once sync.Once
+func init() {
 
-/*
-Returns the string value of the given input key.
+	// Get GOENV from ~/.bash_profile or equivalent
+	env = os.Getenv("GOENV")
 
-Key is of type config.configKey.
+	// Get goPath
+	goPath := strings.Split(os.Getenv("GOPATH"), ":")[0]
 
-Type config.configKey isn't exported (for obvious reasons).
+	// Derive the config directory
+	configPath := goPath + "/src/gitlab.com/playment-main/angel/app/config"
 
-All the exported keys can be found at environment.go
-*/
-func GetVal(c configKey) string {
+	configProvider.SetConfigFile(configPath + "/" + env + ".json")
+	configProvider.SetConfigName(env)
 
-	once.Do(initConfiguration)
-
-	if val, ok := singleTonConfig[c]; ok {
-		return val
+	err := configProvider.ReadInConfig()
+	if err != nil {
+		panic(err)
 	}
-
-	panic(newConfigurationError(c))
-
 }
 
-/*
-This function will get executed only once
-since it uses sync.Once internally
-*/
-func initConfiguration() {
+// Returns true if current environment is Development
+func IsDevelopment() bool {
+	return env == Development
+}
 
-	switch singleTonEnv {
-	case Production:
-		singleTonConfig = getProductionConfiguration()
-	case Development:
-		singleTonConfig = getDevelopmentConfiguration()
-	case Staging:
-		singleTonConfig = getStagingConfiguration()
-	default:
-		singleTonConfig = getDevelopmentConfiguration()
-	}
+// Returns true if current environment is Production
+func IsProduction() bool {
+	return env == Production
+}
+
+// Returns true if current environment is Staging
+func IsStaging() bool {
+	return env == Staging
 }

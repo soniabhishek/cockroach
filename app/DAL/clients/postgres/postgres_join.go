@@ -10,7 +10,7 @@ import (
 const dbTag string = "db"
 
 // This method allows you to write joins & get results from
-// multiple related tables in one query
+// multiple tables in one query
 //
 // The holder should embed all the structs for which the query
 // is returning the data IN ORDER
@@ -21,10 +21,12 @@ const dbTag string = "db"
 // 	models.MicroTask
 // }
 // and input query must give the results in form of macro_tasks.*, micro_task.*
-// and NO EXTRA crap
+// and NO EXTRA crap (see postgres_join_test.go for more)
 //
 // It will fill the given struct with values
 // and can be taken out for other use
+//
+// TODO Currently this doesn't support multi level embedded structs. Add it in future
 func (pg *postgres_db) SelectOneJoin(holder interface{}, query string, args ...interface{}) error {
 
 	//Db.query --> native sql drive's query method
@@ -67,12 +69,14 @@ func (pg *postgres_db) SelectOneJoin(holder interface{}, query string, args ...i
 func getDbTagFieldMap(v reflect.Value, t reflect.Type) map[string]reflect.Value {
 
 	fieldCount := v.NumField()
-	fieldTag := make(map[string]reflect.Value, fieldCount)
+
+	fieldTag := map[string]reflect.Value{}
 
 	for i := 0; i < fieldCount; i++ {
 		typ := t.Field(i)
 		val := v.Field(i)
-		if dbTag := typ.Tag.Get(dbTag); dbTag != "" {
+
+		if dbTag := typ.Tag.Get(dbTag); dbTag != "" && dbTag != "-" {
 			fieldTag[dbTag] = val
 		}
 	}

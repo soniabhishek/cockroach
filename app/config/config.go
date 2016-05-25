@@ -19,6 +19,9 @@ func init() {
 
 	// Get GOENV from ~/.bash_profile or equivalent
 	env = os.Getenv("GOENV")
+	if env == "" {
+		env = Development
+	}
 
 	// Get goPath
 	goPath := strings.Split(os.Getenv("GOPATH"), ":")[0]

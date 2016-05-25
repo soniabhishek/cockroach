@@ -3,6 +3,7 @@ package flu_svc
 import (
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_validator"
 )
 
 type IFluService interface {
@@ -13,10 +14,5 @@ type IFluService interface {
 
 type IFluServiceExtended interface {
 	IFluService
-	IValidatorService
-}
-
-type IValidatorService interface {
-	GetValidators(macroTaskId uuid.UUID, tag string) (fvs []models.FLUValidator, err error)
-	SaveValidator(fv *models.FLUValidator) (err error)
+	flu_validator.IFluValidatorService
 }

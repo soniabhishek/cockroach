@@ -9,6 +9,7 @@ import (
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/services/flu_svc"
+	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_validator"
 	"gitlab.com/playment-main/angel/app/services/plerrors"
 )
 
@@ -123,7 +124,7 @@ type validatorGetResponse struct {
 	IsMandatory bool   `json:"is_mandatory"`
 }
 
-func validatorGetHandler(validatorSvc flu_svc.IValidatorService) gin.HandlerFunc {
+func validatorGetHandler(validatorSvc flu_validator.IFluValidatorService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		projectId, err := uuid.FromString(c.Param("projectId"))
 		if err != nil {
@@ -160,7 +161,7 @@ func validatorGetHandler(validatorSvc flu_svc.IValidatorService) gin.HandlerFunc
 	}
 }
 
-func validatorUpdateHandler(validatorSvc flu_svc.IValidatorService) gin.HandlerFunc {
+func validatorUpdateHandler(validatorSvc flu_validator.IFluValidatorService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		macroTaskId, err := uuid.FromString(c.Param("projectId"))
 		if err != nil {
@@ -203,8 +204,8 @@ func showErrorResponse(c *gin.Context, err error) {
 	switch err.(type) {
 	case plerrors.ServiceError:
 		msg = err.(plerrors.ServiceError)
-	case flu_svc.DataValidationError:
-		msg = err.(flu_svc.DataValidationError)
+	case flu_validator.DataValidationError:
+		msg = err.(flu_validator.DataValidationError)
 	case plerrors.IncorrectUUIDError:
 		msg = err.(plerrors.IncorrectUUIDError)
 	case plerrors.RequestParamMissingError:

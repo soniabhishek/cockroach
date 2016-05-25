@@ -21,15 +21,14 @@ func init() {
 
 func initGorpClient() *gorp.DbMap {
 
-	//Config package not working as expected
-	//again requiring setEnvironment
-	config.SetEnvironment(config.Development)
+	dbName := config.Get(config.PG_DATABASE_NAME)
+	username := config.Get(config.PG_USERNAME)
+	host := config.Get(config.PG_HOST)
+	password := config.Get(config.PG_PASSWORD)
 
 	// connect to db using standard Go database/sql API
 	// use whatever database/sql driver you wish
-	dbName := config.GetVal(config.DB_DATABASE_NAME)
-
-	db, err := sql.Open("postgres", "dbname="+dbName+" user=postgres password=postgres host=localhost sslmode=disable")
+	db, err := sql.Open("postgres", `dbname=`+dbName+` user=`+username+` password=`+password+`host=`+host+` sslmode=disable`)
 	if err != nil {
 		panic("Main db connection failed")
 	}

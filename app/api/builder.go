@@ -10,7 +10,7 @@ import (
 
 func Build() {
 
-	if config.GetEnvironment() == config.Production {
+	if config.IsProduction() {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
 		gin.SetMode(gin.DebugMode)

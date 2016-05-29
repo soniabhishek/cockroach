@@ -6,6 +6,7 @@ import (
 	"gitlab.com/playment-main/angel/app/api/handlers"
 	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_svc_transport"
+	"gitlab.com/playment-main/angel/app/services/image_svc1"
 )
 
 func Build() {
@@ -36,6 +37,8 @@ func Build() {
 	{
 		flu_svc_transport.AddHttpTransport(authorized)
 	}
+
+	var _ image_svc1.IImageService
 
 	r.Run(":8999") // listen and serve on 127.0.0.1:8999
 

@@ -1,20 +1,15 @@
 package main
 
 import (
-	"sync"
-
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/config"
 )
 
-var onceSQLx sync.Once
 var sqlxDB *sqlx.DB
 
 func init() {
-	onceSQLx.Do(func() {
-		sqlxDB = initSQLxClient()
-	})
+	sqlxDB = initSQLxClient()
 }
 
 func initSQLxClient() *sqlx.DB {

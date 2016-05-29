@@ -104,6 +104,7 @@ type FeedLineUnit struct {
 	MacroTaskId uuid.UUID     `db:"macro_task_id" json:"macro_task_id" bson:"macro_task_id"`
 	CreatedAt   gorp.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   gorp.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	Step        string
 }
 
 type ForceUpdateApp struct {

@@ -33,6 +33,7 @@ func NewWithExposedValidators() IFluServiceExtended {
 }
 
 func StartFeedLineSync() {
+
 	fSvc := New()
 	c := cron.New()
 

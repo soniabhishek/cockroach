@@ -2,7 +2,6 @@ package clients
 
 import (
 	"io"
-	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -17,12 +16,9 @@ import (
 //}
 
 var uploader *s3manager.Uploader
-var onceS3 sync.Once
 
 func init() {
-	onceS3.Do(func() {
-		uploader = initS3()
-	})
+	uploader = initS3()
 }
 
 func initS3() *s3manager.Uploader {

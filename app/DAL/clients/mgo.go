@@ -1,19 +1,14 @@
 package clients
 
 import (
-	"sync"
-
 	"gitlab.com/playment-main/angel/app/config"
 	"gopkg.in/mgo.v2"
 )
 
 var mongo_db *mgo.Database
-var onceMgo sync.Once
 
 func init() {
-	onceMgo.Do(func() {
-		mongo_db = initMongoDb()
-	})
+	mongo_db = initMongoDb()
 }
 
 func initMongoDb() *mgo.Database {

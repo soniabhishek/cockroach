@@ -18,8 +18,7 @@ var configProvider = viper.New()
 func init() {
 
 	// Get GOENV from ~/.bash_profile or equivalent
-	env = os.Getenv("GOENV")
-	if env == "" {
+	if env = os.Getenv("GOENV"); env == "" {
 		env = Development
 	}
 

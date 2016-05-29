@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"sync"
 
 	_ "github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/config"
@@ -11,12 +10,9 @@ import (
 )
 
 var gorpDbMap *gorp.DbMap
-var onceGorp sync.Once
 
 func init() {
-	onceGorp.Do(func() {
-		gorpDbMap = initGorpClient()
-	})
+	gorpDbMap = initGorpClient()
 }
 
 func initGorpClient() *gorp.DbMap {

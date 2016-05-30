@@ -3,12 +3,12 @@ package step
 type StepIdentifier uint
 
 const (
-	CrowdSourcing = iota
+	CrowdSourcing = iota + 1
 	InternalSourcing
-	Manual
 	Transformation
 	Algorithm
 	Bifurcation
 	Unification
+	Manual
 	Nil
 )

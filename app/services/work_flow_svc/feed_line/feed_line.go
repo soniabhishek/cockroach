@@ -1,7 +1,6 @@
 package feed_line
 
 import (
-	"fmt"
 	"gitlab.com/playment-main/angel/app/models"
 )
 
@@ -12,18 +11,7 @@ type FL chan models.FeedLineUnit
 func New() FL {
 
 	feedLine := make(chan models.FeedLineUnit, 1000)
-	//log(feedLine)
 	return feedLine
-}
-
-func log(fl FL) {
-	go func() {
-		for {
-			flu := <-fl
-			fmt.Println(flu)
-			fl <- flu
-		}
-	}()
 }
 
 func NewBig() FL {

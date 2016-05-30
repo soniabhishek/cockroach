@@ -10,18 +10,18 @@ import (
 	"time"
 )
 
-type stepRouter struct {
-	InQ           feed_line.FL
-	ProcessedFluQ feed_line.FL
-	routeTable    routeTable
-}
-
 type routeTable map[step.StepIdentifier]*feed_line.FL
 
 type IConnector interface {
 
 	// This method can be confusing
 	Connect(routerIn *feed_line.FL) (routerOut *feed_line.FL)
+}
+
+type stepRouter struct {
+	InQ           feed_line.FL
+	ProcessedFluQ feed_line.FL
+	routeTable    routeTable
 }
 
 func (sr *stepRouter) connectAll() {
@@ -78,6 +78,15 @@ func (sr *stepRouter) start() {
 			}
 		}
 	}()
+}
+
+func new() stepRouter {
+	return stepRouter{
+		// Bigger feedLine since all the step servers
+		// pushes flu to this one only
+		InQ:           feed_line.NewBig(),
+		ProcessedFluQ: feed_line.New(),
+	}
 }
 
 //--------------------------------------------------------------------------------//

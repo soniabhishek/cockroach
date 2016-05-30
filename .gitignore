@@ -4,6 +4,7 @@
 # Config files
 app/config/production.json
 app/config/staging.json
+app/config/development.json
 
 ### Windows ###
 # Windows image file caches

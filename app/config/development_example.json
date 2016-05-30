@@ -7,9 +7,9 @@
   "postgres": {
     "host": "localhost",
     "port": "5432",
-    "database": "playment_development",
-    "username" : "gambler",
-    "password" : "password"
+    "database": "playment_local",
+    "username" : "postgres",
+    "password" : "postgres"
   },
 
   "mongo" : {

@@ -2,7 +2,6 @@ package step_router
 
 import (
 	"errors"
-	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step"
@@ -44,7 +43,7 @@ func (sr *stepRouter) connectAll() {
 	}
 }
 
-func (sr *stepRouter) getRoute(flu models.FeedLineUnit) (*feed_line.FL, error) {
+func (sr *stepRouter) getRoute(flu feed_line.FLU) (*feed_line.FL, error) {
 
 	next, err := tt.GetNextStep(flu)
 	if err != nil {
@@ -92,7 +91,7 @@ func new() stepRouter {
 //--------------------------------------------------------------------------------//
 
 type testInterface interface {
-	GetNextStep(models.FeedLineUnit) (step.StepIdentifier, error)
+	GetNextStep(feed_line.FLU) (step.StepIdentifier, error)
 }
 
 var tt testInterface = testStruct{}
@@ -100,7 +99,7 @@ var tt testInterface = testStruct{}
 type testStruct struct {
 }
 
-func (testStruct) GetNextStep(flu models.FeedLineUnit) (step.StepIdentifier, error) {
+func (testStruct) GetNextStep(flu feed_line.FLU) (step.StepIdentifier, error) {
 
 	time.Sleep(time.Duration(2) * time.Second)
 

@@ -14,8 +14,10 @@ func TestNew(t *testing.T) {
 
 	fluId := uuid.NewV4()
 
-	fl <- models.FeedLineUnit{
-		ID: fluId,
+	fl <- feed_line.FLU{
+		FeedLineUnit: models.FeedLineUnit{
+			ID: fluId,
+		},
 	}
 
 	flu := <-fl

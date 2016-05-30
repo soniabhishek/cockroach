@@ -1,7 +1,6 @@
 package step
 
 import (
-	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 )
 
@@ -19,13 +18,13 @@ func New() Step {
 	}
 }
 
-func (s *Step) AddToBuffer(flu models.FeedLineUnit) error {
+func (s *Step) AddToBuffer(flu feed_line.FLU) error {
 
 	s.buffer = append(s.buffer, flu)
 	return nil
 }
 
-func (s *Step) RemoveFromBuffer(flu models.FeedLineUnit) error {
+func (s *Step) RemoveFromBuffer(flu feed_line.FLU) error {
 
 	return nil
 }

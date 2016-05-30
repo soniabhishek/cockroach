@@ -2,6 +2,8 @@ package crowdsourcing_step
 
 import (
 	"database/sql"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/question_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
@@ -10,11 +12,13 @@ import (
 
 type crowdSourcingStep struct {
 	step.Step
+	questionRepo question_repo.IQuestionRepo
+	fluRepo      feed_line_repo.IFluRepo
 }
 
-func (c *crowdSourcingStep) processFlu(flu models.FeedLineUnit) {
+func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
-	qBody := someIn.DeriveQuestionBody(flu)
+	qBody := someIn.DeriveQuestionBody(flu.FeedLineUnit)
 
 	question := models.Question{
 		Body:     qBody,
@@ -23,14 +27,17 @@ func (c *crowdSourcingStep) processFlu(flu models.FeedLineUnit) {
 		IsActive: sql.NullBool{false, true},
 	}
 
-	someIn.SaveQuestion(question)
+	err := c.questionRepo.Add(question)
+	if err != nil {
+
+	}
 
 	c.AddToBuffer(flu)
 
 	c.finishFlu(flu)
 }
 
-func (c *crowdSourcingStep) finishFlu(flu models.FeedLineUnit) {
+func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) {
 
 	c.RemoveFromBuffer(flu)
 	flu.Step = "crowdsourcing"

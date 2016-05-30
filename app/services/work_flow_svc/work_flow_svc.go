@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
+	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/work_flow"
 	"sync"
 )
@@ -16,8 +17,8 @@ type workFlowSvc struct {
 
 func (w *workFlowSvc) AddFLU(flu models.FeedLineUnit) {
 	flu.Step = "workflowsvc"
-	counter.Print(flu)
-	w.InQ <- flu
+	counter.Print(feed_line.FLU{flu})
+	w.InQ <- feed_line.FLU{flu}
 }
 
 func (w *workFlowSvc) Start() {
@@ -46,7 +47,7 @@ func startWorkflowSvc(w *workFlowSvc) {
 		for {
 			select {
 			case flu := <-w.OutQ:
-				w.complete(flu)
+				w.complete(flu.FeedLineUnit)
 			}
 		}
 	}()

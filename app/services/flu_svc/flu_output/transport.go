@@ -1,4 +1,4 @@
-package models
+package flu_output
 
 import "gitlab.com/playment-main/angel/app/models/status_codes"
 

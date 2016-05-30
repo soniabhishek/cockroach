@@ -2,12 +2,6 @@ package utilities
 
 import (
 	"time"
-	"net/http"
-	"gitlab.com/playment-main/angel/app/models"
-	"encoding/json"
-	"fmt"
-	"gitlab.com/playment-main/angel/app/models/status_codes"
-	"io/ioutil"
 )
 
 const (
@@ -80,48 +74,4 @@ func IsEmptyOrNil(str string) bool {
 
 func IsValidError(err error) bool {
 	return err != nil
-}
-
-func ParseFluResponse(resp *http.Response) *models.Response{
-	fluResp := &models.Response{}
-	fluResp.HttpStatusCode = resp.StatusCode
-
-
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	fmt.Println("response Headers:", resp)
-	fmt.Println("response Body:", string(body))
-	err := json.Unmarshal(body, fluResp)
-	if err != nil {
-		//TODO what to do with error
-		fmt.Println(err)
-		return fluResp
-	}
-	return fluResp
-}
-
-
-func HttpCodeForCallback(httpStatusCode int) bool {
-	switch httpStatusCode {
-	case
-		http.StatusNotFound,
-		http.StatusRequestTimeout,
-		http.StatusGatewayTimeout:
-		return true
-	}
-	return false
-}
-
-func IsValidInternalError(internalCode string) bool{
-	switch internalCode {
-	case
-		status_codes.FF_FluIdNotPresent,
-		status_codes.FF_RefIdNotPresent,
-		status_codes.FF_TagIdNotPresent,
-		status_codes.FF_ResultInvalid,
-		status_codes.FF_Other:
-		return true
-	}
-	return false
 }

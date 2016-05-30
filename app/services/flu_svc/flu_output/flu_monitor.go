@@ -95,12 +95,12 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 	}
 }
 
-func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit) (*models.Response, status_codes.StatusCode) {
+func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit) (*Response, status_codes.StatusCode) {
 	fpsRepo := flu_project_service.New()
 	fpsModel , err := fpsRepo.Get(projectId)
 	if utilities.IsValidError(err){
 		fmt.Println(err)
-		return &models.Response{}, status_codes.UnknownFailure
+		return &Response{}, status_codes.UnknownFailure
 	}
 
 
@@ -112,7 +112,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit)
 	if err != nil {
 		//TODO check Error solid implementation
 		fmt.Println(err)
-		return &models.Response{}, status_codes.UnknownFailure
+		return &Response{}, status_codes.UnknownFailure
 	}
 	fmt.Println(string(jsonBytes))
 
@@ -124,7 +124,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit)
 	resp, err := client.Do(req)
 	if err != nil {
 		//panic(err)
-		return &models.Response{}, status_codes.UnknownFailure
+		return &Response{}, status_codes.UnknownFailure
 	}
 
 	fluResp, status := validationErrorCallback(resp)
@@ -132,18 +132,18 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit)
 	return fluResp, status
 }
 
-func validationErrorCallback(resp *http.Response) (*models.Response, status_codes.StatusCode) {
+func validationErrorCallback(resp *http.Response) (*Response, status_codes.StatusCode) {
 	defer resp.Body.Close()
 
 
-	fluResp := utilities.ParseFluResponse(resp)
-	fmt.Println(utilities.HttpCodeForCallback(fluResp.HttpStatusCode),fluResp.HttpStatusCode)
-	if utilities.HttpCodeForCallback(fluResp.HttpStatusCode) {
+	fluResp := ParseFluResponse(resp)
+	fmt.Println(HttpCodeForCallback(fluResp.HttpStatusCode),fluResp.HttpStatusCode)
+	if HttpCodeForCallback(fluResp.HttpStatusCode) {
 		return fluResp, status_codes.CallBackFailure
 	} else {
 		//If any invalid flu response code is in our InvalidationCodeArray, then we log[ERROR] it
 		for _, invalidFlu := range fluResp.Invalid_Flus {
-			if utilities.IsValidInternalError(invalidFlu.Flu_Id) {
+			if IsValidInternalError(invalidFlu.Flu_Id) {
 				return fluResp, status_codes.FluRespFailure
 			}
 		}

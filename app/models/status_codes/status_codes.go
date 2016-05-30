@@ -8,7 +8,6 @@ const (
 	UnknownFailure = 1111
 )
 
-type FluFailureCodes string
 const (
 
 	FF_FluIdNotPresent = "FF_0001"

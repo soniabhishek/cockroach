@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
 	"gitlab.com/playment-main/angel/experiments/util"
 	"reflect"
+	"unsafe"
 )
 
 type typeA struct {
@@ -32,6 +34,9 @@ func getType(t interface{}) {
 	fmt.Println(v, ok)
 }
 func main() {
+	str := "ABCasd xyzABCasd xyzABCasd xyzABCasd xyz"
+	fmt.Println(binary.Size([]byte(str)))
+	fmt.Println(unsafe.Sizeof(str))
 
 	/*fmt.Println(util.IsEmptyOrNil(""))
 	fmt.Println(util.GetNestedQuery(`Select * from people`))

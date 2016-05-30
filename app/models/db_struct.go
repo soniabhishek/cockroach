@@ -105,6 +105,7 @@ type FeedLineUnit struct {
 	CreatedAt   gorp.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   gorp.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 	Step        string
+	ProjectID   uuid.UUID `db:"-"`
 }
 
 type ForceUpdateApp struct {
@@ -442,4 +443,10 @@ type FLUValidator struct {
 	Tag         string        `db:"tag" json:"tag"`
 	CreatedAt   gorp.NullTime `db:"created_at" json:"created_at"`
 	UpdatedAt   gorp.NullTime `db:"updated_at" json:"updated_at"`
+}
+
+type FluProjectService struct {
+	ID     uuid.UUID `db:"project_id" json:"project_id"`
+	Url    string    `db:"url" json:"url"`
+	Header string    `db:"header" json:"header"`
 }

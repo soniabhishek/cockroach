@@ -1,10 +1,10 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
 	"gitlab.com/playment-main/angel/experiments/util"
 	"reflect"
-	"encoding/binary"
 	"unsafe"
 )
 

@@ -1,17 +1,16 @@
 package flu_output
 
 import (
+	"encoding/json"
 	"fmt"
 	"gitlab.com/playment-main/angel/app/models/status_codes"
 	"io/ioutil"
-	"encoding/json"
 	"net/http"
 )
 
-func ParseFluResponse(resp *http.Response) *Response{
+func ParseFluResponse(resp *http.Response) *Response {
 	fluResp := &Response{}
 	fluResp.HttpStatusCode = resp.StatusCode
-
 
 	body, _ := ioutil.ReadAll(resp.Body)
 	fmt.Println("response Status:", resp.Status)
@@ -42,7 +41,7 @@ func HttpCodeForCallback(httpStatusCode int) bool {
 	return false
 }
 
-func IsValidInternalError(internalCode string) bool{
+func IsValidInternalError(internalCode string) bool {
 	switch internalCode {
 	case
 		status_codes.FF_FluIdNotPresent,
@@ -54,4 +53,3 @@ func IsValidInternalError(internalCode string) bool{
 	}
 	return false
 }
-

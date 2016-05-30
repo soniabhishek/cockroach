@@ -1,17 +1,17 @@
 package flu_output
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/flu_project_service"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/status_codes"
+	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/utilities"
+	"net/http"
 	"sync"
 	"time"
-	"bytes"
-	"net/http"
-	"encoding/json"
-	"gitlab.com/playment-main/angel/utilities"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/models/status_codes"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/flu_project_service"
 )
 
 var feedLinePipe = make(map[uuid.UUID]feedLineValue)
@@ -24,7 +24,6 @@ type feedLineValue struct {
 }
 
 type FluMonitor struct {
-
 }
 
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
@@ -69,7 +68,7 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 	retryIdsList := make([]uuid.UUID, 0)
 	for _, projectId := range projectIdsToSend {
 		flp, ok := feedLinePipe[projectId]
-		if ok==false{
+		if ok == false {
 			continue
 		}
 		fluResp, status := sendBackToClient(projectId, flp.feedLine)
@@ -78,7 +77,7 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 			deleteFromFeedLinePipe(projectId)
 			//TODO Should we write success logs?
 
-		} else if status == status_codes.CallBackFailure && shouldRetryHttp(projectId){
+		} else if status == status_codes.CallBackFailure && shouldRetryHttp(projectId) {
 			//not successful scenarios
 			retryIdsList = append(retryIdsList, projectId)
 
@@ -97,12 +96,11 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 
 func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit) (*Response, status_codes.StatusCode) {
 	fpsRepo := flu_project_service.New()
-	fpsModel , err := fpsRepo.Get(projectId)
-	if utilities.IsValidError(err){
+	fpsModel, err := fpsRepo.Get(projectId)
+	if utilities.IsValidError(err) {
 		fmt.Println(err)
 		return &Response{}, status_codes.UnknownFailure
 	}
-
 
 	url := fpsModel.Url + "sdfadsf"
 	//url := "http://localhost:8080/JServer/HelloServlet"
@@ -135,9 +133,8 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit)
 func validationErrorCallback(resp *http.Response) (*Response, status_codes.StatusCode) {
 	defer resp.Body.Close()
 
-
 	fluResp := ParseFluResponse(resp)
-	fmt.Println(HttpCodeForCallback(fluResp.HttpStatusCode),fluResp.HttpStatusCode)
+	fmt.Println(HttpCodeForCallback(fluResp.HttpStatusCode), fluResp.HttpStatusCode)
 	if HttpCodeForCallback(fluResp.HttpStatusCode) {
 		return fluResp, status_codes.CallBackFailure
 	} else {
@@ -151,7 +148,7 @@ func validationErrorCallback(resp *http.Response) (*Response, status_codes.Statu
 	return fluResp, status_codes.Success
 }
 
-func IsEligibleForSendingBack(key uuid.UUID) bool{
+func IsEligibleForSendingBack(key uuid.UUID) bool {
 	//TODO some threshold value and some configurable time
 	flp, ok := feedLinePipe[key]
 	if ok && (len(flp.feedLine) > 1000 || utilities.TimeDiff(false, flp.insertionTime) > 36000000) {
@@ -170,18 +167,18 @@ func StartFluOutputTimer() {
 	}
 }
 
-func deleteFromFeedLinePipe(projectId uuid.UUID){
+func deleteFromFeedLinePipe(projectId uuid.UUID) {
 	mutex.Lock()
 	delete(feedLinePipe, projectId)
 	mutex.Unlock()
 }
 
-func shouldRetryHttp(projectId uuid.UUID) bool{
+func shouldRetryHttp(projectId uuid.UUID) bool {
 	prevRetryCnt, present := retryCount[projectId]
-	if present == false || prevRetryCnt < 5{
+	if present == false || prevRetryCnt < 5 {
 		retryCount[projectId]++
 		return true
-	}else{
+	} else {
 		delete(retryCount, projectId)
 		return false
 	}

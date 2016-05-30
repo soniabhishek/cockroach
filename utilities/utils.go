@@ -30,37 +30,37 @@ const (
 	Bracket           = "[]"
 )
 
-func TimeInMillis()  int64{
+func TimeInMillis() int64 {
 	now := time.Now()
 	unixNano := now.UnixNano()
 	umillisec := unixNano / 1000000
 	return umillisec
 }
 
-func TimeDiff(absolute bool, times ...int64) int64{
+func TimeDiff(absolute bool, times ...int64) int64 {
 
 	var newTime, oldTime int64
 
-	if len(times) > 1{
+	if len(times) > 1 {
 		oldTime = times[0]
 		newTime = times[1]
-	}else{
+	} else {
 		oldTime = times[0]
 		newTime = TimeInMillis()
 	}
 
-	if absolute{
+	if absolute {
 		return Abs(newTime - oldTime)
-	}else{
+	} else {
 		return newTime - oldTime
 	}
 }
 
-func Abs(n int64) int64{
-	if n>0{
+func Abs(n int64) int64 {
+	if n > 0 {
 		return n
-	}else{
-		return 0-n
+	} else {
+		return 0 - n
 	}
 }
 

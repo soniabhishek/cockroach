@@ -1,15 +1,13 @@
 package flu_project_service
 
 import (
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/DAL/repositories"
 	"errors"
+	"gitlab.com/playment-main/angel/app/DAL/repositories"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 const fluProjectServiceTable string = "flu_project_service"
-
-
 
 type fluProjectService struct {
 	db repositories.IDatabase
@@ -45,7 +43,7 @@ func (fps *fluProjectService) Save(fv *models.FluProjectService) error {
 	return errors.New("UnUsed/Uninitialized method")
 }
 
-func (fps *fluProjectService) Get(projectId uuid.UUID) (models.FluProjectService, error){
+func (fps *fluProjectService) Get(projectId uuid.UUID) (models.FluProjectService, error) {
 	return fps.get(projectId)
 }
 

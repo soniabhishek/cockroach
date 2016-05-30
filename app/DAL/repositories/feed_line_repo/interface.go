@@ -9,6 +9,8 @@ type IFluRepo interface {
 	GetById(Id uuid.UUID) (models.FeedLineUnit, error)
 	Save(feedLineUnit models.FeedLineUnit)
 	BulkInsert(flus []models.FeedLineUnit) error
+	Add(feedLineUnit models.FeedLineUnit) error
+	Update(feedLineUnit models.FeedLineUnit) error
 }
 
 //--------------------------------------------------------------------------------//

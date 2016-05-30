@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"gitlab.com/playment-main/angel/app/DAL/repositories"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gopkg.in/gorp.v1"
@@ -31,6 +32,17 @@ func (e *fluRepo) GetById(id uuid.UUID) (models.FeedLineUnit, error) {
 
 func (e *fluRepo) Save(i models.FeedLineUnit) {
 	panic(errors.New("Not implemented"))
+}
+
+func (e *fluRepo) Add(flu models.FeedLineUnit) error {
+
+	flu.ID = queries.EnsureId(flu.ID)
+	return e.Db.Insert(&flu)
+}
+
+func (e *fluRepo) Update(flu models.FeedLineUnit) error {
+	_, err := e.Db.Update(&flu)
+	return err
 }
 
 func (e *fluRepo) BulkInsert(flus []models.FeedLineUnit) error {

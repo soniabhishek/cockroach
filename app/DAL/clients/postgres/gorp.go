@@ -45,6 +45,7 @@ func addTableInfo(dbMap *gorp.DbMap) {
 	dbMap.AddTableWithName(models.FLUValidator{}, "input_flu_validator").SetKeys(false, "id")
 	dbMap.AddTableWithName(models.MacroTask{}, "macro_tasks").SetKeys(false, "id")
 	dbMap.AddTableWithName(models.Project{}, "projects").SetKeys(false, "id")
+	dbMap.AddTableWithName(models.Question{}, "questions").SetKeys(false, "id")
 }
 
 func GetGorpClient() *gorp.DbMap {

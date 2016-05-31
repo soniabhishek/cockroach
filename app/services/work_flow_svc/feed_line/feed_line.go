@@ -2,32 +2,31 @@ package feed_line
 
 import (
 	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step"
 )
 
 // ShortHand for channel of FLUs i.e. FeedLine
-type FL chan FLU
+type Fl chan FLU
 
 // Get new FeedLine channel with unlimited size
-func New() FL {
+func New() Fl {
 
 	feedLine := make(chan FLU, 1000)
 	return feedLine
 }
 
-func NewBig() FL {
+func NewBig() Fl {
 	feedLine := make(chan FLU, 10000)
 	return feedLine
 }
 
 // Get new FeedLine channel with fixed size
-func NewFixedSize(size int) FL {
+func NewFixedSize(size int) Fl {
 	return make(chan FLU, size)
 }
 
 //--------------------------------------------------------------------------------//
 
-type BF []FLU
+type Bf []FLU
 
 //--------------------------------------------------------------------------------//
 
@@ -43,6 +42,6 @@ type FLU struct {
 //--------------------------------------------------------------------------------//
 
 type Builder interface {
-	GetStep() step.StepIdentifier
+	GetStep() uint
 	GetData() interface{}
 }

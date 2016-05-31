@@ -2,8 +2,7 @@ package crowdsourcing_step
 
 import (
 	"database/sql"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/question_repo"
+
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
@@ -12,13 +11,12 @@ import (
 
 type crowdSourcingStep struct {
 	step.Step
-	questionRepo question_repo.IQuestionRepo
-	fluRepo      feed_line_repo.IFluRepo
+	fluManager fluManager
 }
 
 func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
-	qBody := someIn.DeriveQuestionBody(flu.FeedLineUnit)
+	qBody := c.fluManager.DeriveQuestionBodyFromFlu(flu)
 
 	question := models.Question{
 		Body:     qBody,
@@ -27,14 +25,14 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 		IsActive: sql.NullBool{false, true},
 	}
 
-	err := c.questionRepo.Add(question)
+	err := c.fluManager.QuestionRepo.Add(question)
 	if err != nil {
-
+		c.Detain(flu, err)
+		return
 	}
 
 	c.AddToBuffer(flu)
 
-	c.finishFlu(flu)
 }
 
 func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) {
@@ -56,7 +54,7 @@ func (c *crowdSourcingStep) start() {
 	}()
 }
 
-func (c *crowdSourcingStep) Connect(routerIn *feed_line.FL) (routerOut *feed_line.FL) {
+func (c *crowdSourcingStep) Connect(routerIn *feed_line.Fl) (routerOut *feed_line.Fl) {
 
 	// Send output of this step to the router's input
 	// for next rerouting
@@ -69,27 +67,11 @@ func (c *crowdSourcingStep) Connect(routerIn *feed_line.FL) (routerOut *feed_lin
 	return &c.InQ
 }
 
-//--------------------------------------------------------------------------------//
+func (c *crowdSourcingStep) HandleQuestionComplete(q models.Question, ans models.QuestionAnswer) error {
+	panic("Not implemented")
 
-type testInterface interface {
-	DeriveQuestionBody(models.FeedLineUnit) models.JsonFake
-	SaveQuestion(models.Question)
-}
+	flu := c.fluManager.FeedlineRepo.GetByQuestionId(q.ID)
 
-var someIn testInterface = testStruct{}
-
-type testStruct struct {
-}
-
-func (testStruct) DeriveQuestionBody(flu models.FeedLineUnit) models.JsonFake {
-	jf := models.JsonFake{
-		"body": "1234",
-		"flu":  flu,
-	}
-	//fmt.Println("questionderived", flu.ID)
-	return jf
-}
-
-func (testStruct) SaveQuestion(q models.Question) {
-	//fmt.Println("question saved")
+	c.finishFlu(flu)
+	return nil
 }

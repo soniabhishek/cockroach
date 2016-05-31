@@ -7,8 +7,8 @@ import (
 )
 
 type WorkFlow struct {
-	InQ  feed_line.FL
-	OutQ feed_line.FL
+	InQ  feed_line.Fl
+	OutQ feed_line.Fl
 }
 
 // Creates a new workFlow instance

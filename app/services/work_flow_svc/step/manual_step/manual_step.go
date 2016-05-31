@@ -10,5 +10,5 @@ type manualStep struct {
 }
 
 func processFlu(flu feed_line.FLU) {
-	flu.FeedLineUnit
+	//flu.FeedLineUnit
 }

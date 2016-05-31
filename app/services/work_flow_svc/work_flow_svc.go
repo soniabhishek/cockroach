@@ -2,11 +2,12 @@ package work_flow_svc
 
 import (
 	"fmt"
+	"sync"
+
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/work_flow"
-	"sync"
 )
 
 type workFlowSvc struct {
@@ -17,8 +18,8 @@ type workFlowSvc struct {
 
 func (w *workFlowSvc) AddFLU(flu models.FeedLineUnit) {
 	flu.Step = "workflowsvc"
-	counter.Print(feed_line.FLU{flu})
-	w.InQ <- feed_line.FLU{flu}
+	counter.Print(feed_line.FLU{FeedLineUnit: flu})
+	w.InQ <- feed_line.FLU{FeedLineUnit: flu}
 }
 
 func (w *workFlowSvc) Start() {

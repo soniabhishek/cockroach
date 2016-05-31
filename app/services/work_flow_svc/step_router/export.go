@@ -2,15 +2,15 @@ package step_router
 
 func newStdStepRouter() stepRouter {
 
-	sr := new()
+	router := newStepRouter()
 
 	// Connect to all the servers (in this case steps like crowd sourcing)
-	sr.connectAll()
+	router.connectAll()
 
 	// Start the router
-	sr.start()
+	router.start()
 
-	return sr
+	return router
 }
 
 var StdStepRouter = newStdStepRouter()

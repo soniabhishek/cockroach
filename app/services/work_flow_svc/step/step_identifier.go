@@ -1,5 +1,6 @@
 package step
 
+// Kinda step enums
 type StepIdentifier uint
 
 const (

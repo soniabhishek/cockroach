@@ -9,23 +9,23 @@ import (
 	"time"
 )
 
-type routeTable map[step.StepIdentifier]*feed_line.FL
+type routeTable map[step.StepIdentifier]*feed_line.Fl
 
 type IConnector interface {
 
 	// This method can be confusing
-	Connect(routerIn *feed_line.FL) (routerOut *feed_line.FL)
+	Connect(routerIn *feed_line.Fl) (routerOut *feed_line.Fl)
 }
 
 type stepRouter struct {
-	InQ           feed_line.FL
-	ProcessedFluQ feed_line.FL
+	InQ           feed_line.Fl
+	ProcessedFluQ feed_line.Fl
 	routeTable    routeTable
 }
 
 func (sr *stepRouter) connectAll() {
 
-	var connector IConnector = crowdsourcing_step.New()
+	var connector IConnector = crowdsourcing_step.StdCrowdSourcingStep
 
 	sr.routeTable = routeTable{
 
@@ -43,7 +43,7 @@ func (sr *stepRouter) connectAll() {
 	}
 }
 
-func (sr *stepRouter) getRoute(flu feed_line.FLU) (*feed_line.FL, error) {
+func (sr *stepRouter) getRoute(flu feed_line.FLU) (*feed_line.Fl, error) {
 
 	next, err := tt.GetNextStep(flu)
 	if err != nil {
@@ -79,7 +79,7 @@ func (sr *stepRouter) start() {
 	}()
 }
 
-func new() stepRouter {
+func newStepRouter() stepRouter {
 	return stepRouter{
 		// Bigger feedLine since all the step servers
 		// pushes flu to this one only
@@ -101,7 +101,7 @@ type testStruct struct {
 
 func (testStruct) GetNextStep(flu feed_line.FLU) (step.StepIdentifier, error) {
 
-	time.Sleep(time.Duration(2) * time.Second)
+	time.Sleep(time.Duration(200) * time.Millisecond)
 
 	return step.Nil, nil
 }

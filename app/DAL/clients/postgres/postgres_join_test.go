@@ -1,10 +1,11 @@
 package postgres_test
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
 	"gitlab.com/playment-main/angel/app/models"
-	"testing"
 )
 
 func TestPostgres_db_SelectOneJoin(t *testing.T) {

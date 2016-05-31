@@ -2,10 +2,11 @@ package work_flow_svc
 
 import (
 	"fmt"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 	"testing"
 	"time"
+
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 func completeHandler(flu models.FeedLineUnit) {

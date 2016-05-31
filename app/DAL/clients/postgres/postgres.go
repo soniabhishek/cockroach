@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"reflect"
+
 	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
 	"gopkg.in/gorp.v1"
-	"reflect"
 )
 
 //This wrapper postgres_db is to have one place where we can write all the modifications on errors thrown by gorp & pq

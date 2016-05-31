@@ -24,7 +24,7 @@ func initGorpClient() *gorp.DbMap {
 
 	// connect to db using standard Go database/sql API
 	// use whatever database/sql driver you wish
-	db, err := sql.Open("postgres", `dbname=`+dbName+` user=`+username+` password=`+password+`host=`+host+` sslmode=disable`)
+	db, err := sql.Open("postgres", `dbname=`+dbName+` user=`+username+` password=`+password+` host=`+host+` sslmode=disable`)
 	if err != nil {
 		panic("Main db connection failed")
 	}

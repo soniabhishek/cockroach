@@ -5,8 +5,9 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 	"strconv"
+
+	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 var minKeyLength = 20

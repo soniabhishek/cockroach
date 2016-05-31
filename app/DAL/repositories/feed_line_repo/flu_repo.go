@@ -5,11 +5,11 @@ import (
 
 	"time"
 
+	"github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/DAL/repositories"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gopkg.in/gorp.v1"
 )
 
 type fluRepo struct {
@@ -53,7 +53,7 @@ func (e *fluRepo) BulkInsert(flus []models.FeedLineUnit) error {
 		if flus[i].ID == uuid.Nil {
 			flus[i].ID = uuid.NewV4()
 		}
-		flus[i].CreatedAt = gorp.NullTime{time.Now(), true}
+		flus[i].CreatedAt = pq.NullTime{time.Now(), true}
 		flusInterface[i] = &flus[i]
 	}
 

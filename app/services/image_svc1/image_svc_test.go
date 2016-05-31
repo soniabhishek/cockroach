@@ -1,10 +1,11 @@
 package image_svc1
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/image_svc/downloader"
-	"testing"
 )
 
 func TestImageService_BulkDownloadImages(t *testing.T) {

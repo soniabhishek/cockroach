@@ -3,8 +3,9 @@ package models
 import (
 	"database/sql"
 
+	"github.com/lib/pq"
+
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gopkg.in/gorp.v1"
 )
 
 type ImageContainer struct {
@@ -19,7 +20,7 @@ type ImageDictionary struct {
 	IsCached       bool
 	CdnUrl         string
 	ResizedCdnUrl  string
-	CreatedAt      gorp.NullTime
+	CreatedAt      pq.NullTime
 	BatchProcessId uuid.UUID
 }
 
@@ -28,8 +29,8 @@ type ImageDictionary1 struct {
 	RealUrl   string         `db:"real_url" json:"real_url"`
 	CloudUrl  string         `db:"cloud_url" json:"cloud_url"`
 	Extra     sql.NullString `db:"extra" json:"extra"`
-	CreatedAt gorp.NullTime  `db:"created_at" json:"created_at"`
-	UpdatedAt gorp.NullTime  `db:"updated_at" json:"updated_at"`
+	CreatedAt pq.NullTime    `db:"created_at" json:"created_at"`
+	UpdatedAt pq.NullTime    `db:"updated_at" json:"updated_at"`
 }
 
 type BatchProcess struct {
@@ -38,6 +39,6 @@ type BatchProcess struct {
 	Done        bool
 	Completion  float64
 	Type        int8
-	CreatedAt   gorp.NullTime
+	CreatedAt   pq.NullTime
 	MacroTaskId uuid.UUID
 }

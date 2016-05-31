@@ -2,9 +2,10 @@ package auther
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"testing"
 )
 
 func Test(t *testing.T) {

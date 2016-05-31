@@ -4,12 +4,13 @@ import (
 	"testing"
 	"time"
 
+	"os"
+
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gopkg.in/gorp.v1"
-	"os"
 )
 
 var testMacroTask models.MacroTask
@@ -24,7 +25,7 @@ func TestInsertGetDelete(t *testing.T) {
 		Type:        "STRING",
 		IsMandatory: true,
 		MacroTaskId: testMacroTask.ID,
-		CreatedAt:   gorp.NullTime{time.Now(), true},
+		CreatedAt:   pq.NullTime{time.Now(), true},
 	}
 
 	r := fluValidatorRepo{
@@ -60,7 +61,7 @@ func TestSaveExisting(t *testing.T) {
 		Type:        "STRING",
 		IsMandatory: true,
 		MacroTaskId: testMacroTask.ID,
-		CreatedAt:   gorp.NullTime{time.Now(), true},
+		CreatedAt:   pq.NullTime{time.Now(), true},
 	}
 
 	r := fluValidatorRepo{
@@ -96,7 +97,7 @@ func TestSaveNew(t *testing.T) {
 		Type:        "STRING",
 		IsMandatory: true,
 		MacroTaskId: testMacroTask.ID,
-		CreatedAt:   gorp.NullTime{time.Now(), true},
+		CreatedAt:   pq.NullTime{time.Now(), true},
 	}
 
 	r := fluValidatorRepo{

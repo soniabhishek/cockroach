@@ -2,9 +2,10 @@ package config_test
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/config"
-	"testing"
 )
 
 func Test(t *testing.T) {

@@ -1,8 +1,9 @@
 package uuid
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFromCEnc(t *testing.T) {

@@ -3,11 +3,11 @@ package flu_validator_repo
 import (
 	"time"
 
+	"github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/DAL/repositories"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gopkg.in/gorp.v1"
 )
 
 const fluValidatorTable string = "input_flu_validator"
@@ -36,11 +36,11 @@ func (f *fluValidatorRepo) Save(fv *models.FLUValidator) error {
 
 		//It requires to copy the existing createdAt otherwise it will update it as nil
 		fv.CreatedAt = existingFv.CreatedAt
-		fv.UpdatedAt = gorp.NullTime{time.Now(), true}
+		fv.UpdatedAt = pq.NullTime{time.Now(), true}
 		_, err = f.db.Update(fv)
 	} else {
 
-		fv.CreatedAt = gorp.NullTime{time.Now(), true}
+		fv.CreatedAt = pq.NullTime{time.Now(), true}
 		if fv.ID == uuid.Nil {
 			fv.ID = uuid.NewV4()
 		}

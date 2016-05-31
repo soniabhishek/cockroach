@@ -5,11 +5,12 @@ import (
 	"net/http"
 
 	"errors"
+	"io"
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/image_svc/downloader"
-	"io"
-	"os"
 )
 
 func BulkDownloadImages(c *gin.Context) {

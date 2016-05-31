@@ -3,8 +3,9 @@ package postgres
 import (
 	"errors"
 	"fmt"
-	"gitlab.com/playment-main/angel/utilities"
 	"reflect"
+
+	"gitlab.com/playment-main/angel/utilities"
 )
 
 const dbTag string = "db"

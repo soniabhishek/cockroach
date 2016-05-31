@@ -3,9 +3,9 @@ package feed_line_repo
 import (
 	"time"
 
+	"github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gopkg.in/gorp.v1"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -47,7 +47,7 @@ func (i *inputQueue) Add(flu models.FeedLineUnit) (id uuid.UUID, err error) {
 		flu.ID = uuid.NewV4()
 		fallthrough
 	case flu.CreatedAt.Valid == false:
-		flu.CreatedAt = gorp.NullTime{time.Now(), true}
+		flu.CreatedAt = pq.NullTime{time.Now(), true}
 	}
 
 	err = i.mgo.C("feedline_input").

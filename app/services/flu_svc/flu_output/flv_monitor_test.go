@@ -2,10 +2,11 @@ package flu_output
 
 import (
 	"fmt"
+	"testing"
+
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/utilities"
-	"testing"
 )
 
 func TestHttpHit(t *testing.T) {

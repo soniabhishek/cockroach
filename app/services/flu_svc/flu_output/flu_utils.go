@@ -3,9 +3,10 @@ package flu_output
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.com/playment-main/angel/app/models/status_codes"
 	"io/ioutil"
 	"net/http"
+
+	"gitlab.com/playment-main/angel/app/models/status_codes"
 )
 
 func ParseFluResponse(resp *http.Response) *Response {

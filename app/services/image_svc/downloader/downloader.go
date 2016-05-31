@@ -13,10 +13,11 @@ import (
 	"os"
 	"time"
 
+	"io/ioutil"
+
 	"github.com/nfnt/resize"
 	"gitlab.com/playment-main/angel/app/DAL/clients"
 	"gitlab.com/playment-main/angel/app/models"
-	"io/ioutil"
 )
 
 //Pass the imageContainerList and it will download those

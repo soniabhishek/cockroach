@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/lib/pq"
+
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gopkg.in/gorp.v1"
 )
 
 //The public interface for IntegrationProviderRepo
@@ -43,8 +44,8 @@ func getMockIP() models.IntegrationProvider {
 		Name:      "PayU",
 		Label:     "payu",
 		Website:   "payu.com",
-		CreatedAt: gorp.NullTime{time.Now(), true},
-		UpdatedAt: gorp.NullTime{time.Now(), true},
+		CreatedAt: pq.NullTime{time.Now(), true},
+		UpdatedAt: pq.NullTime{time.Now(), true},
 		LogoUrl:   sql.NullString{"https://easydigitaldownloads.com/wp-content/uploads/2013/12/payu-india-payment-gateway.png", true},
 	}
 }

@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
-	"gitlab.com/playment-main/angel/experiments/util"
 	"reflect"
 	"unsafe"
+
+	"gitlab.com/playment-main/angel/experiments/util"
 )
 
 type typeA struct {

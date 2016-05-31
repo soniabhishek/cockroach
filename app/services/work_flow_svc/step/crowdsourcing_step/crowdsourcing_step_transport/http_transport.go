@@ -2,11 +2,11 @@ package crowdsourcing_step_transport
 
 import "github.com/gin-gonic/gin"
 import (
+	"net/http"
+
 	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/services/plerrors"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step"
-	"net/http"
 )
 
 func AddHttpTransport(r *gin.RouterGroup) {

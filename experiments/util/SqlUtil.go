@@ -3,10 +3,11 @@ package util
 import (
 	"errors"
 	"fmt"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/experiments/model"
 	"reflect"
 	"strings"
+
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/experiments/model"
 )
 
 // Table Names

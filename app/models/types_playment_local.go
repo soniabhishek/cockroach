@@ -106,7 +106,8 @@ type FeedLineUnit struct {
 	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 
-	Step string
+	Step      string
+	ProjectID uuid.UUID
 }
 
 type Feedback struct {

@@ -31,7 +31,7 @@ func (s *Step) RemoveFromBuffer(flu feed_line.FLU) error {
 }
 
 func (s *Step) Detain(flu feed_line.FLU, why error, saver iFluSave) {
-	err := saver.Save(flu.FeedLineUnit)
+	_ = saver.Save(flu.FeedLineUnit)
 
 }
 

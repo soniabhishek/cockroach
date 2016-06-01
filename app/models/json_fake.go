@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql/driver"
 	"errors"
-	"gitlab.com/playment-main/angel/app/logger"
 	"gitlab.com/playment-main/angel/app/plogger"
 	"strconv"
 )

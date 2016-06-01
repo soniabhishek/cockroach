@@ -27,7 +27,7 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
 	err := c.fluManager.QuestionRepo.Add(question)
 	if err != nil {
-		c.Detain(flu, err, c.fluManager.QuestionRepo)
+		//c.Detain(flu, err, c.fluManager.QuestionRepo)
 		return
 	}
 
@@ -70,8 +70,8 @@ func (c *crowdSourcingStep) Connect(routerIn *feed_line.Fl) (routerOut *feed_lin
 func (c *crowdSourcingStep) HandleQuestionComplete(q models.Question, ans models.QuestionAnswer) error {
 	panic("Not implemented")
 
-	flu := c.fluManager.FeedlineRepo.GetByQuestionId(q.ID)
+	//flu := c.fluManager.FeedlineRepo.GetByQuestionId(q.ID)
 
-	c.finishFlu(flu)
+	//c.finishFlu(flu)
 	return nil
 }

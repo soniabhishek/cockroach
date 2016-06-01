@@ -22,9 +22,6 @@ func Test(t *testing.T) {
 	tr := auth.Check(id, key)
 
 	assert.True(t, tr)
-	fmt.Println(id)
-	fmt.Println(key)
-	fmt.Println(tr)
 }
 
 var someId = uuid.NewV4()

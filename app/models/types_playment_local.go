@@ -108,6 +108,7 @@ type FeedLineUnit struct {
 
 	Step      string
 	ProjectID uuid.UUID
+	Build     JsonFake
 }
 
 type Feedback struct {

@@ -12,19 +12,19 @@ import (
 
 var minKeyLength = 20
 
-type author struct {
+type auther struct {
 	key []byte
 }
 
-func New(key string) (a author, err error) {
+func New(key string) (a auther, err error) {
 	if len(key) < minKeyLength {
 		err = errors.New("Key should be more than " + strconv.Itoa(minKeyLength) + " characters")
 		return
 	}
-	return author{[]byte(key)}, nil
+	return auther{[]byte(key)}, nil
 }
 
-func (a author) GetAPIKey(id uuid.UUID) string {
+func (a auther) GetAPIKey(id uuid.UUID) string {
 	mac := hmac.New(sha1.New, a.key)
 
 	mac.Write(id.Bytes())
@@ -34,7 +34,7 @@ func (a author) GetAPIKey(id uuid.UUID) string {
 	return sha
 }
 
-func (a author) Check(id uuid.UUID, key string) bool {
+func (a auther) Check(id uuid.UUID, key string) bool {
 
 	bty, err := hex.DecodeString(key)
 	if err != nil {
@@ -48,4 +48,4 @@ func (a author) Check(id uuid.UUID, key string) bool {
 
 //--------------------------------------------------------------------------------//
 
-var StdProdAuther = author{[]byte("sdfsrfydgigushhsurvhsourhvosur")}
+var StdProdAuther = auther{[]byte("sdfsrfydgigushhsurvhsourhvosur")}

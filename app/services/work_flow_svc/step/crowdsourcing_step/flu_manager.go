@@ -12,8 +12,8 @@ type fluManager struct {
 	FeedlineRepo feed_line_repo.IFluRepo
 }
 
-func (f *fluManager) DeriveQuestionBodyFromFlu(feed_line.FLU) models.JsonFake {
-	return nil
+func (f *fluManager) DeriveQuestionBodyFromFlu(flu feed_line.FLU) models.JsonFake {
+	return flu.Data
 }
 
 func newFluManager() fluManager {

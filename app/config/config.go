@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -23,8 +24,14 @@ func init() {
 		env = Development
 	}
 
-	// Get goPath
-	goPath := strings.Split(os.Getenv("GOPATH"), ":")[0]
+	var goPath string
+
+	// windows has ; separator vs linux has :
+	if runtime.GOOS == "windows" {
+		goPath = strings.Split(os.Getenv("GOPATH"), ";")[0]
+	} else {
+		goPath = strings.Split(os.Getenv("GOPATH"), ":")[0]
+	}
 
 	// Derive the config directory
 	configPath := goPath + "/src/gitlab.com/playment-main/angel/app/config"

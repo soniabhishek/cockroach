@@ -27,7 +27,7 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
 	err := c.fluManager.QuestionRepo.Add(question)
 	if err != nil {
-		c.Detain(flu, err)
+		c.Detain(flu, err, c.fluManager.QuestionRepo)
 		return
 	}
 

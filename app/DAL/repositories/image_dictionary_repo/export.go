@@ -8,7 +8,7 @@ import (
 )
 
 type IImageDictionaryRepo interface {
-	UploadToS3(models.ImageDictionary) error
+	UploadToS3(models.ImageDictionaryNew) error
 	Download(link string) (i io.ReadCloser, err error)
 }
 
@@ -19,7 +19,7 @@ func New() IImageDictionaryRepo {
 type imageDictionaryRepo struct {
 }
 
-func (r *imageDictionaryRepo) UploadToS3(m models.ImageDictionary) error {
+func (r *imageDictionaryRepo) UploadToS3(m models.ImageDictionaryNew) error {
 	return nil
 }
 

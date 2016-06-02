@@ -9,11 +9,11 @@ import (
 type imageService struct {
 }
 
-func (s *imageService) BulkDownloadImages(imgs []models.ImageDictionary) (batchId uuid.UUID, err error) {
+func (s *imageService) BulkDownloadImages(imgs []models.ImageDictionaryNew) (batchId uuid.UUID, err error) {
 
 	var imgCarriers []bulk_transporter_svc.ICarrier = make([]bulk_transporter_svc.ICarrier, len(imgs))
 	for i, img := range imgs {
-		imgCarriers[i] = &imageCarrier{imager{ImageDictionary: img}}
+		imgCarriers[i] = &imageCarrier{imager{ImageDictionaryNew: img}}
 	}
 
 	imageLogger := &imageCarrierLogger{

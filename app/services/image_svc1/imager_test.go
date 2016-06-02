@@ -15,7 +15,7 @@ func TestImager_Download(t *testing.T) {
 	brokenImageUrl := "https://pixabay.20_9.jpg/"
 
 	imagerObj := &imager{
-		ImageDictionary: models.ImageDictionary{
+		ImageDictionaryNew: models.ImageDictionaryNew{
 			ID:          imageId,
 			OriginalUrl: imageUrl,
 		},
@@ -25,7 +25,7 @@ func TestImager_Download(t *testing.T) {
 	assert.NoError(t, err, "Should not throw error")
 
 	imagerObj = &imager{
-		ImageDictionary: models.ImageDictionary{
+		ImageDictionaryNew: models.ImageDictionaryNew{
 			ID:          imageId,
 			OriginalUrl: brokenImageUrl,
 		},
@@ -40,7 +40,7 @@ func TestImager_Upload(t *testing.T) {
 	imageUrl := "https://pixabay.com/static/uploads/photo/2015/10/01/21/39/background-image-967820_960_720.jpg"
 
 	imagerObj := &imager{
-		ImageDictionary: models.ImageDictionary{
+		ImageDictionaryNew: models.ImageDictionaryNew{
 			ID:          imageId,
 			OriginalUrl: imageUrl,
 		},

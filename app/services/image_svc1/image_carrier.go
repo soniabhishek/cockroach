@@ -27,7 +27,7 @@ func (i *imageCarrier) Run() error {
 }
 
 func (i *imageCarrier) GetId() uuid.UUID {
-	return i.ImageDictionary.ID
+	return i.ImageDictionaryNew.ID
 }
 
 var _ bulk_transporter_svc.ICarrier = &imageCarrier{}

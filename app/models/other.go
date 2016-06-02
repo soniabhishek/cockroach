@@ -13,7 +13,7 @@ type ImageContainer struct {
 	Url string
 }
 
-type ImageDictionary struct {
+type ImageDictionaryNew struct {
 	ID             uuid.UUID
 	Label          string
 	OriginalUrl    string

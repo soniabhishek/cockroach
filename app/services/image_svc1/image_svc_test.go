@@ -18,10 +18,10 @@ func TestImageService_BulkDownloadImages(t *testing.T) {
 	if err != nil {
 		assert.FailNow(t, "reading csv failed"+err.Error())
 	}
-	var imageDictionaries []models.ImageDictionary = make([]models.ImageDictionary, len(images))
+	var imageDictionaries []models.ImageDictionaryNew = make([]models.ImageDictionaryNew, len(images))
 
 	for i, v := range images {
-		imageDictionaries[i] = models.ImageDictionary{
+		imageDictionaries[i] = models.ImageDictionaryNew{
 			Label:       v.Id,
 			OriginalUrl: v.Url,
 		}

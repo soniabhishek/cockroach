@@ -477,3 +477,10 @@ type User struct {
 	Phone                   sql.NullString `db:"phone" json:"phone" bson:"phone"`
 	TotalCoinsCount         int            `db:"total_coins_count" json:"total_coins_count" bson:"total_coins_count"`
 }
+
+type ProjectConfiguration struct {
+	ID        uuid.UUID `db:"id" json:"id"`
+	ProjectId uuid.UUID `db:"project_id" json:"project_id"`
+	Url       string    `db:"url" json:"url"`
+	Header    string    `db:"header" json:"header"`
+}

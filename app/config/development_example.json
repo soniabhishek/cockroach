@@ -7,7 +7,7 @@
   "postgres": {
     "host": "localhost",
     "port": "5432",
-    "database": "playment_local",
+    "database": "playment_development",
     "username" : "postgres",
     "password" : "postgres"
   },

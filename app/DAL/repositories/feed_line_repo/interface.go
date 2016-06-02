@@ -11,6 +11,7 @@ type IFluRepo interface {
 	BulkInsert(flus []models.FeedLineUnit) error
 	Add(feedLineUnit models.FeedLineUnit) error
 	Update(feedLineUnit models.FeedLineUnit) error
+	GetByStepId(StepId uuid.UUID) ([]models.FeedLineUnit, error)
 }
 
 //--------------------------------------------------------------------------------//

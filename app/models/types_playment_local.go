@@ -105,8 +105,7 @@ type FeedLineUnit struct {
 	MacroTaskId uuid.UUID   `db:"macro_task_id" json:"macro_task_id" bson:"macro_task_id"`
 	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
-
-	Step string
+	StepId      uuid.UUID   `db:"step_id" json:"step_id" bson:"step_id"`
 }
 
 type Feedback struct {

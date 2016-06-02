@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	Development = "development"
+	Development = "development_example"
 	Production  = "production"
 	Staging     = "staging"
 )

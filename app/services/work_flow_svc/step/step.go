@@ -1,6 +1,7 @@
 package step
 
 import (
+	"fmt"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 )
@@ -32,6 +33,9 @@ func (s *Step) RemoveFromBuffer(flu feed_line.FLU) error {
 
 func (s *Step) Detain(flu feed_line.FLU, why error, saver iFluSave) {
 	err := saver.Save(flu.FeedLineUnit)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 }
 

@@ -27,7 +27,7 @@ const (
 	MONGO_HOST              = configKey("mongo.host")
 	MONGO_DB_NAME           = configKey("mongo.name")
 	CROWDY_BASE_API         = configKey("crowdy.base.api")
-	CROWDY_AUTH             = configKey("crowdy.authKey")
+	CROWDY_AUTH_KEY         = configKey("crowdy.authKey")
 )
 
 // Gets the value for given key from the config file.

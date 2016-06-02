@@ -1,8 +1,7 @@
 package crowdsourcing_step
 
 import (
-	"database/sql"
-
+	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
@@ -11,28 +10,23 @@ import (
 
 type crowdSourcingStep struct {
 	step.Step
-	fluManager fluManager
+	fluRepo   feed_line_repo.IFluRepo
+	fluClient fluPusher
+}
+
+type fluPusher interface {
+	PushFLU(models.FeedLineUnit) (bool, error)
 }
 
 func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
-	qBody := c.fluManager.DeriveQuestionBodyFromFlu(flu)
-
-	question := models.Question{
-		Body:     qBody,
-		Label:    flu.ReferenceId + "sdf",
-		IsTest:   sql.NullBool{false, true},
-		IsActive: sql.NullBool{false, true},
-	}
-
-	err := c.fluManager.QuestionRepo.Add(question)
-	if err != nil {
-		//c.Detain(flu, err, c.fluManager.QuestionRepo)
-		return
-	}
-
 	c.AddToBuffer(flu)
 
+	ok, err := c.fluClient.PushFLU(flu.FeedLineUnit)
+
+	if !ok {
+		c.Detain(flu, err, c.fluRepo)
+	}
 }
 
 func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) {
@@ -65,13 +59,4 @@ func (c *crowdSourcingStep) Connect(routerIn *feed_line.Fl) (routerOut *feed_lin
 	// Return the input channel of this step
 	// so that router can push flu to it
 	return &c.InQ
-}
-
-func (c *crowdSourcingStep) HandleQuestionComplete(q models.Question, ans models.QuestionAnswer) error {
-	panic("Not implemented")
-
-	//flu := c.fluManager.FeedlineRepo.GetByQuestionId(q.ID)
-
-	//c.finishFlu(flu)
-	return nil
 }

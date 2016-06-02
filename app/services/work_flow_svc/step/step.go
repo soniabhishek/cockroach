@@ -19,10 +19,13 @@ func New() Step {
 	}
 }
 
-func (s *Step) AddToBuffer(flu feed_line.FLU) error {
+func (s *Step) AddToBuffer(flu feed_line.FLU) {
+	s.buffer.Add(flu)
+}
 
-	s.buffer = append(s.buffer, flu)
-	return nil
+func (s *Step) GetBuffered() feed_line.Bf {
+
+	return s.buffer
 }
 
 func (s *Step) RemoveFromBuffer(flu feed_line.FLU) error {
@@ -31,10 +34,10 @@ func (s *Step) RemoveFromBuffer(flu feed_line.FLU) error {
 }
 
 func (s *Step) Detain(flu feed_line.FLU, why error, saver iFluSave) {
-	_ = saver.Save(flu.FeedLineUnit)
+	saver.Save(flu.FeedLineUnit)
 
 }
 
 type iFluSave interface {
-	Save(models.FeedLineUnit) error
+	Save(models.FeedLineUnit)
 }

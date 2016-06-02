@@ -4,32 +4,31 @@ import "github.com/gin-gonic/gin"
 import (
 	"net/http"
 
-	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/plerrors"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step"
 )
 
 func AddHttpTransport(r *gin.RouterGroup) {
 
-	r.POST("crowdsourcing/questionanswer", crowdSourcingPostHandler())
+	r.POST("/angel_crowdsourcing_gateway?action=flu_updates", crowdSourcingPostHandler())
 }
 
-type markQuestionRequest struct {
-	Question models.Question
-	Answer   models.QuestionAnswer `json:"answer"`
+type fluUpdateReq struct {
+	FluUpdates []crowdsourcing_step.FluUpdate `json:"flu_updates"`
 }
 
 func crowdSourcingPostHandler() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
-		var markQuestionRequest markQuestionRequest
+		var fluUpdateReq fluUpdateReq
 
-		if err := c.Bind(&markQuestionRequest); err != nil {
+		if err := c.Bind(&fluUpdateReq); err != nil {
 			showErrorResponse(c, err)
+			return
 		}
 
-		err := crowdsourcing_step.Std.HandleQuestionComplete(markQuestionRequest.Question, markQuestionRequest.Answer)
+		err := crowdsourcing_step.FluUpdateHandler(fluUpdateReq.FluUpdates)
 		if err != nil {
 			showErrorResponse(c, err)
 			return

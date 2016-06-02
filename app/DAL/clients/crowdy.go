@@ -12,7 +12,8 @@ import (
 )
 
 var crowdyBaseApiUrl = config.Get(config.CROWDY_BASE_API)
-var pushFluUrl = "http://localhost:9000/api/crowdsourcing_gateway?action=add_flu"
+var pushFluUrl = crowdyBaseApiUrl + "/crowdsourcing_gateway?action=add_flu"
+var authkey = config.Get(config.CROWDY_AUTH_KEY)
 
 func GetCrowdyClient() *crowdyClient {
 	return &crowdyClient{}
@@ -35,17 +36,20 @@ func (*crowdyClient) PushFLU(flu models.FeedLineUnit) (bool, error) {
 
 	req, _ := http.NewRequest("POST", pushFluUrl, bytes.NewBuffer(bty))
 
-	req.Header.Add("authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6ImQyM2ZlOWQ5LTJiOTgtNGE5NS1hM2JkLWZmMDZiMWNkYmZlNCIsImlhdCI6MTQ2Mjk3OTM0MX0.1nvmr2O5KU2RSOflMQNJiCqxHdNlKitzMgBH7JM2ktM")
+	req.Header.Add("authorization", authkey)
 	req.Header.Add("content-type", "application/json")
 
-	res, _ := http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return false, err
+	}
 
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 
 	var pushFluResp pushFluResponse
 
-	err := json.Unmarshal(body, &pushFluResp)
+	err = json.Unmarshal(body, &pushFluResp)
 	if err != nil {
 		return false, err
 	}

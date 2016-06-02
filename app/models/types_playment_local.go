@@ -78,6 +78,22 @@ type Coupon struct {
 	IsHidden              bool        `db:"is_hidden" json:"is_hidden" bson:"is_hidden"`
 }
 
+type CrowdsourcingFluBuffer struct {
+	ID         uuid.UUID   `db:"id" json:"id" bson:"_id"`
+	FluId      uuid.UUID   `db:"flu_id" json:"flu_id" bson:"flu_id"`
+	QuestionId uuid.UUID   `db:"question_id" json:"question_id" bson:"question_id"`
+	CreatedAt  pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt  pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+}
+
+type CrowdsourcingStepConfiguration struct {
+	ID          uuid.UUID   `db:"id" json:"id" bson:"_id"`
+	StepId      uuid.UUID   `db:"step_id" json:"step_id" bson:"step_id"`
+	MicroTaskId uuid.UUID   `db:"micro_task_id" json:"micro_task_id" bson:"micro_task_id"`
+	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+}
+
 type Email struct {
 	ID        uuid.UUID      `db:"id" json:"id" bson:"_id"`
 	Email     sql.NullString `db:"email" json:"email" bson:"email"`
@@ -105,10 +121,8 @@ type FeedLineUnit struct {
 	MacroTaskId uuid.UUID   `db:"macro_task_id" json:"macro_task_id" bson:"macro_task_id"`
 	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
-
-	Step      string
-	ProjectID uuid.UUID
-	Build     JsonFake
+	StepId      uuid.UUID   `db:"step_id" json:"step_id" bson:"step_id"`
+	Build       JsonFake    `db:"build" json:"build" bson:"build"`
 }
 
 type Feedback struct {
@@ -145,15 +159,14 @@ type GrammarElement struct {
 	UpdatedAt      pq.NullTime    `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }
 
-//
-//type ImageDictionary struct {
-//	ID        uuid.UUID      `db:"id" json:"id" bson:"_id"`
-//	RealUrl   string         `db:"real_url" json:"real_url" bson:"real_url"`
-//	CloudUrl  string         `db:"cloud_url" json:"cloud_url" bson:"cloud_url"`
-//	Extra     sql.NullString `db:"extra" json:"extra" bson:"extra"`
-//	CreatedAt pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
-//	UpdatedAt pq.NullTime    `db:"updated_at" json:"updated_at" bson:"updated_at"`
-//}
+type ImageDictionary struct {
+	ID        uuid.UUID      `db:"id" json:"id" bson:"_id"`
+	RealUrl   string         `db:"real_url" json:"real_url" bson:"real_url"`
+	CloudUrl  string         `db:"cloud_url" json:"cloud_url" bson:"cloud_url"`
+	Extra     sql.NullString `db:"extra" json:"extra" bson:"extra"`
+	CreatedAt pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt pq.NullTime    `db:"updated_at" json:"updated_at" bson:"updated_at"`
+}
 
 type FLUValidator struct {
 	ID          uuid.UUID   `db:"id" json:"id" bson:"_id"`
@@ -195,6 +208,17 @@ type KnexMigrationsLock struct {
 	IsLocked sql.NullInt64 `db:"is_locked" json:"is_locked" bson:"is_locked"`
 }
 
+type LogicGate struct {
+	ID            uuid.UUID `db:"id" json:"id" bson:"_id"`
+	InputTemplate JsonFake  `db:"input_template" json:"input_template" bson:"input_template"`
+	Formula       int       `db:"formula" json:"formula" bson:"formula"`
+}
+
+type LogicGateFormula struct {
+	ID   int            `db:"id" json:"id" bson:"_id"`
+	Name sql.NullString `db:"name" json:"name" bson:"name"`
+}
+
 type MacroTask struct {
 	ID        uuid.UUID   `db:"id" json:"id" bson:"_id"`
 	Label     string      `db:"label" json:"label" bson:"label"`
@@ -229,21 +253,28 @@ type MicroTaskRewardAssociator struct {
 	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }
 
+type MicroTaskType struct {
+	ID   int    `db:"id" json:"id" bson:"_id"`
+	Name string `db:"name" json:"name" bson:"name"`
+}
+
 type MicroTask struct {
-	ID          uuid.UUID      `db:"id" json:"id" bson:"_id"`
-	MacroTaskId uuid.UUID      `db:"macro_task_id" json:"macro_task_id" bson:"macro_task_id"`
-	CreatorId   uuid.UUID      `db:"creator_id" json:"creator_id" bson:"creator_id"`
-	CreatedAt   pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
-	UpdatedAt   pq.NullTime    `db:"updated_at" json:"updated_at" bson:"updated_at"`
-	Name        string         `db:"name" json:"name" bson:"name"`
-	Label       string         `db:"label" json:"label" bson:"label"`
-	Description sql.NullString `db:"description" json:"description" bson:"description"`
-	MetaData    JsonFake       `db:"meta_data" json:"meta_data" bson:"meta_data"`
-	Duration    sql.NullInt64  `db:"duration" json:"duration" bson:"duration"`
-	Power       sql.NullInt64  `db:"power" json:"power" bson:"power"`
-	Points      sql.NullInt64  `db:"points" json:"points" bson:"points"`
-	IsDeleted   sql.NullBool   `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
-	IsActive    sql.NullBool   `db:"is_active" json:"is_active" bson:"is_active"`
+	ID                  uuid.UUID      `db:"id" json:"id" bson:"_id"`
+	MacroTaskId         uuid.UUID      `db:"macro_task_id" json:"macro_task_id" bson:"macro_task_id"`
+	CreatorId           uuid.UUID      `db:"creator_id" json:"creator_id" bson:"creator_id"`
+	CreatedAt           pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt           pq.NullTime    `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	Name                string         `db:"name" json:"name" bson:"name"`
+	Label               string         `db:"label" json:"label" bson:"label"`
+	Description         sql.NullString `db:"description" json:"description" bson:"description"`
+	MetaData            JsonFake       `db:"meta_data" json:"meta_data" bson:"meta_data"`
+	Duration            sql.NullInt64  `db:"duration" json:"duration" bson:"duration"`
+	Power               sql.NullInt64  `db:"power" json:"power" bson:"power"`
+	Points              sql.NullInt64  `db:"points" json:"points" bson:"points"`
+	IsDeleted           sql.NullBool   `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
+	IsActive            sql.NullBool   `db:"is_active" json:"is_active" bson:"is_active"`
+	FallbackMicroTaskId uuid.UUID      `db:"fallback_micro_task_id" json:"fallback_micro_task_id" bson:"fallback_micro_task_id"`
+	Type                sql.NullInt64  `db:"type" json:"type" bson:"type"`
 }
 
 type MissionQuestionAssociator struct {
@@ -278,7 +309,6 @@ type Mission struct {
 	Points               sql.NullInt64 `db:"points" json:"points" bson:"points"`
 	GuidelinesId         uuid.UUID     `db:"guidelines_id" json:"guidelines_id" bson:"guidelines_id"`
 	InstructionsId       uuid.UUID     `db:"instructions_id" json:"instructions_id" bson:"instructions_id"`
-	MicroTask            MicroTask
 }
 
 type NotificationRecipientAssociator struct {
@@ -325,6 +355,14 @@ type PowerTransaction struct {
 	UpdatedAt           pq.NullTime   `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }
 
+type ProjectConfiguration struct {
+	ProjectId   uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
+	PostBackUrl string      `db:"post_back_url" json:"post_back_url" bson:"post_back_url"`
+	Headers     JsonFake    `db:"headers" json:"headers" bson:"headers"`
+	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+}
+
 type Project struct {
 	ID        uuid.UUID   `db:"id" json:"id" bson:"_id"`
 	Label     string      `db:"label" json:"label" bson:"label"`
@@ -338,14 +376,12 @@ type Project struct {
 }
 
 type QuestionAnswer struct {
-	ID         uuid.UUID       `db:"id" json:"id" bson:"_id"`
-	Body       JsonFake        `db:"body" json:"body" bson:"body"`
-	Confidence sql.NullFloat64 `db:"confidence" json:"confidence" bson:"confidence"`
-	MetaData   JsonFake        `db:"meta_data" json:"meta_data" bson:"meta_data"`
-	IsDeleted  bool            `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
-	CreatedAt  pq.NullTime     `db:"created_at" json:"created_at" bson:"created_at"`
-	UpdatedAt  pq.NullTime     `db:"updated_at" json:"updated_at" bson:"updated_at"`
-	QuestionId uuid.UUID       `db:"question_id" json:"question_id" bson:"question_id"`
+	ID          uuid.UUID   `db:"id" json:"id" bson:"_id"`
+	QuestionId  uuid.UUID   `db:"question_id" json:"question_id" bson:"question_id"`
+	MicroTaskId uuid.UUID   `db:"micro_task_id" json:"micro_task_id" bson:"micro_task_id"`
+	Body        JsonFake    `db:"body" json:"body" bson:"body"`
+	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }
 
 type QuestionSubmission struct {
@@ -410,6 +446,30 @@ type Roles struct {
 	UpdatedAt        pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }
 
+type Routes struct {
+	ID          uuid.UUID    `db:"id" json:"id" bson:"_id"`
+	StepId      uuid.UUID    `db:"step_id" json:"step_id" bson:"step_id"`
+	LogicGateId uuid.UUID    `db:"logic_gate_id" json:"logic_gate_id" bson:"logic_gate_id"`
+	NextStepId  uuid.UUID    `db:"next_step_id" json:"next_step_id" bson:"next_step_id"`
+	IsDeleted   sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
+	CreatedAt   pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt   pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
+}
+
+type Step struct {
+	ID         uuid.UUID    `db:"id" json:"id" bson:"_id"`
+	Type       int          `db:"type" json:"type" bson:"type"`
+	WorkFlowId uuid.UUID    `db:"work_flow_id" json:"work_flow_id" bson:"work_flow_id"`
+	IsDeleted  sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
+	CreatedAt  pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt  pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
+}
+
+type StepType struct {
+	ID   int            `db:"id" json:"id" bson:"_id"`
+	Name sql.NullString `db:"name" json:"name" bson:"name"`
+}
+
 type Tag struct {
 	ID        uuid.UUID `db:"id" json:"id" bson:"_id"`
 	Name      string    `db:"name" json:"name" bson:"name"`
@@ -425,6 +485,15 @@ type TagsMicroTaskGroup struct {
 	IsDeleted   bool        `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
 	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+}
+
+type Task struct {
+	ID          uuid.UUID    `db:"id" json:"id" bson:"_id"`
+	IsActive    sql.NullBool `db:"is_active" json:"is_active" bson:"is_active"`
+	IsDeleted   sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
+	MacroTaskId uuid.UUID    `db:"macro_task_id" json:"macro_task_id" bson:"macro_task_id"`
+	CreatedAt   pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt   pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }
 
 type UserActivity struct {
@@ -478,9 +547,10 @@ type User struct {
 	TotalCoinsCount         int            `db:"total_coins_count" json:"total_coins_count" bson:"total_coins_count"`
 }
 
-type ProjectConfiguration struct {
-	ID        uuid.UUID `db:"id" json:"id"`
-	ProjectId uuid.UUID `db:"project_id" json:"project_id"`
-	Url       string    `db:"url" json:"url"`
-	Header    string    `db:"header" json:"header"`
+type WorkFlow struct {
+	ID        uuid.UUID    `db:"id" json:"id" bson:"_id"`
+	ProjectId uuid.UUID    `db:"project_id" json:"project_id" bson:"project_id"`
+	IsDeleted sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
+	CreatedAt pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }

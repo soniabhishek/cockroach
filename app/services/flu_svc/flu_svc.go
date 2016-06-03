@@ -1,12 +1,11 @@
 package flu_svc
 
 import (
-	"fmt"
-
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_validator"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc"
 )
@@ -54,7 +53,7 @@ func (i *fluService) SyncInputFeedLine() error {
 
 	if err != nil {
 
-		fmt.Println("Error occured while getting data", err)
+		plog.Error("Error occured while getting data", err)
 		return err
 	}
 
@@ -63,17 +62,25 @@ func (i *fluService) SyncInputFeedLine() error {
 		err = i.fluRepo.BulkInsert(flus)
 
 		if err != nil {
-			fmt.Println("Bulk insert failed", err)
+			plog.Error("Bulk insert failed", err)
 			return err
 		}
+
+		// start adding to workFlowSvc in another go routine
+		go func() {
+
+			for _, flu := range flus {
+				i.workFlowSvc.AddFLU(flu)
+			}
+		}()
 
 		err = fluInputQueue.MarkFinished()
 
 		if err != nil {
-			fmt.Println("Changing queue status failed")
+			plog.Error("Changing queue status failed", err)
 			return err
 		}
-		fmt.Println(len(flus), "flus processed")
+		//plog.Info(len(flus), "flus processed")
 
 	}
 

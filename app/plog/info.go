@@ -5,6 +5,6 @@ import (
 	_ "github.com/mgutz/logxi/v1"
 )
 
-func Info() {
+func Info(tag string, args ...interface{}) {
 	panic("not implemented")
 }

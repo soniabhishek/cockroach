@@ -31,6 +31,14 @@ type BatchProces struct {
 	MacroTaskId uuid.UUID      `db:"macro_task_id" json:"macro_task_id" bson:"macro_task_id"`
 }
 
+type Client struct {
+	ID               uuid.UUID   `db:"id" json:"id" bson:"_id"`
+	UserId           uuid.UUID   `db:"user_id" json:"user_id" bson:"user_id"`
+	ClientSecretUuid uuid.UUID   `db:"client_secret_uuid" json:"client_secret_uuid" bson:"client_secret_uuid"`
+	CreatedAt        pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt        pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+}
+
 type Comment struct {
 	ID         uuid.UUID      `db:"id" json:"id" bson:"_id"`
 	CreatorId  uuid.UUID      `db:"creator_id" json:"creator_id" bson:"creator_id"`

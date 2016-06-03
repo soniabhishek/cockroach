@@ -284,6 +284,12 @@ func (u *UUID) UnmarshalBinary(data []byte) (err error) {
 
 // Value implements the driver.Valuer interface.
 func (u UUID) Value() (driver.Value, error) {
+
+	// Added this line to enter null in place of default uuid (00000-00000-000000000-00000)
+	if u == Nil {
+		return nil, nil
+	}
+
 	return u.String(), nil
 }
 

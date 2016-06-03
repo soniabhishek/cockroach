@@ -103,7 +103,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit)
 		return &Response{}, status_codes.UnknownFailure
 	}
 
-	url := fpsModel.Url + "sdfadsf"
+	url := fpsModel.PostBackUrl + "sdfadsf"
 	//url := "http://localhost:8080/JServer/HelloServlet"
 	fmt.Println("URL:>", url)
 

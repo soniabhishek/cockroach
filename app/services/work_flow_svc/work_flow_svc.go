@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_output"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/work_flow"
@@ -17,8 +18,7 @@ type workFlowSvc struct {
 }
 
 func (w *workFlowSvc) AddFLU(flu models.FeedLineUnit) {
-	flu.Step = "workflowsvc"
-	counter.Print(feed_line.FLU{FeedLineUnit: flu})
+	counter.Print(feed_line.FLU{FeedLineUnit: flu}, "workflowsvc")
 	w.InQ <- feed_line.FLU{FeedLineUnit: flu}
 }
 
@@ -67,8 +67,11 @@ func startWorkflowSvcNLog(w *workFlowSvc) {
 
 func Start() {
 
+	fout := flu_output.New()
+
 	completeHandler := func(flu models.FeedLineUnit) {
 		fmt.Println("on complete handler called", flu)
+		fout.AddToOutputQueue(flu)
 	}
 	workFlowSvc := &workFlowSvc{}
 

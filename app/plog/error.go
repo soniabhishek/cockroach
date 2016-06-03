@@ -31,9 +31,9 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 
 		mail := sendgrid.NewMail()
 
-		mail.To = []string{"himanshu@playment.in"}
+		mail.To = []string{"dev@playment.in"}
 
-		mail.From = "no-replay@playment.in"
+		mail.From = "no-reply@playment.in"
 
 		mail.Subject = "Error | Angel | " + tag + " | " + err.Error() + " | " + config.GetEnv()
 

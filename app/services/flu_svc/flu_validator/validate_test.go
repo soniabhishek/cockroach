@@ -11,7 +11,7 @@ import (
 type fakeValidatorRepo struct {
 }
 
-func (f *fakeValidatorRepo) GetValidatorsForMacroTask(macroTaskId uuid.UUID, tag string) ([]models.FLUValidator, error) {
+func (f *fakeValidatorRepo) GetValidatorsForProject(projectId uuid.UUID, tag string) ([]models.FLUValidator, error) {
 	return []models.FLUValidator{
 		models.FLUValidator{
 			FieldName:   "brand",

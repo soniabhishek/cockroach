@@ -32,8 +32,7 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) {
 
 	c.RemoveFromBuffer(flu)
-	flu.Step = "crowdsourcing"
-	counter.Print(flu)
+	counter.Print(flu, "crowdsourcing")
 	c.OutQ <- flu
 }
 

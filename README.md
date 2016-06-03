@@ -20,6 +20,7 @@ $ git clone git@gitlab.com:playment-main/angel.git
 
 ```
 $ echo "export GOPATH='$HOME/code/gocode/'" >> ~/.bash_profile
+$ echo "export PATH=$PATH:$GOPATH/bin" >> ~/.bash_profile
 $ source ~/.bash_profile
 ```
 

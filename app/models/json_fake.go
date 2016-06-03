@@ -3,7 +3,7 @@ package models
 import (
 	"database/sql/driver"
 	"errors"
-	"gitlab.com/playment-main/angel/app/plogger"
+	"gitlab.com/playment-main/angel/app/plog"
 	"strconv"
 )
 
@@ -40,7 +40,7 @@ func (j *JsonFake) String() string {
 		case float64:
 			x += "\"" + key + "\" : \"" + strconv.FormatFloat(value.(float64), 'E', -1, 64) + "\","
 		default:
-			plogger.ErrorNMail("JsonFake", errors.New("unknown type found in JsonFake"), "")
+			plog.Error("JsonFake", errors.New("unknown type found in JsonFake"), "")
 		}
 	}
 

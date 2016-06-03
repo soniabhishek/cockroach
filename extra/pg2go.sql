@@ -13,6 +13,18 @@ $$
 LANGUAGE SQL
 IMMUTABLE;
 
+CREATE FUNCTION get_go_name(nm text) RETURNS text AS $$
+SELECT CASE nm
+       --       Add all your custom table name -> go struct
+       WHEN 'input_flu_validator' THEN 'FLUValidator'
+       WHEN 'feed_line' THEN 'FeedLineUnit'
+       ELSE name_pg2go(nm, TRUE )
+       END
+$$
+LANGUAGE SQL
+IMMUTABLE;
+
+
 CREATE FUNCTION type_pg2go(typ text, nullable boolean) RETURNS text AS $$
   SELECT CASE
     WHEN nullable THEN
@@ -37,7 +49,7 @@ CREATE FUNCTION type_pg2go(typ text, nullable boolean) RETURNS text AS $$
         WHEN 'timestamp without time zone' THEN 'pq.NullTime'
 
         WHEN 'uuid'   THEN 'uuid.UUID'
-        WHEN 'json'  THEN 'JsonFake'
+        WHEN 'json'   THEN 'JsonFake'
         WHEN 'jsonb'  THEN 'JsonFake'
 
       ELSE 'NEED_GO_TYPE_FOR_NULLABLE_' || replace(typ, ' ', '_')
@@ -88,8 +100,7 @@ WITH structs AS (
     WHERE table_schema = 'public'
     ORDER BY table_schema, table_name, ordinal_position
   )
-  SELECT name_pg2go(regexp_replace(table_name, '([^aeiou])s$', '\1'),
-                    true) AS type_identifier,
+  SELECT (get_go_name(regexp_replace(table_name, '([^aeiou])s$', '\1'))) AS type_identifier,
          string_agg(E'\t' || name_pg2go(column_name, true) || ' '
                           || type_pg2go(CASE WHEN is_udt THEN 'text'
                                              ELSE data_type END,
@@ -129,6 +140,6 @@ SELECT E'const (\n' || agg_constants || E'\n)\n'
 FROM constant_groups;
 
 ------------------------------------------------------------
-
+DROP FUNCTION get_go_name(text);
 DROP FUNCTION name_pg2go(text, boolean);
 DROP FUNCTION type_pg2go(text, boolean);

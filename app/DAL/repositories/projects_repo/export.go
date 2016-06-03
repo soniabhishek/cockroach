@@ -1,4 +1,4 @@
-package macro_task_repo
+package projects_repo
 
 import (
 	"gitlab.com/playment-main/angel/app/DAL/clients"
@@ -7,12 +7,12 @@ import (
 	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
-type IMacroTaskRepo interface {
-	Get(uuid.UUID) (models.MacroTask, error)
+type IProjectsRepo interface {
+	Get(uuid.UUID) (models.Project, error)
 }
 
-func New() IMacroTaskRepo {
-	return &macroTaskRepo{
+func New() IProjectsRepo {
+	return &projectsRepo{
 		pg:  postgres.GetPostgresClient(),
 		mgo: clients.GetMongoClient(),
 	}

@@ -6,6 +6,6 @@ import (
 )
 
 type IFluValidatorRepo interface {
-	GetValidatorsForMacroTask(macroTaskId uuid.UUID, tag string) ([]models.FLUValidator, error)
+	GetValidatorsForProject(projectId uuid.UUID, tag string) ([]models.FLUValidator, error)
 	Save(*models.FLUValidator) error
 }

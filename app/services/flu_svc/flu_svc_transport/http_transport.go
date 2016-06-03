@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/macro_task_repo"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/services/flu_svc"
@@ -39,7 +39,7 @@ func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		//Variable name will be changed to projectId after the schema refactoring
-		macroTaskID, err := uuid.FromString(c.Param("projectId"))
+		projectId, err := uuid.FromString(c.Param("projectId"))
 		if err != nil {
 			showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
 			return
@@ -59,10 +59,10 @@ func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
 			return
 		}
 
-		flu.MacroTaskId = macroTaskID
+		flu.ProjectId = projectId
 		err = fluService.AddFeedLineUnit(&flu)
 		if err != nil {
-			if err == macro_task_repo.ErrMacroTaskNotFound {
+			if err == projects_repo.ErrProjectNotFound {
 				//Temporary hack. Wait for schema refacting
 				err = plerrors.ServiceError{"PR_0001", "Project not found"}
 			}
@@ -163,7 +163,7 @@ func validatorGetHandler(validatorSvc flu_validator.IFluValidatorService) gin.Ha
 
 func validatorUpdateHandler(validatorSvc flu_validator.IFluValidatorService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		macroTaskId, err := uuid.FromString(c.Param("projectId"))
+		projectId, err := uuid.FromString(c.Param("projectId"))
 		if err != nil {
 			showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
 			return
@@ -176,7 +176,7 @@ func validatorUpdateHandler(validatorSvc flu_validator.IFluValidatorService) gin
 			return
 		}
 
-		fv.MacroTaskId = macroTaskId
+		fv.ProjectId = projectId
 		err = validatorSvc.SaveValidator(&fv)
 		if err != nil {
 			showErrorResponse(c, err)

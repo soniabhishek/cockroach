@@ -4,16 +4,18 @@ import (
 	"fmt"
 
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/macro_task_repo"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_validator"
+	"gitlab.com/playment-main/angel/app/services/work_flow_svc"
 )
 
 type fluService struct {
-	fluRepo       feed_line_repo.IFluRepo
-	fluValidator  flu_validator.IFluValidatorService
-	macroTaskRepo macro_task_repo.IMacroTaskRepo
+	fluRepo      feed_line_repo.IFluRepo
+	fluValidator flu_validator.IFluValidatorService
+	projectsRepo projects_repo.IProjectsRepo
+	workFlowSvc  work_flow_svc.IWorkFlowSvc
 }
 
 var _ IFluService = &fluService{}
@@ -29,7 +31,7 @@ func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 		return err
 	}
 
-	err = checkMacroTaskExists(i.macroTaskRepo, flu.MacroTaskId)
+	err = checkProjectExists(i.projectsRepo, flu.ProjectId)
 	if err != nil {
 		return err
 	}
@@ -88,10 +90,10 @@ func (i *fluService) GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, erro
 }
 
 //--------------------------------------------------------------------------------//
-//CHECK MACRO_TASK
+//CHECK PROJECT
 //--------------------------------------------------------------------------------//
 
-func checkMacroTaskExists(r macro_task_repo.IMacroTaskRepo, mId uuid.UUID) error {
+func checkProjectExists(r projects_repo.IProjectsRepo, mId uuid.UUID) error {
 	_, err := r.Get(mId)
 	return err
 }

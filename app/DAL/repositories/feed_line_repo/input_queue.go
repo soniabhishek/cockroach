@@ -18,7 +18,7 @@ type feedLineInputModel struct {
 	RetryCount          uint                `bson:"retry_count"`
 	Status              feedLineQueueStatus `bson:"status"`
 	IdString            string              `bson:"id_string"`
-	MacroTaskIdString   string              `bson:"macro_task_id_string"`
+	ProjectIdString     string              `bson:"project_id_string"`
 }
 
 //-----------------------------------------------------------------------------------//
@@ -52,11 +52,11 @@ func (i *inputQueue) Add(flu models.FeedLineUnit) (id uuid.UUID, err error) {
 
 	err = i.mgo.C("feedline_input").
 		Insert(&feedLineInputModel{
-			FeedLineUnit:      flu,
-			RetryCount:        0,
-			Status:            queued,
-			IdString:          flu.ID.String(),
-			MacroTaskIdString: flu.MacroTaskId.String(),
+			FeedLineUnit:    flu,
+			RetryCount:      0,
+			Status:          queued,
+			IdString:        flu.ID.String(),
+			ProjectIdString: flu.ProjectId.String(),
 		})
 	if err != nil {
 		// Error Code from mgo for duplicate id

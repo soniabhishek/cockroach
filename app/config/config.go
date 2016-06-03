@@ -59,3 +59,7 @@ func IsProduction() bool {
 func IsStaging() bool {
 	return env == Staging
 }
+
+func GetEnv() string {
+	return env
+}

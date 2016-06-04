@@ -17,6 +17,8 @@ type projectsRepo struct {
 	mgo *mgo.Database
 }
 
+var _ IProjectsRepo = (*projectsRepo)(nil)
+
 func (r *projectsRepo) getFromPG(id uuid.UUID) (m models.Project, err error) {
 	err = r.pg.SelectOne(&m, queries.SelectById(projectTable), id)
 	err = transformErr(err)
@@ -29,7 +31,7 @@ func (r *projectsRepo) getFromMgo(id uuid.UUID) (m models.Project, err error) {
 	return
 }
 
-func (r *projectsRepo) Get(id uuid.UUID) (m models.Project, err error) {
+func (r *projectsRepo) GetById(id uuid.UUID) (m models.Project, err error) {
 	m, err = r.getFromMgo(id)
 	if err == nil {
 		return

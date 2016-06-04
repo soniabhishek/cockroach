@@ -10,7 +10,7 @@ import (
 func validateFlu(v flu_validator_repo.IFluValidatorRepo, flu models.FeedLineUnit) (IsValid bool, err error) {
 
 	// fluVs -> flu validators
-	fluVs, err := v.GetValidatorsForMacroTask(flu.MacroTaskId, flu.Tag)
+	fluVs, err := v.GetValidatorsForProject(flu.ProjectId, flu.Tag)
 
 	if err != nil {
 		return

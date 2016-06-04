@@ -31,6 +31,14 @@ type BatchProces struct {
 	MacroTaskId uuid.UUID      `db:"macro_task_id" json:"macro_task_id" bson:"macro_task_id"`
 }
 
+type Client struct {
+	ID               uuid.UUID   `db:"id" json:"id" bson:"_id"`
+	UserId           uuid.UUID   `db:"user_id" json:"user_id" bson:"user_id"`
+	ClientSecretUuid uuid.UUID   `db:"client_secret_uuid" json:"client_secret_uuid" bson:"client_secret_uuid"`
+	CreatedAt        pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt        pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+}
+
 type Comment struct {
 	ID         uuid.UUID      `db:"id" json:"id" bson:"_id"`
 	CreatorId  uuid.UUID      `db:"creator_id" json:"creator_id" bson:"creator_id"`
@@ -118,11 +126,11 @@ type FeedLineUnit struct {
 	ReferenceId string      `db:"reference_id" json:"reference_id" bson:"reference_id"`
 	Data        JsonFake    `db:"data" json:"data" bson:"data"`
 	Tag         string      `db:"tag" json:"tag" bson:"tag"`
-	MacroTaskId uuid.UUID   `db:"macro_task_id" json:"macro_task_id" bson:"macro_task_id"`
 	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 	StepId      uuid.UUID   `db:"step_id" json:"step_id" bson:"step_id"`
 	Build       JsonFake    `db:"build" json:"build" bson:"build"`
+	ProjectId   uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
 }
 
 type Feedback struct {
@@ -173,10 +181,10 @@ type FLUValidator struct {
 	FieldName   string      `db:"field_name" json:"field_name" bson:"field_name"`
 	Type        string      `db:"type" json:"type" bson:"type"`
 	IsMandatory bool        `db:"is_mandatory" json:"is_mandatory" bson:"is_mandatory"`
-	MacroTaskId uuid.UUID   `db:"macro_task_id" json:"macro_task_id" bson:"macro_task_id"`
 	Tag         string      `db:"tag" json:"tag" bson:"tag"`
 	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	ProjectId   uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
 }
 
 type IntegrationProvider struct {

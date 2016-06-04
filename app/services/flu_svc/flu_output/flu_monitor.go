@@ -39,13 +39,13 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 	fmt.Println(feedLinePipe)
 	mutex.Lock()
 	for _, flu := range fluBundle {
-		value, valuePresent := feedLinePipe[flu.MacroTaskId]
+		value, valuePresent := feedLinePipe[flu.ProjectId]
 		if valuePresent {
 			value = feedLineValue{utilities.TimeInMillis(), []models.FeedLineUnit{flu}}
 		} else {
 			value.feedLine = append(value.feedLine, flu)
 		}
-		feedLinePipe[flu.MacroTaskId] = value
+		feedLinePipe[flu.ProjectId] = value
 	}
 	mutex.Unlock()
 	return nil

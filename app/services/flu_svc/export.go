@@ -5,15 +5,17 @@ import (
 
 	"github.com/robfig/cron"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/macro_task_repo"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
 	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_validator"
+	"gitlab.com/playment-main/angel/app/services/work_flow_svc"
 )
 
 func New() IFluService {
 	return &fluService{
-		fluRepo:       feed_line_repo.New(),
-		fluValidator:  flu_validator.New(),
-		macroTaskRepo: macro_task_repo.New(),
+		fluRepo:      feed_line_repo.New(),
+		fluValidator: flu_validator.New(),
+		projectsRepo: projects_repo.New(),
+		workFlowSvc:  work_flow_svc.StdWorkFlowSvc,
 	}
 }
 
@@ -25,9 +27,9 @@ type extendedFluService struct {
 func NewWithExposedValidators() IFluServiceExtended {
 	return &extendedFluService{
 		fluService: fluService{
-			fluRepo:       feed_line_repo.New(),
-			fluValidator:  flu_validator.New(),
-			macroTaskRepo: macro_task_repo.New(),
+			fluRepo:      feed_line_repo.New(),
+			fluValidator: flu_validator.New(),
+			projectsRepo: projects_repo.New(),
 		},
 		IFluValidatorService: flu_validator.New(),
 	}

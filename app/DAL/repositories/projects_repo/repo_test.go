@@ -8,6 +8,7 @@ import (
 	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"time"
 )
 
 //Divide this test in setup & tear down
@@ -20,7 +21,8 @@ func TestGetProject(t *testing.T) {
 	}
 
 	var client models.Client
-	pgClient.SelectOne(&client, "select * from clients limit 1")
+	err := pgClient.SelectOne(&client, "select * from clients limit 1")
+	assert.NoError(t, err)
 
 	pr := models.Project{
 		ID:        uuid.NewV4(),
@@ -28,7 +30,7 @@ func TestGetProject(t *testing.T) {
 		CreatorId: client.UserId,
 		ClientId:  client.ID,
 	}
-	err := pgClient.Insert(&pr)
+	err = pgClient.Insert(&pr)
 	ok := assert.NoError(t, err)
 	if !ok {
 		return
@@ -37,7 +39,12 @@ func TestGetProject(t *testing.T) {
 		pgClient.Delete(&pr)
 	}()
 
-	prNew, err := projectsRepo.Get(pr.ID)
+	prNew, err := projectsRepo.GetById(pr.ID)
+	// Give the above line some time
+	// to save data in mongo since it will
+	// run in another go routine
+	time.Sleep(time.Duration(100) * time.Millisecond)
+
 	assert.NoError(t, err)
 	ok = assert.EqualValues(t, pr, prNew)
 	if !ok {
@@ -53,8 +60,5 @@ func TestGetProject(t *testing.T) {
 
 	prNew, err = projectsRepo.getFromMgo(pr.ID)
 	assert.NoError(t, err)
-	ok = assert.Equal(t, pr.ClientId, prNew.ClientId)
-	if !ok {
-		return
-	}
+	assert.Equal(t, pr.ClientId, prNew.ClientId)
 }

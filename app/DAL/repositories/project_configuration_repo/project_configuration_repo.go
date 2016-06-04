@@ -52,7 +52,7 @@ func (fps *projectConfigurationRepo) Get(projectId uuid.UUID) (models.ProjectCon
 /*----------------------------------Basic DB Queries Implementation--------------------------------------------*/
 /*-------------------------------------------------------------------------------------------------------------*/
 func (fps *projectConfigurationRepo) get(projectId uuid.UUID) (v models.ProjectConfiguration, err error) {
-	err = fps.db.SelectOne(&v, "SELECT * FROM flu_project_service WHERE project_id = $1", projectId)
+	err = fps.db.SelectOne(&v, "SELECT * FROM "+projectConfigurationTable+" WHERE project_id = $1", projectId)
 	return
 }
 

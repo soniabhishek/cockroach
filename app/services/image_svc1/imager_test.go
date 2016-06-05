@@ -10,6 +10,8 @@ import (
 
 func TestImager_Download(t *testing.T) {
 
+	t.SkipNow()
+
 	imageId := uuid.NewV4()
 	imageUrl := "https://pixabay.com/static/uploads/photo/2015/10/01/21/39/background-image-967820_960_720.jpg"
 	brokenImageUrl := "https://pixabay.20_9.jpg/"
@@ -36,6 +38,9 @@ func TestImager_Download(t *testing.T) {
 }
 
 func TestImager_Upload(t *testing.T) {
+
+	t.SkipNow()
+
 	imageId := uuid.NewV4()
 	imageUrl := "https://pixabay.com/static/uploads/photo/2015/10/01/21/39/background-image-967820_960_720.jpg"
 

@@ -3,12 +3,14 @@ package step_router
 import (
 	"errors"
 
+	"gitlab.com/playment-main/angel/app/DAL/repositories/step_router_repo"
+	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step"
-	"time"
 )
 
 type routeTable map[step.StepIdentifier]*feed_line.Fl
@@ -87,6 +89,7 @@ func (sr *stepRouter) start() {
 
 						if r := recover(); r != nil {
 							plog.Error("Router", errors.New("Panic occured in router"), r)
+							*sr.routeTable[step.Manual] <- flu
 						}
 
 						// Free the buffer
@@ -99,7 +102,8 @@ func (sr *stepRouter) start() {
 					// then the max speed of router processing will be 1 flu * buffer/second = 10 flu/second
 					r, err := sr.getRoute(flu)
 					if err != nil {
-						plog.Error("Get route error", err, flu)
+						plog.Error("Got route error , Sending it to manual", err, flu)
+						*sr.routeTable[step.Manual] <- flu
 					} else {
 						counter.Print(flu, "router")
 						*r <- flu
@@ -118,6 +122,7 @@ func newStepRouter(concurrency int) stepRouter {
 		InQ:           feed_line.NewBig(),
 		ProcessedFluQ: feed_line.New(),
 		buffer:        make(chan uint, concurrency),
+		//stepRouterRepo: step_router_repo.Mock(),
 	}
 }
 
@@ -127,16 +132,42 @@ type testInterface interface {
 	GetNextStep(feed_line.FLU) (step.StepIdentifier, error)
 }
 
-var tt testInterface = testStruct{}
-
-type testStruct struct {
+var tt testInterface = &testStruct{
+	stepRouterRepo: step_router_repo.Mock(),
 }
 
-func (testStruct) GetNextStep(flu feed_line.FLU) (step.StepIdentifier, error) {
+type testStruct struct {
+	// For Getting Next step
+	stepRouterRepo step_router_repo.IStepRoutesRepo
+}
 
-	time.Sleep(time.Duration(3) * time.Second)
+func (t *testStruct) GetNextStep(flu feed_line.FLU) (step.StepIdentifier, error) {
+
+	if l := len(flu.Trip); l > 0 {
+
+		if currentStep := flu.Trip[l-1]; !currentStep.Success() {
+			return step.Manual, nil
+		}
+
+	}
+
+	routes, err := t.stepRouterRepo.GetRoutesByStepId(flu.StepId)
+	if err != nil {
+		return step.Manual, err
+	}
+
+	for _, route := range routes {
+		correct, err := Logic(flu, models.LogicGate{ID: route.LogicGateId})
+		if err != nil {
+			return step.Manual, err
+		} else if correct {
+			return GetStepIdentifierFromStep(route.NextStepId), nil
+		}
+	}
 
 	return step.Nil, nil
 }
 
-//--------------------------------------------------------------------------------//
+func GetStepIdentifierFromStep(stepId uuid.UUID) step.StepIdentifier {
+	return step.CrowdSourcing
+}

@@ -1,8 +1,9 @@
 package step
 
 import (
+	"errors"
 	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/plog"
+	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 )
 
@@ -15,30 +16,33 @@ type Step struct {
 
 func New() Step {
 	return Step{
-		InQ:  feed_line.New(),
-		OutQ: feed_line.New(),
+		InQ:    feed_line.New(),
+		OutQ:   feed_line.New(),
+		buffer: feed_line.NewBuffer(),
 	}
 }
 
 func (s *Step) AddToBuffer(flu feed_line.FLU) {
-	s.buffer.Add(flu)
+	s.buffer.Save(flu)
 }
 
-func (s *Step) GetBuffered() feed_line.Bf {
+func (s *Step) GetBuffered() map[uuid.UUID]feed_line.FLU {
 
-	return s.buffer
+	return s.buffer.GetAll()
 }
 
 func (s *Step) RemoveFromBuffer(flu feed_line.FLU) error {
 
+	flu, ok := s.buffer.Get(flu.ID)
+	if !ok {
+		return errors.New("not present")
+	}
 	return nil
+
 }
 
 func (s *Step) Detain(flu feed_line.FLU, why error, saver iFluSave) {
-	err := saver.Save(flu.FeedLineUnit)
-	if err != nil {
-		plog.Error("Step error", err)
-	}
+	saver.Save(flu.FeedLineUnit)
 
 }
 

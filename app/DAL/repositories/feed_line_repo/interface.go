@@ -92,6 +92,16 @@ func (i *inMemFluRepo) Update(flu models.FeedLineUnit) error {
 	return nil
 }
 
+func (i *inMemFluRepo) GetByStepId(stepId uuid.UUID) (stepFlus []models.FeedLineUnit, err error) {
+	i.RLock()
+	defer i.RUnlock()
+
+	for _, flu := range i.flus {
+		stepFlus = append(stepFlus, flu)
+	}
+	return stepFlus, nil
+}
+
 func Mock() IFluRepo {
 	return &inMemFluRepo{
 		flus: make(map[uuid.UUID]models.FeedLineUnit),

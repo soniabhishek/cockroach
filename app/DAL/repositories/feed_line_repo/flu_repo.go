@@ -24,7 +24,7 @@ func (e *fluRepo) GetById(id uuid.UUID) (models.FeedLineUnit, error) {
 
 	var flu models.FeedLineUnit
 
-	err := e.Db.SelectOne(&flu, "select * from feedline where id = $1", id)
+	err := e.Db.SelectOne(&flu, "select * from feed_line where id = $1", id)
 	if err != nil {
 		return flu, err
 	}
@@ -66,14 +66,12 @@ func (e *fluRepo) BulkInsert(flus []models.FeedLineUnit) error {
 func (e *fluRepo) GetByStepId(StepId uuid.UUID) ([]models.FeedLineUnit, error) {
 
 	fmt.Println(StepId)
-	var ip []models.FeedLineUnit
-	var vip []interface{}
-	vip, err := e.Db.Select(&ip, "select * from feed_line where step_id = $1", StepId)
-	fmt.Println(ip, vip)
+	var flus []models.FeedLineUnit
+	_, err := e.Db.Select(&flus, "select * from feed_line where step_id = $1", StepId)
 	if err != nil {
-		return ip, err
+		return flus, err
 	}
-	return ip, nil
+	return flus, nil
 }
 
 func (e *fluRepo) BulkUpdate(flus []models.FeedLineUnit) error {

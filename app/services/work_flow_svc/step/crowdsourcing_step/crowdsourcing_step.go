@@ -14,6 +14,7 @@ type crowdSourcingStep struct {
 	fluClient fluPusher
 }
 
+// Rename the interface later
 type fluPusher interface {
 	PushFLU(models.FeedLineUnit) (bool, error)
 }
@@ -29,11 +30,15 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 	}
 }
 
-func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) {
+func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) bool {
 
-	c.RemoveFromBuffer(flu)
+	err := c.RemoveFromBuffer(flu)
+	if err != nil {
+		return false
+	}
 	counter.Print(flu, "crowdsourcing")
 	c.OutQ <- flu
+	return true
 }
 
 func (c *crowdSourcingStep) start() {

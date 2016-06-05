@@ -1,9 +1,12 @@
 package crowdsourcing_step
 
 import (
+	"errors"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/plog"
+	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 )
 
 type FluUpdate struct {
@@ -14,23 +17,44 @@ type FluUpdate struct {
 func FluUpdateHandler(updates []FluUpdate) error {
 
 	flus := Std.GetBuffered()
+	flr := feed_line_repo.New()
+
+	updatable := []feed_line.FLU{}
 
 	for _, update := range updates {
 
-		flu := flus.Get(update.FluId)
+		flu, ok := flus[update.FluId]
 
-		flu.Build = MergeJsonFake(flu.Build, update.BuildUpdate)
+		if !ok {
+			// Handle error
+			plog.Error("Flu Handler", errors.New("Flu Not present in the buffer"), update.FluId)
+			continue
+		}
 
-		feed_line_repo.New().Save(flu.FeedLineUnit)
+		flu.Build.Merge(update.BuildUpdate)
 
-		Std.finishFlu(flu)
+		updatable = append(updatable, flu)
+
 	}
+
+	feedLineUnits := []models.FeedLineUnit{}
+
+	for _, flu := range updatable {
+		feedLineUnits = append(feedLineUnits, flu.FeedLineUnit)
+	}
+
+	err := flr.BulkUpdate(feedLineUnits)
+	if err != nil {
+		plog.Error("Flu Handler Bulk Update, Aborting", err)
+		return err
+	}
+
+	for _, flu := range updatable {
+		ok := Std.finishFlu(flu)
+		if !ok {
+			plog.Error("Flu Handler", errors.New("finishFlu false for "+flu.ID.String()))
+		}
+	}
+
 	return nil
-}
-
-func MergeJsonFake(a models.JsonFake, b models.JsonFake) (c models.JsonFake) {
-	for k, v := range a {
-		b[k] = v
-	}
-	return b
 }

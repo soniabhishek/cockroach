@@ -28,7 +28,7 @@ func TestJsonFake_Scan(t *testing.T) {
 		},
 	}
 
-	jsnStr := map[string]interface{}{
+	mapStrInterf := map[string]interface{}{
 		"fir": "st",
 		"sec": "ond",
 		"third": map[string]interface{}{
@@ -37,7 +37,9 @@ func TestJsonFake_Scan(t *testing.T) {
 	}
 
 	jsn2 := JsonFake{}
-	err := jsn2.Scan(jsnStr)
+	mapStrBty, err := json.Marshal(mapStrInterf)
+
+	err = jsn2.Scan(mapStrBty)
 	assert.NoError(t, err)
 	assert.EqualValues(t, jsn.String(), jsn2.String())
 }

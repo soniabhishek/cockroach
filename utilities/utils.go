@@ -28,6 +28,8 @@ const (
 	Left_Bracket      = "["
 	Right_Bracket     = "]"
 	Bracket           = "[]"
+
+	StartId = iota
 )
 
 func TimeInMillis() int64 {

@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 )
 
 //Need to reimplement this type
@@ -20,13 +21,18 @@ func (j JsonFake) Value() (driver.Value, error) {
 func (j *JsonFake) Scan(src interface{}) error {
 
 	var tmp map[string]interface{}
+	var bty []byte
 
-	bty, err := json.Marshal(src)
-	if err != nil {
-		return err
+	switch src.(type) {
+	case []byte:
+		bty = src.([]byte)
+	case string:
+		bty = []byte(src.(string))
+	default:
+		return errors.New("only []byte & string supported at the moment")
 	}
 
-	err = json.Unmarshal(bty, &tmp)
+	err := json.Unmarshal(bty, &tmp)
 	if err != nil {
 		return err
 	}

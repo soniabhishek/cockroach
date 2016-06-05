@@ -9,6 +9,30 @@ type manualStep struct {
 	step.Step
 }
 
-func processFlu(flu feed_line.FLU) {
-	//flu.FeedLineUnit
+func (m *manualStep) processFlu(flu feed_line.FLU) {
+	m.AddToBuffer(flu)
+}
+
+func (m *manualStep) start() {
+	go func() {
+		for {
+			select {
+			case flu := <-m.InQ:
+				m.processFlu(flu)
+			}
+		}
+	}()
+}
+
+func (m *manualStep) Connect(routerIn *feed_line.Fl) (routerOut *feed_line.Fl) {
+
+	// Send output of this step to the router's input
+	// for next rerouting
+	m.OutQ = *routerIn
+
+	m.start()
+
+	// Return the input channel of this step
+	// so that router can push flu to it
+	return &m.InQ
 }

@@ -43,9 +43,9 @@ func newStdWorkFlow() WorkFlow {
 // Exposing a StdWorkFlow instance
 var StdWorkFlow = newStdWorkFlow()
 
-//var StdWorkFlow = newShortCircut()
+//var StdWorkFlow = newShortCircuit()
 
-func newShortCircut() WorkFlow {
+func newShortCircuit() WorkFlow {
 	//create new instance
 	w := WorkFlow{
 		InQ:  feed_line.New(),

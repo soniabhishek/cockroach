@@ -5,6 +5,7 @@ import (
 
 	"time"
 
+	"fmt"
 	"github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/DAL/repositories"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
@@ -23,7 +24,7 @@ func (e *fluRepo) GetById(id uuid.UUID) (models.FeedLineUnit, error) {
 
 	var flu models.FeedLineUnit
 
-	err := e.Db.SelectOne(&flu, "select * from feedline where id = $1", id)
+	err := e.Db.SelectOne(&flu, "select * from feed_line where id = $1", id)
 	if err != nil {
 		return flu, err
 	}
@@ -59,6 +60,18 @@ func (e *fluRepo) BulkInsert(flus []models.FeedLineUnit) error {
 
 	err := e.Db.Insert(flusInterface...)
 	return err
+}
+
+//Gets a Flu from database for the given id
+func (e *fluRepo) GetByStepId(StepId uuid.UUID) ([]models.FeedLineUnit, error) {
+
+	fmt.Println(StepId)
+	var flus []models.FeedLineUnit
+	_, err := e.Db.Select(&flus, "select * from feed_line where step_id = $1", StepId)
+	if err != nil {
+		return flus, err
+	}
+	return flus, nil
 }
 
 func (e *fluRepo) BulkUpdate(flus []models.FeedLineUnit) error {

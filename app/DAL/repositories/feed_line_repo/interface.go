@@ -14,6 +14,7 @@ type IFluRepo interface {
 	BulkUpdate(flus []models.FeedLineUnit) error
 	Add(feedLineUnit models.FeedLineUnit) error
 	Update(feedLineUnit models.FeedLineUnit) error
+	GetByStepId(StepId uuid.UUID) ([]models.FeedLineUnit, error)
 }
 
 //--------------------------------------------------------------------------------//
@@ -89,6 +90,16 @@ func (i *inMemFluRepo) Update(flu models.FeedLineUnit) error {
 
 	i.flus[flu.ID] = flu
 	return nil
+}
+
+func (i *inMemFluRepo) GetByStepId(stepId uuid.UUID) (stepFlus []models.FeedLineUnit, err error) {
+	i.RLock()
+	defer i.RUnlock()
+
+	for _, flu := range i.flus {
+		stepFlus = append(stepFlus, flu)
+	}
+	return stepFlus, nil
 }
 
 func Mock() IFluRepo {

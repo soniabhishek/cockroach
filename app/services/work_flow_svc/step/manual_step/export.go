@@ -7,7 +7,6 @@ import (
 
 var StdManualStep = &manualStep{
 	Step: step.New(),
-	id:   utilities.StartId,
 }
 
 // Just a short form for above

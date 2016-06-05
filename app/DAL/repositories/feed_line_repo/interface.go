@@ -11,6 +11,7 @@ type IFluRepo interface {
 	GetById(Id uuid.UUID) (models.FeedLineUnit, error)
 	Save(feedLineUnit models.FeedLineUnit)
 	BulkInsert(flus []models.FeedLineUnit) error
+	BulkUpdate(flus []models.FeedLineUnit) error
 	Add(feedLineUnit models.FeedLineUnit) error
 	Update(feedLineUnit models.FeedLineUnit) error
 }
@@ -48,6 +49,21 @@ func (i *inMemFluRepo) BulkInsert(flus []models.FeedLineUnit) error {
 
 	for _, flu := range flus {
 		i.flus[flu.ID] = flu
+	}
+	return nil
+}
+
+func (i *inMemFluRepo) BulkUpdate(flusToUpdate []models.FeedLineUnit) error {
+	i.Lock()
+	defer i.Unlock()
+
+	for _, flu := range flusToUpdate {
+		_, ok := i.flus[flu.ID]
+		if !ok {
+			return errors.New(flu.ID.String() + " not present")
+		} else {
+			i.flus[flu.ID] = flu
+		}
 	}
 	return nil
 }

@@ -73,6 +73,7 @@ type CouponTransaction struct {
 	EmailId            sql.NullString `db:"email_id" json:"email_id" bson:"email_id"`
 	TransactionDetails JsonFake       `db:"transaction_details" json:"transaction_details" bson:"transaction_details"`
 	MobileNo           sql.NullString `db:"mobile_no" json:"mobile_no" bson:"mobile_no"`
+	IsReverted         sql.NullBool   `db:"is_reverted" json:"is_reverted" bson:"is_reverted"`
 }
 
 type Coupon struct {
@@ -454,7 +455,7 @@ type Roles struct {
 	UpdatedAt        pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }
 
-type Routes struct {
+type Route struct {
 	ID          uuid.UUID    `db:"id" json:"id" bson:"_id"`
 	StepId      uuid.UUID    `db:"step_id" json:"step_id" bson:"step_id"`
 	LogicGateId uuid.UUID    `db:"logic_gate_id" json:"logic_gate_id" bson:"logic_gate_id"`

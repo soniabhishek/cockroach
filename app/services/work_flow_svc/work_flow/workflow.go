@@ -27,13 +27,11 @@ func newStdWorkFlow() WorkFlow {
 			select {
 
 			case flu := <-w.InQ:
-				flu.Step = "workflow in"
-				counter.Print(flu)
+				counter.Print(flu, "workflow in")
 				step_router.StdStepRouter.InQ <- flu
 
 			case flu := <-step_router.StdStepRouter.ProcessedFluQ:
-				flu.Step = "workflow out"
-				counter.Print(flu)
+				counter.Print(flu, "workflow out")
 				w.OutQ <- flu
 			}
 		}

@@ -1,4 +1,4 @@
-package macro_task_repo
+package projects_repo
 
 import (
 	"database/sql"
@@ -10,26 +10,28 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-const macroTaskTable = "macro_tasks"
+const projectTable = "projects"
 
-type macroTaskRepo struct {
+type projectsRepo struct {
 	pg  repositories.IDatabase
 	mgo *mgo.Database
 }
 
-func (r *macroTaskRepo) getFromPG(id uuid.UUID) (m models.MacroTask, err error) {
-	err = r.pg.SelectOne(&m, queries.SelectById(macroTaskTable), id)
+var _ IProjectsRepo = (*projectsRepo)(nil)
+
+func (r *projectsRepo) getFromPG(id uuid.UUID) (m models.Project, err error) {
+	err = r.pg.SelectOne(&m, queries.SelectById(projectTable), id)
 	err = transformErr(err)
 	return
 }
 
-func (r *macroTaskRepo) getFromMgo(id uuid.UUID) (m models.MacroTask, err error) {
-	err = r.mgo.C("macro_tasks").FindId(id).One(&m)
+func (r *projectsRepo) getFromMgo(id uuid.UUID) (m models.Project, err error) {
+	err = r.mgo.C(projectTable).FindId(id).One(&m)
 	err = transformErr(err)
 	return
 }
 
-func (r *macroTaskRepo) Get(id uuid.UUID) (m models.MacroTask, err error) {
+func (r *projectsRepo) GetById(id uuid.UUID) (m models.Project, err error) {
 	m, err = r.getFromMgo(id)
 	if err == nil {
 		return
@@ -42,8 +44,8 @@ func (r *macroTaskRepo) Get(id uuid.UUID) (m models.MacroTask, err error) {
 	return
 }
 
-func (r *macroTaskRepo) saveMgo(m models.MacroTask) error {
-	return r.mgo.C("macro_tasks").Insert(&m)
+func (r *projectsRepo) saveMgo(m models.Project) error {
+	return r.mgo.C(projectTable).Insert(&m)
 }
 
 func transformErr(err error) error {
@@ -52,7 +54,7 @@ func transformErr(err error) error {
 	case sql.ErrNoRows:
 		fallthrough
 	case mgo.ErrNotFound:
-		err = ErrMacroTaskNotFound
+		err = ErrProjectNotFound
 	}
 	return err
 }

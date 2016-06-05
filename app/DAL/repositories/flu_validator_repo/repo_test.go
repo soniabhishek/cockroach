@@ -13,7 +13,7 @@ import (
 	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
-var testMacroTask models.MacroTask
+var testProject models.Project
 
 func TestInsertGetDelete(t *testing.T) {
 
@@ -24,7 +24,7 @@ func TestInsertGetDelete(t *testing.T) {
 		FieldName:   "brand",
 		Type:        "STRING",
 		IsMandatory: true,
-		MacroTaskId: testMacroTask.ID,
+		ProjectId:   testProject.ID,
 		CreatedAt:   pq.NullTime{time.Now(), true},
 	}
 
@@ -60,7 +60,7 @@ func TestSaveExisting(t *testing.T) {
 		FieldName:   "brand",
 		Type:        "STRING",
 		IsMandatory: true,
-		MacroTaskId: testMacroTask.ID,
+		ProjectId:   testProject.ID,
 		CreatedAt:   pq.NullTime{time.Now(), true},
 	}
 
@@ -96,7 +96,7 @@ func TestSaveNew(t *testing.T) {
 		FieldName:   "brand",
 		Type:        "STRING",
 		IsMandatory: true,
-		MacroTaskId: testMacroTask.ID,
+		ProjectId:   testProject.ID,
 		CreatedAt:   pq.NullTime{time.Now(), true},
 	}
 
@@ -132,9 +132,9 @@ func TestMain(m *testing.M) {
 
 func setup() {
 
-	//Load any macro_task from db
-	//Make sure you have a macro_task in db
-	err := postgres.GetPostgresClient().SelectOne(&testMacroTask, "select * from macro_tasks limit 1")
+	//Load any project from db
+	//Make sure you have a project in db
+	err := postgres.GetPostgresClient().SelectOne(&testProject, "select * from projects where client_id is not null limit 1")
 	if err != nil {
 		panic(err)
 	}

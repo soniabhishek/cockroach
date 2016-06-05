@@ -18,8 +18,8 @@ type fluValidatorRepo struct {
 
 var _ IFluValidatorRepo = &fluValidatorRepo{}
 
-func (f *fluValidatorRepo) GetValidatorsForMacroTask(macroTaskId uuid.UUID, tag string) (validators []models.FLUValidator, err error) {
-	_, err = f.db.Select(&validators, "select * from input_flu_validator where macro_task_id = $1 and tag = $2", macroTaskId, tag)
+func (f *fluValidatorRepo) GetValidatorsForProject(projectId uuid.UUID, tag string) (validators []models.FLUValidator, err error) {
+	_, err = f.db.Select(&validators, "select * from input_flu_validator where project_id = $1 and tag = $2", projectId, tag)
 	return
 }
 

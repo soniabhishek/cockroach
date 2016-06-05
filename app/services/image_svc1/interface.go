@@ -6,7 +6,7 @@ import (
 )
 
 type IImageService interface {
-	BulkDownloadImages([]models.ImageDictionary) (batchId uuid.UUID, err error)
+	BulkDownloadImages([]models.ImageDictionaryNew) (batchId uuid.UUID, err error)
 	GetBatchesForMicroTask(microTaskId uuid.UUID) (batches []models.BatchProcess, err error)
 	GetDownloadStatus(batchId uuid.UUID) (models.BatchProcess, error)
 }

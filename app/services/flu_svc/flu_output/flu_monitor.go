@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.com/playment-main/angel/app/DAL/repositories/flu_project_service"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/project_configuration_repo"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/status_codes"
 	"gitlab.com/playment-main/angel/app/models/uuid"
@@ -39,13 +39,13 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 	fmt.Println(feedLinePipe)
 	mutex.Lock()
 	for _, flu := range fluBundle {
-		value, valuePresent := feedLinePipe[flu.ProjectID]
+		value, valuePresent := feedLinePipe[flu.ProjectId]
 		if valuePresent {
 			value = feedLineValue{utilities.TimeInMillis(), []models.FeedLineUnit{flu}}
 		} else {
 			value.feedLine = append(value.feedLine, flu)
 		}
-		feedLinePipe[flu.ProjectID] = value
+		feedLinePipe[flu.ProjectId] = value
 	}
 	mutex.Unlock()
 	return nil
@@ -96,14 +96,14 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 }
 
 func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit) (*Response, status_codes.StatusCode) {
-	fpsRepo := flu_project_service.New()
+	fpsRepo := project_configuration_repo.New()
 	fpsModel, err := fpsRepo.Get(projectId)
 	if utilities.IsValidError(err) {
 		fmt.Println(err)
 		return &Response{}, status_codes.UnknownFailure
 	}
 
-	url := fpsModel.Url + "sdfadsf"
+	url := fpsModel.PostBackUrl + "sdfadsf"
 	//url := "http://localhost:8080/JServer/HelloServlet"
 	fmt.Println("URL:>", url)
 

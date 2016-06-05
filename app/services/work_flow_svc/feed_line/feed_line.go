@@ -2,6 +2,7 @@ package feed_line
 
 import (
 	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 // ShortHand for channel of FLUs i.e. FeedLine
@@ -26,7 +27,15 @@ func NewFixedSize(size int) Fl {
 
 //--------------------------------------------------------------------------------//
 
-type Bf []FLU
+type Bf map[uuid.UUID]FLU
+
+func (b *Bf) Get(id uuid.UUID) FLU {
+	return (*b)[id]
+}
+
+func (b *Bf) Add(flu FLU) {
+	(*b)[flu.ID] = flu
+}
 
 //--------------------------------------------------------------------------------//
 

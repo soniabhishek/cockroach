@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/base32"
 	"fmt"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"testing"
 )
 
 // Benchmark functions

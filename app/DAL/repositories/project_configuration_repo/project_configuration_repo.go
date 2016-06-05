@@ -1,4 +1,4 @@
-package flu_project_service
+package project_configuration_repo
 
 import (
 	"errors"
@@ -8,16 +8,16 @@ import (
 	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
-const fluProjectServiceTable string = "flu_project_service"
+const projectConfigurationTable string = "project_configuration"
 
-type fluProjectService struct {
+type projectConfigurationRepo struct {
 	db repositories.IDatabase
 }
 
-var _ IFluProjectServiceRepo = &fluProjectService{}
+var _ IProjectConfigurationRepo = &projectConfigurationRepo{}
 
 //Unused
-func (fps *fluProjectService) Save(fv *models.FluProjectService) error {
+func (fps *projectConfigurationRepo) Save(fv *models.ProjectConfiguration) error {
 	/*existingFv, err := f.get(fv.ID)
 
 	var exists bool
@@ -44,37 +44,37 @@ func (fps *fluProjectService) Save(fv *models.FluProjectService) error {
 	return errors.New("UnUsed/Uninitialized method")
 }
 
-func (fps *fluProjectService) Get(projectId uuid.UUID) (models.FluProjectService, error) {
+func (fps *projectConfigurationRepo) Get(projectId uuid.UUID) (models.ProjectConfiguration, error) {
 	return fps.get(projectId)
 }
 
 /*-------------------------------------------------------------------------------------------------------------*/
 /*----------------------------------Basic DB Queries Implementation--------------------------------------------*/
 /*-------------------------------------------------------------------------------------------------------------*/
-func (fps *fluProjectService) get(projectId uuid.UUID) (v models.FluProjectService, err error) {
-	err = fps.db.SelectOne(&v, "SELECT * FROM flu_project_service WHERE project_id = $1", projectId)
+func (fps *projectConfigurationRepo) get(projectId uuid.UUID) (v models.ProjectConfiguration, err error) {
+	err = fps.db.SelectOne(&v, "SELECT * FROM "+projectConfigurationTable+" WHERE project_id = $1", projectId)
 	return
 }
 
-func (fps *fluProjectService) update(fp models.FluProjectService) error {
+func (fps *projectConfigurationRepo) update(fp models.ProjectConfiguration) error {
 
 	_, err := fps.db.Update(&fp)
 	return err
 }
 
-func (fps *fluProjectService) insertMany(projects []models.FluProjectService) error {
+func (fps *projectConfigurationRepo) insertMany(projects []models.ProjectConfiguration) error {
 
 	err := fps.db.Insert(toInterfaceArray(projects)...)
 	return err
 }
 
-func (fps *fluProjectService) deleteMany(projects []models.FluProjectService) error {
+func (fps *projectConfigurationRepo) deleteMany(projects []models.ProjectConfiguration) error {
 
 	_, err := fps.db.Delete(toInterfaceArray(projects)...)
 	return err
 }
 
-func toInterfaceArray(fps []models.FluProjectService) []interface{} {
+func toInterfaceArray(fps []models.ProjectConfiguration) []interface{} {
 	var projects []interface{} = make([]interface{}, len(fps))
 	for i, _ := range fps {
 		projects[i] = &fps[i]

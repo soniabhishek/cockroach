@@ -17,8 +17,7 @@ type workFlowSvc struct {
 }
 
 func (w *workFlowSvc) AddFLU(flu models.FeedLineUnit) {
-	flu.Step = "workflowsvc"
-	counter.Print(feed_line.FLU{FeedLineUnit: flu})
+	counter.Print(feed_line.FLU{FeedLineUnit: flu}, "workflowsvc")
 	w.InQ <- feed_line.FLU{FeedLineUnit: flu}
 }
 
@@ -63,16 +62,4 @@ func startWorkflowSvcNLog(w *workFlowSvc) {
 			}
 		}
 	}()
-}
-
-func Start() {
-
-	completeHandler := func(flu models.FeedLineUnit) {
-		fmt.Println("on complete handler called", flu)
-	}
-	workFlowSvc := &workFlowSvc{}
-
-	workFlowSvc.OnComplete(completeHandler)
-
-	workFlowSvc.Start()
 }

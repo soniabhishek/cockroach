@@ -22,13 +22,13 @@ var _ IFluRepo = &fluRepo{}
 //Gets a Flu from database for the given id
 func (e *fluRepo) GetById(id uuid.UUID) (models.FeedLineUnit, error) {
 
-	var ip models.FeedLineUnit
+	var flu models.FeedLineUnit
 
-	err := e.Db.SelectOne(&ip, "select * from feedline where id = $1", id)
+	err := e.Db.SelectOne(&flu, "select * from feedline where id = $1", id)
 	if err != nil {
-		return ip, err
+		return flu, err
 	}
-	return ip, nil
+	return flu, nil
 }
 
 func (e *fluRepo) Save(i models.FeedLineUnit) {
@@ -74,4 +74,20 @@ func (e *fluRepo) GetByStepId(StepId uuid.UUID) ([]models.FeedLineUnit, error) {
 		return ip, err
 	}
 	return ip, nil
+}
+
+func (e *fluRepo) BulkUpdate(flus []models.FeedLineUnit) error {
+
+	var flusInterface []interface{} = make([]interface{}, len(flus))
+	for i, _ := range flus {
+
+		if flus[i].ID == uuid.Nil {
+			return errors.New("flu not present")
+		}
+		flus[i].UpdatedAt = pq.NullTime{time.Now(), true}
+		flusInterface[i] = &flus[i]
+	}
+
+	_, err := e.Db.Update(flusInterface...)
+	return err
 }

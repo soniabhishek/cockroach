@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"reflect"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"reflect"
-	"testing"
 )
 
 func TestSqlXWrap_SelectCustom(t *testing.T) {

@@ -26,6 +26,8 @@ const (
 	S3_BUCKET               = configKey("aws.s3Bucket")
 	MONGO_HOST              = configKey("mongo.host")
 	MONGO_DB_NAME           = configKey("mongo.name")
+	CROWDY_BASE_API         = configKey("crowdy.base.api")
+	CROWDY_AUTH_KEY         = configKey("crowdy.authKey")
 )
 
 // Gets the value for given key from the config file.

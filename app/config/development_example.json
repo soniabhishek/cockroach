@@ -57,6 +57,13 @@
     "secretKey":"v0/dr/aXopQKwfwVdDhhZJlNVes/2VzjYQCnfeKS",
     "accessId":"AKIAILPB5FXULHOVAO3Q",
     "s3Bucket" :"playmentdevelopment"
-  }
+  },
 
+  "crowdy" : {
+    "base" : {
+      "api" : "http://localhost:9000/api",
+      "web" : "http://localhost:9000"
+    },
+    "authKey" : "Bearer <YOUR BEARER AUTH TOKEN>"
+  }
 }

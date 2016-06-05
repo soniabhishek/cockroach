@@ -11,7 +11,7 @@ import (
 
 //Add Downloading and Uploading functionality to models.ImageDictionary
 type imager struct {
-	models.ImageDictionary
+	models.ImageDictionaryNew
 	imgData io.ReadCloser
 }
 

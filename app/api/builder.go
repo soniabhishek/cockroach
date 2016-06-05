@@ -7,6 +7,7 @@ import (
 	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_svc_transport"
 	"gitlab.com/playment-main/angel/app/services/image_svc1"
+	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step/crowdsourcing_step_transport"
 )
 
 func Build() {
@@ -31,6 +32,8 @@ func Build() {
 
 		api.POST("/bulkdownloadimages", handlers.BulkDownloadImages)
 		api.POST("/bulkdownloadimagesfromcsv", handlers.BulkDownloadedImagesFromCSV)
+
+		crowdsourcing_step_transport.AddHttpTransport(api)
 	}
 
 	authorized := r.Group("/api/v0", auther.GinAuther())

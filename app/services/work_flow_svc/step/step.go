@@ -1,8 +1,8 @@
 package step
 
 import (
-	"fmt"
 	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 )
 
@@ -20,10 +20,13 @@ func New() Step {
 	}
 }
 
-func (s *Step) AddToBuffer(flu feed_line.FLU) error {
+func (s *Step) AddToBuffer(flu feed_line.FLU) {
+	s.buffer.Add(flu)
+}
 
-	s.buffer = append(s.buffer, flu)
-	return nil
+func (s *Step) GetBuffered() feed_line.Bf {
+
+	return s.buffer
 }
 
 func (s *Step) RemoveFromBuffer(flu feed_line.FLU) error {
@@ -34,11 +37,11 @@ func (s *Step) RemoveFromBuffer(flu feed_line.FLU) error {
 func (s *Step) Detain(flu feed_line.FLU, why error, saver iFluSave) {
 	err := saver.Save(flu.FeedLineUnit)
 	if err != nil {
-		fmt.Println(err)
+		plog.Error("Step error", err)
 	}
 
 }
 
 type iFluSave interface {
-	Save(models.FeedLineUnit) error
+	Save(models.FeedLineUnit)
 }

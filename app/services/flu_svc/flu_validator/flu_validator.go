@@ -14,15 +14,15 @@ type fluValidator struct {
 
 var _ IFluValidatorService = &fluValidator{}
 
-func (i *fluValidator) GetValidators(macroTaskId uuid.UUID, tag string) (fvs []models.FLUValidator, err error) {
+func (i *fluValidator) GetValidators(projectId uuid.UUID, tag string) (fvs []models.FLUValidator, err error) {
 
-	fvs, err = i.fluValidatorRepo.GetValidatorsForMacroTask(macroTaskId, tag)
+	fvs, err = i.fluValidatorRepo.GetValidatorsForProject(projectId, tag)
 	return
 }
 
 func (i *fluValidator) SaveValidator(fv *models.FLUValidator) (err error) {
 
-	existingFvs, err := i.GetValidators(fv.MacroTaskId, fv.Tag)
+	existingFvs, err := i.GetValidators(fv.ProjectId, fv.Tag)
 
 	if err != nil {
 		return err
@@ -57,8 +57,8 @@ func (i *fluValidator) SaveValidator(fv *models.FLUValidator) (err error) {
 // not implemented
 func (i *fluValidator) DeleteValidator(fv models.FLUValidator) (err error) {
 
-	if fv.MacroTaskId == uuid.Nil {
-		return errors.New("MacroTaskId cant be empty")
+	if fv.ProjectId == uuid.Nil {
+		return errors.New("ProjectId cant be empty")
 	}
 
 	if fv.FieldName == "" {

@@ -101,6 +101,6 @@ func (i *fluService) GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, erro
 //--------------------------------------------------------------------------------//
 
 func checkProjectExists(r projects_repo.IProjectsRepo, mId uuid.UUID) error {
-	_, err := r.Get(mId)
+	_, err := r.GetById(mId)
 	return err
 }

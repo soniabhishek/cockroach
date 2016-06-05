@@ -23,7 +23,11 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 		}
 
 		if config.IsDevelopment() {
-			fmt.Println(err, errString, tag, err, args, stackTrace)
+			fmt.Println(tag)
+			fmt.Println(err)
+			fmt.Println(errString)
+			fmt.Println(argsString)
+			fmt.Println(stackTrace)
 			return
 		}
 

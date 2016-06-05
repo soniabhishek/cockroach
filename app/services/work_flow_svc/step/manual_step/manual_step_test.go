@@ -9,10 +9,9 @@ import (
 )
 
 func TestManualStep_DownloadCsv(t *testing.T) {
-	ms := manualStep{}
 	manualStepId, _ := uuid.FromString("7adbafe4-1dc2-4ba3-b8ba-155c87666323")
 	projectId, _ := uuid.FromString("6b6e70de-7fa1-483d-a0eb-02a979e5bc3b")
-	resp := ms.DownloadCsv(manualStepId, projectId)
+	resp := DownloadCsv(manualStepId, projectId)
 
 	fmt.Println("Response", resp)
 
@@ -22,10 +21,9 @@ func TestManualStep_DownloadCsv(t *testing.T) {
 }
 
 func TestManualStep_UploadCsv(t *testing.T) {
-	ms := manualStep{}
 	manualStepId, _ := uuid.FromString("7adbafe4-1dc2-4ba3-b8ba-155c87666323")
 	projectId, _ := uuid.FromString("6b6e70de-7fa1-483d-a0eb-02a979e5bc3b")
-	err := ms.UploadCsv("./", manualStepId, projectId)
+	err := UploadCsv("./", manualStepId, projectId)
 	assert.NoError(t, err)
 
 	/*assert.NoError(t, status, "Error occured while validating")

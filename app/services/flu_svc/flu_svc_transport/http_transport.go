@@ -20,7 +20,7 @@ func AddHttpTransport(routerGroup *gin.RouterGroup) {
 	fluService := flu_svc.NewWithExposedValidators()
 
 	routerGroup.POST("/project/:projectId/feedline", feedLineInputHandler(fluService))
-	routerGroup.GET("/feedline/:feedlineId", feedLineGetHandler(fluService))
+	routerGroup.GET("/project/:projectId/feedline/:feedlineId", feedLineGetHandler(fluService))
 
 	routerGroup.GET("/project/:projectId/validator", validatorGetHandler(fluService))
 	routerGroup.POST("/project/:projectId/validator", validatorUpdateHandler(fluService))

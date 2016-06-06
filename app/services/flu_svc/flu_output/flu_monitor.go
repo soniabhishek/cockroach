@@ -34,6 +34,14 @@ type feedLineValue struct {
 type FluMonitor struct {
 }
 
+type fluOutputStruct struct {
+	ID          uuid.UUID       `json:"flu_id"`
+	ReferenceId string          `json:"reference_id"`
+	Tag         string          `json:"tag"`
+	Status      string          `json:"status"`
+	Result      models.JsonFake `json:"results"`
+}
+
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 	feedLineArr := make([]models.FeedLineUnit, 1)
@@ -42,6 +50,8 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 }
 
 func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) error {
+
+	plog.Info("FLu Monitor", fluBundle)
 
 	mutex.Lock()
 	for _, flu := range fluBundle {
@@ -58,6 +68,9 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 }
 
 func checkupFeedLinePipe() {
+
+	plog.Info("Flu output", "checkupFeedLinePipe")
+
 	var projectIdsToSend = make([]uuid.UUID, 1)
 	mutex.RLock()
 	for projectId := range feedLinePipe {
@@ -70,7 +83,25 @@ func checkupFeedLinePipe() {
 
 }
 
+func getFluOutputObj(flus []models.FeedLineUnit) (fluOutputObj []fluOutputStruct) {
+	for _, flu := range flus {
+
+		result := flu.Build["result"].(models.JsonFake)
+
+		fluOutputObj = append(fluOutputObj, fluOutputStruct{
+			ID:          flu.ID,
+			ReferenceId: flu.ReferenceId,
+			Tag:         flu.Tag,
+			Status:      "COMPLETED",
+			Result:      result,
+		})
+	}
+	return
+}
+
 func sendBackResp(projectIdsToSend []uuid.UUID) {
+
+	plog.Info("Flu output", "sendBackResp", projectIdsToSend)
 
 	retryIdsList := make([]uuid.UUID, 0)
 	for _, projectId := range projectIdsToSend {
@@ -78,7 +109,9 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 		if ok == false {
 			continue
 		}
-		fluResp, status := sendBackToClient(projectId, flp.feedLine)
+		fluOutObj := getFluOutputObj(flp.feedLine)
+
+		fluResp, status := sendBackToClient(projectId, fluOutObj)
 		if status == status_codes.Success {
 
 			deleteFromFeedLinePipe(projectId)
@@ -101,7 +134,10 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 	}
 }
 
-func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit) (*Response, status_codes.StatusCode) {
+func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*Response, status_codes.StatusCode) {
+
+	plog.Info("Flu output", "sendBackToClient", projectId)
+
 	fpsRepo := project_configuration_repo.New()
 	fpsModel, err := fpsRepo.Get(projectId)
 	if utilities.IsValidError(err) {
@@ -121,8 +157,12 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit)
 	fmt.Println(string(jsonBytes))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBytes))
-	req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
+
+	for headerKey, headerVal := range fpsModel.Headers {
+		req.Header.Set(headerKey, headerVal.(string))
+
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -168,10 +208,14 @@ var startFluOnce sync.Once
 
 func StartFluOutputTimer() {
 	startFluOnce.Do(func() {
+		plog.Info("Flu output", monitorTimePeriod, "timer")
+
 		t := time.NewTicker(monitorTimePeriod)
-		for _ = range t.C {
-			checkupFeedLinePipe()
-		}
+		go func() {
+			for _ = range t.C {
+				checkupFeedLinePipe()
+			}
+		}()
 	})
 
 }

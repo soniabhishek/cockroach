@@ -6,7 +6,7 @@ import (
 )
 
 var approveJson = models.JsonFake{
-	"action":  "reject",
+	"action":  "approve",
 	"approve": "approve",
 }
 

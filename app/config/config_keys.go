@@ -28,6 +28,11 @@ const (
 	MONGO_DB_NAME           = configKey("mongo.name")
 	CROWDY_BASE_API         = configKey("crowdy.base.api")
 	CROWDY_AUTH_KEY         = configKey("crowdy.authKey")
+	MONITOR_TIME_PERIOD     = configKey("fluMonitor.time_period")
+	RETRY_TIME_PERIOD       = configKey("fluMonitor.retry_time_period")
+	FLU_THRESHOLD_COUNT     = configKey("fluMonitor.flu_threshold_count")
+	FLU_THRESHOLD_DURATION  = configKey("fluMonitor.flu_threshold_duration")
+	DOWNLOAD_PATH           = configKey("workflow_step.manual_download_path")
 )
 
 // Gets the value for given key from the config file.

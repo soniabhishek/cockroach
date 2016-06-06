@@ -9,16 +9,23 @@ import (
 	"time"
 
 	"gitlab.com/playment-main/angel/app/DAL/repositories/project_configuration_repo"
+	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/status_codes"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/utilities"
+	"strconv"
 )
 
 var feedLinePipe = make(map[uuid.UUID]feedLineValue)
 var retryCount = make(map[uuid.UUID]int)
 var mutex = &sync.RWMutex{}
+
+var retryTimePeriod, _ = strconv.Atoi(config.Get(config.RETRY_TIME_PERIOD))
+var fluThresholdCount, _ = strconv.Atoi(config.Get(config.FLU_THRESHOLD_COUNT))
+var fluThresholdDuration, _ = strconv.Atoi(config.Get(config.FLU_THRESHOLD_DURATION))
+var monitorTimePeriod, _ = strconv.Atoi(config.Get(config.MONITOR_TIME_PERIOD))
 
 type feedLineValue struct {
 	insertionTime int64
@@ -91,7 +98,7 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 	}
 
 	if len(retryIdsList) != 0 {
-		time.Sleep(5000 * time.Millisecond) //TODO determine duration
+		time.Sleep(retryTimePeriod * time.Millisecond)
 		sendBackResp(retryIdsList)
 	}
 }
@@ -110,7 +117,6 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit)
 
 	jsonBytes, err := json.Marshal(fluProjectResp)
 	if err != nil {
-		//TODO check Error solid implementation
 		plog.Error("JSON Marshalling Error:", err)
 		return &Response{}, status_codes.UnknownFailure
 	}
@@ -151,9 +157,8 @@ func validationErrorCallback(resp *http.Response) (*Response, status_codes.Statu
 }
 
 func IsEligibleForSendingBack(key uuid.UUID) bool {
-	//TODO some threshold value and some configurable time
 	flp, ok := feedLinePipe[key]
-	if ok && (len(flp.feedLine) > 1000 || utilities.TimeDiff(false, flp.insertionTime) > 36000000) {
+	if ok && (len(flp.feedLine) > fluThresholdCount || utilities.TimeDiff(false, flp.insertionTime) > fluThresholdDuration) {
 		return true
 	}
 	return false
@@ -165,8 +170,7 @@ var startFluOnce sync.Once
 
 func StartFluOutputTimer() {
 	startFluOnce.Do(func() {
-		//Todo get scheduling value
-		t := time.NewTicker(5 * time.Second)
+		t := time.NewTicker(monitorTimePeriod * time.Second)
 		for _ = range t.C {
 			checkupFeedLinePipe()
 		}

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
+	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
@@ -24,18 +25,7 @@ func DownloadCsv(manualStepId uuid.UUID, projectId uuid.UUID) (file string) {
 	}
 	plog.Info("manual step flus going to be downloaded", flus, manualStepId)
 
-	//TODO get the data from DB
-	/*stream := "json data"
-	data := []byte(stream)
-	// Unmarshal JSON data
-	var flus []feed_line.FLU
-	err := json.Unmarshal([]byte(data), &flus)
-	if err != nil {
-		fmt.Println(err)
-	}*/
-
-	//TODO get the path
-	path := "./"
+	path := config.Get(config.DOWNLOAD_PATH)
 	file = path + manualStepId.String() + utilities.Hyphen + projectId.String() + ".csv"
 	// Create a csv file
 	f, err := os.Create(file)

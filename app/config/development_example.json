@@ -65,5 +65,16 @@
       "web" : "http://localhost:9000"
     },
     "authKey" : "Bearer <YOUR BEARER AUTH TOKEN>"
+  },
+
+  "fluMonitor" : {
+    "time_period" : "1000",
+    "retry_time_period": "5000",
+    "flu_threshold_count": "1000",
+    "flu_threshold_duration": "5000"
+  },
+
+  "workflow_step" : {
+    "manual_download_path" : "~/Users/Desktop/"
   }
 }

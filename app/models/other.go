@@ -42,3 +42,8 @@ type BatchProcess struct {
 	CreatedAt   pq.NullTime
 	MacroTaskId uuid.UUID
 }
+
+type RouteWithLogicGate struct {
+	Route
+	LogicGate LogicGate
+}

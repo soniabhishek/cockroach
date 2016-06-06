@@ -78,6 +78,6 @@
   },
 
   "workflow_step" : {
-    "manual_download_path" : "~/Users/Desktop/"
+    "manual_download_path" : "<FILE DOWNLOAD PATH>"
   }
 }

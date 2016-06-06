@@ -1,6 +1,8 @@
 package config
 
-import "errors"
+import (
+	"errors"
+)
 
 type configKey string
 
@@ -28,7 +30,7 @@ const (
 	MONGO_DB_NAME           = configKey("mongo.name")
 	CROWDY_BASE_API         = configKey("crowdy.base.api")
 	CROWDY_AUTH_KEY         = configKey("crowdy.authKey")
-	MONITOR_TIME_PERIOD     = configKey("fluMonitor.time_period")
+	MONITOR_TIME_PERIOD     = configKey("fluMonitor.monitor_time_period")
 	RETRY_TIME_PERIOD       = configKey("fluMonitor.retry_time_period")
 	FLU_THRESHOLD_COUNT     = configKey("fluMonitor.flu_threshold_count")
 	FLU_THRESHOLD_DURATION  = configKey("fluMonitor.flu_threshold_duration")

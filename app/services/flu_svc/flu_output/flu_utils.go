@@ -2,7 +2,6 @@ package flu_output
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 

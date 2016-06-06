@@ -68,7 +68,7 @@
   },
 
   "fluMonitor" : {
-    "time_period" : "1000",
+    "monitor_time_period" : "1000000",
     "retry_time_period": "5000",
     "flu_threshold_count": "1000",
     "flu_threshold_duration": "5000"

@@ -76,3 +76,7 @@ func TestBufferPut(t *testing.T) {
 	assert.True(t, isValid, "Expected valid flu but found inValid")
 	assert.Empty(t, err, "Validations errors were non-empty for valid flu")*/
 }
+
+func TestStartFluOutputTimer(t *testing.T) {
+	StartFluOutputTimer()
+}

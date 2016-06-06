@@ -15,17 +15,16 @@ import (
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/utilities"
-	"strconv"
 )
 
 var feedLinePipe = make(map[uuid.UUID]feedLineValue)
 var retryCount = make(map[uuid.UUID]int)
 var mutex = &sync.RWMutex{}
 
-var retryTimePeriod, _ = strconv.Atoi(config.Get(config.RETRY_TIME_PERIOD))
-var fluThresholdCount, _ = strconv.Atoi(config.Get(config.FLU_THRESHOLD_COUNT))
-var fluThresholdDuration, _ = strconv.Atoi(config.Get(config.FLU_THRESHOLD_DURATION))
-var monitorTimePeriod, _ = strconv.Atoi(config.Get(config.MONITOR_TIME_PERIOD))
+var retryTimePeriod = time.Duration(utilities.GetInt(config.Get(config.RETRY_TIME_PERIOD))) * time.Millisecond
+var fluThresholdCount = utilities.GetInt(config.Get(config.FLU_THRESHOLD_COUNT))
+var fluThresholdDuration = int64(utilities.GetInt(config.Get(config.FLU_THRESHOLD_DURATION)))
+var monitorTimePeriod = time.Duration(utilities.GetInt(config.Get(config.MONITOR_TIME_PERIOD))) * time.Millisecond
 
 type feedLineValue struct {
 	insertionTime int64
@@ -44,7 +43,6 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) error {
 
-	fmt.Println(feedLinePipe)
 	mutex.Lock()
 	for _, flu := range fluBundle {
 		value, valuePresent := feedLinePipe[flu.ProjectId]
@@ -170,7 +168,7 @@ var startFluOnce sync.Once
 
 func StartFluOutputTimer() {
 	startFluOnce.Do(func() {
-		t := time.NewTicker(monitorTimePeriod * time.Second)
+		t := time.NewTicker(monitorTimePeriod)
 		for _ = range t.C {
 			checkupFeedLinePipe()
 		}

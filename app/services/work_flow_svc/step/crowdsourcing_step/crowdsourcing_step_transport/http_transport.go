@@ -4,13 +4,14 @@ import "github.com/gin-gonic/gin"
 import (
 	"net/http"
 
+	"fmt"
 	"gitlab.com/playment-main/angel/app/services/plerrors"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step"
 )
 
 func AddHttpTransport(r *gin.RouterGroup) {
 
-	r.POST("/angel_crowdsourcing_gateway?action=flu_updates", crowdSourcingPostHandler())
+	r.POST("/angel_crowdsourcing_gateway", crowdSourcingPostHandler())
 }
 
 type fluUpdateReq struct {
@@ -20,6 +21,16 @@ type fluUpdateReq struct {
 func crowdSourcingPostHandler() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
+
+		fmt.Println("whire", c.Param("action"))
+
+		if c.Param("action") != "flu_updates" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"error":   "unknown action",
+			})
+			return
+		}
 
 		var fluUpdateReq fluUpdateReq
 

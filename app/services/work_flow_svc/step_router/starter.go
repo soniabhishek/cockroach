@@ -5,7 +5,6 @@ import (
 
 	"gitlab.com/playment-main/angel/app/models/step_type"
 	"gitlab.com/playment-main/angel/app/plog"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
 )
 
 func start(sr *stepRouter) {
@@ -17,7 +16,7 @@ func start(sr *stepRouter) {
 		for {
 			select {
 			case flu := <-sr.InQ:
-
+				plog.Info("Router in", flu.ID)
 				// There is a question that adding to the
 				// buffer should be inside or outside
 				// the below go routine.
@@ -46,8 +45,9 @@ func start(sr *stepRouter) {
 					// i.e. if the below method takes 1 second & buffer size is 10
 					// then the max speed of router processing will be 1 flu * buffer/second = 10 flu/second
 					r := sr.getRoute(&flu)
-					counter.Print(flu, "router")
+					plog.Info("router", "got some route")
 					*r <- flu
+					plog.Info("router out", "sent somewhere")
 				}()
 
 			}

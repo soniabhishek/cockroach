@@ -11,6 +11,7 @@ import (
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/manual_step"
+	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/transformation_step"
 )
 
 type routeTable map[step_type.StepType]*feed_line.Fl
@@ -40,13 +41,14 @@ func (sr *stepRouter) connectAll() {
 
 	var crowdSourcingConn IConnector = crowdsourcing_step.StdCrowdSourcingStep
 	var manualStepConn IConnector = manual_step.StdManualStep
+	var transformationStepConn IConnector = transformation_step.StdTransformationStep
 
 	sr.routeTable = routeTable{
 
 		step_type.CrowdSourcing:    crowdSourcingConn.Connect(&sr.InQ),
 		step_type.InternalSourcing: manualStepConn.Connect(&sr.InQ),
 		step_type.Manual:           manualStepConn.Connect(&sr.InQ),
-		step_type.Transformation:   manualStepConn.Connect(&sr.InQ),
+		step_type.Transformation:   transformationStepConn.Connect(&sr.InQ),
 		step_type.Algorithm:        manualStepConn.Connect(&sr.InQ),
 		step_type.Bifurcation:      manualStepConn.Connect(&sr.InQ),
 		step_type.Unification:      manualStepConn.Connect(&sr.InQ),
@@ -75,16 +77,18 @@ func (sr *stepRouter) getRoute(flu *feed_line.FLU) (route *feed_line.Fl) {
 
 	} else {
 
+		// commented out feature not available
+
 		// check if last one has failed
 		// push to error step if it has occurred
-		if l := len(flu.Trip); l > 0 {
-
-			if currentStep := flu.Trip[l-1]; !currentStep.Success() {
-				err = errors.New("error occured in previes step")
-				plog.Error("Router", err, "Sending flu to error step as it failed in the last one")
-				return sr.routeTable[step_type.Error]
-			}
-		}
+		//if l := len(flu.Trip); l > 0 {
+		//
+		//	if currentStep := flu.Trip[l-1]; !currentStep.Success() {
+		//		err = errors.New("error occured in previes step")
+		//		plog.Error("Router", err, "Sending flu to error step as it failed in the last one")
+		//		return sr.routeTable[step_type.Error]
+		//	}
+		//}
 
 		nextStep, err = sr.routeGetter.GetNextStep(*flu)
 		if err != nil {

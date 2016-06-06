@@ -19,7 +19,7 @@ func TestLogic(t *testing.T) {
 		logicGateTestCase{
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonFake{
-					"type": "continue",
+					"logic": "continue",
 				},
 			},
 			Result: true,
@@ -28,7 +28,7 @@ func TestLogic(t *testing.T) {
 		logicGateTestCase{
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonFake{
-					"type": "continues",
+					"logic": "continues",
 				},
 			},
 			Result: false,
@@ -37,20 +37,20 @@ func TestLogic(t *testing.T) {
 		logicGateTestCase{
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonFake{
-					"type12": "continue",
+					"logic12": "continue",
 				},
 			},
 			Result: false,
-			Error:  ErrLogicTypeNotFound,
+			Error:  ErrLogicKeyNotFound,
 		},
 		logicGateTestCase{
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonFake{
-					"type": 123,
+					"logic": 123,
 				},
 			},
 			Result: false,
-			Error:  ErrLogicTypeNotValid,
+			Error:  ErrLogicKeyNotValid,
 		},
 	}
 

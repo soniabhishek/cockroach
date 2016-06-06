@@ -47,6 +47,6 @@ func StartFeedLineSync() {
 		}
 	}
 
-	c.AddFunc("0/20 * * * * *", syncFeedLine)
+	c.AddFunc("*/10 * * * * *", syncFeedLine)
 	c.Start()
 }

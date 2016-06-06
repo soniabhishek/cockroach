@@ -3,8 +3,6 @@ package step_type
 import (
 	"database/sql/driver"
 	"errors"
-	"fmt"
-	"reflect"
 )
 
 // Kinda step enums
@@ -28,8 +26,6 @@ func (s StepType) Value() (driver.Value, error) {
 func (s *StepType) Scan(src interface{}) error {
 
 	var tmp uint
-
-	fmt.Println("aasdsad", reflect.TypeOf(src).Kind().String())
 
 	switch src.(type) {
 	case uint:

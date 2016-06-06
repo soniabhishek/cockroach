@@ -29,13 +29,13 @@ func (r *routeGetter) GetNextStep(flu feed_line.FLU) (models.Step, error) {
 
 	var step models.Step
 
-	routes, err := r.stepRouterRepo.GetRoutesByStepId(flu.StepId)
+	routes, err := r.stepRouterRepo.GetRoutesWithLogicByStepId(flu.StepId)
 	if err != nil {
 		return step, err
 	}
 
 	for _, route := range routes {
-		correct, err := Logic(flu, models.LogicGate{ID: route.LogicGateId})
+		correct, err := Logic(flu, route.LogicGate)
 		if err != nil {
 			return step, err
 		} else if correct {

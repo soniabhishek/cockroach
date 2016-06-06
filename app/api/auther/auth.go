@@ -7,6 +7,7 @@ import (
 	"errors"
 	"strconv"
 
+	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
@@ -48,4 +49,4 @@ func (a auther) Check(id uuid.UUID, key string) bool {
 
 //--------------------------------------------------------------------------------//
 
-var StdProdAuther = auther{[]byte("sdfsrfydgigushhsurvhsourhvosur")}
+var StdProdAuther = auther{[]byte(config.Get(config.AUTHER_PLAYMENT_SECRET))}

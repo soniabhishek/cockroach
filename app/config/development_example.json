@@ -66,6 +66,9 @@
     },
     "authKey" : "Bearer <YOUR BEARER AUTH TOKEN>"
   },
+  "auther" : {
+    "playment_secret" : "<blah blah blah insert your secret key here>"
+  },
 
   "fluMonitor" : {
     "monitor_time_period" : "1000000",

@@ -12,7 +12,7 @@ import (
 
 func TestWorkFlowSvc_AddFLU(t *testing.T) {
 
-	//t.SkipNow()
+	t.SkipNow()
 
 	fluId := uuid.NewV4()
 

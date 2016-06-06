@@ -17,6 +17,10 @@ type IFluRepo interface {
 	GetByStepId(StepId uuid.UUID) ([]models.FeedLineUnit, error)
 }
 
+type IFluLogger interface {
+	Log(models.FeedLineLog)
+}
+
 //--------------------------------------------------------------------------------//
 
 type inMemFluRepo struct {

@@ -17,3 +17,9 @@ func NewInputQueue() *inputQueue {
 		mgo: clients.GetMongoClient(),
 	}
 }
+
+func newLogger() IFluLogger {
+	return &feedLineLogger{}
+}
+
+var StdLogger = newLogger()

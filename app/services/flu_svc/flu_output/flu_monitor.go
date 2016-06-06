@@ -12,6 +12,7 @@ import (
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/status_codes"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/utilities"
 )
 
@@ -99,18 +100,18 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit)
 	fpsRepo := project_configuration_repo.New()
 	fpsModel, err := fpsRepo.Get(projectId)
 	if utilities.IsValidError(err) {
-		fmt.Println(err)
+		plog.Error("DB Error:", err)
 		return &Response{}, status_codes.UnknownFailure
 	}
 
-	url := fpsModel.PostBackUrl + "sdfadsf"
+	url := fpsModel.PostBackUrl
 	//url := "http://localhost:8080/JServer/HelloServlet"
 	fmt.Println("URL:>", url)
 
 	jsonBytes, err := json.Marshal(fluProjectResp)
 	if err != nil {
 		//TODO check Error solid implementation
-		fmt.Println(err)
+		plog.Error("JSON Marshalling Error:", err)
 		return &Response{}, status_codes.UnknownFailure
 	}
 	fmt.Println(string(jsonBytes))
@@ -122,7 +123,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		//panic(err)
+		plog.Error("HTTP Error:", err)
 		return &Response{}, status_codes.UnknownFailure
 	}
 

@@ -13,7 +13,7 @@ func TestHttpHit(t *testing.T) {
 	flus := []models.FeedLineUnit{models.FeedLineUnit{
 		ReferenceId: "PAYTM_123",
 		Data: models.JsonFake{
-			"product_id":  "59955f54-e75c-40a1-8d11-162e12dbf68a",
+			"product_id":  "da17b335-7ed9-4928-a222-44eda29a4896",
 			"category_id": "t_shirt_12",
 			"name":        "XYZ Men's Gold T-Shirt",
 			"brand":       "XYZ",
@@ -22,7 +22,7 @@ func TestHttpHit(t *testing.T) {
 		Tag: "PAYTM_TSHIRT",
 	}}
 
-	uuid, _ := uuid.FromString("59955f54-e75c-40a1-8d11-162e12dbf68a")
+	uuid, _ := uuid.FromString("da17b335-7ed9-4928-a222-44eda29a4896")
 	resp, status := sendBackToClient(uuid, flus)
 
 	fmt.Println("Status", status)

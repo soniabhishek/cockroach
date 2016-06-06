@@ -8,6 +8,7 @@ import (
 
 type IStepRoutesRepo interface {
 	GetRoutesByStepId(stepId uuid.UUID) ([]models.Route, error)
+	GetRoutesWithLogicByStepId(stepId uuid.UUID) ([]models.RouteWithLogicGate, error)
 	Save(models.Route) error
 }
 
@@ -33,6 +34,10 @@ func (i *inMemStepRouteRepo) GetRoutesByStepId(stepId uuid.UUID) (routes []model
 	if len(routes) == 0 {
 		return routes, ErrRouteNotFound
 	}
+	return routes, nil
+}
+func (i *inMemStepRouteRepo) GetRoutesWithLogicByStepId(stepId uuid.UUID) (routes []models.RouteWithLogicGate, err error) {
+	panic("not implemented")
 	return routes, nil
 }
 

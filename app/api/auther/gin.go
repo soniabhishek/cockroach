@@ -1,21 +1,30 @@
 package auther
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/plog"
+	"gitlab.com/playment-main/angel/utilities"
 )
 
 func GinAuther() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		projectId, err := uuid.FromString(c.Param("projectId"))
+
+		projRepo := projects_repo.New()
+		project, err := projRepo.GetById(projectId)
 		// Get Client ID
-		clId := c.Request.Header.Get("client_id")
-		if clId == "" {
-			c.Header("authenication error", "client_id required")
+		if utilities.IsValidError(err) {
+			plog.Error("ClientId not found for ProjectId ["+projectId.String()+"]:", err)
+			c.Header("authenication error", "client_id not found")
 			c.AbortWithStatus(401)
 			return
 		}
 
+		clId := project.ClientId.String()
 		// Get Client Secret
 		clSec := c.Request.Header.Get("client_secret")
 		if clSec == "" {

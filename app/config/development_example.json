@@ -65,5 +65,8 @@
       "web" : "http://localhost:9000"
     },
     "authKey" : "Bearer <YOUR BEARER AUTH TOKEN>"
+  },
+  "auther" : {
+    "playment_secret" : "<blah blah blah insert your secret key here>"
   }
 }

@@ -2,11 +2,11 @@ package flu_output
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"gitlab.com/playment-main/angel/app/models/status_codes"
+	"gitlab.com/playment-main/angel/app/plog"
 )
 
 func ParseFluResponse(resp *http.Response) *Response {
@@ -14,14 +14,13 @@ func ParseFluResponse(resp *http.Response) *Response {
 	fluResp.HttpStatusCode = resp.StatusCode
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	fmt.Println("response Headers:", resp)
-	fmt.Println("response Body:", string(body))
+	plog.Info("response Status:", resp.Status)
+	plog.Info("response Headers:", resp.Header)
+	plog.Info("response Headers:", resp)
+	plog.Info("response Body:", string(body))
 	err := json.Unmarshal(body, fluResp)
 	if err != nil {
-		//TODO what to do with error
-		fmt.Println(err)
+		plog.Error("Response Parsing Error: ", err)
 		return fluResp
 	}
 	return fluResp

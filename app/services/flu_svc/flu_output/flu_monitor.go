@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"gitlab.com/playment-main/angel/app/DAL/repositories/project_configuration_repo"
+	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/status_codes"
 	"gitlab.com/playment-main/angel/app/models/uuid"
@@ -19,6 +20,11 @@ import (
 var feedLinePipe = make(map[uuid.UUID]feedLineValue)
 var retryCount = make(map[uuid.UUID]int)
 var mutex = &sync.RWMutex{}
+
+var retryTimePeriod = time.Duration(utilities.GetInt(config.Get(config.RETRY_TIME_PERIOD))) * time.Millisecond
+var fluThresholdCount = utilities.GetInt(config.Get(config.FLU_THRESHOLD_COUNT))
+var fluThresholdDuration = int64(utilities.GetInt(config.Get(config.FLU_THRESHOLD_DURATION)))
+var monitorTimePeriod = time.Duration(utilities.GetInt(config.Get(config.MONITOR_TIME_PERIOD))) * time.Millisecond
 
 type feedLineValue struct {
 	insertionTime int64
@@ -37,7 +43,6 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) error {
 
-	fmt.Println(feedLinePipe)
 	mutex.Lock()
 	for _, flu := range fluBundle {
 		value, valuePresent := feedLinePipe[flu.ProjectId]
@@ -91,7 +96,7 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 	}
 
 	if len(retryIdsList) != 0 {
-		time.Sleep(5000 * time.Millisecond) //TODO determine duration
+		time.Sleep(retryTimePeriod * time.Millisecond)
 		sendBackResp(retryIdsList)
 	}
 }
@@ -110,7 +115,6 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []models.FeedLineUnit)
 
 	jsonBytes, err := json.Marshal(fluProjectResp)
 	if err != nil {
-		//TODO check Error solid implementation
 		plog.Error("JSON Marshalling Error:", err)
 		return &Response{}, status_codes.UnknownFailure
 	}
@@ -151,9 +155,8 @@ func validationErrorCallback(resp *http.Response) (*Response, status_codes.Statu
 }
 
 func IsEligibleForSendingBack(key uuid.UUID) bool {
-	//TODO some threshold value and some configurable time
 	flp, ok := feedLinePipe[key]
-	if ok && (len(flp.feedLine) > 1000 || utilities.TimeDiff(false, flp.insertionTime) > 36000000) {
+	if ok && (len(flp.feedLine) > fluThresholdCount || utilities.TimeDiff(false, flp.insertionTime) > fluThresholdDuration) {
 		return true
 	}
 	return false
@@ -161,12 +164,16 @@ func IsEligibleForSendingBack(key uuid.UUID) bool {
 
 /*-------------------------------------------------------------------------------------------------------------*/
 
+var startFluOnce sync.Once
+
 func StartFluOutputTimer() {
-	//Todo get scheduling value
-	t := time.NewTicker(5 * time.Second)
-	for _ = range t.C {
-		checkupFeedLinePipe()
-	}
+	startFluOnce.Do(func() {
+		t := time.NewTicker(monitorTimePeriod)
+		for _ = range t.C {
+			checkupFeedLinePipe()
+		}
+	})
+
 }
 
 func deleteFromFeedLinePipe(projectId uuid.UUID) {

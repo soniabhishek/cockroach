@@ -8,5 +8,6 @@ type FluOutput interface {
 }
 
 func New() FluOutput {
+	StartFluOutputTimer()
 	return &FluMonitor{}
 }

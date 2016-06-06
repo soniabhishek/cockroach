@@ -1,6 +1,7 @@
 package utilities
 
 import (
+	"strconv"
 	"time"
 )
 
@@ -76,4 +77,9 @@ func IsEmptyOrNil(str string) bool {
 
 func IsValidError(err error) bool {
 	return err != nil
+}
+
+func GetInt(val string) int {
+	ret, _ := strconv.Atoi(val)
+	return ret
 }

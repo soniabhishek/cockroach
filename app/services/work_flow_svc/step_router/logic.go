@@ -7,19 +7,19 @@ import (
 )
 
 var ErrLogicNotFound = errors.New("Logic not found")
-var ErrLogicTypeNotFound = errors.New("Type not found")
-var ErrLogicTypeNotValid = errors.New("Type not valid")
+var ErrLogicKeyNotFound = errors.New("logic key not found")
+var ErrLogicKeyNotValid = errors.New("logic key not valid")
 
 func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
-	templateType, ok := l.InputTemplate["type"]
+	templateType, ok := l.InputTemplate["logic"]
 	if !ok {
-		return false, ErrLogicTypeNotFound
+		return false, ErrLogicKeyNotFound
 	}
 
 	templateTypeStr, ok := templateType.(string)
 	if !ok {
-		return false, ErrLogicTypeNotValid
+		return false, ErrLogicKeyNotValid
 	}
 
 	switch templateTypeStr {

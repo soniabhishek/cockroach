@@ -161,12 +161,17 @@ func IsEligibleForSendingBack(key uuid.UUID) bool {
 
 /*-------------------------------------------------------------------------------------------------------------*/
 
+var startFluOnce sync.Once
+
 func StartFluOutputTimer() {
-	//Todo get scheduling value
-	t := time.NewTicker(5 * time.Second)
-	for _ = range t.C {
-		checkupFeedLinePipe()
-	}
+	startFluOnce.Do(func() {
+		//Todo get scheduling value
+		t := time.NewTicker(5 * time.Second)
+		for _ = range t.C {
+			checkupFeedLinePipe()
+		}
+	})
+
 }
 
 func deleteFromFeedLinePipe(projectId uuid.UUID) {

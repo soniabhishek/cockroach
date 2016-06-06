@@ -1,7 +1,6 @@
 package auther
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
 	"gitlab.com/playment-main/angel/app/models/uuid"

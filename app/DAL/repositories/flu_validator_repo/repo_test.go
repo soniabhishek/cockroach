@@ -134,7 +134,7 @@ func setup() {
 
 	//Load any project from db
 	//Make sure you have a project in db
-	err := postgres.GetPostgresClient().SelectOne(&testProject, "select * from projects limit 1")
+	err := postgres.GetPostgresClient().SelectOne(&testProject, "select * from projects where client_id is not null limit 1")
 	if err != nil {
 		panic(err)
 	}

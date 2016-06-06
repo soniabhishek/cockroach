@@ -13,19 +13,23 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 	// gets the stack trace of current go routine
 	stackTrace := string(debug.Stack())
 
+	errString := fmt.Sprintf("%#v", err)
+	argsString := ""
+
+	if len(args) > 0 {
+		argsString = fmt.Sprintf("%#v", args)
+	}
+
+	if config.IsDevelopment() {
+		fmt.Println(tag)
+		fmt.Println(err)
+		fmt.Println(errString)
+		fmt.Println(argsString)
+		fmt.Println(stackTrace)
+		return
+	}
+
 	go func() {
-
-		errString := fmt.Sprintf("%#v", err)
-		argsString := ""
-
-		if len(args) > 0 {
-			argsString = fmt.Sprintf("%#v", args)
-		}
-
-		if config.IsDevelopment() {
-			fmt.Println(err, errString, tag, err, args, stackTrace)
-			return
-		}
 
 		cl := sendgrid.NewSendGridClientWithApiKey(config.Get(config.SENDGRID_API_KEY))
 

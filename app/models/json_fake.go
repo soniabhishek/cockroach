@@ -2,9 +2,8 @@ package models
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"errors"
-	"gitlab.com/playment-main/angel/app/plog"
-	"strconv"
 )
 
 //Need to reimplement this type
@@ -14,14 +13,30 @@ type JsonFake map[string]interface{}
 // Value returns a driver Value.
 func (j JsonFake) Value() (driver.Value, error) {
 
-	//fmt.Println("value called", j.String())
-
 	return j.String(), nil
 }
 
 // An error should be returned if the value can not be stored
 // without loss of information.
 func (j *JsonFake) Scan(src interface{}) error {
+
+	var tmp map[string]interface{}
+	var bty []byte
+
+	switch src.(type) {
+	case []byte:
+		bty = src.([]byte)
+	case string:
+		bty = []byte(src.(string))
+	default:
+		return errors.New("only []byte & string supported at the moment")
+	}
+
+	err := json.Unmarshal(bty, &tmp)
+	if err != nil {
+		return err
+	}
+	*j = JsonFake(tmp)
 	return nil
 }
 
@@ -29,30 +44,21 @@ func (j *JsonFake) Scan(src interface{}) error {
 The is a helper function
 */
 func (j *JsonFake) String() string {
+	/**
+	bool, for JSON booleans
+	float64, for JSON numbers
+	string, for JSON strings
+	[]interface{}, for JSON arrays
+	map[string]interface{}, for JSON objects
+	nil for JSON null
+	*/
 
-	x := "{"
+	bty, _ := json.Marshal(*j)
+	return string(bty)
+}
 
-	for key, value := range *j {
-
-		switch value.(type) {
-		case string:
-			x += "\"" + key + "\" : \"" + value.(string) + "\","
-		case float64:
-			x += "\"" + key + "\" : \"" + strconv.FormatFloat(value.(float64), 'E', -1, 64) + "\","
-		default:
-			plog.Error("JsonFake", errors.New("unknown type found in JsonFake"), "")
-		}
+func (j *JsonFake) Merge(a JsonFake) {
+	for k, v := range a {
+		(*j)[k] = v
 	}
-
-	newVal := x
-
-	//Remove the last ',' character
-	if x != "{" {
-		newVal = x[:len(x)-1]
-	}
-
-	//Add the enclosing bracket
-	newVal += "}"
-
-	return newVal
 }

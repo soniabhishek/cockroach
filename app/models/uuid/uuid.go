@@ -33,6 +33,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"gitlab.com/playment-main/angel/app/plog"
 	"hash"
 	"net"
 	"os"
@@ -284,12 +285,12 @@ func (u *UUID) UnmarshalBinary(data []byte) (err error) {
 
 // Value implements the driver.Valuer interface.
 func (u UUID) Value() (driver.Value, error) {
-
-	// Added this line to enter null in place of default uuid (00000-00000-000000000-00000)
 	if u == Nil {
+		defer func() {
+			plog.Info("Nil uuid Value() called")
+		}()
 		return nil, nil
 	}
-
 	return u.String(), nil
 }
 
@@ -306,6 +307,10 @@ func (u *UUID) Scan(src interface{}) error {
 
 	case string:
 		return u.UnmarshalText([]byte(src))
+	case nil:
+		plog.Info("UUID", "scan called with nil data. Returning uuid.Nil")
+		u = &Nil
+		return nil
 	}
 
 	return fmt.Errorf("uuid: cannot convert %T to UUID", src)

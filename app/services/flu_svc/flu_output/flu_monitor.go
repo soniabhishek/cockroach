@@ -17,7 +17,7 @@ import (
 
 var feedLinePipe = make(map[uuid.UUID]feedLineValue)
 var retryCount = make(map[uuid.UUID]int)
-var mutex = &sync.Mutex{}
+var mutex = &sync.RWMutex{}
 
 type feedLineValue struct {
 	insertionTime int64
@@ -53,13 +53,13 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 
 func checkupFeedLinePipe() {
 	var projectIdsToSend = make([]uuid.UUID, 1)
-	mutex.Lock()
+	mutex.RLock()
 	for projectId := range feedLinePipe {
 		if IsEligibleForSendingBack(projectId) {
 			projectIdsToSend = append(projectIdsToSend, projectId)
 		}
 	}
-	mutex.Unlock()
+	mutex.RUnlock()
 	sendBackResp(projectIdsToSend)
 
 }

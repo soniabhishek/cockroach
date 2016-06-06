@@ -1,6 +1,8 @@
 package manual_step
 
 import (
+	"gitlab.com/playment-main/angel/app/plog"
+	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step"
 )
@@ -11,6 +13,18 @@ type manualStep struct {
 
 func (m *manualStep) processFlu(flu feed_line.FLU) {
 	m.AddToBuffer(flu)
+	plog.Info("Manual Step flu reached", flu)
+}
+
+func (m *manualStep) finishFlu(flu feed_line.FLU) bool {
+
+	err := m.RemoveFromBuffer(flu)
+	if err != nil {
+		return false
+	}
+	counter.Print(flu, "manual")
+	m.OutQ <- flu
+	return true
 }
 
 func (m *manualStep) start() {

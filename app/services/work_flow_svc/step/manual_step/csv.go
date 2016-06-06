@@ -101,6 +101,7 @@ func UploadCsv(filepath string, manualStepId uuid.UUID, projectId uuid.UUID) err
 	for i, row := range rawCSVdata {
 		if i != 0 {
 
+			// TODO Refactor the code below
 			// CSV Headers should be :
 			// "Id", "ReferenceId", "Data", "Build", "Tag", "ProjectId", "StepId", "CreatedAt"
 			id, err := uuid.FromString(row[0])

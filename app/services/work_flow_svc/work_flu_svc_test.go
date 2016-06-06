@@ -12,7 +12,7 @@ import (
 
 func TestWorkFlowSvc_AddFLU(t *testing.T) {
 
-	t.SkipNow()
+	//t.SkipNow()
 
 	fluId := uuid.NewV4()
 
@@ -29,13 +29,7 @@ func TestWorkFlowSvc_AddFLU(t *testing.T) {
 	workFlowSvc.AddFLU(models.FeedLineUnit{
 		ID: fluId,
 	})
-	workFlowSvc.AddFLU(models.FeedLineUnit{
-		ID: fluId,
-	})
-	workFlowSvc.AddFLU(models.FeedLineUnit{
-		ID: fluId,
-	})
 
-	time.Sleep(time.Duration(1) * time.Second)
+	time.Sleep(time.Duration(100) * time.Second)
 
 }

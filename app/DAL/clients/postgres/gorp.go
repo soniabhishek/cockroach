@@ -46,6 +46,10 @@ func addTableInfo(dbMap *gorp.DbMap) {
 	dbMap.AddTableWithName(models.MacroTask{}, "macro_tasks").SetKeys(false, "id")
 	dbMap.AddTableWithName(models.Project{}, "projects").SetKeys(false, "id")
 	dbMap.AddTableWithName(models.Question{}, "questions").SetKeys(false, "id")
+	dbMap.AddTableWithName(models.Step{}, "step").SetKeys(false, "id")
+	dbMap.AddTableWithName(models.Route{}, "routes").SetKeys(false, "id")
+	dbMap.AddTableWithName(models.LogicGate{}, "logic_gate").SetKeys(false, "id")
+	dbMap.AddTableWithName(models.FeedLineLog{}, "feed_line_log").SetKeys(true, "id")
 }
 
 func GetGorpClient() *gorp.DbMap {

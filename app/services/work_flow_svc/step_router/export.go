@@ -8,7 +8,7 @@ func newStdStepRouter() stepRouter {
 	router.connectAll()
 
 	// Start the router
-	router.start()
+	start(&router)
 
 	return router
 }

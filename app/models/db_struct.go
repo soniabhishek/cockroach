@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
+	"gitlab.com/playment-main/angel/app/models/step_type"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
@@ -132,6 +133,19 @@ type FeedLineUnit struct {
 	StepId      uuid.UUID   `db:"step_id" json:"step_id" bson:"step_id"`
 	Build       JsonFake    `db:"build" json:"build" bson:"build"`
 	ProjectId   uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
+}
+
+type FeedLineLog struct {
+	ID         int            `db:"id" json:"id" bson:"_id"`
+	FluId      uuid.UUID      `db:"flu_id" json:"flu_id" bson:"flu_id"`
+	Message    sql.NullString `db:"message" json:"message" bson:"message"`
+	MetaData   JsonFake       `db:"meta_data" json:"meta_data" bson:"meta_data"`
+	StepType   sql.NullInt64  `db:"step_type" json:"step_type" bson:"step_type"`
+	StepEntry  sql.NullBool   `db:"step_entry" json:"step_entry" bson:"step_entry"`
+	StepExit   sql.NullBool   `db:"step_exit" json:"step_exit" bson:"step_exit"`
+	StepId     uuid.UUID      `db:"step_id" json:"step_id" bson:"step_id"`
+	WorkFlowId uuid.UUID      `db:"work_flow_id" json:"work_flow_id" bson:"work_flow_id"`
+	CreatedAt  pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
 }
 
 type Feedback struct {
@@ -466,15 +480,16 @@ type Route struct {
 }
 
 type Step struct {
-	ID         uuid.UUID    `db:"id" json:"id" bson:"_id"`
-	Type       int          `db:"type" json:"type" bson:"type"`
-	WorkFlowId uuid.UUID    `db:"work_flow_id" json:"work_flow_id" bson:"work_flow_id"`
-	IsDeleted  sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
-	CreatedAt  pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
-	UpdatedAt  pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	ID         uuid.UUID          `db:"id" json:"id" bson:"_id"`
+	Type       step_type.StepType `db:"type" json:"type" bson:"type"`
+	WorkFlowId uuid.UUID          `db:"work_flow_id" json:"work_flow_id" bson:"work_flow_id"`
+	IsDeleted  sql.NullBool       `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
+	CreatedAt  pq.NullTime        `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt  pq.NullTime        `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	IsStart    bool               `db:"is_start" json:"is_start" bson:"is_start"`
 }
 
-type StepType struct {
+type StepTypes struct {
 	ID   int            `db:"id" json:"id" bson:"_id"`
 	Name sql.NullString `db:"name" json:"name" bson:"name"`
 }

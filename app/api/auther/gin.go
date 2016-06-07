@@ -37,15 +37,15 @@ func GinAuther() gin.HandlerFunc {
 		}
 
 		// Get Client Secret
-		clSec := c.Request.Header.Get("client_secret")
-		if clSec == "" {
-			c.Header("authenication error", "client_secret required")
+		clientKey := c.Request.Header.Get("x-client-key")
+		if clientKey == "" {
+			c.Header("authenication error", "x-client-key required")
 			c.AbortWithStatus(401)
 			return
 
 		}
 
-		if StdProdAuther.Check(client.ClientSecretUuid, clSec) {
+		if StdProdAuther.Check(client.ClientSecretUuid, clientKey) {
 
 			//Let the request go forward, set a user_id param also
 			c.Set("client_id", client.ID.String())

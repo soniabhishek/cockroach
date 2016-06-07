@@ -47,3 +47,11 @@ func Get(c configKey) string {
 	}
 	return val
 }
+
+func (c configKey) Get() string {
+	val := configProvider.GetString(string(c))
+	if val == "" {
+		panic(errors.New("Configuration value not found"))
+	}
+	return val
+}

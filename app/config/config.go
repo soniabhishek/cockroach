@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"strings"
 
+	"fmt"
 	"github.com/spf13/viper"
 )
 
@@ -23,6 +24,8 @@ func init() {
 	if env = os.Getenv("GOENV"); env == "" {
 		env = Development
 	}
+
+	fmt.Println("Using " + env + " environment")
 
 	var goPath string
 

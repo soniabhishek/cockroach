@@ -5,6 +5,9 @@ Copyright 2016 Playment Inc.
 
 This is a MicroService written in [go](https://golang.org/)
 
+This was planned to be a microservice for main playment server (crowdy) but
+it turned out to be the parent of all.
+
 # Installation
 
 - Install & setup go from its [website](https://golang.org/)
@@ -42,9 +45,6 @@ $ brew services start mongodb
 ```
 
 # Usage
-
-It exposes Web Api which can be accessed from within the aws private server group.
-Api Definitions can be found on server/api/builder.go
 
 To start the server:
 

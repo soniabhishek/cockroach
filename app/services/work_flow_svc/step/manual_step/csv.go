@@ -4,12 +4,12 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
+	"gitlab.com/playment-main/angel/utilities"
 	"io"
 	"os"
 	"time"
@@ -17,20 +17,23 @@ import (
 
 const timeFormat = time.RFC3339
 
-func DownloadCsv(manualStepId uuid.UUID) (file string) {
+func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 	flRepo := feed_line_repo.New()
 	flus, err := flRepo.GetByStepId(manualStepId)
 	if err != nil {
 		plog.Error("Manual Step", err, manualStepId)
-		return
+		return utilities.Empty, err
 	}
 	plog.Info("manual step flus going to be downloaded", flus, manualStepId)
 
 	path := config.Get(config.DOWNLOAD_PATH)
-	file = path + string(os.PathSeparator) + manualStepId.String() + ".csv"
-	createFile(file)
+	file := path + string(os.PathSeparator) + manualStepId.String() + ".csv"
+	err = createFile(file)
+	if err != nil {
+		return utilities.Empty, nil
+	}
 
-	// Write Unmarshaled json data to CSV file
+	// Write unmarshaled json data to CSV file
 	writeBuff := [][]string{{"Id", "ReferenceId", "Data", "Build", "Tag", "ProjectId", "StepId", "CreatedAt", "UpdatedAt"}}
 
 	for _, obj := range flus {
@@ -57,8 +60,11 @@ func DownloadCsv(manualStepId uuid.UUID) (file string) {
 
 		writeBuff = append(writeBuff, record)
 	}
-	writeCSV(file, writeBuff)
-	return
+	err = writeCSV(file, writeBuff)
+	if err != nil {
+		return utilities.Empty, err
+	}
+	return file, nil
 }
 
 func UploadCsv(filename string) error {
@@ -107,9 +113,6 @@ func UploadCsv(filename string) error {
 }
 
 func getFlu(row []string) (flu models.FeedLineUnit, err error) {
-	// TODO Refactor the code below
-	// CSV Headers should be :
-	// "Id", "ReferenceId", "Data", "Build", "Tag", "ProjectId", "StepId", "CreatedAt"
 	id, err := uuid.FromString(row[0])
 	if err != nil {
 		plog.Error("Error ID:", err)
@@ -129,149 +132,35 @@ func getFlu(row []string) (flu models.FeedLineUnit, err error) {
 	return flu, nil
 }
 
-func createFile(filepath string) {
+func createFile(filepath string) error {
 	// detect if file exists
 	var _, err = os.Stat(filepath)
 
 	// create file if not exists
 	if os.IsNotExist(err) {
 		var file, err = os.Create(filepath)
-		checkError(err)
+		if err != nil {
+			return err
+		}
 		defer file.Close()
 	}
+	return nil
 }
 
-func writeFile(filepath string, buffer []string) {
-	// open file using READ & WRITE permission
+func writeCSV(filepath string, records [][]string) error {
 	var file, err = os.OpenFile(filepath, os.O_RDWR, 0644)
-	checkError(err)
-	defer file.Close()
-
-	// write some text to file
-	for _, line := range buffer {
-		_, err = file.WriteString(line)
-		checkError(err)
+	if err != nil {
+		return err
 	}
-
-	// save changes
-	err = file.Sync()
-	checkError(err)
-}
-
-func readFile(filepath string) {
-	// re-open file
-	var file, err = os.OpenFile(filepath, os.O_RDWR, 0644)
-	checkError(err)
-	defer file.Close()
-
-	// read file
-	var text = make([]byte, 1024)
-	for {
-		n, err := file.Read(text)
-		if err != io.EOF {
-			checkError(err)
-		}
-		if n == 0 {
-			break
-		}
-	}
-	fmt.Println(string(text))
-	checkError(err)
-}
-
-func deleteFile(filepath string) {
-	// delete file
-	var err = os.Remove(filepath)
-	checkError(err)
-}
-
-func writeCSV(filepath string, records [][]string) {
-	var file, err = os.OpenFile(filepath, os.O_RDWR, 0644)
-	checkError(err)
 	defer file.Close()
 	writer := csv.NewWriter(file)
 	for _, record := range records {
 		err := writer.Write(record)
 		if err != nil {
-			fmt.Println("Error:", err)
-			return
+			plog.Error("Error while writing CSV", err)
+			return err
 		}
 	}
 	writer.Flush()
-}
-
-func checkError(err error) {
-	if err != nil {
-		plog.Error("Error File Operations:", err)
-		//os.Exit(0)
-	}
-}
-
-func getFlu_old(row []string) (flu models.FeedLineUnit, err error) {
-	// TODO Refactor the code below
-	// CSV Headers should be :
-	// "Id", "ReferenceId", "Data", "Build", "Tag", "ProjectId", "StepId", "CreatedAt"
-	id, err := uuid.FromString(row[0])
-	if err != nil {
-		plog.Error("Error ID:", err)
-		return flu, errors.New("ID is not valid.")
-	}
-	referenceId := row[1]
-	if referenceId == "" {
-		plog.Error("Error Ref-ID:", errors.New("reference id cant be empty"))
-		return flu, errors.New("reference id cant be empty")
-	}
-	// skip the data scanning part in future
-	// user should not be able to change data
-	data := models.JsonFake{}
-	if err := data.Scan(row[2]); err != nil {
-		plog.Error("Error Data:", err)
-		return flu, errors.New("Data field is not valid.")
-	}
-
-	build := models.JsonFake{}
-	if err := build.Scan(row[3]); err != nil {
-		plog.Error("Error Build:", err)
-		return flu, errors.New("Build field is not valid.")
-	}
-
-	tag := row[4]
-	if tag == "" {
-		plog.Error("Error Tag:", errors.New("tag cant be empty"))
-		return flu, errors.New("Tag field is not valid")
-	}
-
-	projectId, err := uuid.FromString(row[5])
-	if err != nil {
-		plog.Error("Error ProjectID:", err)
-		return flu, errors.New("Project ID is not valid")
-	}
-
-	stepId, err := uuid.FromString(row[6])
-	if err != nil {
-		plog.Error("Error StepID:", err)
-		return flu, errors.New("StepID is not valid")
-	}
-
-	createdAtTime, err := time.Parse(timeFormat, row[7])
-	if err != nil {
-		plog.Error("Error Time:", errors.New("Time format not valid "+row[7]))
-		//return errors.New("CreatedTime : Time format is not valid " + row[7])
-	}
-	createdAt := pq.NullTime{createdAtTime, true}
-
-	updatedAt := pq.NullTime{time.Now(), true}
-
-	flu = models.FeedLineUnit{
-		ID:          id,
-		ReferenceId: referenceId,
-		Data:        data,
-		Build:       build,
-		Tag:         tag,
-		ProjectId:   projectId,
-		StepId:      stepId,
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
-	}
-	return flu, nil
+	return nil
 }

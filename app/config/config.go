@@ -5,8 +5,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/spf13/viper"
 	"github.com/mgutz/logxi/v1"
+	"github.com/spf13/viper"
 )
 
 const (

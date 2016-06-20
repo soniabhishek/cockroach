@@ -38,7 +38,13 @@ func fileDownloadHandler() gin.HandlerFunc {
 			return
 		}
 
-		filePath := DownloadCsv(manualStepId)
+		filePath, err := DownloadCsv(manualStepId)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"error":   err.Error(),
+			})
+		}
 
 		c.JSON(http.StatusOK, gin.H{
 			"success":  true,

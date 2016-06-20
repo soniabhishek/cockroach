@@ -14,9 +14,9 @@ it turned out to be the parent of all.
 - Create a workspace directory & clone the repo
 
 ```
-$ mkdir -p $HOME/code/gocode/src/gitlab.com/playment-main
-$ cd $HOME/code/gocode/src/gitlab.com/playment-main
-$ git clone git@gitlab.com:playment-main/angel.git
+$ mkdir -p $HOME/code/gocode/src/github.com/playment-main
+$ cd $HOME/code/gocode/src/github.com/playment-main
+$ git clone https://github.com/crowdflux/angel.git
 ```
 
 - Setup GOPATH:
@@ -30,7 +30,7 @@ $ source ~/.bash_profile
 - Install application:
 
 ```
-$ cd $HOME/code/gocode/src/gitlab.com/playment-main/angel
+$ cd $HOME/code/gocode/src/github.com/playment-main/angel
 $ git checkout develop
 $ go get
 $ go get -t

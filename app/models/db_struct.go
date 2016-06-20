@@ -384,6 +384,7 @@ type ProjectConfiguration struct {
 	Headers     JsonFake    `db:"headers" json:"headers" bson:"headers"`
 	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	Options     JsonFake    `db:"options" json:"options" bson:"options"`
 }
 
 type Project struct {

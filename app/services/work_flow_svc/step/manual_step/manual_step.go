@@ -16,6 +16,7 @@ func (m *manualStep) processFlu(flu feed_line.FLU) {
 	plog.Info("Manual Step flu reached", flu)
 }
 
+//TODO call it once upload method gets called.
 func (m *manualStep) finishFlu(flu feed_line.FLU) bool {
 
 	err := m.RemoveFromBuffer(flu)

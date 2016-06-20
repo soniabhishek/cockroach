@@ -1,6 +1,15 @@
 package utilities
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/hmac"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
+	"errors"
+	"io"
 	"strconv"
 	"time"
 )
@@ -79,7 +88,59 @@ func IsValidError(err error) bool {
 	return err != nil
 }
 
+func IsInt(val string) bool {
+	_, err := strconv.Atoi(val)
+	return (err == nil)
+}
+
 func GetInt(val string) int {
 	ret, _ := strconv.Atoi(val)
 	return ret
+}
+
+func GetHMAC(val string, hmacKey string) string {
+	key := []byte(hmacKey)
+	sig := hmac.New(sha256.New, key)
+	sig.Write([]byte(val))
+	return hex.EncodeToString(sig.Sum(nil))
+}
+
+//Some long long key
+var encryptionKey string = "29ab862a724bf2c310ba8888ed15965d"
+
+func Encrypt(plainText string) ([]byte, error) {
+	text := []byte(plainText)
+	block, err := aes.NewCipher([]byte(encryptionKey))
+	if err != nil {
+		return nil, err
+	}
+	b := base64.StdEncoding.EncodeToString(text)
+	ciphertext := make([]byte, aes.BlockSize+len(b))
+	iv := ciphertext[:aes.BlockSize]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		return nil, err
+	}
+	cfb := cipher.NewCFBEncrypter(block, iv)
+	cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(b))
+	return ciphertext, nil
+}
+
+func Decrypt(encryptedText string) ([]byte, error) {
+	text := []byte(encryptedText)
+	block, err := aes.NewCipher([]byte(encryptionKey))
+	if err != nil {
+		return nil, err
+	}
+	if len(text) < aes.BlockSize {
+		return nil, errors.New("ciphertext too short")
+	}
+	iv := text[:aes.BlockSize]
+	text = text[aes.BlockSize:]
+	cfb := cipher.NewCFBDecrypter(block, iv)
+	cfb.XORKeyStream(text, text)
+	data, err := base64.StdEncoding.DecodeString(string(text))
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }

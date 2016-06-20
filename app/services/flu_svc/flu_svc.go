@@ -21,10 +21,6 @@ var _ IFluService = &fluService{}
 
 func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 
-	if flu.ReferenceId == "" {
-		return ErrReferenceIdMissing
-	}
-
 	_, err := i.fluValidator.Validate(*flu)
 	if err != nil {
 		return err

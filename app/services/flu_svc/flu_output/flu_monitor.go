@@ -8,6 +8,11 @@ import (
 	"sync"
 	"time"
 
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
+	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/project_configuration_repo"
 	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models"
@@ -17,16 +22,22 @@ import (
 	"gitlab.com/playment-main/angel/utilities"
 )
 
+var success string = "SUCCESS"
+var hmac_header_key string = "qc-uuid"
 var feedLinePipe = make(map[uuid.UUID]feedLineValue)
 var retryCount = make(map[uuid.UUID]int)
 var mutex = &sync.RWMutex{}
+var dbLogger = feed_line_repo.StdLogger
 
 var retryTimePeriod = time.Duration(utilities.GetInt(config.Get(config.RETRY_TIME_PERIOD))) * time.Millisecond
-var fluThresholdCount = utilities.GetInt(config.Get(config.FLU_THRESHOLD_COUNT))
+
+var defaultFluThresholdCount = utilities.GetInt(config.Get(config.DEFAULT_FLU_THRESHOLD_COUNT))
 var fluThresholdDuration = int64(utilities.GetInt(config.Get(config.FLU_THRESHOLD_DURATION)))
 var monitorTimePeriod = time.Duration(utilities.GetInt(config.Get(config.MONITOR_TIME_PERIOD))) * time.Millisecond
+var hmac_key, err = utilities.Decrypt(config.Get(config.HMAC_KEY))
 
 type feedLineValue struct {
+	maxFluSize    int
 	insertionTime int64
 	feedLine      []models.FeedLineUnit
 }
@@ -56,8 +67,15 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 	mutex.Lock()
 	for _, flu := range fluBundle {
 		value, valuePresent := feedLinePipe[flu.ProjectId]
-		if valuePresent {
-			value = feedLineValue{utilities.TimeInMillis(), []models.FeedLineUnit{flu}}
+		if valuePresent == false {
+			fpsRepo := project_configuration_repo.New()
+			fpsModel, err := fpsRepo.Get(flu.ProjectId)
+			if utilities.IsValidError(err) {
+				plog.Error("DB Error:", err)
+				return errors.New("No Project Configuration found for FluProject:" + flu.ProjectId.String())
+			}
+			maxFluCount := giveMaxFluCount(fpsModel)
+			value = feedLineValue{maxFluCount, utilities.TimeInMillis(), []models.FeedLineUnit{flu}}
 		} else {
 			value.feedLine = append(value.feedLine, flu)
 		}
@@ -115,15 +133,14 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 		if status == status_codes.Success {
 
 			deleteFromFeedLinePipe(projectId)
-			//TODO Should we write success logs?
+			go putDbLog(flp, success, *fluResp)
 
 		} else if status == status_codes.CallBackFailure && shouldRetryHttp(projectId) {
 			//not successful scenarios
 			retryIdsList = append(retryIdsList, projectId)
 
 		} else {
-			//TODO Write TransactionErrorLog
-			fmt.Println("Invalid FLU Response, ", fluResp)
+			go putDbLog(flp, "Invalid FLU Resp ", *fluResp)
 			deleteFromFeedLinePipe(projectId)
 		}
 	}
@@ -154,7 +171,9 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 		plog.Error("JSON Marshalling Error:", err)
 		return &Response{}, status_codes.UnknownFailure
 	}
-	fmt.Println(string(jsonBytes))
+	//fmt.Println(string(jsonBytes))
+
+	//fmt.Println(hex.EncodeToString(sig.Sum(nil)))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
@@ -163,6 +182,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 		req.Header.Set(headerKey, headerVal.(string))
 
 	}
+	addSendBackAuth(req, fpsModel, jsonBytes)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -174,6 +194,17 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 	fluResp, status := validationErrorCallback(resp)
 	fluResp.FluStatusCode = status
 	return fluResp, status
+}
+
+func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bodyJsonBytes []byte) {
+	hmacKey := fpsModel.Options["hmac_key"]
+	if hmacKey != nil {
+		hmacKeyStr, _ := utilities.Decrypt(hmacKey.(string))
+		key := []byte(hmacKeyStr)
+		sig := hmac.New(sha256.New, key)
+		sig.Write(bodyJsonBytes)
+		req.Header.Set(hmac_header_key, hex.EncodeToString(sig.Sum(nil)))
+	}
 }
 
 func validationErrorCallback(resp *http.Response) (*Response, status_codes.StatusCode) {
@@ -196,7 +227,7 @@ func validationErrorCallback(resp *http.Response) (*Response, status_codes.Statu
 
 func IsEligibleForSendingBack(key uuid.UUID) bool {
 	flp, ok := feedLinePipe[key]
-	if ok && (len(flp.feedLine) > fluThresholdCount || utilities.TimeDiff(false, flp.insertionTime) > fluThresholdDuration) {
+	if ok && (len(flp.feedLine) > flp.maxFluSize || utilities.TimeDiff(false, flp.insertionTime) > fluThresholdDuration) {
 		return true
 	}
 	return false
@@ -235,4 +266,13 @@ func shouldRetryHttp(projectId uuid.UUID) bool {
 		delete(retryCount, projectId)
 		return false
 	}
+}
+
+func giveMaxFluCount(fpsModel models.ProjectConfiguration) int {
+	val := fpsModel.Options["max_flu_count"]
+	maxFluCount := utilities.GetInt(val.(string))
+	if maxFluCount == 0 {
+		maxFluCount = defaultFluThresholdCount
+	}
+	return maxFluCount
 }

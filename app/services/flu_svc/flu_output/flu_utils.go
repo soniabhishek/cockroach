@@ -5,7 +5,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"database/sql"
+	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/status_codes"
+	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
 )
 
@@ -52,4 +55,27 @@ func IsValidInternalError(internalCode string) bool {
 		return true
 	}
 	return false
+}
+
+func putDbLog(flp feedLineValue, message string, resp Response) {
+	dbLogArr := make([]models.FeedLineLog, len(flp.feedLine))
+	jsObj := models.JsonFake{}
+	jsonBytes, _ := json.Marshal(resp)
+	jsObj.Scan(string(jsonBytes))
+	for i, fl := range flp.feedLine {
+		dbLog := models.FeedLineLog{
+			//ID         int            `db:"id" json:"id" bson:"_id"`
+			FluId:      fl.ID,
+			Message:    sql.NullString{message, true},
+			MetaData:   jsObj,
+			StepType:   sql.NullInt64{int64(12), true},
+			StepEntry:  sql.NullBool{true, true},
+			StepExit:   sql.NullBool{true, true},
+			StepId:     fl.StepId,
+			WorkFlowId: uuid.UUID{},
+			CreatedAt:  fl.CreatedAt,
+		}
+		dbLogArr[i] = dbLog
+	}
+	dbLogger.Log(dbLogArr)
 }

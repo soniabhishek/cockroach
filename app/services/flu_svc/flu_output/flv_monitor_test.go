@@ -34,9 +34,10 @@ func TestHttpHit(t *testing.T) {
 
 func TestCallBack(t *testing.T) {
 	flus := []models.FeedLineUnit{models.FeedLineUnit{
+		ID:          uuid.NewV4(),
 		ReferenceId: "PAYTM_123",
 		Data: models.JsonFake{
-			"product_id":  "59955f54-e75c-40a1-8d11-162e12dbf68a",
+			"product_id":  "da17b335-7ed9-4928-a222-44eda29a4896",
 			"category_id": "t_shirt_12",
 			"name":        "XYZ Men's Gold T-Shirt",
 			"brand":       "XYZ",
@@ -44,7 +45,7 @@ func TestCallBack(t *testing.T) {
 		},
 		Tag: "PAYTM_TSHIRT",
 	}}
-	id, _ := uuid.FromString("59955f54-e75c-40a1-8d11-162e12dbf68a")
+	id, _ := uuid.FromString("da17b335-7ed9-4928-a222-44eda29a4896")
 	feedLinePipe[id] = feedLineValue{utilities.TimeInMillis(), flus}
 	sendBackResp([]uuid.UUID{id})
 
@@ -79,4 +80,25 @@ func TestBufferPut(t *testing.T) {
 
 func TestStartFluOutputTimer(t *testing.T) {
 	StartFluOutputTimer()
+}
+
+func TestPutDbLog(t *testing.T) {
+	flus := []models.FeedLineUnit{models.FeedLineUnit{
+		ID:          uuid.NewV4(),
+		ReferenceId: "PAYTM_123",
+		Data: models.JsonFake{
+			"product_id":  "59955f54-e75c-40a1-8d11-162e12dbf68a",
+			"category_id": "t_shirt_12",
+			"name":        "XYZ Men's Gold T-Shirt",
+			"brand":       "XYZ",
+			"color":       "Gold",
+		},
+		Tag: "PAYTM_TSHIRT",
+	}}
+
+	flp := feedLineValue{utilities.TimeInMillis(), []models.FeedLineUnit{}}
+	for _, flu := range flus {
+		flp.feedLine = append(flp.feedLine, flu)
+	}
+	putDbLog(flp, "Success", Response{})
 }

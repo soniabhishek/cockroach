@@ -9,37 +9,10 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"gitlab.com/playment-main/angel/utilities/constants"
 	"io"
 	"strconv"
 	"time"
-)
-
-const (
-	Empty              = ""
-	Star               = "*"
-	Hyphen             = "-"
-	UnderScore         = "_"
-	WhiteSpace         = " "
-	Colon              = ":"
-	Dot                = "."
-	Table_Referencer   = "." //Yeah, they both are same.
-	Comma              = ","
-	Spaced_Comma       = " , "
-	Column_Quote       = "\""
-	Place_Holder       = "%s"
-	Place_Holder_Cover = "(%s)"
-
-	Left_Parentheses  = "("
-	Right_Parentheses = ")"
-	Parentheses       = "()"
-	Left_Braces       = "{"
-	Right_Braces      = "{"
-	Braces            = "{}"
-	Left_Bracket      = "["
-	Right_Bracket     = "]"
-	Bracket           = "[]"
-
-	StartId = iota
 )
 
 func TimeInMillis() int64 {
@@ -81,7 +54,7 @@ func GetRandomID() int64 {
 }
 
 func IsEmptyOrNil(str string) bool {
-	return str == Empty
+	return str == constants.Empty
 }
 
 func IsValidError(err error) bool {

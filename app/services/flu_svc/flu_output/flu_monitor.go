@@ -22,8 +22,6 @@ import (
 	"gitlab.com/playment-main/angel/utilities"
 )
 
-var success string = "SUCCESS"
-var hmac_header_key string = "qc-uuid"
 var feedLinePipe = make(map[uuid.UUID]feedLineValue)
 var retryCount = make(map[uuid.UUID]int)
 var mutex = &sync.RWMutex{}
@@ -34,7 +32,7 @@ var retryTimePeriod = time.Duration(utilities.GetInt(config.Get(config.RETRY_TIM
 var defaultFluThresholdCount = utilities.GetInt(config.Get(config.DEFAULT_FLU_THRESHOLD_COUNT))
 var fluThresholdDuration = int64(utilities.GetInt(config.Get(config.FLU_THRESHOLD_DURATION)))
 var monitorTimePeriod = time.Duration(utilities.GetInt(config.Get(config.MONITOR_TIME_PERIOD))) * time.Millisecond
-var hmac_key, err = utilities.Decrypt(config.Get(config.HMAC_KEY))
+var retryThreshold = utilities.GetInt(config.Get(config.FLU_RETRY_THRESHOLD))
 
 type feedLineValue struct {
 	maxFluSize    int
@@ -104,13 +102,13 @@ func checkupFeedLinePipe() {
 func getFluOutputObj(flus []models.FeedLineUnit) (fluOutputObj []fluOutputStruct) {
 	for _, flu := range flus {
 
-		result := flu.Build["result"].(models.JsonFake)
+		result := flu.Build[RESULT].(models.JsonFake)
 
 		fluOutputObj = append(fluOutputObj, fluOutputStruct{
 			ID:          flu.ID,
 			ReferenceId: flu.ReferenceId,
 			Tag:         flu.Tag,
-			Status:      "COMPLETED",
+			Status:      STATUS_OK,
 			Result:      result,
 		})
 	}
@@ -133,7 +131,7 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 		if status == status_codes.Success {
 
 			deleteFromFeedLinePipe(projectId)
-			go putDbLog(flp, success, *fluResp)
+			go putDbLog(flp, SUCCESS, *fluResp)
 
 		} else if status == status_codes.CallBackFailure && shouldRetryHttp(projectId) {
 			//not successful scenarios
@@ -176,7 +174,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 	//fmt.Println(hex.EncodeToString(sig.Sum(nil)))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBytes))
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(CONTENT_TYPE, TYPE_JSON)
 
 	for headerKey, headerVal := range fpsModel.Headers {
 		req.Header.Set(headerKey, headerVal.(string))
@@ -197,13 +195,13 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 }
 
 func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bodyJsonBytes []byte) {
-	hmacKey := fpsModel.Options["hmac_key"]
+	hmacKey := fpsModel.Options[HMAC_KEY]
 	if hmacKey != nil {
 		hmacKeyStr, _ := utilities.Decrypt(hmacKey.(string))
 		key := []byte(hmacKeyStr)
 		sig := hmac.New(sha256.New, key)
 		sig.Write(bodyJsonBytes)
-		req.Header.Set(hmac_header_key, hex.EncodeToString(sig.Sum(nil)))
+		req.Header.Set(HMAC_HEADER_KEY, hex.EncodeToString(sig.Sum(nil)))
 	}
 }
 
@@ -259,7 +257,7 @@ func deleteFromFeedLinePipe(projectId uuid.UUID) {
 
 func shouldRetryHttp(projectId uuid.UUID) bool {
 	prevRetryCnt, present := retryCount[projectId]
-	if present == false || prevRetryCnt < 5 {
+	if present == false || prevRetryCnt < retryThreshold {
 		retryCount[projectId]++
 		return true
 	} else {
@@ -269,7 +267,7 @@ func shouldRetryHttp(projectId uuid.UUID) bool {
 }
 
 func giveMaxFluCount(fpsModel models.ProjectConfiguration) int {
-	val := fpsModel.Options["max_flu_count"]
+	val := fpsModel.Options[MAX_FLU_COUNT]
 	maxFluCount := utilities.GetInt(val.(string))
 	if maxFluCount == 0 {
 		maxFluCount = defaultFluThresholdCount

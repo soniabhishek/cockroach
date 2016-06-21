@@ -74,11 +74,12 @@
     "monitor_time_period" : "1000000",
     "retry_time_period": "5000",
     "default_flu_threshold_count": "1000",
-    "flu_threshold_duration": "5000"
+    "flu_threshold_duration": "5000",
+    "flu_retry_threshold" : 5
   },
 
   "workflow_step" : {
     "manual_download_path" : "<FILE DOWNLOAD PATH>",
-    "hmac_key" : "78960c4efc158fcfb160a4cbe075de455ee39b7602640965c07ec83511ae6f8f29fd3e40e35dd97358ef43eee3789aa5ccf4ec5dbc307f5d4dbe8ddd287d142f"
+    "megatron_api" : "http://54.169.7.227/flats"
   }
 }

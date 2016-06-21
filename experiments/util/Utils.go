@@ -1,34 +1,9 @@
 package util
 
 import (
+	"gitlab.com/playment-main/angel/utilities/constants"
 	"strings"
 	"time"
-)
-
-const (
-	Empty              = ""
-	Star               = "*"
-	Hyphen             = "-"
-	UnderScore         = "_"
-	WhiteSpace         = " "
-	Colon              = ":"
-	Dot                = "."
-	Table_Referencer   = "." //Yeah, they both are same.
-	Comma              = ","
-	Spaced_Comma       = " , "
-	Column_Quote       = "\""
-	Place_Holder       = "%s"
-	Place_Holder_Cover = "(%s)"
-
-	Left_Parentheses  = "("
-	Right_Parentheses = ")"
-	Parentheses       = "()"
-	Left_Braces       = "{"
-	Right_Braces      = "{"
-	Braces            = "{}"
-	Left_Bracket      = "["
-	Right_Bracket     = "]"
-	Bracket           = "[]"
 )
 
 func GetRandomID() int64 {
@@ -36,7 +11,7 @@ func GetRandomID() int64 {
 }
 
 func IsEmptyOrNil(str string) bool {
-	return str == Empty
+	return str == constants.Empty
 }
 func IsValidError(err error) bool {
 	return err != nil
@@ -49,7 +24,7 @@ func IsValidTag(tag string) bool {
 	return true
 }
 func IsPlaceHolder(tag string) bool {
-	if strings.TrimSpace(tag) == Place_Holder || strings.TrimSpace(tag) == Place_Holder_Cover {
+	if strings.TrimSpace(tag) == constants.Place_Holder || strings.TrimSpace(tag) == constants.Place_Holder_Cover {
 		return true
 	}
 	return false

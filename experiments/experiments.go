@@ -15,12 +15,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/models"
+	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/plog"
+	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/manual_step"
 	"gitlab.com/playment-main/angel/experiments/util"
 	"gitlab.com/playment-main/angel/utilities"
 	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 )
 
 type typeA struct {
@@ -35,7 +41,129 @@ type typeC struct {
 	name3 string
 }
 
-func main() {
+func mainexperiment() (resp *http.Response, err error) {
+	hc := http.Client{}
+	//req, err := http.NewRequest("POST", APIURL, nil)
+
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	fileContents, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+	fi, err := file.Stat()
+	if err != nil {
+		return nil, err
+	}
+	file.Close()
+
+	body := new(bytes.Buffer)
+
+	fmt.Println(fileContents, fi, body)
+
+	form := url.Values{}
+	form.Add("ln", "")
+	req, err := http.NewRequest("POST", "http://54.169.7.227/flats", strings.NewReader(form.Encode()))
+	fmt.Println("ERR", err)
+	//req.PostForm = form
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	fmt.Println("form was %v", form)
+	resp, err = hc.Do(req)
+
+	response, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		plog.Error("Error", err)
+	}
+
+	fmt.Println(string(response))
+	return
+}
+
+// Creates a new file upload http request with optional extra params
+func newfileUploadRequest(uri string, params map[string]string, paramName, path string) (*http.Request, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	fileContents, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	fi, err := file.Stat()
+	if err != nil {
+		return nil, err
+	}
+	file.Close()
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile(paramName, fi.Name())
+	if err != nil {
+		return nil, err
+	}
+	part.Write(fileContents)
+
+	for key, val := range params {
+		_ = writer.WriteField(key, val)
+	}
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	return http.NewRequest("POST", uri, body)
+}
+
+func mainx() {
+	path, _ := os.Getwd()
+	path += "/test.pdf"
+	extraParams := map[string]string{
+		"playment_request_id": "12345",
+	}
+	//request, err := newfileUploadRequest("http://54.169.7.227/flats", extraParams, "files", "/Users/playment/Desktop/a10c5187-7c97-4485-90b7-a427769ceed8.csv")
+	request, err := newfileUploadRequest("http://54.169.7.227/flats",
+		extraParams, "files",
+		"/Users/playment/Downloads/smalldata.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		//var bodyContent []byte
+		fmt.Println(resp.StatusCode)
+		fmt.Println(resp.Header)
+		/*resp.Body.Read(bodyContent)
+		resp.Body.Close()
+		fmt.Println(bodyContent)*/
+
+		response, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			plog.Error("Error", err)
+		}
+
+		fmt.Println(string(response))
+	}
+}
+
+func mainHit() {
+	//file := `/Users/playment/Downloads/smalldata.txt`
+	//file := `/Users/playment/Desktop/a10c5187-7c97-4485-90b7-a427769ceed8.csv`
+	file := `/Users/playment/Desktop/a10c5187-7c97-4485-90b7-a427769ceed8.txt`
+	url := `http://54.169.7.227/flats/`
+
+	filename, err := manual_step.FlattenCSV(file, url, uuid.NewV4())
+	fmt.Println("Err:", err)
+	plog.Info("Sent file for upload: ", filename)
+}
+
+func mainUrl() {
 	url := "http://54.169.7.227/flats"
 	//url := "http://localhost:8080/JServer/HelloServlet"
 
@@ -322,9 +450,9 @@ func maincsv() {
 	writer.Flush()
 }
 
-var path = "/Users/gambler/Desktop/test.txt"
+var path = "/Users/playment/Desktop/test.txt"
 
-func mainfile() {
+func mainFile() {
 	createFile()
 	writeFile()
 	readFile()

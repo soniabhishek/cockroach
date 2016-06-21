@@ -47,8 +47,10 @@ func GinAuther() gin.HandlerFunc {
 
 		if StdProdAuther.Check(client.ClientSecretUuid, clientKey) {
 
-			//Let the request go forward, set a user_id param also
+			//Let the request go forward, set a client_id param also
 			c.Set("client_id", client.ID.String())
+			c.Set("show_old", client.Options["show_old"])
+
 		} else {
 			c.Header("authenication error", "unauthorized")
 			c.AbortWithStatus(401)

@@ -69,14 +69,25 @@ func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
 			showErrorResponse(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"success": true,
-			"feed_line_unit": fluPostResponse{
-				Id:          flu.ID,
-				ReferenceId: flu.ReferenceId,
-				Tag:         flu.Tag,
-			},
-		})
+
+		// This has to be done for chutiya paytm dev
+		if c.Keys["show_old"] == true {
+			c.JSON(http.StatusOK, gin.H{
+				"success":      true,
+				"flu_id":       flu.ID,
+				"reference_id": flu.ReferenceId,
+				"tag":          flu.Tag,
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"success": true,
+				"feed_line_unit": fluPostResponse{
+					Id:          flu.ID,
+					ReferenceId: flu.ReferenceId,
+					Tag:         flu.Tag,
+				},
+			})
+		}
 	}
 }
 

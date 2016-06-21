@@ -38,6 +38,7 @@ type Client struct {
 	ClientSecretUuid uuid.UUID   `db:"client_secret_uuid" json:"client_secret_uuid" bson:"client_secret_uuid"`
 	CreatedAt        pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt        pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	Options          JsonFake    `db:"options" json:"options" bson:"options"`
 }
 
 type Comment struct {

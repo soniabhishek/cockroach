@@ -3,10 +3,10 @@ package status_codes
 type StatusCode int
 
 const (
-	Success         = 1000
-	CallBackFailure = 1001
-	FluRespFailure  = 1002
-	UnknownFailure  = 1111
+	Success         StatusCode = 1000
+	CallBackFailure StatusCode = 1001
+	FluRespFailure  StatusCode = 1002
+	UnknownFailure  StatusCode = 1111
 )
 
 const (

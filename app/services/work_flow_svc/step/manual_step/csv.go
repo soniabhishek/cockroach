@@ -3,45 +3,110 @@ package manual_step
 import (
 	"encoding/csv"
 	"errors"
-	"github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
-	"gitlab.com/playment-main/angel/utilities"
+	"gitlab.com/playment-main/angel/utilities/constants"
+	"io"
 	"os"
 	"time"
 )
 
 const timeFormat = time.RFC3339
 
-func DownloadCsv(manualStepId uuid.UUID, projectId uuid.UUID) (file string) {
+type megatronJson struct {
+	Jsons []models.JsonFake `json:jsons`
+}
+
+func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 	flRepo := feed_line_repo.New()
 	flus, err := flRepo.GetByStepId(manualStepId)
 	if err != nil {
 		plog.Error("Manual Step", err, manualStepId)
-		return
+		return constants.Empty, err
 	}
 	plog.Info("manual step flus going to be downloaded", flus, manualStepId)
 
 	path := config.Get(config.DOWNLOAD_PATH)
-	file = path + manualStepId.String() + utilities.Hyphen + projectId.String() + ".csv"
-	// Create a csv file
-	f, err := os.Create(file)
-	if err != nil {
-		plog.Error("Manual Step", err, manualStepId, file)
-		return
-	}
-	defer f.Close()
+	//file, err := createCSV(flus, path, manualStepId)
+	file, err := createJSONFile(flus, path, manualStepId)
 
-	// Write Unmarshaled json data to CSV file
-	w := csv.NewWriter(f)
-	record := []string{"Id", "ReferenceId", "Data", "Build", "Tag", "ProjectId", "StepId", "CreatedAt", "UpdatedAt"}
-	w.Write(record)
+	if err != nil {
+		plog.Error("Write file error", err, manualStepId)
+		return constants.Empty, err
+	}
+
+	url := config.Get(config.MEGATRON_API)
+	filename, err := FlattenCSV(file, url, manualStepId)
+	if err != nil {
+		plog.Error("Transformation error", err, manualStepId)
+		return constants.Empty, err
+	}
+	return url + filename, nil
+}
+
+func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.UUID) (file string, err error) {
+
+	file = path + string(os.PathSeparator) + manualStepId.String() + ".txt"
+	err = createFile(file)
+	if err != nil {
+		plog.Error("Create file error", err, manualStepId)
+		return constants.Empty, nil
+	}
+
+	csvBuff := megatronJson{make([]models.JsonFake, 0)}
+	for _, obj := range flus {
+		jsMap := make(map[string]string)
+		jsMap[ID] = obj.ID.String()
+		jsMap[REF_ID] = obj.ReferenceId
+		jsMap[DATA] = obj.Data.String()
+
+		jsMap[BUILD] = obj.Build.String()
+		jsMap[TAG] = obj.Tag
+		jsMap[PROJECT_ID] = obj.ProjectId.String()
+
+		jsMap[STEP_ID] = obj.StepId.String()
+
+		if obj.CreatedAt.Valid {
+			jsMap[CREATED_ID] = obj.CreatedAt.Time.Format(timeFormat)
+		} else {
+			jsMap[CREATED_ID] = constants.Empty
+		}
+
+		if obj.UpdatedAt.Valid {
+			jsMap[UPDATED_AT] = obj.UpdatedAt.Time.Format(timeFormat)
+		} else {
+			jsMap[UPDATED_AT] = constants.Empty
+		}
+
+		mj := models.JsonFake{}
+		err = mj.Scan(jsMap)
+		if err != nil {
+			return file, err
+		}
+		csvBuff.Jsons = append(csvBuff.Jsons, mj)
+	}
+
+	// Write unmarshaled json data to CSV file
+	err = writeFile(file, csvBuff)
+	return file, err
+
+}
+
+func createCSV(flus []models.FeedLineUnit, path string, manualStepId uuid.UUID) (file string, err error) {
+
+	file = path + string(os.PathSeparator) + manualStepId.String() + ".csv"
+	err = createFile(file)
+	if err != nil {
+		plog.Error("Create file error", err, manualStepId)
+		return constants.Empty, nil
+	}
+	csvBuff := [][]string{{ID, REF_ID, DATA, BUILD, TAG, PROJECT_ID, STEP_ID, CREATED_ID, UPDATED_AT}}
 
 	for _, obj := range flus {
-		record = make([]string, 0)
+		record := make([]string, 0)
 		record = append(record, obj.ID.String())
 		record = append(record, obj.ReferenceId)
 		record = append(record, obj.Data.String())
@@ -53,107 +118,143 @@ func DownloadCsv(manualStepId uuid.UUID, projectId uuid.UUID) (file string) {
 		if obj.CreatedAt.Valid {
 			record = append(record, obj.CreatedAt.Time.Format(timeFormat))
 		} else {
-			record = append(record, "")
+			record = append(record, constants.Empty)
 		}
 
 		if obj.UpdatedAt.Valid {
 			record = append(record, obj.UpdatedAt.Time.Format(timeFormat))
 		} else {
-			record = append(record, "")
+			record = append(record, constants.Empty)
 		}
 
-		w.Write(record)
+		csvBuff = append(csvBuff, record)
 	}
-	w.Flush()
-	return
+
+	// Write unmarshaled json data to CSV file
+	err = writeCSV(file, csvBuff)
+	return file, err
 }
 
-func UploadCsv(filepath string, manualStepId uuid.UUID, projectId uuid.UUID) error {
-	file := filepath + manualStepId.String() + utilities.Hyphen + projectId.String() + ".csv"
-	csvfile, err := os.Open(file)
+func UploadCsv(filename string) error {
+	file := TEMP_FOLDER + string(os.PathSeparator) + filename
+	csvFile, err := os.Open(file)
 	if err != nil {
 		plog.Error("Manual Step", err, "csv opening")
 		return err
 	}
-	defer csvfile.Close()
+	defer csvFile.Close()
 
-	reader := csv.NewReader(csvfile)
-	reader.FieldsPerRecord = -1 // see the Reader struct information below
-	rawCSVdata, err := reader.ReadAll()
-
-	if err != nil {
-		plog.Error("Manual Step", err, "csv reading error")
-		return err
-	}
+	reader := csv.NewReader(csvFile)
+	reader.FieldsPerRecord = 2 // so the reader will always check how many records are present in each row
 
 	flus := make([]models.FeedLineUnit, 0)
-	// sanity check, display to standard output
-	for i, row := range rawCSVdata {
-		if i != 0 {
-
-			// TODO Refactor the code below
-			// CSV Headers should be :
-			// "Id", "ReferenceId", "Data", "Build", "Tag", "ProjectId", "StepId", "CreatedAt"
-			id, err := uuid.FromString(row[0])
-			if err != nil {
-				return err
-			}
-			referenceId := row[1]
-			if referenceId == "" {
-				return errors.New("reference id cant be empty")
-			}
-			// skip the data scanning part in future
-			// user should not be able to change data
-			data := models.JsonFake{}
-			if err := data.Scan(row[2]); err != nil {
-				return err
-			}
-
-			build := models.JsonFake{}
-			if err := build.Scan(row[3]); err != nil {
-				return err
-			}
-
-			tag := row[4]
-			if tag == "" {
-				return errors.New("tag cant be empty")
-			}
-
-			projectId, err := uuid.FromString(row[5])
-			if err != nil {
-				return err
-			}
-
-			stepId, err := uuid.FromString(row[6])
-			if err != nil {
-				return err
-			}
-
-			createdAtTime, err := time.Parse(timeFormat, row[7])
-			if err != nil {
-				return errors.New("Time format not valid")
-			}
-			createdAt := pq.NullTime{createdAtTime, true}
-
-			updatedAt := pq.NullTime{time.Now(), true}
-
-			flu := models.FeedLineUnit{
-				ID:          id,
-				ReferenceId: referenceId,
-				Data:        data,
-				Build:       build,
-				Tag:         tag,
-				ProjectId:   projectId,
-				StepId:      stepId,
-				CreatedAt:   createdAt,
-				UpdatedAt:   updatedAt,
-			}
-			flus = append(flus, flu)
+	var cnt int = -1
+	for {
+		row, err := reader.Read()
+		if err == io.EOF {
+			break
 		}
+		if err != nil {
+			plog.Error("Manual Step", err, " csv reading error")
+			return err
+		}
+
+		cnt++
+		if cnt == 0 {
+			continue
+		}
+		flu, err := getFlu(row)
+		if err != nil {
+			plog.Error("Manual Step", err, " csv reading error")
+			return err
+		}
+
+		flus = append(flus, flu)
 	}
+	plog.Info("Total lines to read", len(flus))
 	plog.Info("Manual Step", "Flus going to be updated from csv upload", flus)
 
 	flRepo := feed_line_repo.New()
 	err = flRepo.BulkUpdate(flus)
+	if err != nil {
+		plog.Info(err.Error())
+	}
 	return err
+}
+
+func getFlu(row []string) (flu models.FeedLineUnit, err error) {
+	fluId := row[FLU_ID_INDEX]
+	id, err := uuid.FromString(fluId)
+	if err != nil {
+		plog.Error("Error ID:", err)
+		return flu, errors.New("ID is not valid. [" + fluId + "]")
+	}
+
+	build := models.JsonFake{}
+	buildVal := row[BUILD_INDEX]
+	if err := build.Scan(buildVal); err != nil {
+		plog.Error("Error Build:", err)
+		return flu, errors.New("Build field is not valid. [" + buildVal + "]")
+	}
+
+	flu = models.FeedLineUnit{
+		ID:    id,
+		Build: build,
+	}
+	return flu, nil
+}
+
+func createFile(filepath string) error {
+	// detect if file exists
+	var _, err = os.Stat(filepath)
+
+	// create file if not exists
+	if os.IsNotExist(err) {
+		var file, err = os.Create(filepath)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+	}
+	return nil
+}
+
+func writeFile(filepath string, records megatronJson) error {
+	// open file using READ & WRITE permission
+	var file, err = os.OpenFile(filepath, os.O_RDWR, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// write some text to file
+	for _, mj := range records.Jsons {
+
+		_, err = file.WriteString(mj.String())
+		if err != nil {
+			return err
+		}
+	}
+
+	// save changes
+	err = file.Sync()
+	return err
+}
+
+func writeCSV(filepath string, records [][]string) error {
+	var file, err = os.OpenFile(filepath, os.O_RDWR, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	writer := csv.NewWriter(file)
+	for _, record := range records {
+		err := writer.Write(record)
+		if err != nil {
+			plog.Error("Error while writing CSV", err)
+			return err
+		}
+	}
+	writer.Flush()
+	return nil
 }

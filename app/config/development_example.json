@@ -73,11 +73,13 @@
   "fluMonitor" : {
     "monitor_time_period" : "1000000",
     "retry_time_period": "5000",
-    "flu_threshold_count": "1000",
-    "flu_threshold_duration": "5000"
+    "default_flu_threshold_count": "1000",
+    "flu_threshold_duration": "5000",
+    "flu_retry_threshold" : 5
   },
 
   "workflow_step" : {
-    "manual_download_path" : "<FILE DOWNLOAD PATH>"
+    "manual_download_path" : "<FILE DOWNLOAD PATH>",
+    "megatron_api" : "http://54.169.7.227/flats"
   }
 }

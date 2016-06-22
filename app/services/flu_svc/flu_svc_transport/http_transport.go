@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
 	"gitlab.com/playment-main/angel/app/models"
@@ -38,35 +39,9 @@ func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
-		//Variable name will be changed to projectId after the schema refactoring
-		projectId, err := uuid.FromString(c.Param("projectId"))
+		flu, err := validateInputFLU(c, fluService)
 		if err != nil {
-			showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
-			return
-		}
-		var flu models.FeedLineUnit
-		if err := c.BindJSON(&flu); err != nil {
-			showErrorResponse(c, plerrors.ErrMalformedJson)
-			return
-		}
-		if flu.Tag == "" {
-			showErrorResponse(c, flu_svc.ErrTagMissing)
-			return
-		}
-
-		if flu.Data == nil {
-			showErrorResponse(c, flu_svc.ErrDataMissing)
-			return
-		}
-
-		flu.ProjectId = projectId
-		err = fluService.AddFeedLineUnit(&flu)
-		if err != nil {
-			if err == projects_repo.ErrProjectNotFound {
-				//Temporary hack. Wait for schema refacting
-				err = plerrors.ServiceError{"PR_0001", "Project not found"}
-			}
-			showErrorResponse(c, err)
+			// Incoming FLU is not valid.
 			return
 		}
 
@@ -233,4 +208,57 @@ func showErrorResponse(c *gin.Context, err error) {
 		"error":   msg,
 		"success": false,
 	})
+}
+
+//--------------------------------------------------------------------------------//
+//Validator
+
+func validateInputFLU(c *gin.Context, fluService flu_svc.IFluService) (flu models.FeedLineUnit, err error) {
+
+	//Variable name will be changed to projectId after the schema refactoring
+	var projectId uuid.UUID
+	projectId, err = uuid.FromString(c.Param("projectId"))
+	if err != nil {
+		showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
+		return
+	}
+
+	// Validating JSON
+	if err = c.BindJSON(&flu); err != nil {
+		showErrorResponse(c, plerrors.ErrMalformedJson)
+		return
+	}
+
+	// Validating ReferenceID
+	if flu.ReferenceId == "" {
+		showErrorResponse(c, flu_svc.ErrReferenceIdMissing)
+		return
+	}
+
+	// Validating TAG
+	if flu.Tag == "" {
+		err = flu_svc.ErrTagMissing
+		showErrorResponse(c, flu_svc.ErrTagMissing)
+		return
+	}
+
+	// Validating Data
+	if flu.Data == nil {
+		err = flu_svc.ErrDataMissing
+		showErrorResponse(c, flu_svc.ErrDataMissing)
+		return
+	}
+
+	flu.ProjectId = projectId
+	err = fluService.AddFeedLineUnit(&flu)
+	fmt.Println("Error while adding flu: ", err)
+	if err != nil {
+		if err == projects_repo.ErrProjectNotFound {
+			//Temporary hack. Wait for schema refactoring
+			err = plerrors.ServiceError{"PR_0001", "Project not found"}
+		}
+		showErrorResponse(c, err)
+		return
+	}
+	return
 }

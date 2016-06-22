@@ -19,7 +19,9 @@ func NewInputQueue() *inputQueue {
 }
 
 func newLogger() IFluLogger {
-	return &feedLineLogger{}
+	return &feedLineLogger{
+		Db: postgres.GetPostgresClient(),
+	}
 }
 
 var StdLogger = newLogger()

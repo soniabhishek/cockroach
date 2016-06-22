@@ -45,22 +45,6 @@ func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
 			return
 		}
 
-		if flu.Data == nil {
-			showErrorResponse(c, flu_svc.ErrDataMissing)
-			return
-		}
-
-		flu.ProjectId = projectId
-		err = fluService.AddFeedLineUnit(&flu)
-		if err != nil {
-			if err == projects_repo.ErrProjectNotFound {
-				//Temporary hack. Wait for schema refacting
-				err = plerrors.ServiceError{"PR_0001", "Project not found"}
-			}
-			showErrorResponse(c, err)
-			return
-		}
-
 		// This has to be done for chutiya paytm dev
 		if c.Keys["show_old"] == true {
 			c.JSON(http.StatusOK, gin.H{

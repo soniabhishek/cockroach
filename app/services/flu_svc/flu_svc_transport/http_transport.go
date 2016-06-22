@@ -30,10 +30,9 @@ func AddHttpTransport(routerGroup *gin.RouterGroup) {
 //--------------------------------------------------------------------------------//
 
 type fluPostResponse struct {
-	Id          uuid.UUID `json:"flu_id"`
+	Id          uuid.UUID `json:"id"`
 	ReferenceId string    `json:"reference_id"`
 	Tag         string    `json:"tag"`
-	Status      bool      `json:"success"`
 }
 
 func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
@@ -46,36 +45,40 @@ func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
 			return
 		}
 
-		/*
-			{
+		if flu.Data == nil {
+			showErrorResponse(c, flu_svc.ErrDataMissing)
+			return
+		}
 
-			  "flu_id": "33a823fe-9fbc-4d7c-b951-a1d1bfb6f840",
-
-			  "reference_id": "70003195",
-
-			  "tag" : "PAYTM_5030",
-
-			  "success": true
-
+		flu.ProjectId = projectId
+		err = fluService.AddFeedLineUnit(&flu)
+		if err != nil {
+			if err == projects_repo.ErrProjectNotFound {
+				//Temporary hack. Wait for schema refacting
+				err = plerrors.ServiceError{"PR_0001", "Project not found"}
 			}
-		*/
+			showErrorResponse(c, err)
+			return
+		}
 
-		c.JSON(http.StatusOK, gin.H{
-			`flu_id`:       flu.ID,
-			`reference_id`: flu.ReferenceId,
-			`tag`:          flu.Tag,
-			`success`:      true,
-		})
-
-		/* Changed for PayTM
-		c.JSON(http.StatusOK, gin.H{
-			"success": true,
-			"feed_line_unit": fluPostResponse{
-				Id:          flu.ID,
-				ReferenceId: flu.ReferenceId,
-				Tag:         flu.Tag,
-			},
-		})*/
+		// This has to be done for chutiya paytm dev
+		if c.Keys["show_old"] == true {
+			c.JSON(http.StatusOK, gin.H{
+				"success":      true,
+				"flu_id":       flu.ID,
+				"reference_id": flu.ReferenceId,
+				"tag":          flu.Tag,
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"success": true,
+				"feed_line_unit": fluPostResponse{
+					Id:          flu.ID,
+					ReferenceId: flu.ReferenceId,
+					Tag:         flu.Tag,
+				},
+			})
+		}
 	}
 }
 

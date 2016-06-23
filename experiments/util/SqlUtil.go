@@ -8,6 +8,7 @@ import (
 
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/experiments/model"
+	"gitlab.com/playment-main/angel/utilities/constants"
 )
 
 // Table Names
@@ -67,13 +68,13 @@ func ResolveSelectQuery(query string) (finalQuery string, err error) {
 func getResolvedSelectQuery(query string, isNested bool) (finalQuery string, err error) {
 	//fmt.Println(query)
 	if IsEmptyOrNil(query) {
-		return Empty, errors.New("Empty String")
+		return constants.Empty, errors.New("Empty String")
 	}
 	leftQ, nestedQ, rightQ, doesItHaveNested := GetNestedQuery(query)
 	var resolvedQ, outerQ string
 	if doesItHaveNested {
 		resolvedQ, err = getResolvedSelectQuery(nestedQ, true)
-		outerQ, err = getResolvedQuery(leftQ+WhiteSpace+Place_Holder_Cover+WhiteSpace+rightQ, isNested)
+		outerQ, err = getResolvedQuery(leftQ+constants.WhiteSpace+constants.Place_Holder_Cover+constants.WhiteSpace+rightQ, isNested)
 		finalQuery = fmt.Sprintf(outerQ, strings.TrimSpace(resolvedQ))
 	} else {
 		finalQuery, err = getResolvedQuery(query, isNested)
@@ -87,7 +88,7 @@ func getResolvedSelectQuery(query string, isNested bool) (finalQuery string, err
 func getResolvedQuery(query string, isNested bool) (finalQuery string, err error) {
 	//fmt.Println("Query: ", query)
 	if IsEmptyOrNil(query) {
-		return Empty, errors.New("Empty String")
+		return constants.Empty, errors.New("Empty String")
 	}
 	spell := strings.ToLower(query)
 	selct := strings.Index(spell, SELECT) + len(SELECT)
@@ -118,23 +119,23 @@ func getResolvedQuery(query string, isNested bool) (finalQuery string, err error
 
 	sub := spell[selct:from]
 	//fmt.Println(sub)
-	searchQ := Empty
+	searchQ := constants.Empty
 
-	if strings.TrimSpace(sub) != Star {
-		subs := strings.Split(sub, Comma)
+	if strings.TrimSpace(sub) != constants.Star {
+		subs := strings.Split(sub, constants.Comma)
 		//fmt.Println(subs)
 		//fmt.Println(len(subs), len(tableslist))
 		for v := range subs {
-			if subs[v] == Place_Holder {
+			if subs[v] == constants.Place_Holder {
 				continue
 			}
-			tmp := strings.Split(subs[v], Dot)
+			tmp := strings.Split(subs[v], constants.Dot)
 			if len(tmp) < 2 {
 				return query, errors.New("Query needs NO expansion")
 			}
 			alias := tmp[0]
 			wildCard := tmp[1]
-			if strings.TrimSpace(wildCard) == Star {
+			if strings.TrimSpace(wildCard) == constants.Star {
 				aliasStruct := tableslist[v]
 				fin := reflect.TypeOf(aliasStruct)
 				for i := 0; i < fin.NumField(); i++ {
@@ -165,7 +166,7 @@ func getResolvedQuery(query string, isNested bool) (finalQuery string, err error
 	//fmt.Println("Search query : ", searchQ[:strings.LastIndex(searchQ, Comma)])
 
 	finalQuery += query[:selct+1]
-	finalQuery += searchQ[:strings.LastIndex(searchQ, Comma)] + WhiteSpace
+	finalQuery += searchQ[:strings.LastIndex(searchQ, constants.Comma)] + constants.WhiteSpace
 	finalQuery += query[from:]
 	//fmt.Println("FinalQuery: ", finalQuery)
 	return
@@ -173,7 +174,7 @@ func getResolvedQuery(query string, isNested bool) (finalQuery string, err error
 
 func getTables(str string) (tables []interface{}, err error) {
 	tables = make([]interface{}, 0)
-	var tags = strings.Split(str, WhiteSpace)
+	var tags = strings.Split(str, constants.WhiteSpace)
 	for i := 0; i < len(tags); i++ {
 		tag := tags[i]
 		table := getRelatedStruct(tag)
@@ -263,11 +264,11 @@ func isKeyword(tag string) bool {
 	return false
 }
 func GetNestedQuery(query string) (leftQ string, nestedQ string, rightQ string, isNested bool) {
-	l := strings.Index(query, Left_Parentheses)
-	r := strings.LastIndex(query, Right_Parentheses)
+	l := strings.Index(query, constants.Left_Parentheses)
+	r := strings.LastIndex(query, constants.Right_Parentheses)
 	if l != -1 && r != -1 {
 		insideQ := query[l+1 : r]
-		nxt := strings.Index(insideQ, WhiteSpace)
+		nxt := strings.Index(insideQ, constants.WhiteSpace)
 		if nxt != -1 && isKeyword(strings.TrimSpace(insideQ[:nxt])) {
 			nestedQ = insideQ
 			leftQ = query[:l]
@@ -282,13 +283,13 @@ func GetNestedQuery(query string) (leftQ string, nestedQ string, rightQ string, 
 
 func getQ(aliasName string, col string, isNested bool) string {
 	if IsEmptyOrNil(aliasName) || IsEmptyOrNil(col) {
-		return Empty
+		return constants.Empty
 	}
 	aliasName = strings.TrimSpace(aliasName)
 	col = strings.TrimSpace(col)
 	if isNested {
-		return aliasName + Dot + col + Spaced_Comma
+		return aliasName + constants.Dot + col + constants.Spaced_Comma
 	} else {
-		return aliasName + Dot + col + WhiteSpace + Column_Quote + aliasName + Dot + col + Column_Quote + Spaced_Comma
+		return aliasName + constants.Dot + col + constants.WhiteSpace + constants.Column_Quote + aliasName + constants.Dot + col + constants.Column_Quote + constants.Spaced_Comma
 	}
 }

@@ -27,7 +27,7 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 	}
 	plog.Info("manual step flus going to be downloaded", len(flus), manualStepId)
 
-	path := config.Get(config.DOWNLOAD_PATH)
+	path := config.DOWNLOAD_PATH.Get()
 	//file, err := createCSV(flus, path, manualStepId)
 
 	file, numOfLines, err := createJSONFile(flus, path, manualStepId)
@@ -40,7 +40,7 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 		return constants.Empty, errors.New("No Data to show.")
 	}
 
-	url := config.Get(config.MEGATRON_API) + "/flats"
+	url := config.MEGATRON_API.Get() + "/flats"
 	filename, err := FlattenCSV(file, url, manualStepId)
 	if err != nil {
 		plog.Error("Transformation error", err, manualStepId)

@@ -3,7 +3,9 @@ package manual_step
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/plog"
 	"testing"
 	"time"
 )
@@ -38,4 +40,35 @@ func TestTime(t *testing.T) {
 	assert.Equal(t, 17, tym.Hour())
 	assert.Equal(t, 17, tym.Minute())
 	assert.Equal(t, 40, tym.Second())
+}
+
+func TestCreateJsonFile(t *testing.T) {
+
+	flus := []models.FeedLineUnit{
+		models.FeedLineUnit{
+			ID: uuid.NewV4(),
+			Build: models.JsonFake{
+				"first": 123,
+				//"second": models.JsonFake{
+				//	"review": 123,
+				//},
+			},
+		},
+		models.FeedLineUnit{
+			ID: uuid.NewV4(),
+			Build: models.JsonFake{
+				"asf": 432,
+				//"second": models.JsonFake{
+				//	"review": 1234,
+				//},
+			},
+		},
+	}
+
+	fileString, err := createJSONFile(flus, "./", uuid.FromStringOrNil("f90f4e0c-c616-43ca-a83c-7d7b8dcf5bd5"))
+	assert.NoError(t, err)
+
+	plog.Info("create json test", fileString)
+
+	//assert.Equal(t, )
 }

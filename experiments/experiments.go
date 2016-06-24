@@ -43,30 +43,8 @@ type typeC struct {
 }
 
 func main() {
-	//url := "http://localhost:8080/JServer/HelloServlet"
-	url := "http://staging.playment.in/api/v0/project/f94228a6-7178-40aa-803c-3ec291cbc501/validator"
 
-	//body := js.String()
-	//body := `{"feed_line_units":[{"flu_id":"PLAYMENT_1","reference_id":"PAYTM_QC_1","result":{"action":"accept","product_id":"ABC123","sleeve_type":"Half Sleeve"},"status":"COMPLETED","tag":"PAYTM_QC"},{"flu_id":"PLAYMENT_2","reference_id":"PAYTM_QC_2","result":{"action":"reject","message":"Image check failed","product_id":"XYZ321"},"status":"COMPLETED","tag":"PAYTM_QC"}]}`
-	//body := `{"feed_line_units":[{"flu_id":"PLAYMENT_1","reference_id":"PAYTM_QC_1","tag":"PAYTM_QC","status":"COMPLETED","result":{"action":"accept","product_id":"ABC123","sleeve_type":"Half Sleeve"}},{"flu_id":"PLAYMENT_2","reference_id":"PAYTM_QC_2","tag":"PAYTM_QC","status":"COMPLETED","result":{"action":"reject","product_id":"XYZ321","message":"Image check failed"}}]}`
-	//body := `{"feed_line_units":[{"flu_id":"2e2f12f6-5183-408e-834d-07faf1535e9e","reference_id":"54396695-1466594495186","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"accept","product_id":"54396695"}}]}`
-	//body := `{"feed_line_units":[{"flu_id":"12255044-a5b1-44b6-a222-f96730bf82c2","reference_id":"54396690-1466594495183","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"reject","product_id":"54396690","message":"Image check failed"}}]}`
-	body := `{"feed_line_units":[{"flu_id":"ef6cf491-80dd-427d-b54a-e6ff43aa331b","reference_id":"54396730-1466684151464","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"reject","product_id":"54396730","message":"Image check failed"}}]}`
-	hash := utilities.GetHMAC(body, "diyqc")
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer([]byte(body)))
-	req.Header.Set("Content-Type", "application/json")
-
-	req.Header.Set("qc-uuid", hash)
-
-	fmt.Println(body)
-	fmt.Println(hash)
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	fmt.Println("Err:", err)
-	fmt.Println("Resp:", resp)
-	response, err := ioutil.ReadAll(resp.Body)
-	fmt.Println("Err:", err)
-	fmt.Println("RespBody:", string(response))
+	fmt.Sprintf("%v\n", uuid.NewV4())
 }
 func mainjson() {
 

@@ -11,6 +11,7 @@ import (
 	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/plog"
 )
 
 type fluRepo struct {
@@ -94,6 +95,37 @@ func (e *fluRepo) BulkUpdate(flus []models.FeedLineUnit) error {
 }
 
 func (e *fluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
+	query := `update feed_line as fl set
+		    build = tmp.build, updated_at = tmp.updated_at
+		  from (values `
 
-	return nil
+	l := len(flus)
+	for i, _ := range flus {
+
+		if flus[i].ID == uuid.Nil {
+			return errors.New("flu not present")
+		}
+
+		idVal, _ := flus[i].ID.Value()
+		buildVal, _ := flus[i].Build.Value()
+		updatedAtVal := pq.NullTime{time.Now(), true}.Time.Format(time.RFC3339)
+
+		tmp := fmt.Sprintf(`('%v'::uuid, '%v'::jsonb, '%v'::timestamp with time zone)`, idVal, buildVal, updatedAtVal)
+		query += tmp
+		if i < l-1 {
+			query += ","
+		}
+	}
+	query += `) as tmp(id, build, updated_at)
+		where tmp.id = fl.id;`
+
+	plog.Info("Running Q: ", query)
+	res, err := e.Db.Exec(query)
+	if err != nil {
+		return err
+	}
+	if rows, _ := res.RowsAffected(); rows != int64(len(flus)) {
+		err = errors.New("Partially dumped the data.")
+	}
+	return err
 }

@@ -15,6 +15,7 @@ type IFluRepo interface {
 	Add(feedLineUnit models.FeedLineUnit) error
 	Update(feedLineUnit models.FeedLineUnit) error
 	GetByStepId(StepId uuid.UUID) ([]models.FeedLineUnit, error)
+	BulkFluBuildUpdate(flus []models.FeedLineUnit) error
 }
 
 type IFluLogger interface {
@@ -104,6 +105,11 @@ func (i *inMemFluRepo) GetByStepId(stepId uuid.UUID) (stepFlus []models.FeedLine
 		stepFlus = append(stepFlus, flu)
 	}
 	return stepFlus, nil
+}
+
+func (e *inMemFluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
+
+	return nil
 }
 
 func Mock() IFluRepo {

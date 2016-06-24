@@ -79,7 +79,11 @@
   },
 
   "workflow_step" : {
-    "manual_download_path" : "<FILE DOWNLOAD PATH>",
-    "megatron_api" : "http://54.169.7.227/flats"
+    "manual_download_path" : "<FILE DOWNLOAD PATH>"
+  },
+  "megatron" :{
+    "base" : {
+      "api" : "http://54.169.7.227"
+    }
   }
 }

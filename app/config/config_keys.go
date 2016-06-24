@@ -43,7 +43,7 @@ const (
 	FLU_RETRY_THRESHOLD         = configKey("fluMonitor.flu_retry_threshold")
 
 	DOWNLOAD_PATH = configKey("workflow_step.manual_download_path")
-	MEGATRON_API  = configKey("workflow_step.megatron_api")
+	MEGATRON_API  = configKey("megatron.base.api")
 )
 
 // Gets the value for given key from the config file.

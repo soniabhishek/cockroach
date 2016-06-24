@@ -16,6 +16,7 @@ const (
 	TEMP_FOLDER  = `/tmp/`
 	FLU_ID_INDEX = 0
 	BUILD_INDEX  = 1
+	COMMA        = ","
 )
 const (
 	DOWNLOAD_ENDPOINT = `/manual_step_download`

@@ -114,7 +114,7 @@ func showError(c *gin.Context, err error) {
 }
 
 //TODO send it to Utilities
-func FlattenCSV(file string, url string, requestId uuid.UUID) (fileUrl string, err error) {
+func FlattenCSV(file string, url string, manualStepId uuid.UUID) (fileUrl string, err error) {
 
 	// Prepare a form that you will submit to that URL.
 	var b bytes.Buffer
@@ -157,7 +157,7 @@ func FlattenCSV(file string, url string, requestId uuid.UUID) (fileUrl string, e
 	}
 	// Don't forget to set the content type, this will contain the boundary.
 	req.Header.Set(CONTENT_TYPE, w.FormDataContentType())
-	req.Header.Set(PARAM_PLAYMENT_ID, w.FormDataContentType())
+	req.Header.Set(PARAM_PLAYMENT_ID, manualStepId.String())
 
 	// Submit the request
 	client := &http.Client{}

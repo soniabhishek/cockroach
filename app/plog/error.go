@@ -20,7 +20,7 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 		argsString = fmt.Sprintf("%#v", args)
 	}
 
-	if config.IsDevelopment() {
+	if config.IsDevelopment() || config.IsStaging() {
 		fmt.Println(tag)
 		fmt.Println(err)
 		fmt.Println(errString)

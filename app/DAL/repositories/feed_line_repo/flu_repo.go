@@ -9,6 +9,7 @@ import (
 	"github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/DAL/repositories"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
+	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
@@ -119,7 +120,9 @@ func (e *fluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
 	query += `) as tmp(id, build, updated_at)
 		where tmp.id = fl.id;`
 
-	plog.Info("Running Q: ", query)
+	if config.IsDevelopment() || config.IsStaging() {
+		plog.Info("Running Q: ", query)
+	}
 	res, err := e.Db.Exec(query)
 	if err != nil {
 		return err

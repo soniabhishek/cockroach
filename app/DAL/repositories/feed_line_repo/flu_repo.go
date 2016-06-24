@@ -88,7 +88,12 @@ func (e *fluRepo) BulkUpdate(flus []models.FeedLineUnit) error {
 
 	total, err := e.Db.Update(flusInterface...)
 	if total != int64(len(flus)) {
-		err = errors.New("Partially dumped the data.")
+		err = errors.New("Partially dumped the data. [" + err.Error() + "]")
 	}
 	return err
+}
+
+func (e *fluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
+
+	return nil
 }

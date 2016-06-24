@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
+	"gitlab.com/playment-main/angel/app/api/auther"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
@@ -203,43 +204,20 @@ func mainUrl() {
 	fmt.Println("Err:", err)
 	fmt.Println("RespBody:", string(response))
 }
-
-func mainHmac() {
+func main() {
+	uu, _ := uuid.FromString("d6a1e0ad-0795-4e77-9f1e-8e7a96706c27")
+	fmt.Println(auther.StdProdAuther.GetAPIKey(uu))
+}
+func mainPayTM() {
 
 	//url := "http://localhost:8080/JServer/HelloServlet"
 	url := "https://catalogadmin-staging.paytm.com/v1/tp/product/qc-status"
 
-	js := models.JsonFake{}
-	js.Scan(`{
-  "feed_line_units": [
-    {
-      "flu_id": "PLAYMENT_1",
-      "reference_id": "PAYTM_QC_1",
-      "tag": "PAYTM_QC",
-      "status": "COMPLETED",
-      "result": {
-        "action": "accept",
-        "product_id": "ABC123",
-        "sleeve_type": "Half Sleeve"
-      }
-    },
-    {
-      "flu_id": "PLAYMENT_2",
-      "reference_id": "PAYTM_QC_2",
-      "tag": "PAYTM_QC",
-      "status": "COMPLETED",
-      "result": {
-        "action": "reject",
-        "product_id": "XYZ321",
-        "message": "Image check failed"
-      }
-    }
-  ]
-}`)
-
 	//body := js.String()
 	//body := `{"feed_line_units":[{"flu_id":"PLAYMENT_1","reference_id":"PAYTM_QC_1","result":{"action":"accept","product_id":"ABC123","sleeve_type":"Half Sleeve"},"status":"COMPLETED","tag":"PAYTM_QC"},{"flu_id":"PLAYMENT_2","reference_id":"PAYTM_QC_2","result":{"action":"reject","message":"Image check failed","product_id":"XYZ321"},"status":"COMPLETED","tag":"PAYTM_QC"}]}`
-	body := `{"feed_line_units":[{"flu_id":"PLAYMENT_1","reference_id":"PAYTM_QC_1","tag":"PAYTM_QC","status":"COMPLETED","result":{"action":"accept","product_id":"ABC123","sleeve_type":"Half Sleeve"}},{"flu_id":"PLAYMENT_2","reference_id":"PAYTM_QC_2","tag":"PAYTM_QC","status":"COMPLETED","result":{"action":"reject","product_id":"XYZ321","message":"Image check failed"}}]}`
+	//body := `{"feed_line_units":[{"flu_id":"PLAYMENT_1","reference_id":"PAYTM_QC_1","tag":"PAYTM_QC","status":"COMPLETED","result":{"action":"accept","product_id":"ABC123","sleeve_type":"Half Sleeve"}},{"flu_id":"PLAYMENT_2","reference_id":"PAYTM_QC_2","tag":"PAYTM_QC","status":"COMPLETED","result":{"action":"reject","product_id":"XYZ321","message":"Image check failed"}}]}`
+	//body := `{"feed_line_units":[{"flu_id":"2e2f12f6-5183-408e-834d-07faf1535e9e","reference_id":"54396695-1466594495186","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"accept","product_id":"54396695"}}]}`
+	body := `{"feed_line_units":[{"flu_id":"12255044-a5b1-44b6-a222-f96730bf82c2","reference_id":"54396690-1466594495183","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"reject","product_id":"54396690","message":"Image check failed"}}]}`
 	hash := utilities.GetHMAC(body, "diyqc")
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer([]byte(body)))
 	req.Header.Set("Content-Type", "application/json")
@@ -248,7 +226,13 @@ func mainHmac() {
 
 	fmt.Println(body)
 	fmt.Println(hash)
-
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	fmt.Println("Err:", err)
+	fmt.Println("Resp:", resp)
+	response, err := ioutil.ReadAll(resp.Body)
+	fmt.Println("Err:", err)
+	fmt.Println("RespBody:", string(response))
 }
 
 func main112() {

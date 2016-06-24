@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/mgutz/logxi/v1"
+	"fmt"
 	"github.com/spf13/viper"
 )
 
@@ -25,7 +25,7 @@ func init() {
 		env = Development
 	}
 
-	log.Info("Using " + env + " environment")
+	fmt.Println("Using " + env + " environment")
 
 	var goPath string
 

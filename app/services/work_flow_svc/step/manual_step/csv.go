@@ -31,34 +31,38 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 
 	path := config.Get(config.DOWNLOAD_PATH)
 	//file, err := createCSV(flus, path, manualStepId)
-	file, err := createJSONFile(flus, path, manualStepId)
 
+	file, numOfLines, err := createJSONFile(flus, path, manualStepId)
 	if err != nil {
 		plog.Error("Write file error", err, manualStepId)
 		return constants.Empty, err
+	}
+
+	if numOfLines == 0 {
+		return constants.Empty, errors.New("No Data to show.")
 	}
 
 	url := config.Get(config.MEGATRON_API)
 	filename, err := FlattenCSV(file, url, manualStepId)
 	if err != nil {
 		plog.Error("Transformation error", err, manualStepId)
-		return constants.Empty, err
+		return constants.Empty, errors.New("Transformation Error [" + err.Error() + "]")
 	}
 	return url + filename, nil
 }
 
-func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.UUID) (file string, err error) {
+func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.UUID) (file string, numOfLines int, err error) {
 
 	file = path + string(os.PathSeparator) + manualStepId.String() + ".txt"
 	err = createFile(file)
 	if err != nil {
 		plog.Error("Create file error", err, manualStepId)
-		return constants.Empty, nil
+		return constants.Empty, 0, nil
 	}
 
 	csvBuff := megatronJson{make([]models.JsonFake, 0)}
 	for _, obj := range flus {
-		jsMap := make(map[string]string)
+		var jsMap models.JsonFake = make(map[string]interface{})
 		jsMap[ID] = obj.ID.String()
 		jsMap[REF_ID] = obj.ReferenceId
 		jsMap[DATA] = obj.Data.String()
@@ -81,17 +85,12 @@ func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.U
 			jsMap[UPDATED_AT] = constants.Empty
 		}
 
-		mj := models.JsonFake{}
-		err = mj.Scan(jsMap)
-		if err != nil {
-			return file, err
-		}
-		csvBuff.Jsons = append(csvBuff.Jsons, mj)
+		csvBuff.Jsons = append(csvBuff.Jsons, jsMap)
 	}
 
 	// Write unmarshaled json data to CSV file
 	err = writeFile(file, csvBuff)
-	return file, err
+	return file, len(csvBuff.Jsons), err
 
 }
 
@@ -227,13 +226,30 @@ func writeFile(filepath string, records megatronJson) error {
 	}
 	defer file.Close()
 
+	_, err = file.WriteString(`{"jsons" : [ `)
+	if err != nil {
+		return err
+	}
+
+	l := len(records.Jsons)
+	c := 0
 	// write some text to file
 	for _, mj := range records.Jsons {
-
-		_, err = file.WriteString(mj.String())
+		c++
+		stringToWrite := ""
+		if c < l {
+			stringToWrite = mj.String() + COMMA
+		} else {
+			stringToWrite = mj.String()
+		}
+		_, err = file.WriteString(stringToWrite)
 		if err != nil {
 			return err
 		}
+	}
+	_, err = file.WriteString(`]}`)
+	if err != nil {
+		return err
 	}
 
 	// save changes

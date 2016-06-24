@@ -30,7 +30,7 @@ func AddHttpTransport(routerGroup *gin.RouterGroup) {
 //--------------------------------------------------------------------------------//
 
 type fluPostResponse struct {
-	Id          uuid.UUID `json:"id"`
+	Id          uuid.UUID `json:"flu_id"`
 	ReferenceId string    `json:"reference_id"`
 	Tag         string    `json:"tag"`
 }

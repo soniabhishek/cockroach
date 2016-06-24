@@ -9,6 +9,7 @@ import (
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
+	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/utilities/constants"
 	"io"
 	"os"
@@ -24,7 +25,7 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 		plog.Error("Manual Step", err, manualStepId)
 		return constants.Empty, err
 	}
-	plog.Info("manual step flus going to be downloaded", flus, manualStepId)
+	plog.Info("manual step flus going to be downloaded", len(flus), manualStepId)
 
 	path := config.Get(config.DOWNLOAD_PATH)
 	//file, err := createCSV(flus, path, manualStepId)
@@ -157,11 +158,16 @@ func UploadCsv(filename string) error {
 	plog.Info("Manual Step", "Flus going to be updated from csv upload", flus)
 
 	flRepo := feed_line_repo.New()
-	err = flRepo.BulkUpdate(flus)
+	err = flRepo.BulkFluBuildUpdate(flus)
 	if err != nil {
 		plog.Info(err.Error())
 	}
 	return err
+
+	for _, flu := range flus {
+		StdManualStep.finishFlu(feed_line.FLU{FeedLineUnit: flu})
+	}
+	return nil
 }
 
 func getFlu(row []string) (flu models.FeedLineUnit, err error) {

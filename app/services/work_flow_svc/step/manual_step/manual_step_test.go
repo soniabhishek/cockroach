@@ -3,7 +3,9 @@ package manual_step
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"os"
 	"testing"
 	"time"
 )
@@ -38,4 +40,21 @@ func TestTime(t *testing.T) {
 	assert.Equal(t, 17, tym.Hour())
 	assert.Equal(t, 17, tym.Minute())
 	assert.Equal(t, 40, tym.Second())
+}
+
+func TestWriteFile(t *testing.T) {
+	manualStepId := uuid.NewV4()
+	file := TEMP_FOLDER + string(os.PathSeparator) + manualStepId.String() + ".txt"
+	fmt.Println(manualStepId)
+	err := createFile(file)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	csvBuff := megatronJson{make([]models.JsonFake, 0)}
+	csvBuff.Jsons = append(csvBuff.Jsons, models.JsonFake{"One": 1})
+	csvBuff.Jsons = append(csvBuff.Jsons, models.JsonFake{"Two": "2"})
+	err = writeFile(file, csvBuff)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }

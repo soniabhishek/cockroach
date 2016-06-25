@@ -20,6 +20,17 @@ type megatronJson struct {
 	Jsons []models.JsonFake `json:jsons`
 }
 
+/*
+APPROVED("approved"),
+APPROVED_WITH_ACTION("approved_with_action"),
+DISCOURAGED("discouraged"),
+DISCOURAGED_WITH_ACTION("discouraged_with_action"),
+REJECTED("rejected");
+
+
+
+*/
+
 func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 	flRepo := feed_line_repo.New()
 	flus, err := flRepo.GetByStepId(manualStepId)

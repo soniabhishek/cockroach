@@ -42,10 +42,6 @@ type typeC struct {
 	name3 string
 }
 
-func main() {
-
-	fmt.Sprintf("%v\n", uuid.NewV4())
-}
 func mainjson() {
 
 	var jsMap models.JsonFake = make(map[string]interface{})

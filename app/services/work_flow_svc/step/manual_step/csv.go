@@ -18,17 +18,6 @@ import (
 
 const timeFormat = time.RFC3339
 
-/*
-APPROVED("approved"),
-APPROVED_WITH_ACTION("approved_with_action"),
-DISCOURAGED("discouraged"),
-DISCOURAGED_WITH_ACTION("discouraged_with_action"),
-REJECTED("rejected");
-
-
-
-*/
-
 func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 	flRepo := feed_line_repo.New()
 	flus, err := flRepo.GetByStepId(manualStepId)
@@ -169,7 +158,7 @@ func UploadCsv(filename string) error {
 	plog.Info("Manual Step", "Flus going to be updated from csv upload", flus)
 
 	flRepo := feed_line_repo.New()
-	err = flRepo.BulkUpdate(flus)
+	err = flRepo.BulkFluBuildUpdate(flus)
 	if err != nil {
 		plog.Info(err.Error())
 	}

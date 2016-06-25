@@ -2,12 +2,14 @@ package manual_step
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"errors"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
+	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/utilities/constants"
 	"io"
 	"os"
@@ -15,10 +17,6 @@ import (
 )
 
 const timeFormat = time.RFC3339
-
-type megatronJson struct {
-	Jsons []models.JsonFake `json:jsons`
-}
 
 /*
 APPROVED("approved"),
@@ -38,9 +36,9 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 		plog.Error("Manual Step", err, manualStepId)
 		return constants.Empty, err
 	}
-	plog.Info("manual step flus going to be downloaded", flus, manualStepId)
+	plog.Info("manual step flus going to be downloaded", len(flus), manualStepId)
 
-	path := config.Get(config.DOWNLOAD_PATH)
+	path := config.DOWNLOAD_PATH.Get()
 	//file, err := createCSV(flus, path, manualStepId)
 
 	file, numOfLines, err := createJSONFile(flus, path, manualStepId)
@@ -53,7 +51,7 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 		return constants.Empty, errors.New("No Data to show.")
 	}
 
-	url := config.Get(config.MEGATRON_API)
+	url := config.MEGATRON_API.Get() + "/flats"
 	filename, err := FlattenCSV(file, url, manualStepId)
 	if err != nil {
 		plog.Error("Transformation error", err, manualStepId)
@@ -62,47 +60,33 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 	return url + filename, nil
 }
 
-func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.UUID) (file string, numOfLines int, err error) {
+func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.UUID) (filePath string, numOfLines int, err error) {
 
-	file = path + string(os.PathSeparator) + manualStepId.String() + ".txt"
-	err = createFile(file)
+	filePath = path + string(os.PathSeparator) + manualStepId.String() + ".txt"
+
+	// creates a file , overwrites if exists
+	file, err := os.Create(filePath)
 	if err != nil {
 		plog.Error("Create file error", err, manualStepId)
 		return constants.Empty, 0, nil
 	}
+	defer file.Close()
 
-	csvBuff := megatronJson{make([]models.JsonFake, 0)}
-	for _, obj := range flus {
-		var jsMap models.JsonFake = make(map[string]interface{})
-		jsMap[ID] = obj.ID.String()
-		jsMap[REF_ID] = obj.ReferenceId
-		jsMap[DATA] = obj.Data.String()
-
-		jsMap[BUILD] = obj.Build.String()
-		jsMap[TAG] = obj.Tag
-		jsMap[PROJECT_ID] = obj.ProjectId.String()
-
-		jsMap[STEP_ID] = obj.StepId.String()
-
-		if obj.CreatedAt.Valid {
-			jsMap[CREATED_ID] = obj.CreatedAt.Time.Format(timeFormat)
-		} else {
-			jsMap[CREATED_ID] = constants.Empty
-		}
-
-		if obj.UpdatedAt.Valid {
-			jsMap[UPDATED_AT] = obj.UpdatedAt.Time.Format(timeFormat)
-		} else {
-			jsMap[UPDATED_AT] = constants.Empty
-		}
-
-		csvBuff.Jsons = append(csvBuff.Jsons, jsMap)
+	type megatronJson struct {
+		Jsons []models.FeedLineUnit `json:"jsons"`
 	}
 
-	// Write unmarshaled json data to CSV file
-	err = writeFile(file, csvBuff)
-	return file, len(csvBuff.Jsons), err
+	bty, err := json.Marshal(megatronJson{flus})
+	if err != nil {
+		plog.Error("manual step", err, "Unable to create megatron json, manual step id : "+manualStepId.String())
+		return
+	}
 
+	l, err := file.Write(bty)
+	if err != nil {
+		plog.Error("manual step", err, "error writing megatron json file for manual step id: "+manualStepId.String())
+	}
+	return filePath, l, err
 }
 
 func createCSV(flus []models.FeedLineUnit, path string, manualStepId uuid.UUID) (file string, err error) {
@@ -185,11 +169,16 @@ func UploadCsv(filename string) error {
 	plog.Info("Manual Step", "Flus going to be updated from csv upload", flus)
 
 	flRepo := feed_line_repo.New()
-	err = flRepo.BulkFluBuildUpdate(flus)
+	err = flRepo.BulkUpdate(flus)
 	if err != nil {
 		plog.Info(err.Error())
 	}
 	return err
+
+	for _, flu := range flus {
+		StdManualStep.finishFlu(feed_line.FLU{FeedLineUnit: flu})
+	}
+	return nil
 }
 
 func getFlu(row []string) (flu models.FeedLineUnit, err error) {
@@ -227,45 +216,6 @@ func createFile(filepath string) error {
 		defer file.Close()
 	}
 	return nil
-}
-
-func writeFile(filepath string, records megatronJson) error {
-	// open file using READ & WRITE permission
-	var file, err = os.OpenFile(filepath, os.O_RDWR, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	_, err = file.WriteString(`{"jsons" : [ `)
-	if err != nil {
-		return err
-	}
-
-	l := len(records.Jsons)
-	c := 0
-	// write some text to file
-	for _, mj := range records.Jsons {
-		c++
-		stringToWrite := ""
-		if c < l {
-			stringToWrite = mj.String() + COMMA
-		} else {
-			stringToWrite = mj.String()
-		}
-		_, err = file.WriteString(stringToWrite)
-		if err != nil {
-			return err
-		}
-	}
-	_, err = file.WriteString(`]}`)
-	if err != nil {
-		return err
-	}
-
-	// save changes
-	err = file.Sync()
-	return err
 }
 
 func writeCSV(filepath string, records [][]string) error {

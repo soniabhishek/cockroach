@@ -7,6 +7,8 @@ import (
 )
 
 func Info(tag string, args ...interface{}) {
-	fmt.Println(tag)
-	fmt.Println(args)
+	if levelInfo <= plogLevel {
+		fmt.Println(tag)
+		fmt.Println(args)
+	}
 }

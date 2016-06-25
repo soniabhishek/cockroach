@@ -60,5 +60,7 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 }
 
 func Error(tag string, err error, args ...interface{}) {
-	ErrorMail(tag, err, args)
+	if levelError <= plogLevel {
+		ErrorMail(tag, err, args)
+	}
 }

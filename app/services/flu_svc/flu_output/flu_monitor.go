@@ -85,7 +85,7 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 
 func checkupFeedLinePipe() {
 
-	plog.Info("Flu output", "checkupFeedLinePipe")
+	plog.Trace("Flu output", "checkupFeedLinePipe")
 
 	var projectIdsToSend = make([]uuid.UUID, 1)
 	mutex.RLock()
@@ -117,7 +117,7 @@ func getFluOutputObj(flus []models.FeedLineUnit) (fluOutputObj []fluOutputStruct
 
 func sendBackResp(projectIdsToSend []uuid.UUID) {
 
-	plog.Info("Flu output", "sendBackResp", projectIdsToSend)
+	plog.Trace("Flu output", "sendBackResp", projectIdsToSend)
 
 	retryIdsList := make([]uuid.UUID, 0)
 	for _, projectId := range projectIdsToSend {
@@ -209,8 +209,9 @@ func validationErrorCallback(resp *http.Response) (*Response, status_codes.Statu
 	defer resp.Body.Close()
 
 	fluResp := ParseFluResponse(resp)
-	fmt.Println(HttpCodeForCallback(fluResp.HttpStatusCode), fluResp.HttpStatusCode)
-	if HttpCodeForCallback(fluResp.HttpStatusCode) {
+	shouldCallBack := HttpCodeForCallback(fluResp.HttpStatusCode)
+	plog.Trace("HTTPStatusCode: [", fluResp.HttpStatusCode, "] Should Call back: ", shouldCallBack)
+	if shouldCallBack {
 		return fluResp, status_codes.CallBackFailure
 	} else {
 		//If any invalid flu response code is in our InvalidationCodeArray, then we log[ERROR] it
@@ -237,7 +238,7 @@ var startFluOnce sync.Once
 
 func StartFluOutputTimer() {
 	startFluOnce.Do(func() {
-		plog.Info("Flu output", monitorTimePeriod, "timer")
+		plog.Trace("Flu output", monitorTimePeriod, "timer")
 
 		t := time.NewTicker(monitorTimePeriod)
 		go func() {

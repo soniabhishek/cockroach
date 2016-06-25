@@ -44,6 +44,8 @@ const (
 
 	DOWNLOAD_PATH = configKey("workflow_step.manual_download_path")
 	MEGATRON_API  = configKey("megatron.base.api")
+
+	PLOG_LEVEL = configKey("plog.log_level")
 )
 
 // Gets the value for given key from the config file.

@@ -85,5 +85,9 @@
     "base" : {
       "api" : "http://54.169.7.227"
     }
+  },
+
+  "plog" :{
+    "log_level" : "<log_level>"
   }
 }

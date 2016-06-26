@@ -46,7 +46,7 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 		plog.Error("Transformation error", err, manualStepId)
 		return constants.Empty, errors.New("Transformation Error [" + err.Error() + "]")
 	}
-	return url + filename, nil
+	return config.MEGATRON_API.Get() + filename, nil
 }
 
 func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.UUID) (filePath string, numOfLines int, err error) {

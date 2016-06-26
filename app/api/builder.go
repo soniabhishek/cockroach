@@ -11,6 +11,9 @@ import (
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step/crowdsourcing_step_transport"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/manual_step"
 	"net/http"
+
+	"github.com/itsjamie/gin-cors"
+	"time"
 )
 
 func Build() {
@@ -27,6 +30,17 @@ func Build() {
 	// Global middleware
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+
+	// added cors because of int.playment.in
+	r.Use(cors.Middleware(cors.Config{
+		Origins:         "*",
+		Methods:         "GET, PUT, POST, DELETE",
+		RequestHeaders:  "Origin, Authorization, Content-Type",
+		ExposedHeaders:  "",
+		MaxAge:          50 * time.Second,
+		Credentials:     true,
+		ValidateHeaders: false,
+	}))
 
 	fmt.Println(config.Get(config.DOWNLOAD_PATH))
 	r.StaticFS("/downloadedfiles", http.Dir(config.Get(config.DOWNLOAD_PATH)))

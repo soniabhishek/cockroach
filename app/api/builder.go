@@ -10,6 +10,7 @@ import (
 	"gitlab.com/playment-main/angel/app/services/image_svc1"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step/crowdsourcing_step_transport"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/manual_step"
+	"gitlab.com/playment-main/angel/utilities/clients/api"
 	"net/http"
 )
 
@@ -41,6 +42,7 @@ func Build() {
 
 		crowdsourcing_step_transport.AddHttpTransport(api)
 		manual_step.AddHttpTransport(api)
+		utils_api.AddHttpTransport(api)
 	}
 
 	authorized := r.Group("/api/v0", auther.GinAuther())

@@ -34,8 +34,9 @@ func AddHttpTransport(r *gin.RouterGroup) {
 func fileDownloadHandler() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		manualStepId, err := uuid.FromString(c.Request.Header.Get(MANUAL_STEP_ID))
-		plog.Info(c.Param(MANUAL_STEP_ID), manualStepId, err)
+
+		manualStepId, err := uuid.FromString(c.PostForm(MANUAL_STEP_ID))
+		plog.Info(c.PostForm(MANUAL_STEP_ID), manualStepId, err)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				SUCCESS: false,

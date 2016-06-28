@@ -3,6 +3,8 @@ package projects_repo
 import (
 	"database/sql"
 
+	"errors"
+	"fmt"
 	"gitlab.com/playment-main/angel/app/DAL/repositories"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
 	"gitlab.com/playment-main/angel/app/models"
@@ -55,6 +57,25 @@ func transformErr(err error) error {
 		fallthrough
 	case mgo.ErrNotFound:
 		err = ErrProjectNotFound
+	}
+	return err
+}
+
+func (i *projectsRepo) Add(p models.Project) error {
+	return i.pg.Insert(&p)
+}
+func (i *projectsRepo) Update(p models.Project) error {
+	_, err := i.pg.Update(&p)
+	return err
+}
+func (i *projectsRepo) Delete(id uuid.UUID) error {
+	query := fmt.Sprintf(`delete from projects where id='%v'::uuid`, id)
+	res, err := i.pg.Exec(query)
+	if err != nil {
+		return err
+	}
+	if rows, _ := res.RowsAffected(); rows < 1 {
+		err = errors.New("Could not delete Client with ID [" + id.String() + "]")
 	}
 	return err
 }

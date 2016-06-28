@@ -3,6 +3,7 @@ package project_configuration_repo
 import (
 	"errors"
 
+	"fmt"
 	"gitlab.com/playment-main/angel/app/DAL/repositories"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
@@ -80,4 +81,25 @@ func toInterfaceArray(fps []models.ProjectConfiguration) []interface{} {
 		projects[i] = &fps[i]
 	}
 	return projects
+}
+
+func (fps *projectConfigurationRepo) Add(pj models.ProjectConfiguration) error {
+	return fps.db.Insert(&pj)
+}
+
+func (fps *projectConfigurationRepo) Update(pj models.ProjectConfiguration) error {
+	_, err := fps.db.Update(&pj)
+	return err
+}
+
+func (fps *projectConfigurationRepo) Delete(id uuid.UUID) error {
+	query := fmt.Sprintf(`delete from project_configuration where project_id='%v'::uuid`, id)
+	res, err := fps.db.Exec(query)
+	if err != nil {
+		return err
+	}
+	if rows, _ := res.RowsAffected(); rows < 1 {
+		err = errors.New("Could not delete ProjectConfiguration with ID [" + id.String() + "]")
+	}
+	return err
 }

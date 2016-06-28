@@ -10,6 +10,9 @@ import (
 type IProjectConfigurationRepo interface {
 	Save(*models.ProjectConfiguration) error
 	Get(projectId uuid.UUID) (models.ProjectConfiguration, error)
+	Add(models.ProjectConfiguration) error
+	Update(models.ProjectConfiguration) error
+	Delete(uuid.UUID) error
 }
 
 //=============================================================================================//
@@ -44,4 +47,16 @@ func Mock() IProjectConfigurationRepo {
 	return &inMemProjectConfigurationRepo{
 		projectConfigs: make(map[uuid.UUID]models.ProjectConfiguration),
 	}
+}
+
+func (i *inMemProjectConfigurationRepo) Add(pr models.ProjectConfiguration) error {
+	return nil
+}
+
+func (i *inMemProjectConfigurationRepo) Update(pr models.ProjectConfiguration) error {
+	return nil
+}
+
+func (i *inMemProjectConfigurationRepo) Delete(id uuid.UUID) error {
+	return nil
 }

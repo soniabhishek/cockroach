@@ -13,7 +13,8 @@ const (
 )
 
 const (
-	TEMP_FOLDER  = `/tmp/`
+	//TODO find an alternative. Might be like make it configurable.
+	TEMP_FOLDER  = `./`
 	FLU_ID_INDEX = 0
 	BUILD_INDEX  = 1
 	COMMA        = ","

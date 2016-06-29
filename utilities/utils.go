@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"github.com/asaskevich/govalidator"
 	"gitlab.com/playment-main/angel/utilities/constants"
 	"io"
 	"strconv"
@@ -116,4 +117,10 @@ func Decrypt(encryptedText string) ([]byte, error) {
 		return nil, err
 	}
 	return data, nil
+}
+
+func ValidateUrl(urlStr string) bool {
+	var validURL bool
+	validURL = govalidator.IsURL(urlStr)
+	return validURL
 }

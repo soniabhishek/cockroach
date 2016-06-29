@@ -7,6 +7,7 @@ import (
 	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/utilities/clients/models"
 	"gitlab.com/playment-main/angel/utilities/clients/operations"
+	"gitlab.com/playment-main/angel/utilities/clients/validator"
 	"net/http"
 )
 
@@ -25,9 +26,14 @@ func createUserHandler() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
-		obj, err := validateInputFLU(c)
+		obj, err := validateJson(c)
 		if err != nil {
-			// Incoming FLU is not valid.
+			validator.ShowErrorResponseOverHttp(c, err)
+			return
+		}
+		err = validator.ValidateInput(obj)
+		if err != nil {
+			validator.ShowErrorResponseOverHttp(c, err)
 			return
 		}
 
@@ -56,7 +62,7 @@ func createUserHandler() gin.HandlerFunc {
 			})
 		} else {
 			plog.Error("Error while creating user: ", err)
-			showErrorResponse(c, err)
+			validator.ShowErrorResponseOverHttp(c, err)
 		}
 
 	}

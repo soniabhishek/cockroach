@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"fmt"
 )
 
 //Need to reimplement this type
@@ -61,4 +62,9 @@ func (j *JsonFake) Merge(a JsonFake) {
 	for k, v := range a {
 		(*j)[k] = v
 	}
+}
+
+func (j *JsonFake) StringPretty() string {
+	bty, _ := json.MarshalIndent(*j, "", "  ")
+	return string(bty)
 }

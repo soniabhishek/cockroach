@@ -27,6 +27,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"runtime"
 	"strings"
 )
 
@@ -42,9 +43,46 @@ type typeC struct {
 	name3 string
 }
 
-func main() {
+func mainFlipkart() {
 
-	fmt.Sprintf("%v\n", uuid.NewV4())
+	//url := "http://localhost:8080/JServer/HelloServlet"
+	url := "https://catalogadmin-staging.paytm.com/v1/tp/product/qc-status"
+
+	//body := `{"feed_line_units":[{"flu_id":"9c019e3f-4e95-4837-90ee-0c25d82838fe","reference_id":"54396675-1466574896063","tag":"PAYTM_TSHIRT","status":"COMPLETED","result":{"action":"reject","product_id":"54396675","message":"Image check failed"}}]}`
+	body := `{"feed_line_units":[{"flu_id":"dd0f4e24-2957-465d-8686-b28448c7f966","reference_id":"54396675-1467031774629","tag":"PAYTM_5030","status":"COMPLETED","result":{"action":"accept","product_id":"54396675"}}]}`
+	hash := utilities.GetHMAC(body, "diyqc")
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer([]byte(body)))
+	req.Header.Set("Content-Type", "application/json")
+
+	req.Header.Set("qc-uuid", hash)
+
+	fmt.Println(body)
+	fmt.Println(hash)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	fmt.Println("Err:", err)
+	fmt.Println("Resp:", resp)
+	response, err := ioutil.ReadAll(resp.Body)
+	fmt.Println("Err:", err)
+	fmt.Println("RespBody:", string(response))
+}
+
+func mainLog() {
+
+	Trace("This is spartaa", "Another")
+}
+
+func main() {
+	fmt.Println(utilities.ValidateUrl("sfasd"))
+
+}
+
+func Trace(tag string, args ...interface{}) {
+
+	fmt.Println(tag)
+	fmt.Println(args)
+	x, fn, line, y := runtime.Caller(1)
+	fmt.Println(x, fn, line, y)
 }
 func mainjson() {
 
@@ -215,11 +253,13 @@ func mainUrl() {
 	fmt.Println("Err:", err)
 	fmt.Println("RespBody:", string(response))
 }
-func mainKey() {
-	uu, _ := uuid.FromString("d6a1e0ad-0795-4e77-9f1e-8e7a96706c27")
+func mainuuid() {
+	idStr := "2073e7b2-c6c6-4523-9c68-77ccbd220332"
+	uu, _ := uuid.FromString(idStr)
+	fmt.Println([]byte(idStr))
 	fmt.Println(auther.StdProdAuther.GetAPIKey(uu))
 }
-func mainPayTM() {
+func mainPaytm() {
 
 	//url := "http://localhost:8080/JServer/HelloServlet"
 	url := "https://catalogadmin-staging.paytm.com/v1/tp/product/qc-status"
@@ -229,7 +269,9 @@ func mainPayTM() {
 	//body := `{"feed_line_units":[{"flu_id":"PLAYMENT_1","reference_id":"PAYTM_QC_1","tag":"PAYTM_QC","status":"COMPLETED","result":{"action":"accept","product_id":"ABC123","sleeve_type":"Half Sleeve"}},{"flu_id":"PLAYMENT_2","reference_id":"PAYTM_QC_2","tag":"PAYTM_QC","status":"COMPLETED","result":{"action":"reject","product_id":"XYZ321","message":"Image check failed"}}]}`
 	//body := `{"feed_line_units":[{"flu_id":"2e2f12f6-5183-408e-834d-07faf1535e9e","reference_id":"54396695-1466594495186","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"accept","product_id":"54396695"}}]}`
 	//body := `{"feed_line_units":[{"flu_id":"12255044-a5b1-44b6-a222-f96730bf82c2","reference_id":"54396690-1466594495183","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"reject","product_id":"54396690","message":"Image check failed"}}]}`
-	body := `{"feed_line_units":[{"flu_id":"ef6cf491-80dd-427d-b54a-e6ff43aa331b","reference_id":"54396730-1466684151464","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"reject","product_id":"54396730","message":"Image check failed"}}]}`
+	//body := `{"feed_line_units":[{"flu_id":"ef6cf491-80dd-427d-b54a-e6ff43aa331b","reference_id":"54396730-1466684151464","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"reject","product_id":"54396730","message":"Image check failed"}}]}`
+	//body := `{"feed_line_units":[{"flu_id":"9c019e3f-4e95-4837-90ee-0c25d82838fe","reference_id":"54396675-1466574896063","tag":"PAYTM_TSHIRT","status":"COMPLETED","result":{"action":"reject","product_id":"54396675","message":"Image check failed"}}]}`
+	body := `{"feed_line_units":[{"flu_id":"dd0f4e24-2957-465d-8686-b28448c7f966","reference_id":"54396675-1467031774629","tag":"PAYTM_5030","status":"COMPLETED","result":{"action":"accept","product_id":"54396675"}}]}`
 	hash := utilities.GetHMAC(body, "diyqc")
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer([]byte(body)))
 	req.Header.Set("Content-Type", "application/json")
@@ -552,4 +594,57 @@ func queryCall(query string) {
 	fmt.Println("\nBaseQuery: ", query)
 	finalQ, _ := util.ResolveSelectQuery(query)
 	fmt.Println("FinalQuery: ", finalQ)
+}
+
+func maintest() {
+	err, u := UnmarshalText([]byte("d6a1e0ad-0795-4e77-9f1e-8e7a96706c27"))
+	fmt.Println(err, u)
+}
+
+var (
+	urnPrefix  = []byte("urn:uuid:")
+	byteGroups = []int{8, 4, 4, 4, 12}
+)
+
+type UUID [16]byte
+
+func UnmarshalText(text []byte) (err error, u *UUID) {
+	if len(text) < 32 {
+		err = fmt.Errorf("uuid: UUID string too short: %s", text)
+		return
+	}
+
+	t := text[:]
+
+	if bytes.Equal(t[:9], urnPrefix) {
+		t = t[9:]
+	} else if t[0] == '{' {
+		t = t[1:]
+	}
+
+	//b := u[:]
+	b := make([]byte, 16)
+
+	for _, byteGroup := range byteGroups {
+		if t[0] == '-' {
+			t = t[1:]
+		}
+
+		if len(t) < byteGroup {
+			err = fmt.Errorf("uuid: UUID string too short: %s", text)
+			return
+		}
+
+		_, err = hex.Decode(b[:byteGroup/2], t[:byteGroup])
+
+		if err != nil {
+			return
+		}
+
+		t = t[byteGroup:]
+		b = b[byteGroup/2:]
+	}
+
+	fmt.Println(b)
+	return
 }

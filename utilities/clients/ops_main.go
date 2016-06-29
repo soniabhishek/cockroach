@@ -1,63 +1,84 @@
 package main
 
 import (
-	"fmt"
+	"flag"
+	"gitlab.com/playment-main/angel/app/api/auther"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
+	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/utilities/clients/models"
 	"gitlab.com/playment-main/angel/utilities/clients/operations"
+	"gitlab.com/playment-main/angel/utilities/clients/validator"
 )
 
-/*-func main() {
-	userName := flag.String("u", "foo", "a string")
-	password := flag.String("u", "foo", "a string")
-	projectName := flag.String("u", "foo", "a string")
-	projectDesc := flag.String("u", "foo", "a string")
-	projectDesc := flag.String("u", "foo", "a string")
-	url := flag.Int("numb", 42, "an int")
-	boolPtr := flag.Bool("fork", false, "a bool")
+func main() {
+	/* Important */
+	userName := flag.String("username", "", "username")
+	password := flag.String("password", "", "password")
+	projectLabel := flag.String("projectLabel", "", "provide project label")
+	projectName := flag.String("projectName", "", "provide project name")
+	url := flag.String("url", "", "url")
+	headerStr := flag.String("header", "", "a json")
+	header := models.JsonFake{}
+	header.Scan(*headerStr)
 
+	/* Optional */
+	gender := flag.String("gender", "", "Gender [optional]")
+	firstName := flag.String("firstname", "", "First Name [optional]")
+	lastName := flag.String("lastname", "", "Second Name [optional]")
+	phone := flag.String("phone", "", "Phone Number [optional]")
 	flag.Parse()
 
-	getArgs()
-}
-
-func getArgs() {
-
-	fmt.Println(len(os.Args), os.Args)
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Enter text: ")
-	text, _ := reader.ReadString('\n')
-	fmt.Println(text)
-}*/
-
-func main() {
-	fmt.Println([]byte("password"))
-	/*
-		Using development environment
-		[112 97 115 115 119 111 114 100]
-	*/
-}
-func some() {
-	cl := utilModels.Client{
-		UserName:       "experiment",
-		Password:       []byte("exprpassword"),
+	obj := utilModels.Client{
+		UserName:       *userName,
+		Password:       *password,
 		ClientId:       uuid.Nil,
 		ClientSecretId: uuid.Nil,
 		ProjectId:      uuid.Nil,
-		ProjectLabel:   "exprLabel",
-		ProjectName:    "exprName",
-		Url:            "https://www.google.com",
-		Header:         models.JsonFake{"1": "One"},
+		ProjectLabel:   *projectLabel,
+		ProjectName:    *projectName,
+		Url:            *url,
+		Header:         header,
 		Steps:          nil,
 
-		Gender:    "m",
-		FirstName: "firstExpr",
-		LastName:  "secondExpr",
-		Phone:     "7788996655",
+		Gender:    *gender,
+		FirstName: *firstName,
+		LastName:  *lastName,
+		Phone:     *phone,
+	}
+
+	err := validator.ValidateInput(obj)
+	if err != nil {
+		validator.ShowErrorResponse(err)
+		return
 	}
 
 	service := operations.Service{}
-	status, err := service.CreateClient(cl)
-	fmt.Println(status, err)
+
+	_, err = service.CreateClient(&obj)
+	if err == nil {
+		result := models.JsonFake{
+			"success": true,
+			"userdetails": utilModels.Client{
+				UserName:        obj.UserName,
+				ClientId:        obj.ClientId,
+				ClientSecretStr: auther.StdProdAuther.GetAPIKey(obj.ClientSecretId),
+				ProjectId:       obj.ProjectId,
+				ProjectLabel:    obj.ProjectLabel,
+				ProjectName:     obj.ProjectName,
+				Url:             obj.Url,
+				Header:          obj.Header,
+				Steps:           obj.Steps,
+
+				Gender:    obj.Gender,
+				FirstName: obj.FirstName,
+				LastName:  obj.LastName,
+				Phone:     obj.Phone,
+			},
+		}
+		plog.Info(result.StringPretty())
+	} else {
+		plog.Error("Error while creating user: ", err)
+		validator.ShowErrorResponse(err)
+	}
 }

@@ -62,3 +62,8 @@ func (j *JsonFake) Merge(a JsonFake) {
 		(*j)[k] = v
 	}
 }
+
+func (j *JsonFake) StringPretty() string {
+	bty, _ := json.MarshalIndent(*j, "", "  ")
+	return string(bty)
+}

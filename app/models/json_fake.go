@@ -65,9 +65,6 @@ func (j *JsonFake) Merge(a JsonFake) {
 }
 
 func (j *JsonFake) StringPretty() string {
-	bty, err := json.MarshalIndent(*j, "", "  ")
-	if err != nil {
-		fmt.Println("JsonFakError:", err)
-	}
+	bty, _ := json.MarshalIndent(*j, "", "  ")
 	return string(bty)
 }

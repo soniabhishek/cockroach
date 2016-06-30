@@ -102,7 +102,13 @@ func checkupFeedLinePipe() {
 func getFluOutputObj(flus []models.FeedLineUnit) (fluOutputObj []fluOutputStruct) {
 	for _, flu := range flus {
 
-		result := flu.Build[RESULT].(models.JsonFake)
+		var result models.JsonFake
+		build := flu.Build[RESULT]
+		if build != nil {
+			result = build.(models.JsonFake)
+		} else {
+			result = models.JsonFake{}
+		}
 
 		fluOutputObj = append(fluOutputObj, fluOutputStruct{
 			ID:          flu.ID,
@@ -269,6 +275,9 @@ func shouldRetryHttp(projectId uuid.UUID) bool {
 
 func giveMaxFluCount(fpsModel models.ProjectConfiguration) int {
 	val := fpsModel.Options[MAX_FLU_COUNT]
+	if val == nil {
+		return defaultFluThresholdCount
+	}
 	maxFluCount := utilities.GetInt(val.(string))
 	if maxFluCount == 0 {
 		maxFluCount = defaultFluThresholdCount

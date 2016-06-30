@@ -44,11 +44,11 @@ type FluMonitor struct {
 }
 
 type fluOutputStruct struct {
-	ID          uuid.UUID       `json:"flu_id"`
-	ReferenceId string          `json:"reference_id"`
-	Tag         string          `json:"tag"`
-	Status      string          `json:"status"`
-	Result      models.JsonFake `json:"results"`
+	ID          uuid.UUID   `json:"flu_id"`
+	ReferenceId string      `json:"reference_id"`
+	Tag         string      `json:"tag"`
+	Status      string      `json:"status"`
+	Result      interface{} `json:"results"`
 }
 
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
@@ -102,11 +102,8 @@ func checkupFeedLinePipe() {
 func getFluOutputObj(flus []models.FeedLineUnit) (fluOutputObj []fluOutputStruct) {
 	for _, flu := range flus {
 
-		var result models.JsonFake
-		build := flu.Build[RESULT]
-		if build != nil {
-			result = build.(models.JsonFake)
-		} else {
+		result, ok := flu.Build[RESULT]
+		if !ok {
 			result = models.JsonFake{}
 		}
 

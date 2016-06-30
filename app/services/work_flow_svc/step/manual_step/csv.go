@@ -161,8 +161,8 @@ func UploadCsv(filename string) error {
 	err = flRepo.BulkFluBuildUpdate(flus)
 	if err != nil {
 		plog.Info(err.Error())
+		return err
 	}
-	return err
 
 	for _, flu := range flus {
 		StdManualStep.finishFlu(feed_line.FLU{FeedLineUnit: flu})

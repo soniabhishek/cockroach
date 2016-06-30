@@ -10,6 +10,9 @@ import (
 
 func ErrorMail(tag string, err error, args ...interface{}) {
 
+	if err == nil {
+		return
+	}
 	// gets the stack trace of current go routine
 	stackTrace := string(debug.Stack())
 

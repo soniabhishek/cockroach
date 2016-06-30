@@ -109,6 +109,7 @@ func (sr *stepRouter) getRoute(flu *feed_line.FLU) (route *feed_line.Fl) {
 		}
 
 		// Return the correct route
+		plog.Info("router", "sending flu to ", nextStep.ID.String(), " Type", nextStep.Type)
 		return route
 	} else {
 

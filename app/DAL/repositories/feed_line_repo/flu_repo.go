@@ -104,8 +104,21 @@ func (e *fluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
 	for i, _ := range flus {
 
 		if flus[i].ID == uuid.Nil {
-			return errors.New("flu not present")
+			//return errors.New("flu not present")
+			continue
 		}
+
+		dbFlu, err := e.GetById(flus[i].ID)
+		if err != nil {
+			plog.Info(err.Error())
+			continue
+		}
+		flus[i].ReferenceId = dbFlu.ReferenceId
+		flus[i].Data = dbFlu.Data
+		flus[i].Tag = dbFlu.Tag
+		flus[i].CreatedAt = dbFlu.CreatedAt
+		flus[i].StepId = dbFlu.StepId
+		flus[i].ProjectId = dbFlu.ProjectId
 
 		idVal, _ := flus[i].ID.Value()
 		buildVal, _ := flus[i].Build.Value()

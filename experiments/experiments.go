@@ -72,9 +72,46 @@ func mainLog() {
 	Trace("This is spartaa", "Another")
 }
 
-func main() {
-	fmt.Println(utilities.ValidateUrl("sfasd"))
+type fluOutputStruct struct {
+	ID          uuid.UUID   `json:"flu_id"`
+	ReferenceId string      `json:"reference_id"`
+	Tag         string      `json:"tag"`
+	Status      string      `json:"status"`
+	Result      interface{} `json:"result"`
+}
 
+/**
+
+{
+    "feed_line_units": [
+        {
+            "flu_id": "dummy_flu_id",
+            "reference_id": "dummy_review_id",
+            "tag": "FLIPKART_REVIEW_MODERATION",
+            "status": "COMPLETED",
+            "result": {
+                "action": "approved",
+                "reason": ""
+            }
+        }
+    ]
+}
+
+**/
+func main() {
+	arr := make([]fluOutputStruct, 0)
+	arr = append(arr, fluOutputStruct{
+		ID:          uuid.NewV4(),
+		ReferenceId: "someRef",
+		Tag:         "flp",
+		Status:      "completed",
+		Result:      models.JsonFake{"1": "One"},
+	})
+	fmt.Println(arr)
+	sendResp := make(map[string][]fluOutputStruct)
+	sendResp["feed_line_units"] = arr
+	bty, err := json.Marshal(sendResp)
+	fmt.Println(bty, err, string(bty))
 }
 
 func Trace(tag string, args ...interface{}) {

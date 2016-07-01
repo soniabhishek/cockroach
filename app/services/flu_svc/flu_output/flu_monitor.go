@@ -178,6 +178,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 		plog.Error("JSON Marshalling Error:", err)
 		return &Response{}, status_codes.UnknownFailure
 	}
+	jsonBytes = utilities.ReplaceEscapeCharacters(jsonBytes)
 	plog.Trace("Sending JSON:", string(jsonBytes))
 
 	//fmt.Println(hex.EncodeToString(sig.Sum(nil)))

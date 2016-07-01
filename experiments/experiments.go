@@ -10,6 +10,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/csv"
+	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -98,8 +99,15 @@ type fluOutputStruct struct {
 }
 
 **/
-func main() {
+func maincheck() {
 	arr := make([]fluOutputStruct, 0)
+	arr = append(arr, fluOutputStruct{
+		ID:          uuid.NewV4(),
+		ReferenceId: "someRef",
+		Tag:         "flp",
+		Status:      "completed",
+		Result:      models.JsonFake{"1": "One"},
+	})
 	arr = append(arr, fluOutputStruct{
 		ID:          uuid.NewV4(),
 		ReferenceId: "someRef",
@@ -296,7 +304,45 @@ func mainuuid() {
 	fmt.Println([]byte(idStr))
 	fmt.Println(auther.StdProdAuther.GetAPIKey(uu))
 }
-func mainPaytm() {
+
+func main() {
+	mp := map[string]string{"key": "The Knight & Day"}
+	fmt.Println(strings.Index(mp["key"], "&"))
+	fmt.Println(mp)
+	bty3, err := json.Marshal(mp)
+	fmt.Println(bty3, err)
+	fmt.Println(string(bty3))
+
+	hxe := hex.EncodeToString(bty3)
+	fmt.Println(hxe)
+	hxd, err := hex.DecodeString(hxe)
+	str := string(hxd)
+	fmt.Println(hxd, err, str)
+	fmt.Println(strings.Index(str, "\u0026"))
+	buff := bytes.NewBuffer(bty3)
+	fmt.Println(buff.String())
+
+	/*rc, ok := buff..(io.ReadCloser)
+	if !ok && buff != nil {
+		rc = ioutil.NopCloser(buff)
+	}*/
+	bty := make([]byte, len(bty3))
+	fmt.Println(buff.Read(bty))
+	fmt.Println(bty)
+	fmt.Println(string(bty))
+}
+
+func GetBytes(key interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(key)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func mainpaytm() {
 
 	//url := "http://localhost:8080/JServer/HelloServlet"
 	url := "https://catalogadmin-staging.paytm.com/v1/tp/product/qc-status"
@@ -308,7 +354,10 @@ func mainPaytm() {
 	//body := `{"feed_line_units":[{"flu_id":"12255044-a5b1-44b6-a222-f96730bf82c2","reference_id":"54396690-1466594495183","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"reject","product_id":"54396690","message":"Image check failed"}}]}`
 	//body := `{"feed_line_units":[{"flu_id":"ef6cf491-80dd-427d-b54a-e6ff43aa331b","reference_id":"54396730-1466684151464","tag":"PAYTM 5030","status":"COMPLETED","result":{"action":"reject","product_id":"54396730","message":"Image check failed"}}]}`
 	//body := `{"feed_line_units":[{"flu_id":"9c019e3f-4e95-4837-90ee-0c25d82838fe","reference_id":"54396675-1466574896063","tag":"PAYTM_TSHIRT","status":"COMPLETED","result":{"action":"reject","product_id":"54396675","message":"Image check failed"}}]}`
-	body := `{"feed_line_units":[{"flu_id":"dd0f4e24-2957-465d-8686-b28448c7f966","reference_id":"54396675-1467031774629","tag":"PAYTM_5030","status":"COMPLETED","result":{"action":"accept","product_id":"54396675"}}]}`
+	//body := `{"feed_line_units":[{"flu_id":"dd0f4e24-2957-465d-8686-b28448c7f966","reference_id":"54396675-1467031774629","tag":"PAYTM_5030","status":"COMPLETED","result":{"action":"accept","product_id":"54396675"}}]}`
+
+	//body := `"{"feed_line_units":[{"flu_id":"3c119ff0-fcac-4165-aea0-1b8716af7618","reference_id":"54396881-1467267881677","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"accept","product_id":"54396881"}},{"flu_id":"8852805a-348f-4943-917b-5c9b836d4620","reference_id":"54396883-1467267881674","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"true","action":"accept","attributes_color":"Red","product_id":"54396883"}},{"flu_id":"f1ddc2ee-4a83-404f-8f66-eca79512eb70","reference_id":"54396885-1467267881675","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"true","action":"accept","attributes_upper_material":"Leather","product_id":"54396883"}},{"flu_id":"4bec0aa3-54be-406e-8c47-effaa042b7fd","reference_id":"54396882-1467267881678","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"reject","message":"Error - Image is incomplete | Action - Provide complete image of the product","product_id":"54396882"}},{"flu_id":"1312a75a-b56f-4b0d-a896-f3389b6d37d9","reference_id":"54396884-1467267881675","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"reject","category_id":"5030","message":"Error - Wrong mapping | Action - Should be mapped in to The Nightwear & Nighties","product_id":"54396884"}}]}"`
+	body := `"{"feed_line_units":[{"flu_id":"3c119ff0-fcac-4165-aea0-1b8716af7618","reference_id":"54396881-1467267881677","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"accept","product_id":"54396881"}},{"flu_id":"8852805a-348f-4943-917b-5c9b836d4620","reference_id":"54396883-1467267881674","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"true","action":"accept","attributes_color":"Red","product_id":"54396883"}},{"flu_id":"f1ddc2ee-4a83-404f-8f66-eca79512eb70","reference_id":"54396885-1467267881675","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"true","action":"accept","attributes_upper_material":"Leather","product_id":"54396883"}},{"flu_id":"4bec0aa3-54be-406e-8c47-effaa042b7fd","reference_id":"54396882-1467267881678","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"reject","message":"Error - Image is incomplete | Action - Provide complete image of the product","product_id":"54396882"}},{"flu_id":"1312a75a-b56f-4b0d-a896-f3389b6d37d9","reference_id":"54396884-1467267881675","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"reject","category_id":"5030","message":"Error - Wrong mapping | Action - Should be mapped in to The Nightwear \u0026 Nighties","product_id":"54396884"}}]}"`
 	hash := utilities.GetHMAC(body, "diyqc")
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer([]byte(body)))
 	req.Header.Set("Content-Type", "application/json")
@@ -317,13 +366,13 @@ func mainPaytm() {
 
 	fmt.Println(body)
 	fmt.Println(hash)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	//client := &http.Client{}
+	/*resp, err := client.Do(req)
 	fmt.Println("Err:", err)
 	fmt.Println("Resp:", resp)
 	response, err := ioutil.ReadAll(resp.Body)
 	fmt.Println("Err:", err)
-	fmt.Println("RespBody:", string(response))
+	fmt.Println("RespBody:", string(response))*/
 }
 
 func main112() {

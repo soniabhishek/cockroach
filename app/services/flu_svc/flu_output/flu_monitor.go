@@ -3,7 +3,6 @@ package flu_output
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -48,7 +47,7 @@ type fluOutputStruct struct {
 	ReferenceId string      `json:"reference_id"`
 	Tag         string      `json:"tag"`
 	Status      string      `json:"status"`
-	Result      interface{} `json:"results"`
+	Result      interface{} `json:"result"`
 }
 
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
@@ -165,7 +164,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 
 	url := fpsModel.PostBackUrl
 	//url := "http://localhost:8080/JServer/HelloServlet"
-	fmt.Println("URL:>", url)
+	plog.Trace("URL:>", url, "|ID: ", projectId, "|Body:", fluProjectResp)
 
 	jsonBytes, err := json.Marshal(fluProjectResp)
 	if err != nil {

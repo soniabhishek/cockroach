@@ -166,12 +166,14 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 	//url := "http://localhost:8080/JServer/HelloServlet"
 	plog.Trace("URL:>", url, "|ID: ", projectId, "|Body:", fluProjectResp)
 
-	jsonBytes, err := json.Marshal(fluProjectResp)
+	sendResp := make(map[string][]fluOutputStruct)
+	sendResp["feed_line_units"] = fluProjectResp
+	jsonBytes, err := json.Marshal(sendResp)
 	if err != nil {
 		plog.Error("JSON Marshalling Error:", err)
 		return &Response{}, status_codes.UnknownFailure
 	}
-	//fmt.Println(string(jsonBytes))
+	plog.Trace("Sending JSON:", string(jsonBytes))
 
 	//fmt.Println(hex.EncodeToString(sig.Sum(nil)))
 

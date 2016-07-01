@@ -1,6 +1,7 @@
 package utilities
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/hmac"
@@ -124,3 +125,24 @@ func ValidateUrl(urlStr string) bool {
 	validURL = govalidator.IsURL(urlStr)
 	return validURL
 }
+
+func ReplaceEscapeCharacters(bty []byte) []byte {
+	bty = bytes.Replace(bty, []byte(`\u003c`), []byte("<"), -1)
+	bty = bytes.Replace(bty, []byte(`\u003e`), []byte(">"), -1)
+	bty = bytes.Replace(bty, []byte(`\u0026`), []byte("&"), -1)
+	return bty
+}
+
+//In the upcoming Go1.7 release, you can turn off the escaping in a json.Encoder with SetEscapeHTML(false).
+/*
+func ReplaceEscapeCharsInGOLAN1_7()  {
+
+	mp := map[string]string{"key": "The Knight & Day"}
+	var buf bytes.Buffer
+
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	enc.Encode(mp)
+
+	fmt.Println(&buf)
+}*/

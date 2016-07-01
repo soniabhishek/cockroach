@@ -7,6 +7,7 @@ import (
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	//"gitlab.com/playment-main/angel/utilities"
+	"gitlab.com/playment-main/angel/utilities"
 )
 
 //
@@ -117,8 +118,36 @@ func TestGetFluOutputObj(t *testing.T) {
 				RESULT: i,
 			},
 		},
+		models.FeedLineUnit{
+			ID: uuid.NewV4(),
+			Build: models.JsonFake{
+				RESULT: i,
+			},
+		},
+		models.FeedLineUnit{
+			ID: uuid.NewV4(),
+			Build: models.JsonFake{
+				RESULT: i,
+			},
+		},
+		models.FeedLineUnit{
+			ID: uuid.NewV4(),
+			Build: models.JsonFake{
+				RESULT: i,
+			},
+		},
 	}
+	flp := feedLineValue{10, utilities.TimeInMillis(), flus}
 
-	out := getFluOutputObj(flus)
-	fmt.Println(out)
+	fmt.Println(len(flp.feedLine))
+	out := getFluOutputObj(flp)
+	fmt.Println(len(out), out)
+
+	projId := uuid.NewV4()
+	feedLinePipe[projId] = flp
+
+	fmt.Println(len(feedLinePipe[projId].feedLine))
+	deleteFromFeedLinePipe(projId, out)
+	fmt.Println(len(feedLinePipe[projId].feedLine))
+
 }

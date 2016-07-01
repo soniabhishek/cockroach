@@ -98,9 +98,48 @@ func checkupFeedLinePipe() {
 
 }
 
-func getFluOutputObj(flus []models.FeedLineUnit) (fluOutputObj []fluOutputStruct) {
-	for _, flu := range flus {
+func sendBackResp(projectIdsToSend []uuid.UUID) {
 
+	plog.Trace("Flu output", "sendBackResp", projectIdsToSend)
+
+	retryIdsList := make([]uuid.UUID, 0)
+	for _, projectId := range projectIdsToSend {
+		flp, ok := feedLinePipe[projectId]
+		if ok == false {
+			continue
+		}
+		fluOutObj := getFluOutputObj(flp)
+
+		fluResp, status := sendBackToClient(projectId, fluOutObj)
+		if status == status_codes.Success {
+
+			deleteFromFeedLinePipe(projectId, fluOutObj)
+			go putDbLog(flp, SUCCESS, *fluResp)
+
+		} else if status == status_codes.CallBackFailure && shouldRetryHttp(projectId) {
+			//not successful scenarios
+			retryIdsList = append(retryIdsList, projectId)
+
+		} else {
+			go putDbLog(flp, "Invalid FLU Resp ", *fluResp)
+			deleteFromFeedLinePipe(projectId, fluOutObj)
+		}
+	}
+
+	if len(retryIdsList) != 0 {
+		time.Sleep(retryTimePeriod * time.Millisecond)
+		sendBackResp(retryIdsList)
+	}
+}
+
+func getFluOutputObj(flp feedLineValue) (fluOutputObj []fluOutputStruct) {
+	flus := flp.feedLine
+	limit := flp.maxFluSize
+	if len(flp.feedLine) < flp.maxFluSize {
+		limit = len(flp.feedLine)
+	}
+	for i := limit - 1; i >= 0; i-- {
+		flu := flus[i]
 		result, ok := flu.Build[RESULT]
 		if !ok {
 			result = models.JsonFake{}
@@ -115,40 +154,6 @@ func getFluOutputObj(flus []models.FeedLineUnit) (fluOutputObj []fluOutputStruct
 		})
 	}
 	return
-}
-
-func sendBackResp(projectIdsToSend []uuid.UUID) {
-
-	plog.Trace("Flu output", "sendBackResp", projectIdsToSend)
-
-	retryIdsList := make([]uuid.UUID, 0)
-	for _, projectId := range projectIdsToSend {
-		flp, ok := feedLinePipe[projectId]
-		if ok == false {
-			continue
-		}
-		fluOutObj := getFluOutputObj(flp.feedLine)
-
-		fluResp, status := sendBackToClient(projectId, fluOutObj)
-		if status == status_codes.Success {
-
-			deleteFromFeedLinePipe(projectId)
-			go putDbLog(flp, SUCCESS, *fluResp)
-
-		} else if status == status_codes.CallBackFailure && shouldRetryHttp(projectId) {
-			//not successful scenarios
-			retryIdsList = append(retryIdsList, projectId)
-
-		} else {
-			go putDbLog(flp, "Invalid FLU Resp ", *fluResp)
-			deleteFromFeedLinePipe(projectId)
-		}
-	}
-
-	if len(retryIdsList) != 0 {
-		time.Sleep(retryTimePeriod * time.Millisecond)
-		sendBackResp(retryIdsList)
-	}
 }
 
 func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*Response, status_codes.StatusCode) {
@@ -205,7 +210,9 @@ func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bo
 		key := []byte(hmacKeyStr)
 		sig := hmac.New(sha256.New, key)
 		sig.Write(bodyJsonBytes)
-		req.Header.Set(HMAC_HEADER_KEY, hex.EncodeToString(sig.Sum(nil)))
+		hmac := hex.EncodeToString(sig.Sum(nil))
+		req.Header.Set(HMAC_HEADER_KEY, hmac)
+		plog.Trace("HMAC", hmac)
 	}
 }
 
@@ -230,7 +237,7 @@ func validationErrorCallback(resp *http.Response) (*Response, status_codes.Statu
 
 func IsEligibleForSendingBack(key uuid.UUID) bool {
 	flp, ok := feedLinePipe[key]
-	if ok && (len(flp.feedLine) > flp.maxFluSize || utilities.TimeDiff(false, flp.insertionTime) > fluThresholdDuration) {
+	if ok && (len(flp.feedLine) >= flp.maxFluSize || utilities.TimeDiff(false, flp.insertionTime) > fluThresholdDuration) {
 		return true
 	}
 	return false
@@ -254,10 +261,32 @@ func StartFluOutputTimer() {
 
 }
 
-func deleteFromFeedLinePipe(projectId uuid.UUID) {
+func deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct) {
 	mutex.Lock()
-	delete(feedLinePipe, projectId)
+	flv, ok := feedLinePipe[projectId]
+	if ok {
+		for i := len(flv.feedLine) - 1; i >= 0; i-- {
+			fl := flv.feedLine[i]
+			// Condition to decide if current element has to be deleted:
+			if didWeSendThis(fl, fluOutputObj) {
+				flv.feedLine = append(flv.feedLine[:i],
+					flv.feedLine[i+1:]...)
+			}
+		}
+	}
+	feedLinePipe[projectId] = flv
 	mutex.Unlock()
+}
+
+func didWeSendThis(fl models.FeedLineUnit, fluOutputObj []fluOutputStruct) bool {
+	if len(fluOutputObj) > 0 {
+		for i := len(fluOutputObj) - 1; i >= 0; i-- {
+			if fluOutputObj[i].ID == fl.ID {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func shouldRetryHttp(projectId uuid.UUID) bool {

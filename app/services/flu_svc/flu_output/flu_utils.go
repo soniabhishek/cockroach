@@ -23,6 +23,15 @@ func ParseFluResponse(resp *http.Response) *Response {
 	plog.Info("response Body:", string(body))
 	err := json.Unmarshal(body, fluResp)
 	if err != nil {
+
+		/*TODO How to handle this error.
+		errors.New("asfdsgdf")
+
+		switch err.(type) {
+		case :
+
+		}*/
+
 		plog.Error("Response Parsing Error: ", err)
 		return fluResp
 	}
@@ -32,13 +41,25 @@ func ParseFluResponse(resp *http.Response) *Response {
 /* This function will check whether we need to try calling again to the hitting server.
 It calls back in case of
 -	HTTP ERR 408 (Request Timeout)
+-	HTTP ERR 500 (Internal Server Error)
+-	HTTP ERR 501 (Not Implemented)
+-	HTTP ERR 502 (Bad Gateway)
+-	HTTP ERR 503 (Service Unavailable)
 -	HTTP ERR 504 (Gateway Timeout)
+-	HTTP ERR 505 (HTTP Version Not Supported)
+-	HTTP ERR 511 (Network Authentication Required)
 */
 func HttpCodeForCallback(httpStatusCode int) bool {
 	switch httpStatusCode {
 	case
 		http.StatusRequestTimeout,
-		http.StatusGatewayTimeout:
+		http.StatusInternalServerError,
+		http.StatusNotImplemented,
+		http.StatusBadGateway,
+		http.StatusServiceUnavailable,
+		http.StatusGatewayTimeout,
+		http.StatusHTTPVersionNotSupported,
+		http.StatusNetworkAuthenticationRequired:
 		return true
 	}
 	return false
@@ -57,12 +78,12 @@ func IsValidInternalError(internalCode string) bool {
 	return false
 }
 
-func putDbLog(flp feedLineValue, message string, resp Response) {
-	dbLogArr := make([]models.FeedLineLog, len(flp.feedLine))
+func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp Response) {
+	dbLogArr := make([]models.FeedLineLog, len(completedFLUs))
 	jsObj := models.JsonFake{}
 	jsonBytes, _ := json.Marshal(resp)
 	jsObj.Scan(string(jsonBytes))
-	for i, fl := range flp.feedLine {
+	for i, fl := range completedFLUs {
 		dbLog := models.FeedLineLog{
 			//ID         int            `db:"id" json:"id" bson:"_id"`
 			FluId:      fl.ID,

@@ -11,7 +11,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/project_configuration_repo"
 	"gitlab.com/playment-main/angel/app/config"
@@ -87,7 +86,7 @@ func checkupFeedLinePipe() {
 
 	plog.Trace("Flu output", "checkupFeedLinePipe")
 
-	var projectIdsToSend = make([]uuid.UUID, 1)
+	var projectIdsToSend = make([]uuid.UUID, 0)
 	mutex.RLock()
 	for projectId := range feedLinePipe {
 		if IsEligibleForSendingBack(projectId) {
@@ -95,7 +94,9 @@ func checkupFeedLinePipe() {
 		}
 	}
 	mutex.RUnlock()
-	sendBackResp(projectIdsToSend)
+	if len(projectIdsToSend) > 0 {
+		sendBackResp(projectIdsToSend)
+	}
 
 }
 
@@ -114,16 +115,16 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 		fluResp, status := sendBackToClient(projectId, fluOutObj)
 		if status == status_codes.Success {
 
-			deleteFromFeedLinePipe(projectId, fluOutObj)
-			go putDbLog(flp, SUCCESS, *fluResp)
+			completedFLUs := deleteFromFeedLinePipe(projectId, fluOutObj)
+			go putDbLog(completedFLUs, SUCCESS, *fluResp)
 
 		} else if status == status_codes.CallBackFailure && shouldRetryHttp(projectId) {
 			//not successful scenarios
 			retryIdsList = append(retryIdsList, projectId)
 
 		} else {
-			go putDbLog(flp, "Invalid FLU Resp ", *fluResp)
-			deleteFromFeedLinePipe(projectId, fluOutObj)
+			completedFLUs := deleteFromFeedLinePipe(projectId, fluOutObj)
+			go putDbLog(completedFLUs, "Invalid FLU Resp ", *fluResp)
 		}
 	}
 
@@ -139,7 +140,7 @@ func getFluOutputObj(flp feedLineValue) (fluOutputObj []fluOutputStruct) {
 	if len(flp.feedLine) < flp.maxFluSize {
 		limit = len(flp.feedLine)
 	}
-	fmt.Println("SENDING FLUs COUNT: ", limit)
+	plog.Info("SENDING FLUs COUNT: ", limit)
 	for i := limit - 1; i >= 0; i-- {
 		flu := flus[i]
 		result, ok := flu.Build[RESULT]
@@ -268,7 +269,11 @@ func StartFluOutputTimer() {
 
 }
 
-func deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct) {
+func deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct) []models.FeedLineUnit {
+	completedFLUs := make([]models.FeedLineUnit, 0)
+	if len(fluOutputObj) > 0 {
+		return completedFLUs
+	}
 	printFluBuff("BEFORE DELETION")
 	mutex.Lock()
 	flv, ok := feedLinePipe[projectId]
@@ -277,19 +282,30 @@ func deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct)
 			fl := flv.feedLine[i]
 			// Condition to decide if current element has to be deleted:
 			if didWeSendThis(fl, fluOutputObj) {
-				flv.feedLine = append(flv.feedLine[:i],
-					flv.feedLine[i+1:]...)
+
+				completedFLUs = append(completedFLUs, flv.feedLine[i])
+
+				flv.feedLine = append(flv.feedLine[:i], flv.feedLine[i+1:]...)
+
 			}
 		}
 	}
 	feedLinePipe[projectId] = flv
 	mutex.Unlock()
 	printFluBuff("AFTER DELETION")
+	return completedFLUs
 }
 
 func didWeSendThis(fl models.FeedLineUnit, fluOutputObj []fluOutputStruct) bool {
+	if fl.ID == uuid.Nil {
+		return false
+	}
 	if len(fluOutputObj) > 0 {
 		for i := len(fluOutputObj) - 1; i >= 0; i-- {
+			if fluOutputObj[i].ID == uuid.Nil {
+				continue
+			}
+
 			if fluOutputObj[i].ID == fl.ID {
 				return true
 			}

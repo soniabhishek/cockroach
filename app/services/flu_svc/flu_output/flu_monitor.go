@@ -11,6 +11,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/project_configuration_repo"
 	"gitlab.com/playment-main/angel/app/config"
@@ -138,6 +139,7 @@ func getFluOutputObj(flp feedLineValue) (fluOutputObj []fluOutputStruct) {
 	if len(flp.feedLine) < flp.maxFluSize {
 		limit = len(flp.feedLine)
 	}
+	fmt.Println("SENDING FLUs COUNT: ", limit)
 	for i := limit - 1; i >= 0; i-- {
 		flu := flus[i]
 		result, ok := flu.Build[RESULT]
@@ -157,6 +159,10 @@ func getFluOutputObj(flp feedLineValue) (fluOutputObj []fluOutputStruct) {
 }
 
 func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*Response, status_codes.StatusCode) {
+
+	if len(fluProjectResp) < 1 {
+		return &Response{}, status_codes.NoFluToSend
+	}
 
 	plog.Info("Flu output", "sendBackToClient", projectId)
 
@@ -263,6 +269,7 @@ func StartFluOutputTimer() {
 }
 
 func deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct) {
+	printFluBuff("BEFORE DELETION")
 	mutex.Lock()
 	flv, ok := feedLinePipe[projectId]
 	if ok {
@@ -277,6 +284,7 @@ func deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct)
 	}
 	feedLinePipe[projectId] = flv
 	mutex.Unlock()
+	printFluBuff("AFTER DELETION")
 }
 
 func didWeSendThis(fl models.FeedLineUnit, fluOutputObj []fluOutputStruct) bool {
@@ -288,6 +296,17 @@ func didWeSendThis(fl models.FeedLineUnit, fluOutputObj []fluOutputStruct) bool 
 		}
 	}
 	return false
+}
+
+func printFluBuff(flag string) {
+	if plog.IsTraceEnabled() {
+		mutex.RLock()
+		plog.Trace(flag, "OUTPUT FLU BUFF")
+		for projectId := range feedLinePipe {
+			plog.Trace("PROJ_ID:", projectId, "|BUFF-SIZE:", len(feedLinePipe[projectId].feedLine))
+		}
+		mutex.RUnlock()
+	}
 }
 
 func shouldRetryHttp(projectId uuid.UUID) bool {

@@ -6,6 +6,7 @@ const (
 	Success         StatusCode = 1000
 	CallBackFailure StatusCode = 1001
 	FluRespFailure  StatusCode = 1002
+	NoFluToSend     StatusCode = 1003
 	UnknownFailure  StatusCode = 1111
 )
 

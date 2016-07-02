@@ -10,9 +10,11 @@ import (
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
+	"gitlab.com/playment-main/angel/utilities"
 	"gitlab.com/playment-main/angel/utilities/constants"
 	"io"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -141,8 +143,14 @@ func UploadCsv(filename string) error {
 			plog.Error("Manual Step", err, " csv reading error")
 			return err
 		}
-
 		cnt++
+
+		wrongCol, err := utilities.IsValidUTF8(row)
+		if wrongCol != -1 {
+			plog.Error("Manual Step", err, " csv is not in correct encoding[UTF-8]. [Row:"+strconv.Itoa(cnt)+", Col:"+strconv.Itoa(wrongCol)+"]")
+			return err
+		}
+
 		if cnt == 0 {
 			continue
 		}

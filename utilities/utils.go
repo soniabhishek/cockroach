@@ -10,11 +10,14 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/asaskevich/govalidator"
 	"gitlab.com/playment-main/angel/utilities/constants"
 	"io"
 	"strconv"
+	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 func TimeInMillis() int64 {
@@ -146,3 +149,14 @@ func ReplaceEscapeCharsInGOLAN1_7()  {
 
 	fmt.Println(&buf)
 }*/
+
+func IsValidUTF8(rows []string) (int, error) {
+	for i, row := range rows {
+		row = strings.TrimRight(row, "\n")
+		fmt.Println(row, []byte(row))
+		if !utf8.ValidString(row) {
+			return i, errors.New("!utf8.ValidString")
+		}
+	}
+	return -1, nil
+}

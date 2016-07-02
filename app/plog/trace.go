@@ -12,3 +12,7 @@ func Trace(tag string, args ...interface{}) {
 		fmt.Println(fn, line, tag, args)
 	}
 }
+func IsTraceEnabled() bool {
+
+	return levelTrace <= plogLevel
+}

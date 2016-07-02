@@ -217,7 +217,7 @@ func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bo
 		hmacKeyStr, _ := utilities.Decrypt(hmacKey.(string))
 		key := []byte(hmacKeyStr)
 		sig := hmac.New(sha256.New, key)
-		sig.Write(bodyJsonBytes)
+		sig.Write([]byte(string(bodyJsonBytes)))
 		hmac := hex.EncodeToString(sig.Sum(nil))
 		req.Header.Set(HMAC_HEADER_KEY, hmac)
 		plog.Trace("HMAC", hmac)

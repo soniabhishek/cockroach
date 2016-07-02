@@ -98,6 +98,19 @@ func mainpaytm() {
 	fmt.Println("RespBody:", string(response))
 }
 
+func main() {
+	//k1 := "diyqc"
+	k2 := "a9a6bd8c-314c-11e6-ac61-9e71128cae77"
+	body1 := `"{"feed_line_units":[{"flu_id":"3c119ff0-fcac-4165-aea0-1b8716af7618","reference_id":"54396881-1467267881677","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"accept","product_id":"54396881"}},{"flu_id":"4bec0aa3-54be-406e-8c47-effaa042b7fd","reference_id":"54396882-1467267881678","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"reject","message":"Error - Image is incomplete | Action - Provide complete image of the product","product_id":"54396882"}},{"flu_id":"1312a75a-b56f-4b0d-a896-f3389b6d37d9","reference_id":"54396884-1467267881675","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"reject","category_id":"5030","message":"Error - Wrong mapping | Action - Should be mapped in to The Nightwear & Nighties","product_id":"54396884"}},{"flu_id":"8852805a-348f-4943-917b-5c9b836d4620","reference_id":"54396883-1467267881674","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"true","action":"accept","attributes_color":"Red","product_id":"54396883"}},{"flu_id":"f1ddc2ee-4a83-404f-8f66-eca79512eb70","reference_id":"54396885-1467267881675","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"true","action":"accept","attributes_upper_material":"Leather","product_id":"54396883"}}]}"`
+	body2 := `{"feed_line_units":[{"flu_id":"3c119ff0-fcac-4165-aea0-1b8716af7618","reference_id":"54396881-1467267881677","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"accept","product_id":"54396881"}},{"flu_id":"4bec0aa3-54be-406e-8c47-effaa042b7fd","reference_id":"54396882-1467267881678","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"reject","message":"Error - Image is incomplete | Action - Provide complete image of the product","product_id":"54396882"}},{"flu_id":"1312a75a-b56f-4b0d-a896-f3389b6d37d9","reference_id":"54396884-1467267881675","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"false","action":"reject","category_id":"5030","message":"Error - Wrong mapping | Action - Should be mapped in to The Nightwear & Nighties","product_id":"54396884"}},{"flu_id":"8852805a-348f-4943-917b-5c9b836d4620","reference_id":"54396883-1467267881674","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"true","action":"accept","attributes_color":"Red","product_id":"54396883"}},{"flu_id":"f1ddc2ee-4a83-404f-8f66-eca79512eb70","reference_id":"54396885-1467267881675","tag":"PAYTM_5413","status":"COMPLETED","result":{"accept_with_edit":"true","action":"accept","attributes_upper_material":"Leather","product_id":"54396883"}}]}`
+	hash1 := utilities.GetHMAC(body1, k2)
+	hash2 := utilities.GetHMAC(body2, k2)
+
+	fmt.Println(hash1)
+	fmt.Println(hash2)
+	fmt.Println("755572b69bf8506f031fb31b684a5706f9e45e9a3cf891e61171b8853c81905c")
+}
+
 func maineditor() {
 	plaintext := []byte("a9a6bd8c-314c-11e6-ac61-9e71128cae77")
 	fmt.Printf("%s\n", plaintext)

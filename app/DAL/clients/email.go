@@ -1,7 +1,7 @@
 package clients
 
 import (
-	"github.com/sendgrid/sendgrid-go-2.0.0"
+	"github.com/sendgrid/sendgrid-go"
 	"gitlab.com/playment-main/angel/app/config"
 )
 

@@ -20,7 +20,7 @@ func (m *manualStep) finishFlu(flu feed_line.FLU) bool {
 
 	err := m.RemoveFromBuffer(flu)
 	if err != nil {
-		plog.Error("Manual Step", err, "flu not present", flu.ID)
+		plog.Trace("Manual Step", err, "flu not present", flu.ID)
 		//return false
 	}
 	counter.Print(flu, "manual")

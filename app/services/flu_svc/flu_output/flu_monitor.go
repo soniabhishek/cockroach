@@ -129,7 +129,7 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 	}
 
 	if len(retryIdsList) != 0 {
-		time.Sleep(retryTimePeriod * time.Millisecond)
+		time.Sleep(retryTimePeriod)
 		sendBackResp(retryIdsList)
 	}
 }
@@ -245,9 +245,22 @@ func validationErrorCallback(resp *http.Response) (*Response, status_codes.Statu
 
 func IsEligibleForSendingBack(key uuid.UUID) bool {
 	flp, ok := feedLinePipe[key]
-	if ok && (len(flp.feedLine) >= flp.maxFluSize || utilities.TimeDiff(false, flp.insertionTime) > fluThresholdDuration) {
+	if !ok {
+		return false
+	}
+
+	if len(flp.feedLine) < 1 {
+		return false
+	}
+
+	if utilities.TimeDiff(false, flp.insertionTime) > fluThresholdDuration {
 		return true
 	}
+
+	if len(flp.feedLine) > flp.maxFluSize {
+		return true
+	}
+
 	return false
 }
 
@@ -271,7 +284,7 @@ func StartFluOutputTimer() {
 
 func deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct) []models.FeedLineUnit {
 	completedFLUs := make([]models.FeedLineUnit, 0)
-	if len(fluOutputObj) > 0 {
+	if len(fluOutputObj) < 1 {
 		return completedFLUs
 	}
 	printFluBuff("BEFORE DELETION")

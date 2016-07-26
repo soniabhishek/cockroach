@@ -1,8 +1,8 @@
 package question_repo
 
 import (
-	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
-	"gitlab.com/playment-main/angel/app/models"
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/models"
 )
 
 type IQuestionRepo interface {

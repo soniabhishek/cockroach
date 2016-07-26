@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"gitlab.com/playment-main/angel/utilities"
+	"github.com/crowdflux/angel/utilities"
 )
 
 const dbTag string = "db"

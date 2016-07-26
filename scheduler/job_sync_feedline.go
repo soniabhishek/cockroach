@@ -1,6 +1,6 @@
 package scheduler
 
-import "gitlab.com/playment-main/angel/app/services/flu_svc"
+import "github.com/crowdflux/angel/app/services/flu_svc"
 
 const syncFeedLineCron = "0/20 * * * * *"
 

@@ -5,10 +5,10 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 func TestSqlXWrap_SelectCustom(t *testing.T) {

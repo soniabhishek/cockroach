@@ -11,13 +11,14 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/asaskevich/govalidator"
-	"gitlab.com/playment-main/angel/utilities/constants"
 	"io"
 	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/asaskevich/govalidator"
+	"github.com/crowdflux/angel/utilities/constants"
 )
 
 func TimeInMillis() int64 {

@@ -2,9 +2,10 @@ package flu_validator_repo
 
 import (
 	"errors"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 	"sync"
+
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 type IFluValidatorRepo interface {

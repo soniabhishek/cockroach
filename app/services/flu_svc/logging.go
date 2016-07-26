@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 // This is an example implementation of logger middleware

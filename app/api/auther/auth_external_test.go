@@ -2,8 +2,9 @@ package auther_test
 
 import (
 	"fmt"
-	"gitlab.com/playment-main/angel/app/api/auther"
-	"gitlab.com/playment-main/angel/app/models/uuid"
+
+	"github.com/crowdflux/angel/app/api/auther"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 func Example() {

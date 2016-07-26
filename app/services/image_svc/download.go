@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"gitlab.com/playment-main/angel/app/models"
+	"github.com/crowdflux/angel/app/models"
 )
 
 type image struct {

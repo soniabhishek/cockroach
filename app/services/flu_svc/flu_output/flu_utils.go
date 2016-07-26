@@ -6,10 +6,11 @@ import (
 	"net/http"
 
 	"database/sql"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/status_codes"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/plog"
+
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/status_codes"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
 )
 
 func ParseFluResponse(resp *http.Response) *Response {

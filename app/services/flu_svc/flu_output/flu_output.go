@@ -1,6 +1,6 @@
 package flu_output
 
-import "gitlab.com/playment-main/angel/app/models"
+import "github.com/crowdflux/angel/app/models"
 
 type FluOutput interface {
 	AddToOutputQueue(models.FeedLineUnit) error

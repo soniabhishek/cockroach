@@ -2,10 +2,11 @@ package clients_repo
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 	"testing"
+
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestClientsRepo_GetByProjectId(t *testing.T) {

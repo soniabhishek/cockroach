@@ -33,12 +33,13 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"gitlab.com/playment-main/angel/app/plog"
 	"hash"
 	"net"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/crowdflux/angel/app/plog"
 )
 
 // UUID layout variants.

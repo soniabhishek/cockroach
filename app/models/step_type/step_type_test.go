@@ -1,8 +1,9 @@
 package step_type
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestStepType_Scan(t *testing.T) {

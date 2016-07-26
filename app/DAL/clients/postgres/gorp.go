@@ -3,9 +3,9 @@ package postgres
 import (
 	"database/sql"
 
+	"github.com/crowdflux/angel/app/config"
+	"github.com/crowdflux/angel/app/models"
 	_ "github.com/lib/pq"
-	"gitlab.com/playment-main/angel/app/config"
-	"gitlab.com/playment-main/angel/app/models"
 	"gopkg.in/gorp.v1"
 )
 

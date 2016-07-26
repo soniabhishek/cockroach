@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"strings"
 
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/experiments/model"
-	"gitlab.com/playment-main/angel/utilities/constants"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/experiments/model"
+	"github.com/crowdflux/angel/utilities/constants"
 )
 
 // Table Names

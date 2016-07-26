@@ -1,9 +1,10 @@
 package util
 
 import (
-	"gitlab.com/playment-main/angel/utilities/constants"
 	"strings"
 	"time"
+
+	"github.com/crowdflux/angel/utilities/constants"
 )
 
 func GetRandomID() int64 {

@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/codegangsta/cli"
-	"gitlab.com/playment-main/angel/app/api"
-	"gitlab.com/playment-main/angel/app/services/flu_svc"
+	"github.com/crowdflux/angel/app/api"
+	"github.com/crowdflux/angel/app/services/flu_svc"
 )
 
 func Start() {

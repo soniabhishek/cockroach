@@ -2,7 +2,7 @@ package queries
 
 import (
 	sq "github.com/Masterminds/squirrel"
-	"gitlab.com/playment-main/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 func SelectById(tableName string) (sql string) {

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 // Benchmark functions

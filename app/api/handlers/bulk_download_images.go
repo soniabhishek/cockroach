@@ -8,9 +8,9 @@ import (
 	"io"
 	"os"
 
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/services/image_svc/downloader"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/services/image_svc/downloader"
 )
 
 func BulkDownloadImages(c *gin.Context) {

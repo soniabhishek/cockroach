@@ -1,8 +1,8 @@
 package flu_validator
 
 import (
-	"gitlab.com/playment-main/angel/app/DAL/repositories/flu_validator_repo"
-	"gitlab.com/playment-main/angel/app/models"
+	"github.com/crowdflux/angel/app/DAL/repositories/flu_validator_repo"
+	"github.com/crowdflux/angel/app/models"
 )
 
 //Does the data validation for incoming flu

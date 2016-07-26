@@ -1,7 +1,7 @@
 package clients
 
 import (
-	"gitlab.com/playment-main/angel/app/config"
+	"github.com/crowdflux/angel/app/config"
 	"gopkg.in/mgo.v2"
 )
 

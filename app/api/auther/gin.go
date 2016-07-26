@@ -1,11 +1,11 @@
 package auther
 
 import (
+	"github.com/crowdflux/angel/app/DAL/repositories/clients_repo"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/utilities"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/clients_repo"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/plog"
-	"gitlab.com/playment-main/angel/utilities"
 )
 
 func GinAuther() gin.HandlerFunc {

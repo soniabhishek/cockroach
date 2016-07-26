@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gitlab.com/playment-main/angel/app/config"
-	"gitlab.com/playment-main/angel/app/models"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/crowdflux/angel/app/config"
+	"github.com/crowdflux/angel/app/models"
 )
 
 var crowdyBaseApiUrl = config.Get(config.CROWDY_BASE_API)

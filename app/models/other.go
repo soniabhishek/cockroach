@@ -5,7 +5,7 @@ import (
 
 	"github.com/lib/pq"
 
-	"gitlab.com/playment-main/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 type ImageContainer struct {

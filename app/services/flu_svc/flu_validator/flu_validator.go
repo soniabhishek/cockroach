@@ -3,9 +3,9 @@ package flu_validator
 import (
 	"errors"
 
-	"gitlab.com/playment-main/angel/app/DAL/repositories/flu_validator_repo"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/DAL/repositories/flu_validator_repo"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 type fluValidator struct {

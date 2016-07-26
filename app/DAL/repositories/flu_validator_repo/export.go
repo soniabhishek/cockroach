@@ -1,7 +1,7 @@
 package flu_validator_repo
 
 import (
-	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
 )
 
 func New() IFluValidatorRepo {

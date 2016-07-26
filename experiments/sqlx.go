@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/crowdflux/angel/app/config"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"gitlab.com/playment-main/angel/app/config"
 )
 
 var sqlxDB *sqlx.DB

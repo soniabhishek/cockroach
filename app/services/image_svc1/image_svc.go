@@ -1,9 +1,9 @@
 package image_svc1
 
 import (
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/services/bulk_transporter_svc"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/services/bulk_transporter_svc"
 )
 
 type imageService struct {

@@ -3,11 +3,11 @@ package flu_validator_repo
 import (
 	"time"
 
+	"github.com/crowdflux/angel/app/DAL/repositories"
+	"github.com/crowdflux/angel/app/DAL/repositories/queries"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/lib/pq"
-	"gitlab.com/playment-main/angel/app/DAL/repositories"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 const fluValidatorTable string = "input_flu_validator"

@@ -1,11 +1,11 @@
 package crowdsourcing_step
 
 import (
-	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step"
+	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 )
 
 type crowdSourcingStep struct {

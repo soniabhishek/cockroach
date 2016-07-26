@@ -3,9 +3,10 @@ package plog
 import (
 	"fmt"
 
-	"github.com/sendgrid/sendgrid-go"
-	"gitlab.com/playment-main/angel/app/config"
 	"runtime/debug"
+
+	"github.com/crowdflux/angel/app/config"
+	"github.com/sendgrid/sendgrid-go"
 )
 
 func ErrorMail(tag string, err error, args ...interface{}) {

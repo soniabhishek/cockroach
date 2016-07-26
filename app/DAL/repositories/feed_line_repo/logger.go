@@ -1,11 +1,12 @@
 package feed_line_repo
 
 import (
-	"github.com/lib/pq"
-	"gitlab.com/playment-main/angel/app/DAL/repositories"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/plog"
 	"time"
+
+	"github.com/crowdflux/angel/app/DAL/repositories"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/lib/pq"
 )
 
 type feedLineLogger struct {

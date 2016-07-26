@@ -15,9 +15,9 @@ import (
 
 	"io/ioutil"
 
+	"github.com/crowdflux/angel/app/DAL/clients"
+	"github.com/crowdflux/angel/app/models"
 	"github.com/nfnt/resize"
-	"gitlab.com/playment-main/angel/app/DAL/clients"
-	"gitlab.com/playment-main/angel/app/models"
 )
 
 //Pass the imageContainerList and it will download those

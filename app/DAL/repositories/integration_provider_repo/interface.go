@@ -6,8 +6,8 @@ import (
 
 	"github.com/lib/pq"
 
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 //The public interface for IntegrationProviderRepo

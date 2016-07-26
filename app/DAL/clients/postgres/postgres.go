@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"gitlab.com/playment-main/angel/app/DAL/repositories/queries"
+	"github.com/crowdflux/angel/app/DAL/repositories/queries"
 	"gopkg.in/gorp.v1"
 )
 

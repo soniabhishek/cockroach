@@ -2,7 +2,7 @@ package clients
 
 import (
 	"github.com/crowdflux/angel/app/config"
-	"github.com/sendgrid/sendgrid-go"
+	"gopkg.in/sendgrid/sendgrid-go.v2"
 )
 
 // Donot use this for now

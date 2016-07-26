@@ -60,7 +60,7 @@ func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.U
 	file, err := os.Create(filePath)
 	if err != nil {
 		plog.Error("Create file error", err, manualStepId)
-		return constants.Empty, 0, nil
+		return constants.Empty, 0, err
 	}
 	defer file.Close()
 

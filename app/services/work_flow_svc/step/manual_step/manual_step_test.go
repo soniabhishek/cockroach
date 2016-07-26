@@ -1,20 +1,22 @@
 package manual_step
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
+	"fmt"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestManualStep_DownloadCsv(t *testing.T) {
-	manualStepId, _ := uuid.FromString("7adbafe4-1dc2-4ba3-b8ba-155c87666323")
+	manualStepId, _ := uuid.FromString("d364cc9e-f267-4fa7-aca0-864f79f4a3c4")
 	resp, err := DownloadCsv(manualStepId)
 
-	fmt.Println("Err", err)
+	assert.NoError(t, err)
+
+	//fmt.Println("Err", err)
 	fmt.Println("Response", resp)
 
 	/*assert.NoError(t, status, "Error occured while validating")
@@ -23,6 +25,9 @@ func TestManualStep_DownloadCsv(t *testing.T) {
 }
 
 func TestManualStep_UploadCsv(t *testing.T) {
+
+	t.Skip("Api has been changed")
+
 	err := UploadCsv("filename")
 	assert.NoError(t, err)
 

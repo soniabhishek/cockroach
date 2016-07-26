@@ -12,7 +12,7 @@ import (
 
 var client *http.Client
 
-func main() {
+func mainLoadTest() {
 
 	client = &http.Client{
 		Transport: &http.Transport{

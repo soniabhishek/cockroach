@@ -16,7 +16,7 @@ func initSQLxClient() *sqlx.DB {
 
 	// connect to db using standard Go database/sql API
 	// use whatever database/sql driver you wish
-	dbName := config.Get(config.PG_DATABASE_NAME)
+	dbName := config.PG_DATABASE_NAME.Get()
 
 	db := sqlx.MustConnect("postgres", "dbname="+dbName+" user=postgres password=postgres host=localhost sslmode=disable")
 	return db

@@ -27,12 +27,12 @@ var retryCount = make(map[uuid.UUID]int)
 var mutex = &sync.RWMutex{}
 var dbLogger = feed_line_repo.StdLogger
 
-var retryTimePeriod = time.Duration(utilities.GetInt(config.Get(config.RETRY_TIME_PERIOD))) * time.Millisecond
+var retryTimePeriod = time.Duration(utilities.GetInt(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
 
-var defaultFluThresholdCount = utilities.GetInt(config.Get(config.DEFAULT_FLU_THRESHOLD_COUNT))
-var fluThresholdDuration = int64(utilities.GetInt(config.Get(config.FLU_THRESHOLD_DURATION)))
-var monitorTimePeriod = time.Duration(utilities.GetInt(config.Get(config.MONITOR_TIME_PERIOD))) * time.Millisecond
-var retryThreshold = utilities.GetInt(config.Get(config.FLU_RETRY_THRESHOLD))
+var defaultFluThresholdCount = utilities.GetInt(config.DEFAULT_FLU_THRESHOLD_COUNT.Get())
+var fluThresholdDuration = int64(utilities.GetInt(config.FLU_THRESHOLD_DURATION.Get()))
+var monitorTimePeriod = time.Duration(utilities.GetInt(config.MONITOR_TIME_PERIOD.Get())) * time.Millisecond
+var retryThreshold = utilities.GetInt(config.FLU_RETRY_THRESHOLD.Get())
 
 type feedLineValue struct {
 	maxFluSize    int

@@ -17,10 +17,10 @@ func init() {
 
 func initGorpClient() *gorp.DbMap {
 
-	dbName := config.Get(config.PG_DATABASE_NAME)
-	username := config.Get(config.PG_USERNAME)
-	host := config.Get(config.PG_HOST)
-	password := config.Get(config.PG_PASSWORD)
+	dbName := config.PG_DATABASE_NAME.Get()
+	username := config.PG_USERNAME.Get()
+	host := config.PG_HOST.Get()
+	password := config.PG_PASSWORD.Get()
 
 	// connect to db using standard Go database/sql API
 	// use whatever database/sql driver you wish

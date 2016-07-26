@@ -13,13 +13,13 @@ func init() {
 
 func initMongoDb() *mgo.Database {
 
-	session, err := mgo.Dial(config.Get(config.MONGO_HOST))
+	session, err := mgo.Dial(config.MONGO_HOST.Get())
 	if err != nil {
 		panic(err)
 	}
 	//session.SetMode(mgo.Monotonic, true)
 
-	db := session.DB(config.Get(config.MONGO_DB_NAME))
+	db := session.DB(config.MONGO_DB_NAME.Get())
 
 	return db
 }

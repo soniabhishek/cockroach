@@ -181,7 +181,7 @@ func FlattenCSV(file string, url string, manualStepId uuid.UUID) (fileUrl string
 		return constants.Empty, err
 	}
 
-	fileMap := models.JsonFake{}
+	fileMap := models.JsonF{}
 	fileMap.Scan(string(response))
 	plog.Info("FileMAP: ", fileMap)
 

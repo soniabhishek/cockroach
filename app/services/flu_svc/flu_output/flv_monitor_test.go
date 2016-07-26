@@ -107,32 +107,32 @@ import (
 
 func TestGetFluOutputObj(t *testing.T) {
 
-	var i interface{} = models.JsonFake{
+	var i interface{} = models.JsonF{
 		"1": 2,
 	}
 
 	flus := []models.FeedLineUnit{
 		models.FeedLineUnit{
 			ID: uuid.NewV4(),
-			Build: models.JsonFake{
+			Build: models.JsonF{
 				RESULT: i,
 			},
 		},
 		models.FeedLineUnit{
 			ID: uuid.NewV4(),
-			Build: models.JsonFake{
+			Build: models.JsonF{
 				RESULT: i,
 			},
 		},
 		models.FeedLineUnit{
 			ID: uuid.NewV4(),
-			Build: models.JsonFake{
+			Build: models.JsonF{
 				RESULT: i,
 			},
 		},
 		models.FeedLineUnit{
 			ID: uuid.NewV4(),
-			Build: models.JsonFake{
+			Build: models.JsonF{
 				RESULT: i,
 			},
 		},

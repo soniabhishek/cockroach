@@ -81,7 +81,7 @@ func IsValidInternalError(internalCode string) bool {
 
 func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp Response) {
 	dbLogArr := make([]models.FeedLineLog, len(completedFLUs))
-	jsObj := models.JsonFake{}
+	jsObj := models.JsonF{}
 	jsonBytes, _ := json.Marshal(resp)
 	jsObj.Scan(string(jsonBytes))
 	for i, fl := range completedFLUs {

@@ -38,7 +38,7 @@ func TestValidateFluEmptyValidator(t *testing.T) {
 
 	flu := models.FeedLineUnit{
 		ReferenceId: "PAYTM_123",
-		Data: models.JsonFake{
+		Data: models.JsonF{
 			"product_id":  "40843808",
 			"category_id": "t_shirt_12",
 			"name":        "XYZ Men's Gold T-Shirt",
@@ -59,7 +59,7 @@ func TestValidateFluPerfectFlu(t *testing.T) {
 
 	flu := models.FeedLineUnit{
 		ReferenceId: "PAYTM_123",
-		Data: models.JsonFake{
+		Data: models.JsonF{
 			"product_id":  "40843808",
 			"category_id": "t_shirt_12",
 			"name":        "XYZ Men's Gold T-Shirt",
@@ -80,7 +80,7 @@ func TestValidateFluForFieldNotFound(t *testing.T) {
 
 	flu := models.FeedLineUnit{
 		ReferenceId: "PAYTM_123",
-		Data: models.JsonFake{
+		Data: models.JsonF{
 			"product_id": "40843808",
 			"name":       "XYZ Men's Gold T-Shirt",
 			"brand":      "XYZ",
@@ -104,7 +104,7 @@ func TestValidateFluForWrongDataType(t *testing.T) {
 
 	flu := models.FeedLineUnit{
 		ReferenceId: "PAYTM_123",
-		Data: models.JsonFake{
+		Data: models.JsonF{
 			"product_id":  "40843808",
 			"category_id": "t_shirt_12",
 			"name":        "XYZ Men's Gold T-Shirt",
@@ -129,7 +129,7 @@ func TestValidateFluForMandatoryField(t *testing.T) {
 
 	flu := models.FeedLineUnit{
 		ReferenceId: "PAYTM_123",
-		Data: models.JsonFake{
+		Data: models.JsonF{
 			"product_id":  "40843808",
 			"category_id": "t_shirt_12",
 			"name":        "XYZ Men's Gold T-Shirt",

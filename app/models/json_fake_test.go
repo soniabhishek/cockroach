@@ -8,7 +8,7 @@ import (
 )
 
 func TestJsonFake_String(t *testing.T) {
-	var jsn = JsonFake{
+	var jsn = JsonF{
 		"fir": "st",
 		"sec": true,
 	}
@@ -21,10 +21,10 @@ func TestJsonFake_String(t *testing.T) {
 
 func TestJsonFake_Scan(t *testing.T) {
 
-	jsn := JsonFake{
+	jsn := JsonF{
 		"fir": "st",
 		"sec": "ond",
-		"third": JsonFake{
+		"third": JsonF{
 			"inner": "peace",
 		},
 	}
@@ -37,7 +37,7 @@ func TestJsonFake_Scan(t *testing.T) {
 		},
 	}
 
-	jsn2 := JsonFake{}
+	jsn2 := JsonF{}
 	mapStrBty, err := json.Marshal(mapStrInterf)
 
 	err = jsn2.Scan(mapStrBty)
@@ -46,14 +46,14 @@ func TestJsonFake_Scan(t *testing.T) {
 }
 
 func TestJsonFake_Merge(t *testing.T) {
-	jsn := JsonFake{
+	jsn := JsonF{
 		"a": 1,
 	}
-	jsn2 := JsonFake{
+	jsn2 := JsonF{
 		"b": 2,
 	}
 	jsn.Merge(jsn2)
-	assert.EqualValues(t, jsn, JsonFake{
+	assert.EqualValues(t, jsn, JsonF{
 		"a": 1,
 		"b": 2,
 	})

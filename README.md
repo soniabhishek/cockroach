@@ -3,7 +3,7 @@ Playment's Angel
 
 Copyright 2016 Playment Inc.
 
-This is a MicroService written in [go](https://golang.org/)
+WorkFlow MicroService written in [go](https://golang.org/)
 
 This was planned to be a microservice for main playment server (crowdy) but
 it turned out to be the parent of all.

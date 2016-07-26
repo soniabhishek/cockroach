@@ -29,11 +29,11 @@ var flu = feed_line.FLU{
 		ID:          fluId,
 		ReferenceId: "PayFlip123",
 		Tag:         "Brand",
-		Data: models.JsonFake{
+		Data: models.JsonF{
 			"brand":  "Sony",
 			"image1": "http://sxomeimaghe.com/some.jpeg",
 		},
-		Build: models.JsonFake{},
+		Build: models.JsonF{},
 	},
 }
 

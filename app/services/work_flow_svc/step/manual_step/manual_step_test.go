@@ -47,18 +47,18 @@ func TestCreateJsonFile(t *testing.T) {
 	flus := []models.FeedLineUnit{
 		models.FeedLineUnit{
 			ID: uuid.NewV4(),
-			Build: models.JsonFake{
+			Build: models.JsonF{
 				"first": 123,
-				"second": models.JsonFake{
+				"second": models.JsonF{
 					"review": 123,
 				},
 			},
 		},
 		models.FeedLineUnit{
 			ID: uuid.NewV4(),
-			Build: models.JsonFake{
+			Build: models.JsonF{
 				"asf": 432,
-				"second": models.JsonFake{
+				"second": models.JsonF{
 					"review": 1234,
 				},
 			},

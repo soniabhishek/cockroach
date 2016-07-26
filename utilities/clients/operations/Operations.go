@@ -61,7 +61,7 @@ func (s *Service) CreateClient(cl *utilModels.Client) (status bool, err error) {
 		ClientSecretUuid: clientSecretId,
 		CreatedAt:        pq.NullTime{time.Now(), true},
 		UpdatedAt:        pq.NullTime{time.Now(), true},
-		Options:          models.JsonFake{},
+		Options:          models.JsonF{},
 	})
 	if err != nil {
 		return false, err
@@ -97,7 +97,7 @@ func (s *Service) CreateClient(cl *utilModels.Client) (status bool, err error) {
 		Headers:     cl.Header,
 		CreatedAt:   pq.NullTime{time.Now(), true},
 		UpdatedAt:   pq.NullTime{time.Now(), true},
-		Options:     models.JsonFake{},
+		Options:     models.JsonF{},
 	})
 	if err != nil {
 		return false, err

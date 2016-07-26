@@ -20,7 +20,7 @@ func main() {
 	projectName := flag.String("projectName", "", "provide project name")
 	url := flag.String("url", "", "url")
 	headerStr := flag.String("header", "", "a json")
-	header := models.JsonFake{}
+	header := models.JsonF{}
 	header.Scan(*headerStr)
 
 	/* Optional */
@@ -58,7 +58,7 @@ func main() {
 
 	_, err = service.CreateClient(&obj)
 	if err == nil {
-		result := models.JsonFake{
+		result := models.JsonF{
 			"success": true,
 			"userdetails": utilModels.Client{
 				UserName:        obj.UserName,

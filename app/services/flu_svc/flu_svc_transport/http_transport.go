@@ -68,11 +68,11 @@ func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
 }
 
 type fluGetResponse struct {
-	Id          uuid.UUID       `json:"id"`
-	ReferenceId string          `json:"reference_id"`
-	Tag         string          `json:"tag"`
-	Data        models.JsonFake `json:"data"`
-	CreatedAt   time.Time       `json:"created_at"`
+	Id          uuid.UUID    `json:"id"`
+	ReferenceId string       `json:"reference_id"`
+	Tag         string       `json:"tag"`
+	Data        models.JsonF `json:"data"`
+	CreatedAt   time.Time    `json:"created_at"`
 }
 
 func feedLineGetHandler(fluService flu_svc.IFluService) gin.HandlerFunc {

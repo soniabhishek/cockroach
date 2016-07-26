@@ -19,7 +19,7 @@ func TestLogic(t *testing.T) {
 	logicGateTestCases := []logicGateTestCase{
 		logicGateTestCase{
 			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonFake{
+				InputTemplate: models.JsonF{
 					"logic": "continue",
 				},
 			},
@@ -28,7 +28,7 @@ func TestLogic(t *testing.T) {
 		},
 		logicGateTestCase{
 			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonFake{
+				InputTemplate: models.JsonF{
 					"logic": "continues",
 				},
 			},
@@ -37,7 +37,7 @@ func TestLogic(t *testing.T) {
 		},
 		logicGateTestCase{
 			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonFake{
+				InputTemplate: models.JsonF{
 					"logic12": "continue",
 				},
 			},
@@ -46,7 +46,7 @@ func TestLogic(t *testing.T) {
 		},
 		logicGateTestCase{
 			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonFake{
+				InputTemplate: models.JsonF{
 					"logic": 123,
 				},
 			},

@@ -146,7 +146,7 @@ func getFluOutputObj(flp feedLineValue) (fluOutputObj []fluOutputStruct) {
 		flu := flus[i]
 		result, ok := flu.Build[RESULT]
 		if !ok {
-			result = models.JsonFake{}
+			result = models.JsonF{}
 		}
 
 		fluOutputObj = append(fluOutputObj, fluOutputStruct{

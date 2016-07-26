@@ -8,17 +8,17 @@ import (
 
 //Need to reimplement this type
 //The value & scan methods needs to be properly written
-type JsonFake map[string]interface{}
+type JsonF map[string]interface{}
 
 // Value returns a driver Value.
-func (j JsonFake) Value() (driver.Value, error) {
+func (j JsonF) Value() (driver.Value, error) {
 
 	return j.String(), nil
 }
 
 // An error should be returned if the value can not be stored
 // without loss of information.
-func (j *JsonFake) Scan(src interface{}) error {
+func (j *JsonF) Scan(src interface{}) error {
 
 	var tmp map[string]interface{}
 	var bty []byte
@@ -36,14 +36,14 @@ func (j *JsonFake) Scan(src interface{}) error {
 	if err != nil {
 		return err
 	}
-	*j = JsonFake(tmp)
+	*j = JsonF(tmp)
 	return nil
 }
 
 /**
 The is a helper function
 */
-func (j *JsonFake) String() string {
+func (j *JsonF) String() string {
 	/**
 	bool, for JSON booleans
 	float64, for JSON numbers
@@ -57,13 +57,13 @@ func (j *JsonFake) String() string {
 	return string(bty)
 }
 
-func (j *JsonFake) Merge(a JsonFake) {
+func (j *JsonF) Merge(a JsonF) {
 	for k, v := range a {
 		(*j)[k] = v
 	}
 }
 
-func (j *JsonFake) StringPretty() string {
+func (j *JsonF) StringPretty() string {
 	bty, _ := json.MarshalIndent(*j, "", "  ")
 	return string(bty)
 }

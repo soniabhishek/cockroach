@@ -11,8 +11,8 @@ import (
 )
 
 type FluUpdate struct {
-	FluId       uuid.UUID       `json:"flu_id"`
-	BuildUpdate models.JsonFake `json:"build_update"`
+	FluId       uuid.UUID    `json:"flu_id"`
+	BuildUpdate models.JsonF `json:"build_update"`
 }
 
 func FluUpdateHandler(updates []FluUpdate) error {

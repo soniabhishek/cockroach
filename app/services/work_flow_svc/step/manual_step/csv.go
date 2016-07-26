@@ -187,7 +187,7 @@ func getFlu(row []string) (flu models.FeedLineUnit, err error) {
 		return flu, errors.New("ID is not valid. [" + fluId + "]")
 	}
 
-	build := models.JsonFake{}
+	build := models.JsonF{}
 	buildVal := row[BUILD_INDEX]
 	if err := build.Scan(buildVal); err != nil {
 		plog.Error("Error Build:", err)

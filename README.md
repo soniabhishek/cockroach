@@ -23,6 +23,7 @@ $ git clone https://github.com/crowdflux/angel.git
 
 ```
 $ echo "export GOPATH='$HOME/code/gocode/'" >> ~/.bash_profile
+$ echo "export GOENV='development'" >> ~/.bash_profile
 $ echo "export PATH=$PATH:$GOPATH/bin" >> ~/.bash_profile
 $ source ~/.bash_profile
 ```

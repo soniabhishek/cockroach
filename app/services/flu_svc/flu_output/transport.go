@@ -1,6 +1,6 @@
 package flu_output
 
-import "gitlab.com/playment-main/angel/app/models/status_codes"
+import "github.com/crowdflux/angel/app/models/status_codes"
 
 //TODO rest will be added later
 type Response struct {

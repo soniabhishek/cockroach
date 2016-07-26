@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/crowdflux/angel/app/config"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/playment-main/angel/app/config"
 )
 
 func Test(t *testing.T) {

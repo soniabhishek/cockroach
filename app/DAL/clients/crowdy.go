@@ -8,8 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"gitlab.com/playment-main/angel/app/config"
-	"gitlab.com/playment-main/angel/app/models"
+	"github.com/crowdflux/angel/app/config"
+	"github.com/crowdflux/angel/app/models"
 )
 
 var crowdyBaseApiUrl = config.Get(config.CROWDY_BASE_API)

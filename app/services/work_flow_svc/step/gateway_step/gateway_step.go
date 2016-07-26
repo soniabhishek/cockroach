@@ -4,11 +4,11 @@ package gateway_step
 
 //
 //import (
-//	"gitlab.com/playment-main/angel/app/DAL/repositories/step_repo"
-//	"gitlab.com/playment-main/angel/app/models/step_type"
-//	"gitlab.com/playment-main/angel/app/plog"
-//	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
-//	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step"
+//	"github.com/crowdflux/angel/app/DAL/repositories/step_repo"
+//	"github.com/crowdflux/angel/app/models/step_type"
+//	"github.com/crowdflux/angel/app/plog"
+//	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
+//	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 //)
 //
 //type gateWayStep struct {

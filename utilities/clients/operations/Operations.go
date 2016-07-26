@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/crowdflux/angel/app/DAL/repositories/clients_repo"
+	"github.com/crowdflux/angel/app/DAL/repositories/project_configuration_repo"
+	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
+	"github.com/crowdflux/angel/app/DAL/repositories/user_repo"
+	"github.com/crowdflux/angel/app/DAL/repositories/workflow_repo"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/utilities/clients/models"
+	"github.com/crowdflux/angel/utilities/constants"
 	"github.com/lib/pq"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/clients_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/project_configuration_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/user_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/workflow_repo"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/plog"
-	"gitlab.com/playment-main/angel/utilities/clients/models"
-	"gitlab.com/playment-main/angel/utilities/constants"
 )
 
 type Service struct {

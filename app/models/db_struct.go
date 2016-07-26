@@ -3,9 +3,9 @@ package models
 import (
 	"database/sql"
 
+	"github.com/crowdflux/angel/app/models/step_type"
+	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/lib/pq"
-	"gitlab.com/playment-main/angel/app/models/step_type"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 type Availabilities struct {

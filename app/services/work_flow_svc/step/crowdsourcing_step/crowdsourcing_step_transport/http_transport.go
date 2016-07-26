@@ -6,8 +6,8 @@ import (
 
 	"fmt"
 
-	"gitlab.com/playment-main/angel/app/services/plerrors"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step"
+	"github.com/crowdflux/angel/app/services/plerrors"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step"
 )
 
 func AddHttpTransport(r *gin.RouterGroup) {

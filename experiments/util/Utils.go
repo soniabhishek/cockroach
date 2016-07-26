@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/playment-main/angel/utilities/constants"
+	"github.com/crowdflux/angel/utilities/constants"
 )
 
 func GetRandomID() int64 {

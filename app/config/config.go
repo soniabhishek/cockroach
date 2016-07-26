@@ -38,7 +38,7 @@ func init() {
 	}
 
 	// Derive the config directory
-	configPath := goPath + "/src/gitlab.com/playment-main/angel/app/config"
+	configPath := goPath + "/src/github.com/crowdflux/angel/app/config"
 
 	configProvider.SetConfigFile(configPath + "/" + env + ".json")
 	configProvider.SetConfigName(env)

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gitlab.com/playment-main/angel/app"
+	"github.com/crowdflux/angel/app"
 )
 
 func main() {

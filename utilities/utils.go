@@ -18,7 +18,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/asaskevich/govalidator"
-	"gitlab.com/playment-main/angel/utilities/constants"
+	"github.com/crowdflux/angel/utilities/constants"
 )
 
 func TimeInMillis() int64 {

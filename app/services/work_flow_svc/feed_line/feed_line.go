@@ -3,8 +3,8 @@ package feed_line
 import (
 	"sync"
 
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 // ShortHand for channel of FLUs i.e. FeedLine

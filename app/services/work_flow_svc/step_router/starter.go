@@ -3,8 +3,8 @@ package step_router
 import (
 	"errors"
 
-	"gitlab.com/playment-main/angel/app/models/step_type"
-	"gitlab.com/playment-main/angel/app/plog"
+	"github.com/crowdflux/angel/app/models/step_type"
+	"github.com/crowdflux/angel/app/plog"
 )
 
 func start(sr *stepRouter) {

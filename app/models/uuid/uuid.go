@@ -39,7 +39,7 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.com/playment-main/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog"
 )
 
 // UUID layout variants.

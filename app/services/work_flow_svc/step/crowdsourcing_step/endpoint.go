@@ -3,11 +3,11 @@ package crowdsourcing_step
 import (
 	"errors"
 
-	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/plog"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
+	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 )
 
 type FluUpdate struct {

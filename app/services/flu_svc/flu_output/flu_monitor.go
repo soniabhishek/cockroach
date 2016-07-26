@@ -12,14 +12,14 @@ import (
 	"encoding/hex"
 	"errors"
 
-	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/project_configuration_repo"
-	"gitlab.com/playment-main/angel/app/config"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/status_codes"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/plog"
-	"gitlab.com/playment-main/angel/utilities"
+	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
+	"github.com/crowdflux/angel/app/DAL/repositories/project_configuration_repo"
+	"github.com/crowdflux/angel/app/config"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/status_codes"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/utilities"
 )
 
 var feedLinePipe = make(map[uuid.UUID]feedLineValue)

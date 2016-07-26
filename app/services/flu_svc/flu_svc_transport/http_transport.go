@@ -6,13 +6,13 @@ import (
 
 	"fmt"
 
+	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/services/flu_svc"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
+	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/services/flu_svc"
-	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_validator"
-	"gitlab.com/playment-main/angel/app/services/plerrors"
 )
 
 //TODO Create another file for validator http transport. In future we may have to make a separate service for validatorss

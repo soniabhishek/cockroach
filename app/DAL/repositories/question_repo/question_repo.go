@@ -1,8 +1,8 @@
 package question_repo
 
 import (
-	"gitlab.com/playment-main/angel/app/DAL/repositories"
-	"gitlab.com/playment-main/angel/app/models"
+	"github.com/crowdflux/angel/app/DAL/repositories"
+	"github.com/crowdflux/angel/app/models"
 )
 
 type questionRepo struct {

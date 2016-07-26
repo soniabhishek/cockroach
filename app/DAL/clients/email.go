@@ -1,8 +1,8 @@
 package clients
 
 import (
+	"github.com/crowdflux/angel/app/config"
 	"github.com/sendgrid/sendgrid-go"
-	"gitlab.com/playment-main/angel/app/config"
 )
 
 // Donot use this for now

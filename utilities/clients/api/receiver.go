@@ -3,8 +3,8 @@ package utils_api
 import (
 	"errors"
 
+	"github.com/crowdflux/angel/utilities/clients/models"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/playment-main/angel/utilities/clients/models"
 )
 
 //--------------------------------------------------------------------------------//

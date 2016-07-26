@@ -3,7 +3,7 @@ package plog
 import (
 	"strings"
 
-	"gitlab.com/playment-main/angel/app/config"
+	"github.com/crowdflux/angel/app/config"
 )
 
 const (

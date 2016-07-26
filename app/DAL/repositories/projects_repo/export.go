@@ -1,8 +1,8 @@
 package projects_repo
 
 import (
-	"gitlab.com/playment-main/angel/app/DAL/clients"
-	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/DAL/clients"
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
 )
 
 func New() IProjectsRepo {

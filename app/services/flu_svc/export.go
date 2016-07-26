@@ -3,11 +3,11 @@ package flu_svc
 import (
 	"fmt"
 
+	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
+	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
+	"github.com/crowdflux/angel/app/services/work_flow_svc"
 	"github.com/robfig/cron"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
-	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_validator"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc"
 )
 
 func New() IFluService {

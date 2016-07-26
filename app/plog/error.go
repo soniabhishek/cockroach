@@ -5,8 +5,8 @@ import (
 
 	"runtime/debug"
 
+	"github.com/crowdflux/angel/app/config"
 	"github.com/sendgrid/sendgrid-go"
-	"gitlab.com/playment-main/angel/app/config"
 )
 
 func ErrorMail(tag string, err error, args ...interface{}) {

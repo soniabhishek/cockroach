@@ -8,8 +8,8 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 
-	"gitlab.com/playment-main/angel/app/config"
-	"gitlab.com/playment-main/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/config"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 var minKeyLength = 20

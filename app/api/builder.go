@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/crowdflux/angel/app/api/auther"
+	"github.com/crowdflux/angel/app/api/handlers"
+	"github.com/crowdflux/angel/app/config"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_svc_transport"
+	"github.com/crowdflux/angel/app/services/image_svc1"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step/crowdsourcing_step_transport"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step"
+	"github.com/crowdflux/angel/utilities/clients/api"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/playment-main/angel/app/api/auther"
-	"gitlab.com/playment-main/angel/app/api/handlers"
-	"gitlab.com/playment-main/angel/app/config"
-	"gitlab.com/playment-main/angel/app/services/flu_svc/flu_svc_transport"
-	"gitlab.com/playment-main/angel/app/services/image_svc1"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step/crowdsourcing_step_transport"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/manual_step"
-	"gitlab.com/playment-main/angel/utilities/clients/api"
 
 	"time"
 

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"testing"
 
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	//"gitlab.com/playment-main/angel/utilities"
-	"gitlab.com/playment-main/angel/utilities"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
+	//"github.com/crowdflux/angel/utilities"
+	"github.com/crowdflux/angel/utilities"
 )
 
 //

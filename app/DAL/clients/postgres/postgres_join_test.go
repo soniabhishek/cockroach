@@ -3,9 +3,9 @@ package postgres_test
 import (
 	"testing"
 
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/models"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
-	"gitlab.com/playment-main/angel/app/models"
 )
 
 func TestPostgres_db_SelectOneJoin(t *testing.T) {

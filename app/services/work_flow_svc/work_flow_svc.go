@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"sync"
 
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/counter"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/work_flow"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/work_flow"
 )
 
 type workFlowSvc struct {

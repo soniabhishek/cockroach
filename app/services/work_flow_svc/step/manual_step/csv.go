@@ -9,14 +9,14 @@ import (
 	"strconv"
 	"time"
 
-	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
-	"gitlab.com/playment-main/angel/app/config"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/plog"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
-	"gitlab.com/playment-main/angel/utilities"
-	"gitlab.com/playment-main/angel/utilities/constants"
+	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
+	"github.com/crowdflux/angel/app/config"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
+	"github.com/crowdflux/angel/utilities"
+	"github.com/crowdflux/angel/utilities/constants"
 )
 
 const timeFormat = time.RFC3339

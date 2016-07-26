@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
-	"gitlab.com/playment-main/angel/app/models/uuid"
 )
 
 func TestClientsRepo_GetByProjectId(t *testing.T) {

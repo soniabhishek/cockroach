@@ -4,7 +4,7 @@ import (
 	"encoding/csv"
 	"os"
 
-	"gitlab.com/playment-main/angel/app/models"
+	"github.com/crowdflux/angel/app/models"
 )
 
 func ReadFromTempDir(fileName string) (images []models.ImageContainer, err error) {

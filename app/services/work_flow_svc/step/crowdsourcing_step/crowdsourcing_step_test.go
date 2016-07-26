@@ -3,12 +3,12 @@ package crowdsourcing_step
 import (
 	"testing"
 
+	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
-	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step"
 	//"time"
 	"time"
 )

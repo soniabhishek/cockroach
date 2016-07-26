@@ -1,8 +1,8 @@
 package integration_provider_repo
 
 import (
-	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
-	"gitlab.com/playment-main/angel/app/DAL/repositories"
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/DAL/repositories"
 )
 
 func New() IIntegrationProviderRepo {

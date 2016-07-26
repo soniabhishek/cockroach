@@ -3,13 +3,13 @@ package main
 import (
 	"flag"
 
-	"gitlab.com/playment-main/angel/app/api/auther"
-	"gitlab.com/playment-main/angel/app/models"
-	"gitlab.com/playment-main/angel/app/models/uuid"
-	"gitlab.com/playment-main/angel/app/plog"
-	"gitlab.com/playment-main/angel/utilities/clients/models"
-	"gitlab.com/playment-main/angel/utilities/clients/operations"
-	"gitlab.com/playment-main/angel/utilities/clients/validator"
+	"github.com/crowdflux/angel/app/api/auther"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/utilities/clients/models"
+	"github.com/crowdflux/angel/utilities/clients/operations"
+	"github.com/crowdflux/angel/utilities/clients/validator"
 )
 
 func main() {

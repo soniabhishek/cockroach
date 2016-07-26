@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/crowdflux/angel/app/api/auther"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/utilities/clients/models"
+	"github.com/crowdflux/angel/utilities/clients/operations"
+	"github.com/crowdflux/angel/utilities/clients/validator"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/playment-main/angel/app/api/auther"
-	"gitlab.com/playment-main/angel/app/plog"
-	"gitlab.com/playment-main/angel/utilities/clients/models"
-	"gitlab.com/playment-main/angel/utilities/clients/operations"
-	"gitlab.com/playment-main/angel/utilities/clients/validator"
 )
 
 const ENDPOINT = "/createuser"

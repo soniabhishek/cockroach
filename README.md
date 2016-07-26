@@ -14,8 +14,8 @@ it turned out to be the parent of all.
 - Create a workspace directory & clone the repo
 
 ```
-$ mkdir -p $HOME/code/gocode/src/github.com/playment-main
-$ cd $HOME/code/gocode/src/github.com/playment-main
+$ mkdir -p $HOME/code/gocode/src/github.com/crowdflux
+$ cd $HOME/code/gocode/src/github.com/crowdflux
 $ git clone https://github.com/crowdflux/angel.git
 ```
 
@@ -30,10 +30,10 @@ $ source ~/.bash_profile
 - Install application:
 
 ```
-$ cd $HOME/code/gocode/src/github.com/playment-main/angel
-$ git checkout develop
-$ go get
-$ go get -t
+$ cd $HOME/code/gocode/src/github.com/crowdflux/angel
+$ git checkout master
+$ go get -v
+$ go get -t -v
 ```
 
 - Install mongodb:
@@ -42,6 +42,21 @@ $ go get -t
 $ brew update
 $ brew install mongodb
 $ brew services start mongodb
+```
+
+- Create Index (mongo db name : playment_mongo_local)
+
+```
+$ mongo
+> use playment_mongo_local
+> db.feedline_input.createIndex({
+  project_id : 1,
+  reference_id : 1
+  },
+  {
+          unique:true
+  }
+);
 ```
 
 # Usage

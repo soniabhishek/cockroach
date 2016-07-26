@@ -6,6 +6,8 @@ app/config/production.json
 app/config/staging.json
 app/config/development.json
 
+app/api/auther/prod.go
+
 ### Windows ###
 # Windows image file caches
 Thumbs.db

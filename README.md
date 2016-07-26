@@ -1,5 +1,5 @@
-Playment's Angel Server
-=======================
+Playment's Angel
+================
 
 Copyright 2016 Playment Inc.
 
@@ -66,5 +66,5 @@ To start the server:
 
 ```
 $ go install
-$ $GOPATH/bin/support
+$ $GOPATH/bin/angel
 ```

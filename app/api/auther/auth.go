@@ -50,4 +50,4 @@ func (a auther) Check(id uuid.UUID, key string) bool {
 
 //--------------------------------------------------------------------------------//
 
-var StdProdAuther = auther{[]byte(config.Get(config.AUTHER_PLAYMENT_SECRET))}
+var StdProdAuther = auther{[]byte(config.AUTHER_PLAYMENT_SECRET.Get())}

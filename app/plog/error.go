@@ -35,7 +35,7 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 
 	go func() {
 
-		cl := sendgrid.NewSendGridClientWithApiKey(config.Get(config.SENDGRID_API_KEY))
+		cl := sendgrid.NewSendGridClientWithApiKey(config.SENDGRID_API_KEY.Get())
 
 		mail := sendgrid.NewMail()
 

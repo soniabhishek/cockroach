@@ -49,17 +49,7 @@ const (
 )
 
 // Gets the value for given key from the config file.
-// It accepts only configKey type, which is private, so
-// only the above consts can be passed
 // It panics no configuration value is present
-func Get(c configKey) string {
-	val := configProvider.GetString(string(c))
-	if val == "" {
-		panic(errors.New("Configuration value not found [" + string(c) + "]"))
-	}
-	return val
-}
-
 func (c configKey) Get() string {
 	val := configProvider.GetString(string(c))
 	if val == "" {

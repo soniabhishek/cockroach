@@ -45,8 +45,8 @@ func Build() {
 		ValidateHeaders: false,
 	}))
 
-	fmt.Println(config.Get(config.DOWNLOAD_PATH))
-	r.StaticFS("/downloadedfiles", http.Dir(config.Get(config.DOWNLOAD_PATH)))
+	fmt.Println(config.DOWNLOAD_PATH.Get())
+	r.StaticFS("/downloadedfiles", http.Dir(config.DOWNLOAD_PATH.Get()))
 
 	//Api prefix
 

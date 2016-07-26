@@ -10,13 +10,13 @@ import (
 
 func Test(t *testing.T) {
 
-	s := config.Get(config.PG_HOST)
+	s := config.PG_HOST.Get()
 	assert.EqualValues(t, "localhost", s)
 }
 
 func ExampleGet() {
 
-	baseApi := config.Get(config.BASE_API_URL)
+	baseApi := config.BASE_API_URL.Get()
 
 	fmt.Println(baseApi)
 	// Output: localhost:8999/api

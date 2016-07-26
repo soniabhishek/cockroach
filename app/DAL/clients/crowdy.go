@@ -12,9 +12,9 @@ import (
 	"github.com/crowdflux/angel/app/models"
 )
 
-var crowdyBaseApiUrl = config.Get(config.CROWDY_BASE_API)
+var crowdyBaseApiUrl = config.CROWDY_BASE_API.Get()
 var pushFluUrl = crowdyBaseApiUrl + "/crowdsourcing_gateway?action=add_flu"
-var authkey = config.Get(config.CROWDY_AUTH_KEY)
+var authkey = config.CROWDY_AUTH_KEY.Get()
 
 func GetCrowdyClient() *crowdyClient {
 	return &crowdyClient{}

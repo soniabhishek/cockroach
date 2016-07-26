@@ -16,8 +16,8 @@ func uploadToS3(img io.ReadCloser) {
 	defer img.Close()
 
 	awsConfig := aws.NewConfig().
-		WithRegion(config.Get(config.AWS_REGION)).
-		WithCredentials(credentials.NewStaticCredentials(config.Get(config.AWS_ACCESS_ID), config.Get(config.AWS_SECRET_KEY), ""))
+		WithRegion(config.AWS_REGION.Get()).
+		WithCredentials(credentials.NewStaticCredentials(config.AWS_ACCESS_ID.Get(), config.AWS_SECRET_KEY.Get(), ""))
 
 	uploader := s3manager.NewUploader(session.New(awsConfig))
 

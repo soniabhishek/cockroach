@@ -2,9 +2,10 @@ package feed_line_repo
 
 import (
 	"errors"
+	"sync"
+
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"sync"
 )
 
 type IFluRepo interface {

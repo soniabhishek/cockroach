@@ -1,11 +1,12 @@
 package transformation_step
 
 import (
+	"strings"
+
 	"gitlab.com/playment-main/angel/app/DAL/repositories/projects_repo"
 	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step"
-	"strings"
 )
 
 type transformationStep struct {

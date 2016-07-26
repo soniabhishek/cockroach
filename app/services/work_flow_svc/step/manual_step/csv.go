@@ -4,6 +4,11 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"io"
+	"os"
+	"strconv"
+	"time"
+
 	"gitlab.com/playment-main/angel/app/DAL/repositories/feed_line_repo"
 	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models"
@@ -12,10 +17,6 @@ import (
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
 	"gitlab.com/playment-main/angel/utilities"
 	"gitlab.com/playment-main/angel/utilities/constants"
-	"io"
-	"os"
-	"strconv"
-	"time"
 )
 
 const timeFormat = time.RFC3339

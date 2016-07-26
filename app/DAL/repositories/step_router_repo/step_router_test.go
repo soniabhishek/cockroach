@@ -2,10 +2,11 @@ package step_router_repo
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"testing"
 )
 
 func TestInMemStepRouteRepo_GetRoutesWithLogicByStepId(t *testing.T) {

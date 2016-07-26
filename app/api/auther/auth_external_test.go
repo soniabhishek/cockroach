@@ -2,6 +2,7 @@ package auther_test
 
 import (
 	"fmt"
+
 	"gitlab.com/playment-main/angel/app/api/auther"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 )

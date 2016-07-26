@@ -8,14 +8,15 @@ import (
 
 	"bytes"
 	"encoding/csv"
+	"io/ioutil"
+	"net/http"
+	"os"
+
 	"gitlab.com/playment-main/angel/app/models/uuid"
 	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/manual_step"
 	"gitlab.com/playment-main/angel/experiments/util"
 	"gitlab.com/playment-main/angel/utilities"
-	"io/ioutil"
-	"net/http"
-	"os"
 )
 
 type typeA struct {

@@ -7,6 +7,7 @@ import (
 
 	"crypto/sha256"
 	"encoding/base64"
+
 	"gitlab.com/playment-main/angel/app/config"
 	"gitlab.com/playment-main/angel/app/models/uuid"
 )

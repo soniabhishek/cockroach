@@ -2,13 +2,14 @@ package utils_api
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"gitlab.com/playment-main/angel/app/api/auther"
 	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/utilities/clients/models"
 	"gitlab.com/playment-main/angel/utilities/clients/operations"
 	"gitlab.com/playment-main/angel/utilities/clients/validator"
-	"net/http"
 )
 
 const ENDPOINT = "/createuser"

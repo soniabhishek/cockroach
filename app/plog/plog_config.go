@@ -1,8 +1,9 @@
 package plog
 
 import (
-	"gitlab.com/playment-main/angel/app/config"
 	"strings"
+
+	"gitlab.com/playment-main/angel/app/config"
 )
 
 const (

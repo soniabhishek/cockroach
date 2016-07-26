@@ -3,6 +3,8 @@ package operations
 import (
 	"database/sql"
 	"fmt"
+	"time"
+
 	"github.com/lib/pq"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/clients_repo"
 	"gitlab.com/playment-main/angel/app/DAL/repositories/project_configuration_repo"
@@ -14,7 +16,6 @@ import (
 	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/utilities/clients/models"
 	"gitlab.com/playment-main/angel/utilities/constants"
-	"time"
 )
 
 type Service struct {

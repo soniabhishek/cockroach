@@ -2,6 +2,8 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"gitlab.com/playment-main/angel/app/api/auther"
 	"gitlab.com/playment-main/angel/app/api/handlers"
@@ -11,10 +13,10 @@ import (
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/crowdsourcing_step/crowdsourcing_step_transport"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/step/manual_step"
 	"gitlab.com/playment-main/angel/utilities/clients/api"
-	"net/http"
+
+	"time"
 
 	"github.com/itsjamie/gin-cors"
-	"time"
 )
 
 func Build() {

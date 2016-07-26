@@ -2,11 +2,12 @@ package validator
 
 import (
 	"errors"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"gitlab.com/playment-main/angel/app/plog"
 	"gitlab.com/playment-main/angel/utilities"
 	"gitlab.com/playment-main/angel/utilities/clients/models"
-	"net/http"
 )
 
 //--------------------------------------------------------------------------------//

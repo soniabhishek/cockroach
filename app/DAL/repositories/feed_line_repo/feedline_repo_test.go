@@ -2,11 +2,12 @@ package feed_line_repo
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"testing"
 )
 
 func TestFeedLineGet(t *testing.T) {

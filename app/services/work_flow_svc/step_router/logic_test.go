@@ -2,10 +2,11 @@ package step_router
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/services/work_flow_svc/feed_line"
-	"testing"
 )
 
 func TestLogic(t *testing.T) {

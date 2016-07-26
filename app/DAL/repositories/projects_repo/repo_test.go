@@ -3,12 +3,13 @@ package projects_repo
 import (
 	"testing"
 
+	"time"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/playment-main/angel/app/DAL/clients"
 	"gitlab.com/playment-main/angel/app/DAL/clients/postgres"
 	"gitlab.com/playment-main/angel/app/models"
 	"gitlab.com/playment-main/angel/app/models/uuid"
-	"time"
 )
 
 //Divide this test in setup & tear down

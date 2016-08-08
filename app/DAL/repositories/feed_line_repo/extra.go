@@ -40,7 +40,7 @@ func SyncAll() {
 
 		} else {
 
-			flusToInsert = append(flusToInsert, eflu.FeedLineUnit)
+			flusToInsert = append(flusToInsert, &eflu.FeedLineUnit)
 		}
 	}
 

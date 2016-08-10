@@ -164,7 +164,7 @@ func UploadCsv(filename string) error {
 		flus = append(flus, flu)
 	}
 	plog.Info("Total lines to read", len(flus))
-	plog.Info("Manual Step", "Flus going to be updated from csv upload", flus)
+	plog.Info("Manual Step", "Flus going to be updated from csv upload ", len(flus), " first flu ", flus[0])
 
 	flRepo := feed_line_repo.New()
 	err = flRepo.BulkFluBuildUpdate(flus)

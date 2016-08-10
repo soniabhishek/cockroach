@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"fmt"
-
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"

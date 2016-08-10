@@ -252,7 +252,6 @@ func validateInputFLU(c *gin.Context, fluService flu_svc.IFluService) (flu model
 
 	flu.ProjectId = projectId
 	err = fluService.AddFeedLineUnit(&flu)
-	fmt.Println("Error while adding flu: ", err)
 	if err != nil {
 		if err == projects_repo.ErrProjectNotFound {
 			//Temporary hack. Wait for schema refactoring

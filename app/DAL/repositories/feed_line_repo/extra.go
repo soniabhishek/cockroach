@@ -41,6 +41,7 @@ func SyncAll() {
 
 		} else {
 
+			eflu.FeedLineUnit.Build["fail"] = true
 			flusToInsert = append(flusToInsert, &eflu.FeedLineUnit)
 		}
 	}

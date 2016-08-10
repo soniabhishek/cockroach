@@ -173,9 +173,13 @@ func UploadCsv(filename string) error {
 		return err
 	}
 
-	for _, flu := range flus {
-		StdManualStep.finishFlu(feed_line.FLU{FeedLineUnit: flu})
-	}
+	go func() {
+
+		for _, flu := range flus {
+			StdManualStep.finishFlu(feed_line.FLU{FeedLineUnit: flu})
+		}
+	}()
+
 	return nil
 }
 

@@ -13,6 +13,7 @@ func Trace(tag string, args ...interface{}) {
 		fmt.Println(time.Now().Format(logFormat), fn, line, tag, args)
 	}
 }
+
 func IsTraceEnabled() bool {
 	return levelTrace <= plogLevel
 }

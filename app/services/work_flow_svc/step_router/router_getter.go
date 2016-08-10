@@ -22,7 +22,6 @@ type routeGetter struct {
 
 func (r *routeGetter) GetStartStep(flu feed_line.FLU) (models.Step, error) {
 	return r.stepRepo.GetStartStep(flu.ProjectId)
-
 }
 
 func (r *routeGetter) GetNextStep(flu feed_line.FLU) (models.Step, error) {

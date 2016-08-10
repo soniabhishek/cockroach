@@ -23,8 +23,8 @@ func Start() {
 	app.Version = "0.0.1"
 	app.Action = func(c *cli.Context) {
 
-		println("Support server started!")
-		println("Run support-playment -h for help")
+		println("Angel server started!")
+		println("Run angel -h for help")
 		println(
 			`		       .__                                      __
 		______ |  | _____  ___.__. _____   ____   _____/  |_

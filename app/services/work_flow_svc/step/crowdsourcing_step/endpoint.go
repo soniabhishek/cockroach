@@ -28,7 +28,7 @@ func FluUpdateHandler(updates []FluUpdate) error {
 
 		if !ok {
 			// Handle error
-			plog.Error("Flu Handler", errors.New("Flu Not present in the buffer"), update.FluId)
+			plog.Error("Flu Handler crowdy", errors.New("Flu Not present in the buffer"), update.FluId)
 			continue
 		}
 

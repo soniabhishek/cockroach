@@ -98,8 +98,13 @@ func (i *inputQueue) GetQueued() ([]models.FeedLineUnit, error) {
 	return flus, err
 }
 
-func (i *inputQueue) MarkFinished() error {
+func (i *inputQueue) MarkFinished(flus []models.FeedLineUnit) error {
 
-	_, err := i.mgo.C("feedline_input").UpdateAll(bson.M{"status": queued}, bson.M{"$set": bson.M{"status": success}})
+	fluIdsString := make([]string, len(flus))
+	for i, flu := range flus {
+		fluIdsString[i] = flu.ID.String()
+	}
+
+	_, err := i.mgo.C("feedline_input").UpdateAll(bson.M{"id_string": bson.M{"$in": fluIdsString}}, bson.M{"$set": bson.M{"status": success}})
 	return err
 }

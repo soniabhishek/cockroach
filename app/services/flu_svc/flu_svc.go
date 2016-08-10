@@ -70,7 +70,7 @@ func (i *fluService) SyncInputFeedLine() error {
 			}
 		}()
 
-		err = fluInputQueue.MarkFinished()
+		err = fluInputQueue.MarkFinished(flus)
 
 		if err != nil {
 			plog.Error("Changing queue status failed", err)

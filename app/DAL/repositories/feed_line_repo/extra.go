@@ -20,6 +20,8 @@ func SyncAll() {
 		return
 	}
 
+	plog.Info("existingQFlus", len(existingQFlus))
+
 	fluRepo := fluRepo{
 		Db: postgres.GetPostgresClient(),
 	}
@@ -32,25 +34,33 @@ func SyncAll() {
 		return
 	}
 
+	plog.Info("flus", len(flus))
+
 	//flusToUpdate := []feedLineInputModel{}
 	flusToInsert := []interface{}{}
 
 	for _, eflu := range existingQFlus {
 
-		if _, ok := existsInList(flus, eflu.ID); ok {
+		if _, ok := existsInList(flus, eflu.ID); !ok {
 
-		} else {
+			f := eflu.FeedLineUnit
 
-			eflu.FeedLineUnit.Build = models.JsonF{
+			f.Build = models.JsonF{
 				"fail": true,
 			}
-			flusToInsert = append(flusToInsert, &eflu.FeedLineUnit)
+			flusToInsert = append(flusToInsert, &f)
 		}
 	}
+
+	//for _, f := range flusToInsert {
+	//	plog.Info("flusToInsert", f.(*models.FeedLineUnit).ID)
+	//
+	//}
 
 	err = fluRepo.Db.Insert(flusToInsert...)
 	if err != nil {
 		plog.Error("feedline", err)
+		return
 	}
 
 	plog.Info("extra", len(flusToInsert), " new flus inserted")
@@ -73,6 +83,8 @@ func SyncAll() {
 func existsInList(list []models.FeedLineUnit, toFindId uuid.UUID) (*models.FeedLineUnit, bool) {
 	for _, elem := range list {
 		if elem.ID == toFindId {
+
+			plog.Info("asd", elem.ID)
 			return &elem, true
 		}
 	}

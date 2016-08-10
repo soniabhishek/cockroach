@@ -133,6 +133,7 @@ func SyncAllBack() {
 		if err != nil {
 			plog.Error("feedline", err, updateFlu)
 		}
+		plog.Info("asd", len(updateFlu), " updated")
 	}
 }
 

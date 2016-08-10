@@ -9,23 +9,24 @@ import (
 )
 
 func SyncAll() {
+
+	inpQ := NewInputQueue()
+
+	existingQFlus := []feedLineInputModel{}
+
+	err := inpQ.mgo.C("feedline_input").Find(bson.M{}).All(&existingQFlus)
+	if err != nil {
+		plog.Error("feedline", err)
+		return
+	}
+
 	fluRepo := fluRepo{
 		Db: postgres.GetPostgresClient(),
 	}
 
 	flus := []models.FeedLineUnit{}
 
-	_, err := fluRepo.Db.Select(&flus, "SELECT * FROM feed_line")
-	if err != nil {
-		plog.Error("feedline", err)
-		return
-	}
-
-	inpQ := NewInputQueue()
-
-	existingQFlus := []feedLineInputModel{}
-
-	err = inpQ.mgo.C("feedline_input").Find(bson.M{}).All(&existingQFlus)
+	_, err = fluRepo.Db.Select(&flus, "SELECT * FROM feed_line")
 	if err != nil {
 		plog.Error("feedline", err)
 		return

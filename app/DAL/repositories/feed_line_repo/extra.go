@@ -51,6 +51,8 @@ func SyncAll() {
 		plog.Error("feedline", err)
 	}
 
+	plog.Info("extra", len(flusToInsert)+" new flus inserted")
+
 	/*
 		err = inpQ.mgo.C("feedline_input").Insert(flusToInsert...)
 		if err != nil {

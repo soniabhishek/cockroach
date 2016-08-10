@@ -133,8 +133,9 @@ func SyncAllBack() {
 		if err != nil {
 			plog.Error("feedline", err, updateFlu)
 		}
-		plog.Info("asd", len(updateFlu), " updated")
 	}
+
+	plog.Info("asd", len(flusToUpdate), " updated")
 }
 
 func existsInList(list []models.FeedLineUnit, toFindId uuid.UUID) (*models.FeedLineUnit, bool) {

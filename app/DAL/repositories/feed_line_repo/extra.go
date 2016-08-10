@@ -141,7 +141,6 @@ func existsInList(list []models.FeedLineUnit, toFindId uuid.UUID) (*models.FeedL
 	for _, elem := range list {
 		if elem.ID == toFindId {
 
-			plog.Info("asd", elem.ID)
 			return &elem, true
 		}
 	}
@@ -152,7 +151,6 @@ func existsInListInQ(list []feedLineInputModel, toFindId uuid.UUID) (*feedLineIn
 	for _, elem := range list {
 		if elem.ID == toFindId {
 
-			plog.Info("asd", elem.ID)
 			return &elem, true
 		}
 	}

@@ -103,6 +103,7 @@ func SyncAllBack() {
 
 			if f.Status == queued {
 
+				f.Status = success
 				flusToUpdate = append(flusToUpdate, *f)
 			}
 		} else {

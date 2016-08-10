@@ -309,7 +309,7 @@ func (u *UUID) Scan(src interface{}) error {
 	case string:
 		return u.UnmarshalText([]byte(src))
 	case nil:
-		plog.Info("UUID", "scan called with nil data. Returning uuid.Nil")
+		plog.Trace("UUID", "scan called with nil data. Returning uuid.Nil")
 		u = &Nil
 		return nil
 	}

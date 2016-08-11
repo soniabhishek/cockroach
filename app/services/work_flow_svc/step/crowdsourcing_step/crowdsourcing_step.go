@@ -3,6 +3,7 @@ package crowdsourcing_step
 import (
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
@@ -34,7 +35,8 @@ func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) bool {
 
 	err := c.RemoveFromBuffer(flu)
 	if err != nil {
-		return false
+		plog.Trace("Crowdsourcing Step", err, "flu not present", flu.ID)
+		//return false
 	}
 	counter.Print(flu, "crowdsourcing")
 	c.OutQ <- flu

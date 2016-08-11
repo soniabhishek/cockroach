@@ -40,7 +40,7 @@ func crowdSourcingPostHandler() gin.HandlerFunc {
 			return
 		}
 
-		err := crowdsourcing_step.FluUpdateHandler(fluUpdateReq.FluUpdates)
+		err := crowdsourcing_step.FluUpdateHandlerCustom(fluUpdateReq.FluUpdates)
 		if err != nil {
 			showErrorResponse(c, err)
 			return

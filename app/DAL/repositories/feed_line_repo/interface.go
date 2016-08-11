@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 )
 
@@ -17,6 +18,7 @@ type IFluRepo interface {
 	Update(feedLineUnit models.FeedLineUnit) error
 	GetByStepId(StepId uuid.UUID) ([]models.FeedLineUnit, error)
 	BulkFluBuildUpdate(flus []models.FeedLineUnit) error
+	BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, err error)
 }
 
 type IFluLogger interface {
@@ -111,6 +113,10 @@ func (i *inMemFluRepo) GetByStepId(stepId uuid.UUID) (stepFlus []models.FeedLine
 func (e *inMemFluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
 
 	return nil
+}
+
+func (e *inMemFluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, err error) {
+	return
 }
 
 func Mock() IFluRepo {

@@ -86,12 +86,14 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 
 	go func() {
 		for _, flu := range updatedFlus {
-			ok := Std.finishFlu(flu)
+			ok := Std.finishFlu(feed_line.FLU{FeedLineUnit: flu})
 			if !ok {
 				plog.Error("Flu Handler", errors.New("finishFlu false for "+flu.ID.String()))
 			}
 		}
 	}()
 
-	return nil
+	// it will return nil in case of no error
+	// return ErrPartiallyUpdatedFlus in case of partial update
+	return err
 }

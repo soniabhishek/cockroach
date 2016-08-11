@@ -106,9 +106,9 @@ type CrowdsourcingStepConfiguration struct {
 }
 
 type TransformationStepConfiguration struct {
-	ID         uuid.UUID   `db:"id" json:"id" bson:"_id"`
+	ID         int         `db:"id" json:"id" bson:"_id"`
 	StepId     uuid.UUID   `db:"step_id" json:"step_id" bson:"step_id"`
-	TemplateId uuid.UUID   `db:"template_id" json:"template_id" bson:"template_id"`
+	TemplateId string      `db:"template_id" json:"template_id" bson:"template_id"`
 	CreatedAt  pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt  pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }

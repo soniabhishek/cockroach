@@ -6,6 +6,6 @@ import (
 
 func main() {
 
-	feed_line_repo.SyncAll()
+	feed_line_repo.SyncAllBack()
 
 }

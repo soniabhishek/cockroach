@@ -57,10 +57,11 @@ func (j *JsonF) String() string {
 	return string(bty)
 }
 
-func (j *JsonF) Merge(a JsonF) {
+func (j *JsonF) Merge(a JsonF) JsonF {
 	for k, v := range a {
 		(*j)[k] = v
 	}
+	return (*j)
 }
 
 func (j *JsonF) StringPretty() string {

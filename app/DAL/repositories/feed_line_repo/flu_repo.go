@@ -49,6 +49,7 @@ func (e *fluRepo) Add(flu models.FeedLineUnit) error {
 }
 
 func (e *fluRepo) Update(flu models.FeedLineUnit) error {
+	flu.UpdatedAt = pq.NullTime{time.Now(), true}
 	_, err := e.Db.Update(&flu)
 	return err
 }
@@ -170,11 +171,15 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 		    build = tmp.build, updated_at = tmp.updated_at
 		  from (values `
 
-	for _, flu := range updatableRows {
+	for i, flu := range updatableRows {
 
 		idVal, _ := flu.ID.Value()
 		buildVal, _ := flu.Build.Value()
 		updatedAtVal := pq.NullTime{time.Now(), true}.Time.Format(time.RFC3339)
+
+		if i > 0 {
+			query += ","
+		}
 
 		tmp := fmt.Sprintf(`('%v'::uuid, '%v'::jsonb, '%v'::timestamp with time zone)`, idVal, buildVal, updatedAtVal)
 		query += tmp

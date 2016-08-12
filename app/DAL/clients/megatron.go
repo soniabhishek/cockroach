@@ -12,7 +12,11 @@ import (
 var megatronApiUrl = config.MEGATRON_API.Get()
 var transformationUrl = megatronApiUrl + "/transform"
 
-type MegatronClient struct {
+func GetMegatronClient() *megatronClient {
+	return &megatronClient{}
+}
+
+type megatronClient struct {
 }
 
 type transformationResponse struct {
@@ -27,7 +31,7 @@ type transformationRequest struct {
 	Input      models.JsonF `json:"input"`
 }
 
-func (*MegatronClient) Transform(input models.JsonF, templateId string) (models.JsonF, error) {
+func (*megatronClient) Transform(input models.JsonF, templateId string) (models.JsonF, error) {
 
 	bty, _ := json.Marshal(transformationRequest{templateId, input})
 

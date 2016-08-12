@@ -46,7 +46,7 @@ func (sr *stepRouter) connectAll() {
 	sr.routeTable = routeTable{
 
 		step_type.CrowdSourcing:    crowdSourcingConn.Connect(&sr.InQ),
-		step_type.InternalSourcing: manualStepConn.Connect(&sr.InQ),
+		step_type.InternalSourcing: crowdSourcingConn.Connect(&sr.InQ),
 		step_type.Manual:           manualStepConn.Connect(&sr.InQ),
 		step_type.Transformation:   transformationStepConn.Connect(&sr.InQ),
 		step_type.Algorithm:        manualStepConn.Connect(&sr.InQ),

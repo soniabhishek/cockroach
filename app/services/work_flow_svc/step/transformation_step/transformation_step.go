@@ -1,9 +1,8 @@
 package transformation_step
 
 import (
-	"strings"
-
-	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
+	"github.com/crowdflux/angel/app/DAL/clients"
+	"github.com/crowdflux/angel/app/DAL/repositories/step_configuration_repo"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
@@ -11,56 +10,65 @@ import (
 
 type transformationStep struct {
 	step.Step
-	projectsRepo projects_repo.IProjectsRepo
+	transformationConfigRepo step_configuration_repo.ITransformationStepConfigurationRepo
 }
 
-func (m *transformationStep) processFlu(flu feed_line.FLU) {
-	m.AddToBuffer(flu)
+func (t *transformationStep) processFlu(flu feed_line.FLU) {
+	t.AddToBuffer(flu)
 	plog.Info("transformation Step flu reached", flu)
 
-	proj, err := m.projectsRepo.GetById(flu.ProjectId)
+	tStep, err := t.transformationConfigRepo.GetByStepId(flu.StepId)
 	if err != nil {
-		plog.Error("Transformation", err, "error loading project")
+		plog.Error("transformation step", err)
 		return
 	}
 
-	if strings.Contains(strings.ToLower(proj.Name), "flip") {
-		flipkartHack(flu)
+	transformedBuild, err := clients.GetMegatronClient().Transform(flu.Build, tStep.TemplateId)
+	if err != nil {
+		plog.Error("Transformation step", err)
+		return
 	}
+
+	plog.Info("transformation step", transformedBuild)
+
+	flu.Build.Merge(transformedBuild)
+
+	t.finishFlu(flu)
 
 }
 
-func (m *transformationStep) finishFlu(flu feed_line.FLU) bool {
+func (t *transformationStep) finishFlu(flu feed_line.FLU) bool {
 
-	err := m.RemoveFromBuffer(flu)
+	err := t.RemoveFromBuffer(flu)
 	if err != nil {
-		return false
+		plog.Trace("transformation step", "flu not present in buffer")
+		//return false
 	}
-	m.OutQ <- flu
+	t.OutQ <- flu
 	plog.Info("transformation out", flu.ID)
 	return true
 }
 
-func (m *transformationStep) start() {
+func (t *transformationStep) start() {
 	go func() {
 		for {
 			select {
-			case flu := <-m.InQ:
-				m.processFlu(flu)
+			case flu := <-t.InQ:
+				t.processFlu(flu)
 			}
 		}
 	}()
 }
 
-func (m *transformationStep) Connect(routerIn *feed_line.Fl) (routerOut *feed_line.Fl) {
+func (t *transformationStep) Connect(routerIn *feed_line.Fl) (routerOut *feed_line.Fl) {
 
 	// Send output of this step to the router's input
 	// for next rerouting
-	m.OutQ = *routerIn
+	t.OutQ = *routerIn
 
-	m.start()
+	t.start()
 
 	// Return the input channel of this step
 	// so that router can push flu to it
-	return &m.InQ
+	return &t.InQ
 }

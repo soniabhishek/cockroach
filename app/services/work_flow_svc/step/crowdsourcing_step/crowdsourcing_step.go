@@ -24,10 +24,9 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
 	c.AddToBuffer(flu)
 
-	ok, err := c.fluClient.PushFLU(flu.FeedLineUnit)
-
-	if !ok {
-		c.Detain(flu, err, c.fluRepo)
+	_, err := c.fluClient.PushFLU(flu.FeedLineUnit)
+	if err != nil {
+		plog.Error("crowdsourcing step", err)
 	}
 }
 

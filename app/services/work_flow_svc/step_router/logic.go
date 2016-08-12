@@ -4,12 +4,16 @@ import (
 	"errors"
 
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 )
 
 var ErrLogicNotFound = errors.New("Logic not found")
 var ErrLogicKeyNotFound = errors.New("logic key not found")
 var ErrLogicKeyNotValid = errors.New("logic key not valid")
+var ErrMalformedLogicOptions = errors.New("Malformed logic options")
+
+//var ErrPropNotFoundInFluBuild = errors.New("property not found in flu build")
 
 func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
@@ -26,42 +30,59 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 	switch templateTypeStr {
 	case "continue":
 		return true, nil
+	case "boolean":
 
-	// Future stuff below
-	case "string_equality":
-		//s := l.InputTemplate["value"].(StringEquality)
-		//
-		//s.Left = flu.Build[s.Left].(string)
-		//s.Right = flu.Build[s.Right].(string)
-		//return s.True(), nil
-		fallthrough
-	case "number_equality":
-		//n := l.InputTemplate["value"].(NumberEquality)
-		//n.Left = flu.Build[n.Left].(int)
-		//n.Right = flu.Build[n.Right].(int)
-		//return n.True(), nil
-		fallthrough
-	case "number_comparision":
-		//n := l.InputTemplate["value"].(NumberComparison)
-		//n.Left = flu.Build[n.Left].(int)
-		//n.Right = flu.Build[n.Right].(int)
-		//return n.True(), nil
-		fallthrough
+		options, ok1 := l.InputTemplate["options"].(map[string]interface{})
+		shouldBeTrue, ok2 := options["should_be_true"].(bool)
+		fieldName, ok3 := options["field_name"].(string)
+
+		if !ok1 || !ok2 || !ok3 {
+			return false, ErrMalformedLogicOptions
+		}
+
+		// ignoring field not present case in flu build
+		// as it will return zero value of boolean which is false
+		fieldValue, ok := flu.Build[fieldName].(bool)
+		if !ok {
+			plog.Trace("logic gate", "field not found for fluid ", flu.ID)
+		}
+
+		b := Boolean{
+			FieldValue:   fieldValue,
+			ShouldBeTrue: shouldBeTrue,
+		}
+		return b.True(), nil
 	default:
 		return false, ErrLogicNotFound
 	}
+
 }
 
 //--------------------------------------------------------------------------------//
 
+type Boolean struct {
+	FieldValue   bool
+	ShouldBeTrue bool
+}
+
+func (b *Boolean) True() bool {
+	if b.ShouldBeTrue {
+		return b.FieldValue == true
+	} else {
+		return b.FieldValue == false
+	}
+}
+
+//==================================================================
+
 type StringEquality struct {
-	Left        string
-	Right       string
-	ShouldEqual bool
+	Left          string
+	Right         string
+	ShouldBeEqual bool
 }
 
 func (s *StringEquality) True() bool {
-	if s.ShouldEqual {
+	if s.ShouldBeEqual {
 		return s.Left == s.Right
 	} else {
 		return s.Left != s.Right
@@ -69,13 +90,13 @@ func (s *StringEquality) True() bool {
 }
 
 type NumberEquality struct {
-	Left        int
-	Right       int
-	ShouldEqual bool
+	Left          int
+	Right         int
+	ShouldBeEqual bool
 }
 
 func (n *NumberEquality) True() bool {
-	if n.ShouldEqual {
+	if n.ShouldBeEqual {
 		return n.Left == n.Right
 	} else {
 		return n.Left != n.Right
@@ -83,13 +104,13 @@ func (n *NumberEquality) True() bool {
 }
 
 type NumberComparison struct {
-	Left          int
-	Right         int
-	ShouldGreater bool
+	Left            int
+	Right           int
+	ShouldBeGreater bool
 }
 
 func (n *NumberComparison) True() bool {
-	if n.ShouldGreater {
+	if n.ShouldBeGreater {
 		return n.Left > n.Right
 	} else {
 		return n.Left <= n.Right

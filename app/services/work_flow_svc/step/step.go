@@ -3,7 +3,6 @@ package step
 import (
 	"errors"
 
-	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 )
@@ -40,13 +39,4 @@ func (s *Step) RemoveFromBuffer(flu feed_line.FLU) error {
 	}
 	return nil
 
-}
-
-func (s *Step) Detain(flu feed_line.FLU, why error, saver iFluSave) {
-	saver.Save(flu.FeedLineUnit)
-
-}
-
-type iFluSave interface {
-	Save(models.FeedLineUnit)
 }

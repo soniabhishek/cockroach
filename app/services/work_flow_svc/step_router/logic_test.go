@@ -9,14 +9,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLogic(t *testing.T) {
+type logicGateTestCase struct {
+	LogicGate models.LogicGate
+	Result    bool
+	Error     error
+}
 
-	type logicGateTestCase struct {
-		LogicGate models.LogicGate
-		Result    bool
-		Error     error
-	}
-	logicGateTestCases := []logicGateTestCase{
+func TestLogic_Continue(t *testing.T) {
+
+	var logicGateTestCases = []logicGateTestCase{
 		logicGateTestCase{
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
@@ -56,6 +57,101 @@ func TestLogic(t *testing.T) {
 	}
 
 	var flu feed_line.FLU
+	for i, testCase := range logicGateTestCases {
+
+		out, err := Logic(flu, testCase.LogicGate)
+		assert.Equal(t, testCase.Error, err, "index:", i)
+		assert.EqualValues(t, testCase.Result, out, "index:", i)
+	}
+
+}
+
+func TestLogic_Boolean(t *testing.T) {
+
+	var logicGateTestCases = []logicGateTestCase{
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "boolean",
+				},
+			},
+			Result: false,
+			Error:  ErrMalformedLogicOptions,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "boolean",
+					"options": map[string]interface{}{
+						"blah": "blah",
+					},
+				},
+			},
+			Result: false,
+			Error:  ErrMalformedLogicOptions,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "boolean",
+					"options": map[string]interface{}{
+						"field_name":     "blah",
+						"should_be_true": "asd",
+					},
+				},
+			},
+			Result: false,
+			Error:  ErrMalformedLogicOptions,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "boolean",
+					"options": map[string]interface{}{
+						"field_name":     "blah",
+						"should_be_true": true,
+					},
+				},
+			},
+			Result: false,
+			Error:  nil,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "boolean",
+					"options": map[string]interface{}{
+						"field_name":     "abcd",
+						"should_be_true": true,
+					},
+				},
+			},
+			Result: false,
+			Error:  nil,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "boolean",
+					"options": map[string]interface{}{
+						"field_name":     "pqrs",
+						"should_be_true": true,
+					},
+				},
+			},
+			Result: true,
+			Error:  nil,
+		},
+	}
+
+	flu := feed_line.FLU{
+		FeedLineUnit: models.FeedLineUnit{
+			Build: models.JsonF{
+				"abcd": 1,
+				"pqrs": true,
+			},
+		},
+	}
 	for i, testCase := range logicGateTestCases {
 
 		out, err := Logic(flu, testCase.LogicGate)

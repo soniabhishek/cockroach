@@ -3,6 +3,7 @@ package clients
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
 	"io/ioutil"
@@ -39,8 +40,13 @@ func (*megatronClient) Transform(input models.JsonF, templateId string) (models.
 	req.Header.Add("content-type", "application/json")
 
 	res, err := http.DefaultClient.Do(req)
-	if res.StatusCode != http.StatusOK || err != nil {
+	if err != nil {
 		return nil, err
+	}
+
+	if res.StatusCode != http.StatusOK {
+
+		return nil, errors.New("Error occured in megatron")
 	}
 
 	defer res.Body.Close()

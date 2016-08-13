@@ -83,7 +83,7 @@
   },
   "megatron" :{
     "base" : {
-      "api" : "http://54.169.7.227"
+      "api" : "http://megatron-staging.playment.in"
     }
   },
 

@@ -12,6 +12,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
@@ -167,19 +168,25 @@ func UploadCsv(filename string) error {
 	plog.Info("Manual Step", "Flus going to be updated from csv upload ", len(flus), " first flu ", flus[0])
 
 	flRepo := feed_line_repo.New()
-	err = flRepo.BulkFluBuildUpdate(flus)
+	updatedFlus, err := flRepo.BulkFluBuildUpdateByStepType(flus, step_type.Manual)
 	if err != nil {
-		plog.Info(err.Error())
-		return err
+		if err != feed_line_repo.ErrPartiallyUpdatedFlus {
+			return err
+		}
 	}
 
 	go func() {
 
-		for _, flu := range flus {
+		for _, flu := range updatedFlus {
 			StdManualStep.finishFlu(feed_line.FLU{FeedLineUnit: flu})
 		}
 	}()
 
+	// Returning err
+	// will return nil if no error or ErrPartiallyUpdatedFlus if partially updated
+	if err == feed_line_repo.ErrPartiallyUpdatedFlus {
+		return errors.New("Partially updated flus. Count: " + strconv.Itoa(len(updatedFlus)))
+	}
 	return nil
 }
 

@@ -4,8 +4,7 @@ import "github.com/gin-gonic/gin"
 import (
 	"net/http"
 
-	"fmt"
-
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step"
 )
@@ -23,9 +22,10 @@ func crowdSourcingPostHandler() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
-		fmt.Println("whire", c.Param("action"))
+		plog.Info("Crowdsorucing gateway", c)
+		plog.Info("Crowdsorucing gateway", c.Param("action"))
 
-		if c.Param("action") != "flu_updates" {
+		if c.Query("action") != "flu_updates" {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
 				"error":   "unknown action",
@@ -40,7 +40,7 @@ func crowdSourcingPostHandler() gin.HandlerFunc {
 			return
 		}
 
-		err := crowdsourcing_step.FluUpdateHandler(fluUpdateReq.FluUpdates)
+		err := crowdsourcing_step.FluUpdateHandlerCustom(fluUpdateReq.FluUpdates)
 		if err != nil {
 			showErrorResponse(c, err)
 			return

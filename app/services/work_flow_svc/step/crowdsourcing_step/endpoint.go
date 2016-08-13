@@ -5,6 +5,7 @@ import (
 
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
@@ -58,4 +59,41 @@ func FluUpdateHandler(updates []FluUpdate) error {
 	}
 
 	return nil
+}
+
+func FluUpdateHandlerCustom(updates []FluUpdate) error {
+
+	flr := feed_line_repo.New()
+
+	flus := []models.FeedLineUnit{}
+
+	for _, update := range updates {
+		flus = append(flus, models.FeedLineUnit{
+			ID:    update.FluId,
+			Build: update.BuildUpdate,
+		})
+	}
+
+	updatedFlus, err := flr.BulkFluBuildUpdateByStepType(flus, step_type.CrowdSourcing)
+	if err != nil {
+		if err != feed_line_repo.ErrPartiallyUpdatedFlus {
+			plog.Error("Flu Handler Bulk Update, Aborting", err)
+			return err
+		} else {
+			plog.Error("crowdy flu handler partially updated", err, "updated ids", updatedFlus)
+		}
+	}
+
+	go func() {
+		for _, flu := range updatedFlus {
+			ok := Std.finishFlu(feed_line.FLU{FeedLineUnit: flu})
+			if !ok {
+				plog.Error("Flu Handler", errors.New("finishFlu false for "+flu.ID.String()))
+			}
+		}
+	}()
+
+	// it will return nil in case of no error
+	// return ErrPartiallyUpdatedFlus in case of partial update
+	return err
 }

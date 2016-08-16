@@ -89,5 +89,8 @@
 
   "plog" :{
     "log_level" : "<log_level>"
+  },
+  "newrelic" : {
+    "key" : "<newrelic_licence_key>"
   }
 }

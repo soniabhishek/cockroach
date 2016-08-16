@@ -17,12 +17,14 @@ import (
 	"time"
 
 	"github.com/itsjamie/gin-cors"
+	"github.com/newrelic/go-agent"
 )
 
 func Build() {
 
 	if config.IsProduction() {
 		gin.SetMode(gin.ReleaseMode)
+
 	} else {
 		gin.SetMode(gin.DebugMode)
 	}
@@ -44,6 +46,17 @@ func Build() {
 		Credentials:     true,
 		ValidateHeaders: false,
 	}))
+
+	if config.IsProduction() {
+
+		newrelicConfig := newrelic.NewConfig("Angel Server", config.NEW_RELIC_KEY.Get())
+		newrelicApp, err := newrelic.NewApplication(newrelicConfig)
+		if err != nil {
+			panic(err)
+		}
+
+		r.Use(NewRelicMiddleware(newrelicApp))
+	}
 
 	fmt.Println(config.DOWNLOAD_PATH.Get())
 	r.StaticFS("/downloadedfiles", http.Dir(config.DOWNLOAD_PATH.Get()))

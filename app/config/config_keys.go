@@ -46,6 +46,8 @@ const (
 	MEGATRON_API  = configKey("megatron.base.api")
 
 	PLOG_LEVEL = configKey("plog.log_level")
+
+	NEW_RELIC_KEY = configKey("newrelic.key")
 )
 
 // Gets the value for given key from the config file.

@@ -26,7 +26,7 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
 	_, err := c.fluClient.PushFLU(flu.FeedLineUnit)
 	if err != nil {
-		plog.Error("crowdsourcing step", err)
+		plog.Error("crowdsourcing step", err, flu.ID)
 	}
 }
 

@@ -87,10 +87,6 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 
 	go func() {
 
-		// Waiting  for 10 seconds to finish flu buffer update
-		// TODO move the flumanger logic from crowdy to angel & remove this shit
-		time.Sleep(time.Duration(20) * time.Second)
-
 		for _, flu := range updatedFlus {
 			ok := Std.finishFlu(feed_line.FLU{FeedLineUnit: flu})
 			if !ok {

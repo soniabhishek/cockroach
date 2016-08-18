@@ -9,7 +9,6 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
-	"time"
 )
 
 type FluUpdate struct {

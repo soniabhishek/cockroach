@@ -9,6 +9,7 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
+	"time"
 )
 
 type FluUpdate struct {
@@ -85,6 +86,11 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 	}
 
 	go func() {
+
+		// Waiting  for 10 seconds to finish flu buffer update
+		// TODO move the flumanger logic from crowdy to angel & remove this shit
+		time.Sleep(time.Duration(20) * time.Second)
+
 		for _, flu := range updatedFlus {
 			ok := Std.finishFlu(feed_line.FLU{FeedLineUnit: flu})
 			if !ok {

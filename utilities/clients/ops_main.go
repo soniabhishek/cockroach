@@ -20,8 +20,6 @@ func main() {
 	projectName := flag.String("projectName", "", "provide project name")
 	url := flag.String("url", "", "url")
 	headerStr := flag.String("header", "", "a json")
-	header := models.JsonF{}
-	header.Scan(*headerStr)
 
 	/* Optional */
 	gender := flag.String("gender", "", "Gender [optional]")
@@ -29,6 +27,13 @@ func main() {
 	lastName := flag.String("lastname", "", "Second Name [optional]")
 	phone := flag.String("phone", "", "Phone Number [optional]")
 	flag.Parse()
+
+	header := models.JsonF{}
+	err := header.Scan(*headerStr)
+	if err != nil {
+		plog.Error("ops main", err, *headerStr)
+		return
+	}
 
 	obj := utilModels.Client{
 		UserName:       *userName,
@@ -48,7 +53,7 @@ func main() {
 		Phone:     *phone,
 	}
 
-	err := validator.ValidateInput(obj)
+	err = validator.ValidateInput(obj)
 	if err != nil {
 		validator.ShowErrorResponse(err)
 		return

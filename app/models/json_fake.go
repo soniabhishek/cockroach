@@ -28,6 +28,9 @@ func (j *JsonF) Scan(src interface{}) error {
 		bty = src.([]byte)
 	case string:
 		bty = []byte(src.(string))
+	case map[string]interface{}:
+		*j = JsonF(src.(map[string]interface{}))
+		return nil
 	default:
 		return errors.New("only []byte & string supported at the moment")
 	}

@@ -52,6 +52,30 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 			ShouldBeTrue: shouldBeTrue,
 		}
 		return b.True(), nil
+	case "string_equal":
+
+		options, ok1 := l.InputTemplate["options"].(map[string]interface{})
+		shouldBeEqual, ok2 := options["should_be_equal"].(bool)
+		fieldName, ok3 := options["field_name"].(string)
+		expectedFieldVal, ok4 := options["field_value"].(string)
+
+		if !ok1 || !ok2 || !ok3 || !ok4 {
+			return false, ErrMalformedLogicOptions
+		}
+
+		fieldValue, ok := flu.Build[fieldName].(string)
+		if !ok {
+			plog.Trace("logic gate", "field not found for fluid ", flu.ID)
+		}
+
+		s := StringEquality{
+			Left:          fieldValue,
+			Right:         expectedFieldVal,
+			ShouldBeEqual: shouldBeEqual,
+		}
+
+		return s.True(), nil
+
 	default:
 		return false, ErrLogicNotFound
 	}

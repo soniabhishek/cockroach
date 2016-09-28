@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"fmt"
-
-	"github.com/spf13/viper"
 )
 
 const (
@@ -17,7 +15,8 @@ const (
 )
 
 var env string
-var configProvider = viper.New()
+
+//var configProvider = viper.New()
 
 func init() {
 
@@ -37,16 +36,15 @@ func init() {
 		goPath = strings.Split(os.Getenv("GOPATH"), ":")[0]
 	}
 
-	// Derive the config directory
-	configPath := goPath + "/src/github.com/crowdflux/angel/app/config"
+	_ = goPath
 
-	configProvider.SetConfigFile(configPath + "/" + env + ".json")
-	configProvider.SetConfigName(env)
-
-	err := configProvider.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
+	//configProvider.SetConfigFile(configPath + "/" + env + ".json")
+	//configProvider.SetConfigName(env)
+	//
+	//err := configProvider.ReadInConfig()
+	//if err != nil {
+	//	panic(err)
+	//}
 }
 
 // Returns true if current environment is Development

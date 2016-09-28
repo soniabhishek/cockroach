@@ -58,3 +58,14 @@ func TestJsonFake_Merge(t *testing.T) {
 		"b": 2,
 	})
 }
+func TestJsonF_Scan(t *testing.T) {
+	jsn := map[string]interface{}{
+		"a": 1,
+	}
+
+	j1 := JsonF(jsn)
+	j2 := JsonF{}
+	err := j2.Scan(jsn)
+	assert.NoError(t, err)
+	assert.Equal(t, j1, j2)
+}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/lib/pq"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -61,8 +62,10 @@ func (i *inputQueue) Add(flu models.FeedLineUnit) (id uuid.UUID, err error) {
 	if err != nil {
 		// Error Code from mgo for duplicate id
 		// unsafe
-		if err.(*mgo.LastError).Code == 11000 {
+		if e, ok := err.(*mgo.LastError); ok && e.Code == 11000 {
 			return uuid.Nil, ErrDuplicateReferenceId
+		} else {
+			plog.Error("Input queue", err, "mongo insert failed")
 		}
 	}
 	return flu.ID, err

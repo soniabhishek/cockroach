@@ -230,6 +230,7 @@ func validateInputFLU(c *gin.Context, fluService flu_svc.IFluService) (flu model
 
 	// Validating ReferenceID
 	if flu.ReferenceId == "" {
+		err = flu_svc.ErrReferenceIdMissing
 		showErrorResponse(c, flu_svc.ErrReferenceIdMissing)
 		return
 	}

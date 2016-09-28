@@ -10,12 +10,12 @@ type Fl chan FLU
 // Get new FeedLine channel with unlimited size
 func New() Fl {
 
-	feedLine := make(chan FLU, 1000)
+	feedLine := make(chan FLU, 50000)
 	return feedLine
 }
 
 func NewBig() Fl {
-	feedLine := make(chan FLU, 10000)
+	feedLine := make(chan FLU, 500000)
 	return feedLine
 }
 

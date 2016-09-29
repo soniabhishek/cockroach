@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"fmt"
+
+	"github.com/spf13/viper"
 )
 
 const (
@@ -15,8 +17,7 @@ const (
 )
 
 var env string
-
-//var configProvider = viper.New()
+var configProvider = viper.New()
 
 func init() {
 
@@ -28,7 +29,6 @@ func init() {
 	fmt.Println("Using " + env + " environment")
 
 	var goPath string
-
 	// windows has ; separator vs linux has :
 	if runtime.GOOS == "windows" {
 		goPath = strings.Split(os.Getenv("GOPATH"), ";")[0]
@@ -36,15 +36,14 @@ func init() {
 		goPath = strings.Split(os.Getenv("GOPATH"), ":")[0]
 	}
 
-	_ = goPath
+	// Derive the config directory
+	configPath := goPath + "/src/github.com/crowdflux/angel/app/config"
 
-	//configProvider.SetConfigFile(configPath + "/" + env + ".json")
-	//configProvider.SetConfigName(env)
-	//
-	//err := configProvider.ReadInConfig()
-	//if err != nil {
-	//	panic(err)
-	//}
+	configProvider.SetConfigFile(configPath + "/" + env + ".json")
+	err := configProvider.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Returns true if current environment is Development

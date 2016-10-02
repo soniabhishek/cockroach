@@ -161,6 +161,80 @@ func TestLogic_Boolean(t *testing.T) {
 
 }
 
+func TestLogic_StringEquality(t *testing.T) {
+
+	var logicGateTestCases = []logicGateTestCase{
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "string_equal",
+				},
+			},
+			Result: false,
+			Error:  ErrMalformedLogicOptions,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "string_equal",
+					"options": map[string]interface{}{
+						"field_name":      "mnop",
+						"should_be_equal": true,
+						"field_value":     "Hello",
+					},
+				},
+			},
+			Result: true,
+			Error:  nil,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "string_equal",
+					"options": map[string]interface{}{
+						"field_name":      "mnop",
+						"should_be_equal": false,
+						"field_value":     "Lollo",
+					},
+				},
+			},
+			Result: true,
+			Error:  nil,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "string_equal",
+					"options": map[string]interface{}{
+						"field_name":      "mnop",
+						"should_be_equal": false,
+						"field_value":     map[string]interface{}{"asd": 1},
+					},
+				},
+			},
+			Result: false,
+			Error:  ErrMalformedLogicOptions,
+		},
+	}
+
+	flu := feed_line.FLU{
+		FeedLineUnit: models.FeedLineUnit{
+			Build: models.JsonF{
+				"abcd": 1,
+				"pqrs": true,
+				"mnop": "Hello",
+			},
+		},
+	}
+	for i, testCase := range logicGateTestCases {
+
+		out, err := Logic(flu, testCase.LogicGate)
+		assert.Equal(t, testCase.Error, err, "index:", i)
+		assert.EqualValues(t, testCase.Result, out, "index:", i)
+	}
+
+}
+
 func TestRandom(t *testing.T) {
 	type sSs struct {
 		Left        string

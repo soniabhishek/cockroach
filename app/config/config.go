@@ -29,7 +29,6 @@ func init() {
 	fmt.Println("Using " + env + " environment")
 
 	var goPath string
-
 	// windows has ; separator vs linux has :
 	if runtime.GOOS == "windows" {
 		goPath = strings.Split(os.Getenv("GOPATH"), ";")[0]
@@ -41,8 +40,6 @@ func init() {
 	configPath := goPath + "/src/github.com/crowdflux/angel/app/config"
 
 	configProvider.SetConfigFile(configPath + "/" + env + ".json")
-	configProvider.SetConfigName(env)
-
 	err := configProvider.ReadInConfig()
 	if err != nil {
 		panic(err)

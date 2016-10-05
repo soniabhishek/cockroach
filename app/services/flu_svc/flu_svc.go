@@ -84,8 +84,8 @@ func (i *fluService) SyncInputFeedLine() error {
 }
 
 func (i *fluService) GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, error) {
-	fin := feed_line_repo.NewInputQueue()
-	flu, err := fin.Get(fluId)
+
+	flu, err := i.fluRepo.GetById(fluId)
 	if err != nil && err == feed_line_repo.ErrFLUNotFoundInInputQueue {
 		err = ErrFluNotFound
 	}

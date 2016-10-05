@@ -1,4 +1,4 @@
-package transformation_step
+package transformation_step_svc
 
 import (
 	"github.com/crowdflux/angel/app/models"

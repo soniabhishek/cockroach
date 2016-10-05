@@ -1,4 +1,4 @@
-package manual_step
+package manual_step_svc
 
 const (
 	ID         = "Id"

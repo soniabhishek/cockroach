@@ -1,4 +1,4 @@
-package crowdsourcing_step
+package crowdsourcing_step_svc
 
 import (
 	"errors"

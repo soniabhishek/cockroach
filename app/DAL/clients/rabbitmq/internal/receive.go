@@ -1,8 +1,12 @@
+//package rabbitmq
+
 package main
 
 import (
 	"log"
 
+	"encoding/json"
+	"github.com/crowdflux/angel/app/models"
 	"github.com/streadway/amqp"
 )
 
@@ -22,19 +26,19 @@ func main() {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		"hello", // name
-		false,   // durable
-		false,   // delete when usused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
+		"test", // name
+		true,   // durable
+		false,  // delete when usused
+		false,  // exclusive
+		false,  // no-wait
+		nil,    // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 
 	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
-		true,   // auto-ack
+		false,  // auto-ack
 		false,  // exclusive
 		false,  // no-local
 		false,  // no-wait
@@ -46,7 +50,13 @@ func main() {
 
 	go func() {
 		for d := range msgs {
-			log.Printf("Received a message: %s", d.Body)
+			flu := models.FeedLineUnit{}
+			json.Unmarshal(d.Body, &flu)
+			log.Printf("Received a message: %s", flu.ID)
+			err := d.Ack(false)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}()
 

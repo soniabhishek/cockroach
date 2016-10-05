@@ -1,4 +1,4 @@
-package gateway_step
+package gateway_step_svc
 
 // Futuristic stuff
 

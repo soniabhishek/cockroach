@@ -1,6 +1,7 @@
-package manual_step
+package manual_step_svc
 
 import (
+	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
@@ -24,30 +25,14 @@ func (m *manualStep) finishFlu(flu feed_line.FLU) bool {
 		//return false
 	}
 	counter.Print(flu, "manual")
-	m.OutQ <- flu
+	m.OutQ.Push(flu)
 	return true
 }
 
-func (m *manualStep) start() {
-	go func() {
-		for {
-			select {
-			case flu := <-m.InQ:
-				m.processFlu(flu)
-			}
-		}
-	}()
-}
-
-func (m *manualStep) Connect(routerIn *feed_line.Fl) (routerOut *feed_line.Fl) {
-
-	// Send output of this step to the router's input
-	// for next rerouting
-	m.OutQ = *routerIn
-
-	m.start()
-
-	// Return the input channel of this step
-	// so that router can push flu to it
-	return &m.InQ
+func newManualStep() *manualStep {
+	ms := &manualStep{
+		Step: step.New(step_type.Manual),
+	}
+	ms.Step.SetFluProcessor(ms.processFlu)
+	return ms
 }

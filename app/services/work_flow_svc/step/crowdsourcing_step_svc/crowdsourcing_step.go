@@ -1,8 +1,10 @@
-package crowdsourcing_step
+package crowdsourcing_step_svc
 
 import (
+	"github.com/crowdflux/angel/app/DAL/clients"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
@@ -12,11 +14,11 @@ import (
 type crowdSourcingStep struct {
 	step.Step
 	fluRepo   feed_line_repo.IFluRepo
-	fluClient fluPusher
+	fluClient crowdsourcingGatewayClient
 }
 
 // Rename the interface later
-type fluPusher interface {
+type crowdsourcingGatewayClient interface {
 	PushFLU(models.FeedLineUnit) (bool, error)
 }
 
@@ -28,6 +30,7 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 	if err != nil {
 		plog.Error("crowdsourcing step", err, flu.ID.String())
 	}
+	flu.ConfirmReceive()
 }
 
 func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) bool {
@@ -38,30 +41,17 @@ func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) bool {
 		//return false
 	}
 	counter.Print(flu, "crowdsourcing")
-	c.OutQ <- flu
+	c.OutQ.Push(flu)
 	return true
 }
 
-func (c *crowdSourcingStep) start() {
-	go func() {
-		for {
-			select {
-			case flu := <-c.InQ:
-				c.processFlu(flu)
-			}
-		}
-	}()
-}
+func newCrowdSourcingStep() *crowdSourcingStep {
 
-func (c *crowdSourcingStep) Connect(routerIn *feed_line.Fl) (routerOut *feed_line.Fl) {
-
-	// Send output of this step to the router's input
-	// for next rerouting
-	c.OutQ = *routerIn
-
-	c.start()
-
-	// Return the input channel of this step
-	// so that router can push flu to it
-	return &c.InQ
+	cs := &crowdSourcingStep{
+		Step:      step.New(step_type.CrowdSourcing),
+		fluRepo:   feed_line_repo.New(),
+		fluClient: clients.GetCrowdyClient(),
+	}
+	cs.Step.SetFluProcessor(cs.processFlu)
+	return cs
 }

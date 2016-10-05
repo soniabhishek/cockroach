@@ -1,10 +1,10 @@
 package manual_step_svc
 
 import (
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 )
 
@@ -14,7 +14,7 @@ type manualStep struct {
 
 func (m *manualStep) processFlu(flu feed_line.FLU) {
 	m.AddToBuffer(flu)
-	plog.Info("Manual Step flu reached", flu)
+	plog.Info("Manual Step flu reached", flu.ID)
 }
 
 func (m *manualStep) finishFlu(flu feed_line.FLU) bool {

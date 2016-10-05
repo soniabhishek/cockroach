@@ -1,4 +1,4 @@
-package step_router
+package router_svc
 
 func newStdStepRouter() stepRouter {
 

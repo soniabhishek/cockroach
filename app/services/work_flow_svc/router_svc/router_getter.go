@@ -1,12 +1,12 @@
-package step_router
+package router_svc
 
 import (
 	"errors"
 
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/step_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/step_router_repo"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 )
 
 type IRouteGetter interface {

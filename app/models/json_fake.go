@@ -61,6 +61,11 @@ func (j *JsonF) String() string {
 }
 
 func (j *JsonF) Merge(a JsonF) JsonF {
+
+	if *j == nil {
+		*j = JsonF{}
+	}
+
 	for k, v := range a {
 		(*j)[k] = v
 	}

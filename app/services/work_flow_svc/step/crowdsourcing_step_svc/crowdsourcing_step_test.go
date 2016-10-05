@@ -1,12 +1,12 @@
-package crowdsourcing_step
+package crowdsourcing_step_svc
 
 import (
 	"testing"
 
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 	"github.com/stretchr/testify/assert"
 	//"time"
@@ -51,7 +51,7 @@ func Test(t *testing.T) {
 
 	cs.start()
 
-	cs.InQ <- flu
+	cs.InQ.Push(flu)
 
 	// Giving it time to finish adding to buffer
 	// as its happening in another goroutine
@@ -65,7 +65,7 @@ func Test(t *testing.T) {
 
 	var fluNew feed_line.FLU
 	select {
-	case fluNew = <-cs.OutQ:
+	case fluNew = <-cs.OutQ.Out():
 		assert.EqualValues(t, flu.ID, fluNew.ID)
 		assert.EqualValues(t, flu.Build["new_prop"], 123)
 	default:
@@ -90,7 +90,7 @@ func TestInvalidFlu(t *testing.T) {
 
 	cs.start()
 
-	cs.InQ <- flu
+	cs.InQ.Push(flu)
 
 	inValidFlu := flu
 	inValidFlu.ID = uuid.NewV4()

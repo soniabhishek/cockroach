@@ -1,10 +1,11 @@
-package transformation_step
+package transformation_step_svc
 
 import (
 	"github.com/crowdflux/angel/app/DAL/clients"
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/step_configuration_repo"
+	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 )
 
@@ -44,31 +45,17 @@ func (t *transformationStep) finishFlu(flu feed_line.FLU) bool {
 		plog.Trace("transformation step", "flu not present in buffer")
 		//return false
 	}
-	t.OutQ <- flu
+	t.OutQ.Push(flu)
 	plog.Info("transformation out", flu.ID)
 	return true
 }
 
-func (t *transformationStep) start() {
-	go func() {
-		for {
-			select {
-			case flu := <-t.InQ:
-				t.processFlu(flu)
-			}
-		}
-	}()
-}
+func newStdTransformer() *transformationStep {
+	ts := &transformationStep{
+		Step: step.New(step_type.Transformation),
+		transformationConfigRepo: step_configuration_repo.NewTransformationStepConfigurationRepo(),
+	}
 
-func (t *transformationStep) Connect(routerIn *feed_line.Fl) (routerOut *feed_line.Fl) {
-
-	// Send output of this step to the router's input
-	// for next rerouting
-	t.OutQ = *routerIn
-
-	t.start()
-
-	// Return the input channel of this step
-	// so that router can push flu to it
-	return &t.InQ
+	ts.SetFluProcessor(ts.processFlu)
+	return ts
 }

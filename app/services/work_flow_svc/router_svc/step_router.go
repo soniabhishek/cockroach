@@ -1,17 +1,17 @@
-package step_router
+package router_svc
 
 import (
 	"errors"
 
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/transformation_step"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/transformation_step_csv"
 )
 
 type routeTable map[step_type.StepType]*feed_line.Fl
@@ -39,9 +39,9 @@ type stepRouter struct {
 
 func (sr *stepRouter) connectAll() {
 
-	var crowdSourcingConn IConnector = crowdsourcing_step.StdCrowdSourcingStep
-	var manualStepConn IConnector = manual_step.StdManualStep
-	var transformationStepConn IConnector = transformation_step.StdTransformationStep
+	var crowdSourcingConn IConnector = crowdsourcing_step_svc.StdCrowdSourcingStep
+	var manualStepConn IConnector = manual_step_svc.StdManualStep
+	var transformationStepConn IConnector = transformation_step_svc.StdTransformationStep
 
 	sr.routeTable = routeTable{
 
@@ -77,19 +77,6 @@ func (sr *stepRouter) getRoute(flu *feed_line.FLU) (route *feed_line.Fl) {
 
 	} else {
 
-		// commented out feature not available
-
-		// check if last one has failed
-		// push to error step if it has occurred
-		//if l := len(flu.Trip); l > 0 {
-		//
-		//	if currentStep := flu.Trip[l-1]; !currentStep.Success() {
-		//		err = errors.New("error occured in previes step")
-		//		plog.Error("Router", err, "Sending flu to error step as it failed in the last one")
-		//		return sr.routeTable[step_type.Error]
-		//	}
-		//}
-
 		nextStep, err = sr.routeGetter.GetNextStep(*flu)
 		if err != nil {
 			// Error getting the next step
@@ -123,8 +110,8 @@ func newStepRouter(concurrency int) stepRouter {
 	return stepRouter{
 		// Bigger feedLine since all the step servers
 		// pushes flu to this one only
-		InQ:           feed_line.NewBig(),
-		ProcessedFluQ: feed_line.New(),
+		InQ:           feed_line.New("router-in"),
+		ProcessedFluQ: feed_line.New("router-out-processed-flu"),
 		buffer:        make(chan uint, concurrency),
 		routeGetter:   newRouteGetter(),
 		fluRepo:       feed_line_repo.New(),

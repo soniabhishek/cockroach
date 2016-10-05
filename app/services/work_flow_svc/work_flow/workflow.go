@@ -24,8 +24,8 @@ func newStdWorkFlow() WorkFlow {
 	// Start Workflow Channel IO in another goroutine
 	go func() {
 
-		inputQueue := w.InQ.Out()
-		outputQueue := router_svc.StdStepRouter.ProcessedFluQ.Out()
+		inputQueue := w.InQ.Receiver()
+		outputQueue := router_svc.StdStepRouter.ProcessedFluQ.Receiver()
 
 		for {
 			select {
@@ -59,7 +59,7 @@ func NewShortCircuit() WorkFlow {
 	// Start Workflow Channel IO in another goroutine
 	// and send back the input as output (short circuit)
 	go func() {
-		for flu := range w.InQ.Out() {
+		for flu := range w.InQ.Receiver() {
 			w.OutQ.Push(flu)
 		}
 	}()

@@ -13,7 +13,7 @@ func start(sr *stepRouter) {
 	// in another goroutine & route it to its exact step
 	go func() {
 
-		for flu := range sr.InQ.Out() {
+		for flu := range sr.InQ.Receiver() {
 			plog.Info("Router in", flu.ID)
 			// There is a question that adding to the
 			// buffer should be inside or outside

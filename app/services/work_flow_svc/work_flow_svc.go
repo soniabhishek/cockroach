@@ -44,7 +44,7 @@ func (w *workFlowSvc) OnComplete(f OnCompleteHandler) {
 
 func startWorkflowSvc(w *workFlowSvc) {
 	go func() {
-		for flu := range w.OutQ.Out() {
+		for flu := range w.OutQ.Receiver() {
 			w.complete(flu.FeedLineUnit)
 		}
 	}()
@@ -52,7 +52,7 @@ func startWorkflowSvc(w *workFlowSvc) {
 
 func startWorkflowSvcNLog(w *workFlowSvc) {
 	go func() {
-		for flu := range w.OutQ.Out() {
+		for flu := range w.OutQ.Receiver() {
 			fmt.Println(flu.ID)
 		}
 	}()

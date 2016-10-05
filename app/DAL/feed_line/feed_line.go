@@ -71,7 +71,7 @@ func (fl *Fl) Push(flu FLU) {
 	}
 }
 
-func (fl *Fl) Out() <-chan FLU {
+func (fl *Fl) Receiver() <-chan FLU {
 
 	println("Feedline, subscribe request: ", fl.queueName)
 
@@ -119,10 +119,4 @@ func (fl *Fl) Out() <-chan FLU {
 		panic(errors.New("Feedline already subscribed, name: " + fl.queueName))
 	}
 
-}
-
-// Get new FeedLine channel with fixed size
-func NewFixedSize(size int) Fl {
-	_ = make(chan FLU, size)
-	return Fl{}
 }

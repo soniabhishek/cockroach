@@ -20,7 +20,7 @@ func TestNew(t *testing.T) {
 		},
 	})
 
-	flu := <-fl.Out()
+	flu := <-fl.Receiver()
 
 	flu.ConfirmReceive()
 

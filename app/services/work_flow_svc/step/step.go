@@ -75,7 +75,7 @@ func (s *Step) start() {
 
 		go func() {
 
-			for flu := range s.InQ.Out() {
+			for flu := range s.InQ.Receiver() {
 
 				s.processFlu(flu)
 

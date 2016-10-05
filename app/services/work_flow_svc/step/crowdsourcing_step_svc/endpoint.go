@@ -81,6 +81,8 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 			return err
 		} else {
 			plog.Error("crowdy flu handler partially updated", err, "updated ids", updatedFlus)
+			// this wont return
+			// this will continue
 		}
 	}
 

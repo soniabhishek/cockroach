@@ -9,13 +9,13 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 	"github.com/crowdflux/angel/utilities"
 	"github.com/crowdflux/angel/utilities/constants"
 )

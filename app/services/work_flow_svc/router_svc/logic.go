@@ -1,11 +1,11 @@
-package step_router
+package router_svc
 
 import (
 	"errors"
 
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 )
 
 var ErrLogicNotFound = errors.New("Logic not found")

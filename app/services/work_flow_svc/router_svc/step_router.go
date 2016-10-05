@@ -1,17 +1,17 @@
-package step_router
+package router_svc
 
 import (
 	"errors"
 
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/transformation_step"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/transformation_step_csv"
 )
 
 type routeTable map[step_type.StepType]*feed_line.Fl
@@ -39,9 +39,9 @@ type stepRouter struct {
 
 func (sr *stepRouter) connectAll() {
 
-	var crowdSourcingConn IConnector = crowdsourcing_step.StdCrowdSourcingStep
-	var manualStepConn IConnector = manual_step.StdManualStep
-	var transformationStepConn IConnector = transformation_step.StdTransformationStep
+	var crowdSourcingConn IConnector = crowdsourcing_step_svc.StdCrowdSourcingStep
+	var manualStepConn IConnector = manual_step_svc.StdManualStep
+	var transformationStepConn IConnector = transformation_step_svc.StdTransformationStep
 
 	sr.routeTable = routeTable{
 

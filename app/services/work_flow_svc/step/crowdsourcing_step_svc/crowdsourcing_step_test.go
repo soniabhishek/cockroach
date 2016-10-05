@@ -3,10 +3,10 @@ package crowdsourcing_step_svc
 import (
 	"testing"
 
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 	"github.com/stretchr/testify/assert"
 	//"time"

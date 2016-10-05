@@ -2,10 +2,10 @@ package transformation_step_svc
 
 import (
 	"github.com/crowdflux/angel/app/DAL/clients"
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/step_configuration_repo"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 )
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/plerrors"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/crowdsourcing_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 )
 
 func AddHttpTransport(r *gin.RouterGroup) {

@@ -10,6 +10,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/status_codes"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 )
 
 func ParseFluResponse(resp *http.Response) *FluResponse {
@@ -98,6 +99,5 @@ func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp FluRespo
 		}
 		dbLogArr[i] = dbLog
 	}
-	err := dbLogger.Log(dbLogArr)
-	plog.Error("Flumonitor", err)
+	flu_logger_svc.LogRaw(dbLogArr)
 }

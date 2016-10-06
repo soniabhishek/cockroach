@@ -23,6 +23,15 @@ func LogStepError(flu models.FeedLineUnit, stepType step_type.StepType, errMsg s
 	log(flu, 3, stepType, errMsg, retried)
 }
 
+func LogRaw(fluLogs []models.FeedLineLog) {
+
+	loggerChan := feed_line.GetFeedlineLoggerChannel()
+
+	for _, fluLog := range fluLogs {
+		loggerChan.Push(fluLog)
+	}
+}
+
 func log(flu models.FeedLineUnit, event int, stepType step_type.StepType, message string, retried bool) {
 
 	metaData := models.JsonF{"build": flu.Build}

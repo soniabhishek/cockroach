@@ -123,7 +123,7 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 
 		} else {
 			completedFLUs := deleteFromFeedLinePipe(projectId, fluOutObj)
-			go putDbLog(completedFLUs, "Invalid FLU Resp ", *fluResp)
+			go putDbLog(completedFLUs, "ERROR", *fluResp)
 		}
 	}
 
@@ -158,10 +158,10 @@ func getFluOutputObj(flp feedLineValue) (fluOutputObj []fluOutputStruct) {
 	return
 }
 
-func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*Response, status_codes.StatusCode) {
+func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*FluResponse, status_codes.StatusCode) {
 
 	if len(fluProjectResp) < 1 {
-		return &Response{}, status_codes.NoFluToSend
+		return &FluResponse{}, status_codes.NoFluToSend
 	}
 
 	plog.Info("Flu output", "sendBackToClient", projectId)
@@ -170,7 +170,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 	fpsModel, err := fpsRepo.Get(projectId)
 	if utilities.IsValidError(err) {
 		plog.Error("DB Error:", err)
-		return &Response{}, status_codes.UnknownFailure
+		return &FluResponse{}, status_codes.UnknownFailure
 	}
 
 	url := fpsModel.PostBackUrl
@@ -182,7 +182,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 	jsonBytes, err := json.Marshal(sendResp)
 	if err != nil {
 		plog.Error("JSON Marshalling Error:", err)
-		return &Response{}, status_codes.UnknownFailure
+		return &FluResponse{}, status_codes.UnknownFailure
 	}
 	jsonBytes = utilities.ReplaceEscapeCharacters(jsonBytes)
 	plog.Trace("Sending JSON:", string(jsonBytes))
@@ -202,7 +202,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*R
 	resp, err := client.Do(req)
 	if err != nil {
 		plog.Error("HTTP Error:", err)
-		return &Response{}, status_codes.UnknownFailure
+		return &FluResponse{}, status_codes.UnknownFailure
 	}
 
 	fluResp, status := validationErrorCallback(resp)
@@ -223,7 +223,7 @@ func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bo
 	}
 }
 
-func validationErrorCallback(resp *http.Response) (*Response, status_codes.StatusCode) {
+func validationErrorCallback(resp *http.Response) (*FluResponse, status_codes.StatusCode) {
 	defer resp.Body.Close()
 
 	fluResp := ParseFluResponse(resp)
@@ -234,7 +234,7 @@ func validationErrorCallback(resp *http.Response) (*Response, status_codes.Statu
 	} else {
 		//If any invalid flu response code is in our InvalidationCodeArray, then we log[ERROR] it
 		for _, invalidFlu := range fluResp.Invalid_Flus {
-			if IsValidInternalError(invalidFlu.Flu_Id) {
+			if IsValidInternalError(invalidFlu.Error) {
 				return fluResp, status_codes.FluRespFailure
 			}
 		}

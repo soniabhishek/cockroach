@@ -12,8 +12,8 @@ import (
 	"github.com/crowdflux/angel/app/plog"
 )
 
-func ParseFluResponse(resp *http.Response) *Response {
-	fluResp := &Response{}
+func ParseFluResponse(resp *http.Response) *FluResponse {
+	fluResp := &FluResponse{}
 	fluResp.HttpStatusCode = resp.StatusCode
 
 	body, _ := ioutil.ReadAll(resp.Body)
@@ -21,6 +21,7 @@ func ParseFluResponse(resp *http.Response) *Response {
 	plog.Info("response Headers:", resp.Header)
 	plog.Info("response Headers:", resp)
 	plog.Info("response Body:", string(body))
+	fluResp.RawResponse = string(body)
 	err := json.Unmarshal(body, fluResp)
 	if err != nil {
 
@@ -78,7 +79,8 @@ func IsValidInternalError(internalCode string) bool {
 	return false
 }
 
-func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp Response) {
+func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp FluResponse) {
+
 	dbLogArr := make([]models.FeedLineLog, len(completedFLUs))
 	jsObj := models.JsonF{}
 	jsonBytes, _ := json.Marshal(resp)

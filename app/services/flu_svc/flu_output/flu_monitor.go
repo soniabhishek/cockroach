@@ -85,8 +85,6 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 
 func checkupFeedLinePipe() {
 
-	plog.Trace("Flu output", "checkupFeedLinePipe")
-
 	var projectIdsToSend = make([]uuid.UUID, 0)
 	mutex.RLock()
 	for projectId := range feedLinePipe {

@@ -3,6 +3,7 @@ package router_svc
 import (
 	"errors"
 
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
 )
@@ -14,6 +15,7 @@ func start(sr *stepRouter) {
 	go func() {
 
 		for flu := range sr.InQ.Receiver() {
+
 			plog.Info("Router in", flu.ID)
 			// There is a question that adding to the
 			// buffer should be inside or outside
@@ -24,7 +26,9 @@ func start(sr *stepRouter) {
 			// but there is a chance of large number of go routines at a time
 			sr.buffer <- 1
 
-			go func() {
+			// need to pass the flu as the function parameter as
+			// the reference gets overridden in the next loop
+			go func(flu feed_line.FLU) {
 
 				defer func() {
 
@@ -46,7 +50,7 @@ func start(sr *stepRouter) {
 				plog.Info("router", "got some route")
 				(*r).Push(flu)
 				plog.Info("router out", "sent somewhere")
-			}()
+			}(flu)
 		}
 	}()
 }

@@ -14,7 +14,7 @@ import (
 
 	"time"
 
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc/crowdsourcing_step_transport"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
 	"github.com/itsjamie/gin-cors"
 	"github.com/newrelic/go-agent"
@@ -69,7 +69,7 @@ func Build() {
 		api.POST("/bulkdownloadimages", handlers.BulkDownloadImages)
 		api.POST("/bulkdownloadimagesfromcsv", handlers.BulkDownloadedImagesFromCSV)
 
-		crowdsourcing_step_transport.AddHttpTransport(api)
+		crowdsourcing_step_svc.AddHttpTransport(api)
 		manual_step_svc.AddHttpTransport(api)
 		utils_api.AddHttpTransport(api)
 	}

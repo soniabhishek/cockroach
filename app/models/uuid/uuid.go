@@ -288,7 +288,7 @@ func (u *UUID) UnmarshalBinary(data []byte) (err error) {
 func (u UUID) Value() (driver.Value, error) {
 	if u == Nil {
 		defer func() {
-			plog.Info("Nil uuid Value() called")
+			//plog.Info("Nil uuid Value() called")
 		}()
 		return nil, nil
 	}

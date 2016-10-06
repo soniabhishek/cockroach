@@ -65,7 +65,7 @@ func Test(t *testing.T) {
 
 	var fluNew feed_line.FLU
 	select {
-	case fluNew = <-cs.OutQ.Out():
+	case fluNew = <-cs.OutQ.Receiver():
 		assert.EqualValues(t, flu.ID, fluNew.ID)
 		assert.EqualValues(t, flu.Build["new_prop"], 123)
 	default:

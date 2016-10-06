@@ -60,7 +60,7 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) error {
 
-	plog.Info("FLu Monitor", fluBundle)
+	plog.Info("FLu Monitor, flubundle count:", len(fluBundle))
 
 	mutex.Lock()
 	for _, flu := range fluBundle {

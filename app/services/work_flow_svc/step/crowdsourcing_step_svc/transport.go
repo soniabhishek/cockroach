@@ -1,4 +1,4 @@
-package crowdsourcing_step_transport
+package crowdsourcing_step_svc
 
 import "github.com/gin-gonic/gin"
 import (
@@ -6,7 +6,6 @@ import (
 
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/plerrors"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 )
 
 func AddHttpTransport(r *gin.RouterGroup) {
@@ -15,7 +14,7 @@ func AddHttpTransport(r *gin.RouterGroup) {
 }
 
 type fluUpdateReq struct {
-	FluUpdates []crowdsourcing_step_svc.FluUpdate `json:"flu_updates"`
+	FluUpdates []FluUpdate `json:"flu_updates"`
 }
 
 func crowdSourcingPostHandler() gin.HandlerFunc {
@@ -40,7 +39,7 @@ func crowdSourcingPostHandler() gin.HandlerFunc {
 			return
 		}
 
-		err := crowdsourcing_step_svc.FluUpdateHandlerCustom(fluUpdateReq.FluUpdates)
+		err := FluUpdateHandlerCustom(fluUpdateReq.FluUpdates)
 		if err != nil {
 			showErrorResponse(c, err)
 			return

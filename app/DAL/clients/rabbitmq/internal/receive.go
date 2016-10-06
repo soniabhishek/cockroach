@@ -1,6 +1,6 @@
 //package rabbitmq
 
-package main
+package internal
 
 import (
 	"log"
@@ -53,10 +53,10 @@ func main() {
 			flu := models.FeedLineUnit{}
 			json.Unmarshal(d.Body, &flu)
 			log.Printf("Received a message: %s", flu.ID)
-			err := d.Ack(false)
-			if err != nil {
-				panic(err)
-			}
+			//err := d.Ack(false)
+			//if err != nil {
+			//	panic(err)
+			//}
 		}
 	}()
 

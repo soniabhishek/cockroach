@@ -1,9 +1,9 @@
 package work_flow
 
 import (
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step_router"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/router_svc"
 )
 
 type WorkFlow struct {
@@ -17,22 +17,26 @@ func newStdWorkFlow() WorkFlow {
 
 	//create new instance
 	w := WorkFlow{
-		InQ:  feed_line.New(),
-		OutQ: feed_line.New(),
+		InQ:  feed_line.New("workflow-in"),
+		OutQ: feed_line.New("workflow-out"),
 	}
 
 	// Start Workflow Channel IO in another goroutine
 	go func() {
+
+		inputQueue := w.InQ.Receiver()
+		outputQueue := router_svc.StdStepRouter.ProcessedFluQ.Receiver()
+
 		for {
 			select {
 
-			case flu := <-w.InQ:
+			case flu := <-inputQueue:
 				counter.Print(flu, "workflow in")
-				step_router.StdStepRouter.InQ <- flu
+				router_svc.StdStepRouter.InQ.Push(flu)
 
-			case flu := <-step_router.StdStepRouter.ProcessedFluQ:
+			case flu := <-outputQueue:
 				counter.Print(flu, "workflow out")
-				w.OutQ <- flu
+				w.OutQ.Push(flu)
 			}
 		}
 	}()
@@ -45,21 +49,19 @@ var StdWorkFlow = newStdWorkFlow()
 
 //var StdWorkFlow = newShortCircuit()
 
-func newShortCircuit() WorkFlow {
+func NewShortCircuit() WorkFlow {
 	//create new instance
 	w := WorkFlow{
-		InQ:  feed_line.New(),
-		OutQ: feed_line.New(),
+		InQ:  feed_line.New("workflow-in2123"),
+		OutQ: feed_line.New("workflow-out2123"),
 	}
 
 	// Start Workflow Channel IO in another goroutine
 	// and send back the input as output (short circuit)
 	go func() {
-		for {
-			select {
-			case flu := <-w.InQ:
-				w.OutQ <- flu
-			}
+		for flu := range w.InQ.Receiver() {
+			counter.Print(flu, "shortcircuit workflow out")
+			w.OutQ.Push(flu)
 		}
 	}()
 

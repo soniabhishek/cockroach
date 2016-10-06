@@ -46,6 +46,7 @@ func startWorkflowSvc(w *workFlowSvc) {
 	go func() {
 		for flu := range w.OutQ.Receiver() {
 			w.complete(flu.FeedLineUnit)
+			flu.ConfirmReceive()
 		}
 	}()
 }
@@ -54,6 +55,7 @@ func startWorkflowSvcNLog(w *workFlowSvc) {
 	go func() {
 		for flu := range w.OutQ.Receiver() {
 			fmt.Println(flu.ID)
+			flu.ConfirmReceive()
 		}
 	}()
 }

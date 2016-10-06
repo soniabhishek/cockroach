@@ -60,6 +60,7 @@ func NewShortCircuit() WorkFlow {
 	// and send back the input as output (short circuit)
 	go func() {
 		for flu := range w.InQ.Receiver() {
+			counter.Print(flu, "shortcircuit workflow out")
 			w.OutQ.Push(flu)
 		}
 	}()

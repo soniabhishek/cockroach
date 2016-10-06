@@ -14,6 +14,7 @@ type manualStep struct {
 
 func (m *manualStep) processFlu(flu feed_line.FLU) {
 	m.AddToBuffer(flu)
+	flu.ConfirmReceive()
 	plog.Info("Manual Step flu reached", flu.ID)
 }
 

@@ -7,7 +7,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
-	"github.com/robfig/cron"
+	"time"
 )
 
 func New() IFluService {
@@ -37,16 +37,18 @@ func NewWithExposedValidators() IFluServiceExtended {
 
 func StartFeedLineSync() {
 
-	fSvc := New()
-	c := cron.New()
+	go func() {
 
-	syncFeedLine := func() {
-		err := fSvc.SyncInputFeedLine()
-		if err != nil {
-			fmt.Println(err)
+		fSvc := New()
+
+		ticker := time.Tick(time.Duration(2) * time.Minute)
+
+		for _ = range ticker {
+			err := fSvc.SyncInputFeedLine()
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
-	}
+	}()
 
-	c.AddFunc("0 */2 * * * *", syncFeedLine)
-	c.Start()
 }

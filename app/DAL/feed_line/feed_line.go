@@ -69,6 +69,8 @@ func (fl *Fl) Push(flu FLU) {
 	if flu.delivery.Acknowledger != nil {
 		flu.ConfirmReceive()
 	}
+
+	plog.Info("feedline", "complete push from: ", fl.queueName, "id: ", flu.ID.String())
 }
 
 func (fl *Fl) Receiver() <-chan FLU {
@@ -80,7 +82,7 @@ func (fl *Fl) Receiver() <-chan FLU {
 
 	fl.once.Do(func() {
 
-		fluChan = make(chan FLU, 50000)
+		fluChan = make(chan FLU)
 
 		deliveryChan, err := fl.amqpChan.Consume(
 			fl.queueName, // queue
@@ -107,6 +109,7 @@ func (fl *Fl) Receiver() <-chan FLU {
 					FeedLineUnit: flu,
 					delivery:     msg,
 				}
+				plog.Info("feedline", "sent to FLU chan, name: ", fl.queueName, "id: ", flu.ID.String())
 			}
 		}()
 

@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"sync"
 )
 
@@ -17,15 +18,17 @@ type Step struct {
 	once   sync.Once
 
 	processFlu processFlu
+	stepType   step_type.StepType
 }
 
 type processFlu func(feed_line.FLU)
 
 func New(st step_type.StepType) Step {
 	return Step{
-		InQ:    feed_line.New(st.String() + "-in"),
-		OutQ:   feed_line.New(st.String() + "-out"),
-		buffer: feed_line.NewBuffer(),
+		InQ:      feed_line.New(st.String() + "-in"),
+		OutQ:     feed_line.New(st.String() + "-out"),
+		buffer:   feed_line.NewBuffer(),
+		stepType: st,
 	}
 }
 
@@ -77,6 +80,7 @@ func (s *Step) start() {
 
 			for flu := range s.InQ.Receiver() {
 
+				flu_logger_svc.LogStepEntry(flu.FeedLineUnit, s.stepType)
 				s.processFlu(flu)
 
 			}

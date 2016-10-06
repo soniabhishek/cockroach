@@ -3,7 +3,6 @@ package auther
 import (
 	"github.com/crowdflux/angel/app/DAL/repositories/clients_repo"
 	"github.com/crowdflux/angel/app/models/uuid"
-	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/utilities"
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +12,6 @@ func GinAuther() gin.HandlerFunc {
 
 		projectId, err := uuid.FromString(c.Param("projectId"))
 		if utilities.IsValidError(err) {
-			plog.Info("Auther", "projectId not uuid")
 			c.Header("authenication error", "project not valid")
 			c.AbortWithStatus(401)
 			return
@@ -23,14 +21,12 @@ func GinAuther() gin.HandlerFunc {
 		client, err := clientRepo.GetByProjectId(projectId)
 		// Get Client ID
 		if utilities.IsValidError(err) {
-			plog.Error("ClientId not found for ProjectId ["+projectId.String()+"]:", err)
 			c.Header("authenication error", "project not valid")
 			c.AbortWithStatus(401)
 			return
 		}
 
 		if client.ClientSecretUuid == uuid.Nil {
-			plog.Error("ClientSecretID not found ["+client.ID.String()+"]:", err)
 			c.Header("authenication error", "project not valid")
 			c.AbortWithStatus(401)
 			return

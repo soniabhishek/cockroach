@@ -28,7 +28,7 @@ func (m *manualStep) finishFlu(flu feed_line.FLU) bool {
 	}
 	counter.Print(flu, "manual")
 	m.OutQ.Push(flu)
-	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Manual)
+	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Manual, flu.Redelivered())
 
 	return true
 }

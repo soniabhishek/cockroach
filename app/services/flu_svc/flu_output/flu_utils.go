@@ -9,12 +9,12 @@ import (
 
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/status_codes"
-	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 )
 
-func ParseFluResponse(resp *http.Response) *Response {
-	fluResp := &Response{}
+func ParseFluResponse(resp *http.Response) *FluResponse {
+	fluResp := &FluResponse{}
 	fluResp.HttpStatusCode = resp.StatusCode
 
 	body, _ := ioutil.ReadAll(resp.Body)
@@ -22,6 +22,7 @@ func ParseFluResponse(resp *http.Response) *Response {
 	plog.Info("response Headers:", resp.Header)
 	plog.Info("response Headers:", resp)
 	plog.Info("response Body:", string(body))
+	fluResp.RawResponse = string(body)
 	err := json.Unmarshal(body, fluResp)
 	if err != nil {
 
@@ -79,7 +80,8 @@ func IsValidInternalError(internalCode string) bool {
 	return false
 }
 
-func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp Response) {
+func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp FluResponse) {
+
 	dbLogArr := make([]models.FeedLineLog, len(completedFLUs))
 	jsObj := models.JsonF{}
 	jsonBytes, _ := json.Marshal(resp)
@@ -87,18 +89,15 @@ func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp Response
 	for i, fl := range completedFLUs {
 		dbLog := models.FeedLineLog{
 			//ID         int            `db:"id" json:"id" bson:"_id"`
-			FluId:      fl.ID,
-			Message:    sql.NullString{message, true},
-			MetaData:   jsObj,
-			StepType:   sql.NullInt64{int64(12), true},
-			StepEntry:  sql.NullBool{true, true},
-			StepExit:   sql.NullBool{true, true},
-			StepId:     fl.StepId,
-			WorkFlowId: uuid.UUID{},
-			CreatedAt:  fl.CreatedAt,
+			FluId:     fl.ID,
+			Message:   sql.NullString{message, true},
+			MetaData:  jsObj,
+			Event:     10,
+			StepType:  sql.NullInt64{int64(12), true},
+			StepId:    fl.StepId,
+			CreatedAt: fl.CreatedAt,
 		}
 		dbLogArr[i] = dbLog
 	}
-	err := dbLogger.Log(dbLogArr)
-	plog.Error("Flumonitor", err)
+	flu_logger_svc.LogRaw(dbLogArr)
 }

@@ -6,6 +6,8 @@ import (
 
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/step_type"
+	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/work_flow"
 )
@@ -47,6 +49,9 @@ func startWorkflowSvc(w *workFlowSvc) {
 		for flu := range w.OutQ.Receiver() {
 			w.complete(flu.FeedLineUnit)
 			flu.ConfirmReceive()
+
+			//TODO put at correct place according to the architecture
+			flu_logger_svc.LogStepEntry(flu.FeedLineUnit, step_type.Gateway, flu.Redelivered())
 		}
 	}()
 }

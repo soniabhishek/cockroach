@@ -31,7 +31,7 @@ func TestLogStepEntry(t *testing.T) {
 		go func() {
 
 			for {
-				LogStepEntry(models.FeedLineUnit{ID: uuid.NewV4()}, step_type.Manual)
+				LogStepEntry(models.FeedLineUnit{ID: uuid.NewV4()}, step_type.Manual, false)
 			}
 
 		}()

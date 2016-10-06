@@ -5,34 +5,56 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
-	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/lib/pq"
 	"time"
 )
 
-func LogStepEntry(flu models.FeedLineUnit, stepType step_type.StepType) {
+func LogStepEntry(flu models.FeedLineUnit, stepType step_type.StepType, retried bool) {
 
-	log(flu, true, stepType)
+	log(flu, 1, stepType, "", retried)
 }
 
-func LogStepExit(flu models.FeedLineUnit, stepType step_type.StepType) {
+func LogStepExit(flu models.FeedLineUnit, stepType step_type.StepType, retried bool) {
 
-	log(flu, false, stepType)
+	log(flu, 2, stepType, "", retried)
 }
 
-func log(flu models.FeedLineUnit, stepEntry bool, stepType step_type.StepType) {
+func LogStepError(flu models.FeedLineUnit, stepType step_type.StepType, errMsg string, retried bool) {
+	log(flu, 3, stepType, errMsg, retried)
+}
+
+func LogRaw(fluLogs []models.FeedLineLog) {
+
+	loggerChan := feed_line.GetFeedlineLoggerChannel()
+
+	for _, fluLog := range fluLogs {
+		loggerChan.Push(fluLog)
+	}
+}
+
+func log(flu models.FeedLineUnit, event int, stepType step_type.StepType, message string, retried bool) {
+
+	metaData := models.JsonF{"build": flu.Build}
+	if retried {
+		metaData["retry"] = true
+	}
 
 	fluLog := models.FeedLineLog{
-		FluId:      flu.ID,
-		Message:    sql.NullString{"", false},
-		MetaData:   flu.Build,
-		StepType:   sql.NullInt64{int64(stepType), true},
-		StepEntry:  sql.NullBool{stepEntry, true},
-		StepExit:   sql.NullBool{!stepEntry, true},
-		StepId:     flu.StepId,
-		WorkFlowId: uuid.Nil,
-		CreatedAt:  pq.NullTime{time.Now(), true},
+		FluId:     flu.ID,
+		Message:   sql.NullString{message, !IsEmpty(message)},
+		MetaData:  metaData,
+		Event:     event,
+		StepType:  sql.NullInt64{int64(stepType), true},
+		StepId:    flu.StepId,
+		CreatedAt: pq.NullTime{time.Now(), true},
 	}
 
 	feed_line.GetFeedlineLoggerChannel().Push(fluLog)
+}
+
+func IsEmpty(s string) bool {
+	if s == "" {
+		return true
+	}
+	return false
 }

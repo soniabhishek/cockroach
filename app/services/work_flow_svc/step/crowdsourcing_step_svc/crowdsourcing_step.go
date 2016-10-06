@@ -30,8 +30,11 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 	_, err := c.fluClient.PushFLU(flu.FeedLineUnit)
 	if err != nil {
 		plog.Error("crowdsourcing step", err, flu.ID.String())
+		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.CrowdSourcing, "crowdySendFailure", flu.Redelivered())
+		return
+	} else {
+		flu.ConfirmReceive()
 	}
-	flu.ConfirmReceive()
 }
 
 func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) bool {
@@ -43,7 +46,7 @@ func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) bool {
 	}
 	counter.Print(flu, "crowdsourcing")
 	c.OutQ.Push(flu)
-	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.CrowdSourcing)
+	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.CrowdSourcing, flu.Redelivered())
 	return true
 }
 

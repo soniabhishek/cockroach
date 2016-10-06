@@ -2,7 +2,7 @@ package flu_logger_svc
 
 import (
 	"database/sql"
-	//"github.com/crowdflux/angel/app/DAL/feed_line"
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
@@ -22,7 +22,7 @@ func LogStepExit(flu models.FeedLineUnit, stepType step_type.StepType) {
 
 func log(flu models.FeedLineUnit, stepEntry bool, stepType step_type.StepType) {
 
-	_ = models.FeedLineLog{
+	fluLog := models.FeedLineLog{
 		FluId:      flu.ID,
 		Message:    sql.NullString{"", false},
 		MetaData:   flu.Build,
@@ -34,5 +34,5 @@ func log(flu models.FeedLineUnit, stepEntry bool, stepType step_type.StepType) {
 		CreatedAt:  pq.NullTime{time.Now(), true},
 	}
 
-	//feed_line.GetFeedlineLoggerChannel().Push(fluLog)
+	feed_line.GetFeedlineLoggerChannel().Push(fluLog)
 }

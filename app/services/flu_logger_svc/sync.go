@@ -8,27 +8,35 @@ import (
 	"time"
 )
 
-func dbLogSyncer() {
+func dbLogSyncer(fluLogger feed_line_repo.IFluLogger) {
 
 	// Get log receiver channel
 	feedlineLoggerChannel := feed_line.GetFeedlineLoggerChannel()
 	flogs := feedlineLoggerChannel.Receiver()
 
 	bufferedFlogs := []models.FeedLineLog{}
-	flr := feed_line_repo.NewLogger()
 
-	var saveInDb = func() {
-		err := flr.Log(bufferedFlogs)
+	var save = func() {
+		err := fluLogger.Log(bufferedFlogs)
 
 		if err != nil {
 			plog.Error("Feedline logger", err, "error saving logs to db")
 		} else {
+
+			// confirm to the channel that the batch processing has been
+			// done
 			feedlineLoggerChannel.ConfirmReceivedProcessed()
+
+			// clear the buffer for next ones
 			bufferedFlogs = nil
 		}
 	}
 
-	ticker := time.Tick(time.Duration(2) * time.Second)
+	ticker := time.Tick(time.Duration(10) * time.Second)
+
+	// the below logic basically saves the flu logs in db
+	// it saves whatever is there every 10 seconds
+	// or if buffered logs count reaches 10000
 
 	for {
 
@@ -40,8 +48,8 @@ func dbLogSyncer() {
 			// then store it in a temp buffer
 			bufferedFlogs = append(bufferedFlogs, flog)
 
-			if len(bufferedFlogs) > 10000 {
-				saveInDb()
+			if len(bufferedFlogs) >= 10000 {
+				save()
 			}
 
 		case <-ticker:
@@ -49,21 +57,27 @@ func dbLogSyncer() {
 			// if channel stops returning flus
 			// then put them in db
 			if len(bufferedFlogs) > 0 {
-				saveInDb()
+				save()
 			}
 
 		}
 	}
 }
 
-func runOnce() uint {
+func runOnceOnAppStart() uint {
 	go func() {
 
+		// delayed start just for convenience in logs
 		time.Sleep(time.Duration(3) * time.Second)
-		dbLogSyncer()
+		dbLogSyncer(feed_line_repo.NewLogger())
 	}()
 
 	return 0
 }
 
-var _ = runOnce()
+var _ = runOnceOnAppStart()
+
+func mockDbLogSyncer(fluLogger feed_line_repo.IFluLogger) {
+
+	go func() { dbLogSyncer(fluLogger) }()
+}

@@ -67,7 +67,7 @@ func (fll *feedlineLoggerChannel) Push(flog models.FeedLineLog) {
 		panic(err)
 	}
 
-	plog.Info("feedline logger", "complete push from: ", fll.queueName, "id: ", flog.FluId.String())
+	//plog.Info("feedline logger", "complete push from: ", fll.queueName, "id: ", flog.FluId.String())
 }
 
 func (fll *feedlineLoggerChannel) Receiver() <-chan models.FeedLineLog {
@@ -105,7 +105,7 @@ func (fll *feedlineLoggerChannel) Receiver() <-chan models.FeedLineLog {
 				fll.latestMsg = msg
 
 				flogChan <- flog
-				plog.Info("feedline logger", "sent to FLU chan, name: ", fll.queueName, "id: ", flog.FluId.String())
+				//plog.Info("feedline logger", "sent to FLU chan, name: ", fll.queueName, "id: ", flog.FluId.String())
 			}
 		}()
 
@@ -120,10 +120,10 @@ func (fll *feedlineLoggerChannel) Receiver() <-chan models.FeedLineLog {
 }
 
 func (fll *feedlineLoggerChannel) ConfirmReceivedProcessed() {
-	//err := fll.latestMsg.Ack(true)
-	//if err != nil {
-	//	panic(err)
-	//}
+	err := fll.latestMsg.Ack(true)
+	if err != nil {
+		panic(err)
+	}
 }
 
 var stdLoggerChan *feedlineLoggerChannel

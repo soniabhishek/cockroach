@@ -5,8 +5,11 @@ import (
 
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
+	"github.com/crowdflux/angel/app/config"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
+	"strconv"
 	"time"
 )
 
@@ -41,7 +44,14 @@ func StartFeedLineSync() {
 
 		fSvc := New()
 
-		ticker := time.Tick(time.Duration(2) * time.Minute)
+		intervalInSec, err := strconv.Atoi(config.INPUT_FEEDLINE_SYNC_TIME_PERIOD_SEC.Get())
+		if err != nil {
+			panic(err)
+		}
+
+		ticker := time.Tick(time.Duration(intervalInSec) * time.Second)
+
+		plog.Info("Input Feedline", "started syncing at every "+strconv.Itoa(intervalInSec)+" seconds")
 
 		for range ticker {
 			err := fSvc.SyncInputFeedLine()

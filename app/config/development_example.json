@@ -79,6 +79,7 @@
   },
 
   "workflow_step" : {
+    "input_feedline_sync_time_period_sec" : 10,
     "manual_download_path" : "<FILE DOWNLOAD PATH>"
   },
   "megatron" :{

@@ -5,7 +5,6 @@ import (
 
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/plog"
 	"github.com/lib/pq"
 )
 
@@ -13,7 +12,7 @@ type feedLineLogger struct {
 	Db repositories.IDatabase
 }
 
-func (l *feedLineLogger) Log(fLog []models.FeedLineLog) {
+func (l *feedLineLogger) Log(fLog []models.FeedLineLog) error {
 	now := time.Now()
 	var fLogArr []interface{} = make([]interface{}, len(fLog))
 
@@ -22,5 +21,5 @@ func (l *feedLineLogger) Log(fLog []models.FeedLineLog) {
 		fLogArr[i] = &fLog[i]
 	}
 	err := l.Db.Insert(fLogArr...)
-	plog.Error("Log Error: ", err)
+	return err
 }

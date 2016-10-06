@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/step_configuration_repo"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 )
 
@@ -47,6 +48,8 @@ func (t *transformationStep) finishFlu(flu feed_line.FLU) bool {
 	}
 	t.OutQ.Push(flu)
 	plog.Info("transformation out", flu.ID)
+	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Transformation)
+
 	return true
 }
 

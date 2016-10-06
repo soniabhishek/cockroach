@@ -20,10 +20,8 @@ func NewInputQueue() *inputQueue {
 	}
 }
 
-func newLogger() IFluLogger {
+func NewLogger() IFluLogger {
 	return &feedLineLogger{
 		Db: postgres.GetPostgresClient(),
 	}
 }
-
-var StdLogger = newLogger()

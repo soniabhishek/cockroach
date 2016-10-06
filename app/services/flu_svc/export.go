@@ -43,7 +43,7 @@ func StartFeedLineSync() {
 
 		ticker := time.Tick(time.Duration(2) * time.Minute)
 
-		for _ = range ticker {
+		for range ticker {
 			err := fSvc.SyncInputFeedLine()
 			if err != nil {
 				fmt.Println(err)

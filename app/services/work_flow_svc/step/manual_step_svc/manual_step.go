@@ -4,6 +4,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 )
@@ -27,6 +28,8 @@ func (m *manualStep) finishFlu(flu feed_line.FLU) bool {
 	}
 	counter.Print(flu, "manual")
 	m.OutQ.Push(flu)
+	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Manual)
+
 	return true
 }
 

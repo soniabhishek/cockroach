@@ -80,7 +80,7 @@ func (s *Step) start() {
 
 			for flu := range s.InQ.Receiver() {
 
-				flu_logger_svc.LogStepEntry(flu.FeedLineUnit, s.stepType)
+				flu_logger_svc.LogStepEntry(flu.FeedLineUnit, s.stepType, flu.Redelivered())
 				s.processFlu(flu)
 
 			}

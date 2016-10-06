@@ -9,7 +9,6 @@ import (
 
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/status_codes"
-	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 )
 
@@ -87,15 +86,13 @@ func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp Response
 	for i, fl := range completedFLUs {
 		dbLog := models.FeedLineLog{
 			//ID         int            `db:"id" json:"id" bson:"_id"`
-			FluId:      fl.ID,
-			Message:    sql.NullString{message, true},
-			MetaData:   jsObj,
-			StepType:   sql.NullInt64{int64(12), true},
-			StepEntry:  sql.NullBool{true, true},
-			StepExit:   sql.NullBool{true, true},
-			StepId:     fl.StepId,
-			WorkFlowId: uuid.UUID{},
-			CreatedAt:  fl.CreatedAt,
+			FluId:     fl.ID,
+			Message:   sql.NullString{message, true},
+			MetaData:  jsObj,
+			Event:     10,
+			StepType:  sql.NullInt64{int64(12), true},
+			StepId:    fl.StepId,
+			CreatedAt: fl.CreatedAt,
 		}
 		dbLogArr[i] = dbLog
 	}

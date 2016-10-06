@@ -17,21 +17,21 @@ type transformationStep struct {
 
 func (t *transformationStep) processFlu(flu feed_line.FLU) {
 	t.AddToBuffer(flu)
-	plog.Info("transformation Step flu reached", flu)
+	plog.Info("transformation Step flu reached", flu.ID)
 
 	tStep, err := t.transformationConfigRepo.GetByStepId(flu.StepId)
 	if err != nil {
-		plog.Error("transformation step", err)
+		plog.Error("transformation step", err, "fluId: "+flu.ID.String(), "stepid: "+flu.StepId.String(), flu.FeedLineUnit)
+		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Transformation, "TransformationConfigError", flu.Redelivered())
 		return
 	}
 
 	transformedBuild, err := clients.GetMegatronClient().Transform(flu.Build, tStep.TemplateId)
 	if err != nil {
-		plog.Error("Transformation step", err)
+		plog.Error("Transformation step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
+		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Transformation, "TransformationError", flu.Redelivered())
 		return
 	}
-
-	plog.Info("transformation step", transformedBuild)
 
 	flu.Build.Merge(transformedBuild)
 
@@ -48,7 +48,7 @@ func (t *transformationStep) finishFlu(flu feed_line.FLU) bool {
 	}
 	t.OutQ.Push(flu)
 	plog.Info("transformation out", flu.ID)
-	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Transformation)
+	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Transformation, flu.Redelivered())
 
 	return true
 }

@@ -76,7 +76,7 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 
 	updatedFlus, err := flr.BulkFluBuildUpdateByStepType(flus, step_type.CrowdSourcing)
 	if err != nil {
-		if err != feed_line_repo.ErrPartiallyUpdatedFlus {
+		if err != feed_line_repo.ErrPartiallyUpdatedFlus || err != feed_line_repo.ErrNoUpdatableFlus {
 			plog.Error("Flu Handler Bulk Update, Aborting", err)
 			return err
 		} else {

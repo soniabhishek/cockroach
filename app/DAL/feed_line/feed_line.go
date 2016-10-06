@@ -108,6 +108,7 @@ func (fl *Fl) Receiver() <-chan FLU {
 				fluChan <- FLU{
 					FeedLineUnit: flu,
 					delivery:     msg,
+					once:         &sync.Once{},
 				}
 				plog.Info("feedline", "sent to FLU chan, name: ", fl.queueName, "id: ", flu.ID.String())
 			}

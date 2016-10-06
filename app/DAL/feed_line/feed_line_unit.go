@@ -14,7 +14,7 @@ type FLU struct {
 
 	delivery amqp.Delivery
 
-	once sync.Once
+	once *sync.Once
 }
 
 func (flu *FLU) ConfirmReceive() {

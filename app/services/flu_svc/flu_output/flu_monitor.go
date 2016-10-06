@@ -25,7 +25,7 @@ import (
 var feedLinePipe = make(map[uuid.UUID]feedLineValue)
 var retryCount = make(map[uuid.UUID]int)
 var mutex = &sync.RWMutex{}
-var dbLogger = feed_line_repo.StdLogger
+var dbLogger = feed_line_repo.NewLogger()
 
 var retryTimePeriod = time.Duration(utilities.GetInt(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
 

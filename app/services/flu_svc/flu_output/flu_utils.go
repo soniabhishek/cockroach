@@ -99,5 +99,6 @@ func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp Response
 		}
 		dbLogArr[i] = dbLog
 	}
-	dbLogger.Log(dbLogArr)
+	err := dbLogger.Log(dbLogArr)
+	plog.Error("Flumonitor", err)
 }

@@ -1,6 +1,9 @@
 package rabbitmq
 
-import "github.com/streadway/amqp"
+import (
+	"github.com/crowdflux/angel/app/config"
+	"github.com/streadway/amqp"
+)
 
 var rabbitmqConn *amqp.Connection
 
@@ -10,7 +13,11 @@ func init() {
 
 func initRabbitMqClient() *amqp.Connection {
 
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	username := config.RABBITMQ_USERNAME.Get()
+	password := config.RABBITMQ_PASSWORD.Get()
+	host := config.RABBITMQ_HOST.Get()
+
+	conn, err := amqp.Dial("amqp://" + username + ":" + password + "@" + host + ":5672/")
 	if err != nil {
 		panic(err)
 	}

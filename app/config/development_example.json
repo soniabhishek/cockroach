@@ -92,6 +92,11 @@
     "log_level" : "<log_level>"
   },
   "newrelic" : {
-    "key" : "<newrelic_licence_key>"
+    "key": "<newrelic_licence_key>"
+  },
+  "rabbitmq" : {
+    "username" : "guest",
+    "password" : "guest",
+    "host" : "localhost"
   }
 }

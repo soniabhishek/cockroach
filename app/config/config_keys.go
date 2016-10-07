@@ -50,6 +50,10 @@ const (
 	PLOG_LEVEL = configKey("plog.log_level")
 
 	NEW_RELIC_KEY = configKey("newrelic.key")
+
+	RABBITMQ_USERNAME = configKey("rabbitmq.username")
+	RABBITMQ_PASSWORD = configKey("rabbitmq.password")
+	RABBITMQ_HOST     = configKey("rabbitmq.host")
 )
 
 // Gets the value for given key from the config file.

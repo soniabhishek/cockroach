@@ -9,14 +9,14 @@ import (
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_svc_transport"
 	"github.com/crowdflux/angel/app/services/image_svc1"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step/crowdsourcing_step_transport"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step"
 	"github.com/crowdflux/angel/utilities/clients/api"
 	"github.com/gin-gonic/gin"
 
 	"time"
 
 	"github.com/crowdflux/angel/app/services/work_flow_builder_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
 	"github.com/itsjamie/gin-cors"
 	"github.com/newrelic/go-agent"
 )
@@ -32,7 +32,7 @@ func Build() {
 
 	// Creates a router without any middleware by default
 	r := gin.New()
-	//
+
 	// Global middleware
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
@@ -70,10 +70,11 @@ func Build() {
 		api.POST("/bulkdownloadimages", handlers.BulkDownloadImages)
 		api.POST("/bulkdownloadimagesfromcsv", handlers.BulkDownloadedImagesFromCSV)
 
-		crowdsourcing_step_transport.AddHttpTransport(api)
-		manual_step.AddHttpTransport(api)
+		crowdsourcing_step_svc.AddHttpTransport(api)
+		manual_step_svc.AddHttpTransport(api)
 		utils_api.AddHttpTransport(api)
 	}
+
 	authorized := r.Group("/api/v0", auther.GinAuther())
 	{
 		flu_svc_transport.AddHttpTransport(authorized)

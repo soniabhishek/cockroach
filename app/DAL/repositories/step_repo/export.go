@@ -10,6 +10,10 @@ type IStepRepo interface {
 	GetById(id uuid.UUID) (models.Step, error)
 	GetStartStep(projectId uuid.UUID) (models.Step, error)
 	GetEndStep(projectId uuid.UUID) (models.Step, error)
+	GetStepsByWorkflowId(id uuid.UUID) ([]models.Step, error)
+	AddMany([]models.Step) error
+	UpdateMany([]models.Step) (int64, error)
+	DeleteMany([]models.Step) (int64, error)
 }
 
 func New() IStepRepo {

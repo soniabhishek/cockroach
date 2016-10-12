@@ -15,8 +15,8 @@ type workflow_repo struct {
 
 var _ IWorkflowRepo = &workflow_repo{}
 
-func (wr *workflow_repo) Add(wf models.WorkFlow) error {
-	return wr.db.Insert(&wf)
+func (wr *workflow_repo) Add(wf *models.WorkFlow) error {
+	return wr.db.Insert(wf)
 }
 
 func (wr *workflow_repo) Update(wf models.WorkFlow) error {
@@ -34,4 +34,16 @@ func (wr *workflow_repo) Delete(id uuid.UUID) error {
 		err = errors.New("Could not delete WorkFlow with ID [" + id.String() + "]")
 	}
 	return err
+}
+func (wr *workflow_repo) GetById(id uuid.UUID) (wf models.WorkFlow, err error) {
+	wf = models.WorkFlow{}
+	err = wr.db.SelectById(&wf, id)
+	return
+}
+func (i *workflow_repo) IfIdExist(id uuid.UUID) (ifExist bool, err error) {
+	err = i.db.SelectOne(&ifExist, `select exists(select 1 from work_flow where id=$1)`, id)
+	if err != nil {
+		return
+	}
+	return
 }

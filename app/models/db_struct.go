@@ -497,6 +497,7 @@ type Step struct {
 	CreatedAt  pq.NullTime        `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt  pq.NullTime        `db:"updated_at" json:"updated_at" bson:"updated_at"`
 	IsStart    bool               `db:"is_start" json:"is_start" bson:"is_start"`
+	Config     JsonF              `db:"config" json:"config" bson:"config"`
 }
 
 type StepTypes struct {

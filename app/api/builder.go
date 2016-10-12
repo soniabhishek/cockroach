@@ -16,6 +16,7 @@ import (
 
 	"time"
 
+	"github.com/crowdflux/angel/app/services/work_flow_builder_svc"
 	"github.com/itsjamie/gin-cors"
 	"github.com/newrelic/go-agent"
 )
@@ -31,7 +32,7 @@ func Build() {
 
 	// Creates a router without any middleware by default
 	r := gin.New()
-
+	//
 	// Global middleware
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
@@ -73,12 +74,15 @@ func Build() {
 		manual_step.AddHttpTransport(api)
 		utils_api.AddHttpTransport(api)
 	}
-
 	authorized := r.Group("/api/v0", auther.GinAuther())
 	{
 		flu_svc_transport.AddHttpTransport(authorized)
 	}
 
+	workFlow := r.Group("/api/v0")
+	{
+		work_flow_builder_svc.AddHttpTransport(workFlow)
+	}
 	var _ image_svc1.IImageService
 
 	r.Run(":8999") // listen and serve on 127.0.0.1:8999

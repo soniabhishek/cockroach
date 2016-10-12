@@ -7,14 +7,6 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 )
 
-type IStepRoutesRepo interface {
-	GetRoutesByStepId(stepId uuid.UUID) ([]models.Route, error)
-	GetRoutesWithLogicByStepId(stepId uuid.UUID) ([]models.RouteWithLogicGate, error)
-	Save(models.Route) error
-}
-
-//========================================================================================================================================================//
-
 type inMemStepRouteRepo struct {
 	sync.RWMutex
 	stepRoutes map[uuid.UUID]models.Route
@@ -41,6 +33,9 @@ func (i *inMemStepRouteRepo) GetRoutesWithLogicByStepId(stepId uuid.UUID) (route
 	panic("not implemented")
 	return routes, nil
 }
+func (i *inMemStepRouteRepo) GetRoutesByWorkFlowId(stepId uuid.UUID) (routes []models.Route, err error) {
+	return
+}
 
 func (i *inMemStepRouteRepo) Save(r models.Route) error {
 	i.Lock()
@@ -48,7 +43,15 @@ func (i *inMemStepRouteRepo) Save(r models.Route) error {
 	i.stepRoutes[r.ID] = r
 	return nil
 }
-
+func (i *inMemStepRouteRepo) AddMany(routes []models.Route) error {
+	return nil
+}
+func (i *inMemStepRouteRepo) UpdateMany(routes []models.Route) (result int64, err error) {
+	return
+}
+func (i *inMemStepRouteRepo) DeleteMany(routes []models.Route) (result int64, err error) {
+	return
+}
 func Mock() IStepRoutesRepo {
 	return &inMemStepRouteRepo{
 		stepRoutes: make(map[uuid.UUID]models.Route),

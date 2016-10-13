@@ -53,7 +53,9 @@ type fluOutputStruct struct {
 
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
-	return nil
+	if flu.StepId == uuid.FromStringOrNil("43dacf34-83fc-4628-b276-23f05d23e6f7") {
+		return nil
+	}
 
 	feedLineArr := make([]models.FeedLineUnit, 1)
 	feedLineArr[0] = flu
@@ -61,8 +63,6 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 }
 
 func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) error {
-
-	return nil
 
 	plog.Info("FLu Monitor", fluBundle)
 

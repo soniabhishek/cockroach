@@ -1,9 +1,6 @@
 package config
 
-import (
-	"errors"
-	"github.com/crowdflux/angel/config_temp"
-)
+import "errors"
 
 type configKey string
 
@@ -56,7 +53,7 @@ const (
 // Gets the value for given key from the config file.
 // It panics no configuration value is present
 func (c configKey) Get() string {
-	val := config_temp.Vipe.GetString(string(c))
+	val := configProvider.GetString(string(c))
 	if val == "" {
 		panic(errors.New("Configuration value not found [" + string(c) + "]"))
 	}

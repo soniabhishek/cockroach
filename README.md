@@ -60,6 +60,19 @@ $ mongo
 );
 ```
 
+
+
+- Copy config file
+
+```
+$ cp app/config/development_example.json app/config/development.json
+```
+
+After copying edit the configuration file according to your local system
+
+
+
+
 # Usage
 
 To start the server:

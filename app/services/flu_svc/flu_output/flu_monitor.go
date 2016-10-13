@@ -53,7 +53,7 @@ type fluOutputStruct struct {
 
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
-	return
+	return nil
 
 	feedLineArr := make([]models.FeedLineUnit, 1)
 	feedLineArr[0] = flu
@@ -62,7 +62,7 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) error {
 
-	return
+	return nil
 
 	plog.Info("FLu Monitor", fluBundle)
 

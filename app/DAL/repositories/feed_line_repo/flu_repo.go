@@ -242,3 +242,13 @@ func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.
 
 	return updatableRows, nil
 }
+
+func (e *fluRepo) GetFlusNotSent(StepId uuid.UUID) (flus []models.FeedLineUnit, err error) {
+
+	_, err = e.Db.Select(&flus, `select fl.* FROM feed_line fl
+	LEFT OUTER JOIN feed_line_log fll
+	ON fl.id = fll.flu_id
+	WHERE fll.id is NULL AND fl.step_id = $1`, StepId)
+
+	return
+}

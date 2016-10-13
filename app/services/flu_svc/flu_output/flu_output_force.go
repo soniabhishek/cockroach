@@ -76,7 +76,7 @@ func ForceSendBackInQps(stepId uuid.UUID, projectId uuid.UUID, qps int) {
 	for i := 0; i < len(flus); {
 
 		for j := 0; j < qps; j++ {
-			go sendFluBack(config, flus[i], ch)
+			go sendFluBack(config, flus[i+j], ch)
 		}
 		i += qps
 		time.Sleep(time.Duration(1) * time.Second)

@@ -42,7 +42,7 @@ func ForceSendBack(stepId uuid.UUID, projectId uuid.UUID, concurrency int) {
 		}
 		if i >= channelSize {
 			<-c
-			fmt.Println(i-channelSize, time.Since(start))
+			fmt.Println(i-channelSize, time.Since(start), "fluID: "+flus[i-channelSize].ID)
 		}
 	}
 }

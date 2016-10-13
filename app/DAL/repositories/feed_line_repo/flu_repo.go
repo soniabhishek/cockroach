@@ -248,7 +248,7 @@ func (e *fluRepo) GetFlusNotSent(StepId uuid.UUID) (flus []models.FeedLineUnit, 
 	_, err = e.Db.Select(&flus, `select fl.* FROM feed_line fl
 	LEFT OUTER JOIN feed_line_log fll
 	ON fl.id = fll.flu_id
-	WHERE fll.id is NULL AND fl.step_id = $1`, StepId)
+	WHERE fll.id is NULL AND fl.step_id = $1 AND fl.updated_at > date_trunc('month',now())`, StepId)
 
 	return
 }

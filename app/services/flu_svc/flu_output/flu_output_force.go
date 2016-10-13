@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-func ForceSendBack(stepId uuid.UUID, projectId uuid.UUID, concurrency int) {
+func ForceSendBackInParallel(stepId uuid.UUID, projectId uuid.UUID, concurrency int) {
 
 	config, err := project_configuration_repo.New().Get(projectId)
 	if err != nil {
@@ -45,6 +45,44 @@ func ForceSendBack(stepId uuid.UUID, projectId uuid.UUID, concurrency int) {
 			fmt.Println(i-channelSize, time.Since(start), "fluID: "+flus[i-channelSize].ID.String())
 		}
 	}
+}
+
+func ForceSendBackInQps(stepId uuid.UUID, projectId uuid.UUID, qps int) {
+
+	config, err := project_configuration_repo.New().Get(projectId)
+	if err != nil {
+		panic(err)
+	}
+
+	flus, err := feed_line_repo.New().GetFlusNotSent(stepId)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("starting for flus: ", len(flus))
+
+	start := time.Now()
+
+	ch := make(chan int, 10000)
+
+	go func() {
+		k := 0
+		for range ch {
+			fmt.Println(time.Since(start), k)
+			k++
+		}
+	}()
+
+	for i := 0; i < len(flus); {
+
+		for j := 0; j < qps; j++ {
+			go sendFluBack(config, flus[i], ch)
+		}
+		i += qps
+		time.Sleep(time.Duration(1) * time.Second)
+
+	}
+	time.Sleep(time.Duration(10) * time.Minute)
 }
 
 func sendFluBack(config models.ProjectConfiguration, flu models.FeedLineUnit, chn chan int) {

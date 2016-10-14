@@ -35,7 +35,10 @@ func workFlowGetHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 			})
 			return
 		}
-		c.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, gin.H{
+			"data":    response,
+			"success": true,
+		})
 	}
 
 }
@@ -98,6 +101,9 @@ func updateWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 			})
 			return
 		}
-		c.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, gin.H{
+			"data":    response,
+			"success": true,
+		})
 	}
 }

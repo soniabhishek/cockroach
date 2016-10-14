@@ -73,16 +73,20 @@ func ForceSendBackInQps(stepId uuid.UUID, projectId uuid.UUID, qps int) {
 		}
 	}()
 
-	for i := 0; i < len(flus); {
+	millisecondPerQuery := 1000 / qps
 
-		for j := 0; j < qps; j++ {
-			go sendFluBack(config, flus[i+j], ch)
+	ticker := time.NewTicker(time.Duration(millisecondPerQuery) * time.Millisecond)
+	i := 0
+
+	for range ticker.C {
+		go sendFluBack(config, flus[i], ch)
+		i++
+		if i >= len(flus) {
+			ticker.Stop()
+			break
 		}
-		i += qps
-		time.Sleep(time.Duration(1) * time.Second)
-
 	}
-	time.Sleep(time.Duration(10) * time.Minute)
+	fmt.Println("Finished sending everything")
 }
 
 func sendFluBack(config models.ProjectConfiguration, flu models.FeedLineUnit, chn chan int) {

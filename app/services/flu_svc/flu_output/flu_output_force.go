@@ -87,6 +87,9 @@ func ForceSendBackInQps(stepId uuid.UUID, projectId uuid.UUID, qps int) {
 		}
 	}
 	fmt.Println("Finished sending everything")
+
+	time.Sleep(time.Duration(2) * time.Minute)
+
 }
 
 func sendFluBack(config models.ProjectConfiguration, flu models.FeedLineUnit, chn chan int) {

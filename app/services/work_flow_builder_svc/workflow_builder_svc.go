@@ -44,7 +44,11 @@ func (w *workFlowBuilderService) GetWorkflowContainer(workflowId uuid.UUID) (wor
 
 func (w *workFlowBuilderService) InitWorkflowContainer(projectId uuid.UUID) (workflowContainer models.WorkflowContainer, err error) {
 	exist, err := w.projectsRep.IfIdExist(projectId)
-	if err != nil || !exist {
+	if err != nil {
+		return
+	}
+	if !exist {
+		err = projects_repo.ErrProjectNotFound
 		return
 	}
 	newWorkflow := models.WorkFlow{}
@@ -71,7 +75,10 @@ func (w *workFlowBuilderService) InitWorkflowContainer(projectId uuid.UUID) (wor
 
 func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer models.WorkflowContainer) (workflowContainer models.WorkflowContainer, err error) {
 	exist, err := w.projectsRep.IfIdExist(receivedWorkflowContainer.ProjectId)
-	if err != nil || !exist {
+	if err != nil {
+		return
+	}
+	if !exist {
 		err = projects_repo.ErrProjectNotFound
 		return
 	}
@@ -108,7 +115,10 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 
 func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContainer models.WorkflowContainer) (workflowContainer models.WorkflowContainer, err error) {
 	exist, err := w.projectsRep.IfIdExist(receivedWorkflowContainer.ProjectId)
-	if err != nil || !exist {
+	if err != nil {
+		return
+	}
+	if !exist {
 		err = projects_repo.ErrProjectNotFound
 		return
 	}

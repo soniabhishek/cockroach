@@ -54,9 +54,3 @@ type WorkflowContainer struct {
 	//Routes []RouteWithStepLabel
 	Routes []Route `json:"routes"`
 }
-
-type RouteWithStepLabel struct {
-	Route
-	StepLabel     string
-	NextStepLabel string
-}

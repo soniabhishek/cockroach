@@ -3,8 +3,8 @@ package work_flow_builder_svc
 import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/gin-gonic/gin"
-	"github.com/notnow/src/fmt"
 	"net/http"
 )
 
@@ -28,7 +28,7 @@ func workFlowGetHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 
 		response, err := workFlowService.GetWorkflowContainer(workflowId)
 		if err != nil {
-			fmt.Println(err)
+			plog.Error("WorkflowFetching : ", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "Failure",
 				"error":  err.Error(),
@@ -53,7 +53,7 @@ func intitWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerFu
 
 		response, err := workFlowService.InitWorkflowContainer(projectID)
 		if err != nil {
-			fmt.Println(err)
+			plog.Error("WorkflowInitializing : ", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "Failure",
 				"error":  err.Error(),
@@ -73,7 +73,7 @@ func addWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 		}
 		response, err := workFlowService.AddWorkflowContainer(workflowContainer)
 		if err != nil {
-			fmt.Println(err)
+			plog.Error("WorkflowAdd : ", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "Failure",
 				"error":  err.Error(),
@@ -94,7 +94,7 @@ func updateWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 
 		response, err := workFlowService.UpdateWorkflowContainer(workflowContainer)
 		if err != nil {
-			fmt.Println(err)
+			plog.Error("WorkflowUpdate : ", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "Failure",
 				"error":  err.Error(),

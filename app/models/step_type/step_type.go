@@ -40,3 +40,22 @@ func (s *StepType) Scan(src interface{}) error {
 	*s = StepType(tmp)
 	return nil
 }
+
+var stepTypeNames = map[StepType]string{
+	CrowdSourcing:    "CrowdSourcing",
+	InternalSourcing: "InternalSourcing",
+	Transformation:   "Transformation",
+	Algorithm:        "Algorithm",
+	Bifurcation:      "Bifurcation",
+	Unification:      "Unification",
+	Manual:           "Manual",
+	Gateway:          "Gateway",
+	Error:            "Error",
+}
+
+func (s *StepType) String() string {
+	if name, ok := stepTypeNames[*s]; ok {
+		return name
+	}
+	return "NoName"
+}

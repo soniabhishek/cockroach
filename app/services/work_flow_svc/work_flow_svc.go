@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/step_type"
+	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/feed_line"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/work_flow"
 )
 
@@ -18,7 +20,7 @@ type workFlowSvc struct {
 
 func (w *workFlowSvc) AddFLU(flu models.FeedLineUnit) {
 	counter.Print(feed_line.FLU{FeedLineUnit: flu}, "workflowsvc")
-	w.InQ <- feed_line.FLU{FeedLineUnit: flu}
+	w.InQ.Push(feed_line.FLU{FeedLineUnit: flu})
 }
 
 func (w *workFlowSvc) Start() {
@@ -44,22 +46,21 @@ func (w *workFlowSvc) OnComplete(f OnCompleteHandler) {
 
 func startWorkflowSvc(w *workFlowSvc) {
 	go func() {
-		for {
-			select {
-			case flu := <-w.OutQ:
-				w.complete(flu.FeedLineUnit)
-			}
+		for flu := range w.OutQ.Receiver() {
+			w.complete(flu.FeedLineUnit)
+			flu.ConfirmReceive()
+
+			//TODO put at correct place according to the architecture
+			flu_logger_svc.LogStepEntry(flu.FeedLineUnit, step_type.Gateway, flu.Redelivered())
 		}
 	}()
 }
 
 func startWorkflowSvcNLog(w *workFlowSvc) {
 	go func() {
-		for {
-			select {
-			case flu := <-w.OutQ:
-				fmt.Println(flu.ID)
-			}
+		for flu := range w.OutQ.Receiver() {
+			fmt.Println(flu.ID)
+			flu.ConfirmReceive()
 		}
 	}()
 }

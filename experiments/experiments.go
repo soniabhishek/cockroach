@@ -14,7 +14,7 @@ import (
 
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
 	"github.com/crowdflux/angel/experiments/util"
 	"github.com/crowdflux/angel/utilities"
 )
@@ -61,7 +61,7 @@ func mainHit() {
 	file := `/Users/playment/Desktop/a10c5187-7c97-4485-90b7-a427769ceed8.txt`
 	url := `http://54.169.7.227/flats/`
 
-	filename, err := manual_step.FlattenCSV(file, url, uuid.NewV4())
+	filename, err := manual_step_svc.FlattenCSV(file, url, uuid.NewV4())
 	fmt.Println("Err:", err)
 	plog.Info("Sent file for upload: ", filename)
 }

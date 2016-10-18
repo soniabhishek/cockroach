@@ -40,34 +40,45 @@ func newFeedLineLogger() *feedlineLoggerChannel {
 		panic(err)
 	}
 
+	go func() {
+
+		for flog := range tempFllChan {
+			// Send only the models.Feedline part of the flu in bytes
+			bty, _ := json.Marshal(flog)
+
+			// This is async
+			// TODO Think about a way to guarantee this operation also
+			err := ch.Publish(
+				"",     // exchange
+				q.Name, // routing key
+				false,  // mandatory
+				false,  // immediate
+				amqp.Publishing{
+					ContentType: "application/json",
+					Body:        bty,
+				})
+			if err != nil {
+				plog.Error("Feedline logger", err, "error publishing to channel", "flu_id: "+flog.FluId.String())
+				panic(err)
+			}
+
+			//plog.Info("feedline logger", "complete push from: ", fll.queueName, "id: ", flog.FluId.String())
+		}
+	}()
+
 	return &feedlineLoggerChannel{
 		amqpChan:  ch,
 		queueName: q.Name,
 	}
 }
 
+// Ask purpose of this to himanshu
+var tempFllChan = make(chan models.FeedLineLog)
+
 func (fll *feedlineLoggerChannel) Push(flog models.FeedLineLog) {
 
-	// Send only the models.Feedline part of the flu in bytes
-	bty, _ := json.Marshal(flog)
+	tempFllChan <- flog
 
-	// This is async
-	// TODO Think about a way to guarantee this operation also
-	err := fll.amqpChan.Publish(
-		"",            // exchange
-		fll.queueName, // routing key
-		false,         // mandatory
-		false,         // immediate
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        bty,
-		})
-	if err != nil {
-		plog.Error("Feedline logger", err, "error publishing to channel", "flu_id: "+flog.FluId.String())
-		panic(err)
-	}
-
-	//plog.Info("feedline logger", "complete push from: ", fll.queueName, "id: ", flog.FluId.String())
 }
 
 func (fll *feedlineLoggerChannel) Receiver() <-chan models.FeedLineLog {

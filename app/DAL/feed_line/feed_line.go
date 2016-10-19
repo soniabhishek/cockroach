@@ -6,38 +6,23 @@ import (
 	"github.com/crowdflux/angel/app/DAL/clients/rabbitmq"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/streadway/amqp"
 	"sync"
 )
 
 // ShortHand for channel of FLUs i.e. FeedLine
 type Fl struct {
-	amqpChan  *amqp.Channel
+	mq rabbitmq.MQ
+
 	queueName string
 	once      sync.Once
 }
 
 func New(name string) Fl {
 
-	ch := rabbitmq.GetNewChannel()
-
-	q, err := ch.QueueDeclare(
-		name,  // name
-		true,  // durable
-		false, // delete when unused
-		false, // exclusive
-		false, // no-wait
-		nil,   // arguments
-	)
-
-	if err != nil {
-		plog.Error("Feedline", err, "error declaring queue, name: ", name)
-		panic(err)
-	}
-
 	return Fl{
-		amqpChan:  ch,
-		queueName: q.Name,
+
+		mq:        rabbitmq.New(name),
+		queueName: name,
 	}
 }
 
@@ -48,19 +33,7 @@ func (fl *Fl) Push(flu FLU) {
 
 	// This is async
 	// TODO Think about a way to guarantee this operation also
-	err := fl.amqpChan.Publish(
-		"",           // exchange
-		fl.queueName, // routing key
-		false,        // mandatory
-		false,        // immediate
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        bty,
-		})
-	if err != nil {
-		plog.Error("Feedline", err, "error publishing to channel", "flu_id: "+flu.ID.String())
-		panic(err)
-	}
+	fl.mq.Publish(bty)
 
 	// Just for safety: if someone forgets
 	// to ConfirmReceive the flu received from a queue
@@ -84,23 +57,9 @@ func (fl *Fl) Receiver() <-chan FLU {
 
 		fluChan = make(chan FLU)
 
-		deliveryChan, err := fl.amqpChan.Consume(
-			fl.queueName, // queue
-			"",           // consumer
-			false,        // auto-ack
-			false,        // exclusive
-			false,        // no-local
-			false,        // no-wait
-			nil,          // args
-		)
-		if err != nil {
-			plog.Error("Feedline", err, "error consuming queue, name:", fl.queueName)
-			panic(err)
-		}
-
 		go func() {
 
-			for msg := range deliveryChan {
+			for msg := range fl.mq.Consume() {
 
 				flu := models.FeedLineUnit{}
 				json.Unmarshal(msg.Body, &flu)

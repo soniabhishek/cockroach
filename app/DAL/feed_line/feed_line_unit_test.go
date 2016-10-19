@@ -25,8 +25,6 @@ func TestNew(t *testing.T) {
 
 	flu.ConfirmReceive()
 
-	fl.amqpChan.QueueDelete("test1", false, false, false)
-
 	assert.EqualValues(t, fluId, flu.ID)
 
 }
@@ -51,13 +49,12 @@ func TestFeedline_Load(t *testing.T) {
 	go func() {
 
 		for {
-			<-flus
+			flu := <-flus
+			flu.ConfirmReceive()
 
 		}
 	}()
 
 	time.Sleep(time.Duration(1) * time.Second)
-
-	fl.amqpChan.QueueDelete("test12", false, false, false)
 
 }

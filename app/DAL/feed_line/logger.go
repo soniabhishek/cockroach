@@ -5,14 +5,14 @@ import (
 	"errors"
 	"github.com/crowdflux/angel/app/DAL/clients/rabbitmq"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/plog"
 	"github.com/streadway/amqp"
 	"sync"
 )
 
 // Feedline logger channel
 type feedlineLoggerChannel struct {
-	amqpChan  *amqp.Channel
+	mq rabbitmq.MQ
+
 	queueName string
 	once      sync.Once
 
@@ -24,51 +24,23 @@ func newFeedLineLogger() *feedlineLoggerChannel {
 
 	name := "feedlinelogQueue"
 
-	ch := rabbitmq.GetNewChannel()
-
-	q, err := ch.QueueDeclare(
-		name,  // name
-		true,  // durable
-		false, // delete when unused
-		false, // exclusive
-		false, // no-wait
-		nil,   // arguments
-	)
-
-	if err != nil {
-		plog.Error("Feedline", err, "error declaring queue, name: ", name)
-		panic(err)
-	}
+	mq := rabbitmq.New(name)
 
 	go func() {
 
 		for flog := range tempFllChan {
+
 			// Send only the models.Feedline part of the flu in bytes
 			bty, _ := json.Marshal(flog)
-
-			// This is async
-			// TODO Think about a way to guarantee this operation also
-			err := ch.Publish(
-				"",     // exchange
-				q.Name, // routing key
-				false,  // mandatory
-				false,  // immediate
-				amqp.Publishing{
-					ContentType: "application/json",
-					Body:        bty,
-				})
-			if err != nil {
-				plog.Error("Feedline logger", err, "error publishing to channel", "flu_id: "+flog.FluId.String())
-				panic(err)
-			}
+			mq.Publish(bty)
 
 			//plog.Info("feedline logger", "complete push from: ", fll.queueName, "id: ", flog.FluId.String())
 		}
 	}()
 
 	return &feedlineLoggerChannel{
-		amqpChan:  ch,
-		queueName: q.Name,
+		queueName: name,
+		mq:        mq,
 	}
 }
 
@@ -92,23 +64,9 @@ func (fll *feedlineLoggerChannel) Receiver() <-chan models.FeedLineLog {
 
 		flogChan = make(chan models.FeedLineLog)
 
-		deliveryChan, err := fll.amqpChan.Consume(
-			fll.queueName, // queue
-			"",            // consumer
-			false,         // auto-ack
-			false,         // exclusive
-			false,         // no-local
-			false,         // no-wait
-			nil,           // args
-		)
-		if err != nil {
-			plog.Error("Feedline", err, "error consuming queue, name:", fll.queueName)
-			panic(err)
-		}
-
 		go func() {
 
-			for msg := range deliveryChan {
+			for msg := range fll.mq.Consume() {
 
 				flog := models.FeedLineLog{}
 				json.Unmarshal(msg.Body, &flog)

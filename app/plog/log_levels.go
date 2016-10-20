@@ -2,13 +2,12 @@ package plog
 
 import (
 	"runtime"
-	"time"
 	"os"
 )
 
 func Fatal(tag string, err error, args ...interface{}) {
 	if levelFatal <= plogLevel {
-		log.Write(time.Now().Format(logFormat) + " FATAL: ")
+		logr.Fatalf(tag, err, args)
 		ErrorMail(tag, err, args)
 		os.Exit(1)
 	}
@@ -16,20 +15,20 @@ func Fatal(tag string, err error, args ...interface{}) {
 
 func Error(tag string, err error, args ...interface{}) {
 	if levelError <= plogLevel {
-		log.Write(time.Now().Format(logFormat) + " ERROR: ")
+		logr.Errorf(tag, err, args)
 		ErrorMail(tag, err, args)
 	}
 }
 
 func Warn(tag string, args ...interface{}) {
 	if levelWarn <= plogLevel {
-		log.Write(time.Now().Format(logFormat) + " WARN : "+ tag, args)
+		logr.Warnf(tag, args)
 	}
 }
 
 func Info(tag string, args ...interface{}) {
 	if levelInfo <= plogLevel {
-		log.Write(time.Now().Format(logFormat) + " INFO : "+tag, args)
+		logr.Infof(tag,args)
 	}
 }
 
@@ -38,7 +37,7 @@ func Debug(tag string, args ...interface{}) {
 
 	if levelDebug <= plogLevel{
 		_, fn, line, _ := runtime.Caller(1)
-		log.Write(time.Now().Format(logFormat) + " DEBUG : ", fn, line, tag, args)
+		logr.Debugf(tag,fn,line, args)
 	}
 }
 
@@ -46,11 +45,12 @@ func Trace(tag string, args ...interface{}) {
 
 	if IsTraceEnabled() {
 		_, fn, line, _ := runtime.Caller(1)
-		log.Write(time.Now().Format(logFormat) + " TRACE : ", fn, line, tag, args)
+
+		logr.Debugf(" TRACE: "+tag,fn,line, args)
+
 	}
 }
 
 func IsTraceEnabled() bool {
 	return levelTrace <= plogLevel
 }
-

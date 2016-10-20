@@ -5,7 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/config"
 	"runtime/debug"
 	"fmt"
-	)
+)
 
 
 
@@ -25,6 +25,7 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 	}
 
 	if config.IsDevelopment() || config.IsStaging() {
+		logr.Debug("Mailer: "+ tag, err,errString,argsString, stackTrace)
 		fmt.Println(tag)
 		fmt.Println(err)
 		fmt.Println(errString)
@@ -48,7 +49,7 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 	sendErr:= sendMail(subject,text)
 	if sendErr != nil {
 
-		log.Write(err, errString, tag, err, args, stackTrace, sendErr)
+		logr.Error("Mailer error : ", err, errString, tag, args, stackTrace, sendErr)
 	}
 }
 

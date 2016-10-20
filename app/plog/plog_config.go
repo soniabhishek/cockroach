@@ -2,8 +2,11 @@ package plog
 
 import (
 	"strings"
-        "github.com/crowdflux/angel/app/plog/logger"
-	"github.com/crowdflux/angel/app/config"
+        "github.com/crowdflux/angel/app/config"
+	"github.com/Sirupsen/logrus"
+	"os"
+	"time"
+	"fmt"
 )
 
 type levelType uint
@@ -16,6 +19,7 @@ const (
 	levelWarn
 	levelError
 	levelFatal
+	levelAll
 )
 
 var levels = map[string]levelType{
@@ -26,19 +30,21 @@ var levels = map[string]levelType{
 	"WARN"  : levelWarn,
 	"ERROR" : levelError,
 	"FATAL" : levelFatal,
+	"ALL"	: levelAll,
 }
 
 const (
 	STR_TYPE_CONSOLE = "CONSOLE"
 	STR_TYPE_FILE = "FILE"
+	STR_TYPE_ERROR = "ERROR"
 )
 
 var plogLevel levelType
-var log plog_logger.ILogger
+var logr *logrus.Logger
 
 func init() {
 
-	log = GetLogger()
+	logr = GetLogger()
 
 	logLevelStr := strings.ToUpper(config.PLOG_LEVEL.Get())
 
@@ -49,15 +55,25 @@ func init() {
 	}
 }
 
-func GetLogger()  plog_logger.ILogger{
+func GetLogger() *logrus.Logger{
 	logTypeStr := strings.ToUpper(config.PLOG_TYPE.Get())
+
+	var logr = logrus.New()
+	logr.Level = logrus.DebugLevel
+
 	switch logTypeStr {
 
 	//TODO: Add file logger
 	case STR_TYPE_CONSOLE:
-		return plog_logger.ConsoleLogger{}
-	default: return plog_logger.ConsoleLogger{}
+		logr.Out = os.Stdout
+	case STR_TYPE_FILE:
+		logr.Out = getFileIO(getFileName())
+	case STR_TYPE_ERROR:
+		logr.Out = os.Stderr
+
+	default: logr.Out = os.Stdout
 	}
+	return logr
 }
 
 func GetLevelFromEnvironment() levelType {
@@ -72,7 +88,30 @@ func GetLevelFromEnvironment() levelType {
 	return levelNone
 }
 
-var logFormat string = "2006-01-02 15:04:05.000"
+func getFileName() string{
+	y,m,d := time.Now().Date()
+	dateString:= fmt.Sprintf("%d_%d_%d", y,m,d)
+	return "log_"+dateString+".txt"
+}
+
+func getFileIO(path string) *os.File{
+	createFile(path)
+	ret,_ := os.OpenFile(path,os.O_RDWR|os.O_APPEND,0660)
+	return ret
+}
+
+func createFile(path string) {
+
+	// detect if file exists
+	var _, err = os.Stat(path)
+
+	// create file if not exists
+	if os.IsNotExist(err) {
+		var file, _ = os.Create(path)
+		defer file.Close()
+	}
+}
+
 
 
 

@@ -60,8 +60,11 @@ func GetLogger() *logrus.Logger{
 	logTypeStr := strings.ToUpper(config.PLOG_TYPE.Get())
 
 	var logr = logrus.New()
+
 	logr.Level = logrus.DebugLevel
- 	path,_:=filepath.Abs("../app_logs")
+
+	path,_ := filepath.Abs("./app_logs")
+
 	_ = os.Mkdir(path,os.ModePerm)
 
 	switch logTypeStr {
@@ -78,6 +81,7 @@ func GetLogger() *logrus.Logger{
 	}
 	return logr
 }
+
 
 func GetLevelFromEnvironment() levelType {
 	if config.IsDevelopment() {

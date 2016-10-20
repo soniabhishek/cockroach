@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 	"fmt"
+	"path/filepath"
 )
 
 type levelType uint
@@ -60,6 +61,8 @@ func GetLogger() *logrus.Logger{
 
 	var logr = logrus.New()
 	logr.Level = logrus.DebugLevel
+ 	path,_:=filepath.Abs("../app_logs")
+	_ = os.Mkdir(path,os.ModePerm)
 
 	switch logTypeStr {
 
@@ -67,7 +70,7 @@ func GetLogger() *logrus.Logger{
 	case STR_TYPE_CONSOLE:
 		logr.Out = os.Stdout
 	case STR_TYPE_FILE:
-		logr.Out = getFileIO(getFileName())
+		logr.Out = getFileIO(path+"/"+getFileName())
 	case STR_TYPE_ERROR:
 		logr.Out = os.Stderr
 

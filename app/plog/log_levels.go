@@ -6,7 +6,7 @@ import (
 )
 
 func Fatal(tag string, err error, args ...interface{}) {
-	if levelFatal <= plogLevel {
+	if levelFatal >= plogLevel {
 		logr.Fatalf(tag, err, args)
 		ErrorMail(tag, err, args)
 		os.Exit(1)
@@ -14,20 +14,20 @@ func Fatal(tag string, err error, args ...interface{}) {
 }
 
 func Error(tag string, err error, args ...interface{}) {
-	if levelError <= plogLevel {
+	if levelError >= plogLevel {
 		logr.Errorf(tag, err, args)
 		ErrorMail(tag, err, args)
 	}
 }
 
 func Warn(tag string, args ...interface{}) {
-	if levelWarn <= plogLevel {
+	if levelWarn >= plogLevel {
 		logr.Warnf(tag, args)
 	}
 }
 
 func Info(tag string, args ...interface{}) {
-	if levelInfo <= plogLevel {
+	if levelInfo >= plogLevel {
 		logr.Infof(tag,args)
 	}
 }
@@ -35,7 +35,7 @@ func Info(tag string, args ...interface{}) {
 
 func Debug(tag string, args ...interface{}) {
 
-	if levelDebug <= plogLevel{
+	if levelDebug >= plogLevel{
 		_, fn, line, _ := runtime.Caller(1)
 		logr.Debugf(tag,fn,line, args)
 	}
@@ -52,5 +52,5 @@ func Trace(tag string, args ...interface{}) {
 }
 
 func IsTraceEnabled() bool {
-	return levelTrace <= plogLevel
+	return levelTrace >= plogLevel
 }

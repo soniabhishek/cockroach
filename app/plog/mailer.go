@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/config"
 	"runtime/debug"
 	"fmt"
+	"github.com/Sirupsen/logrus"
 )
 
 
@@ -25,7 +26,12 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 	}
 
 	if config.IsDevelopment() || config.IsStaging() {
-		logr.Debug("Mailer: "+ tag, err,errString,argsString, stackTrace)
+		logr.WithFields(logrus.Fields{
+			"err" : err,
+			"err_string" : errString,
+			"args_string": argsString,
+			"stack_trace" : stackTrace,
+		}).Debug("Mailer in Dev/Staging: "+ tag)
 		fmt.Println(tag)
 		fmt.Println(err)
 		fmt.Println(errString)
@@ -49,7 +55,13 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 	sendErr:= sendMail(subject,text)
 	if sendErr != nil {
 
-		logr.Error("Mailer error : ", err, errString, tag, args, stackTrace, sendErr)
+		logr.WithFields(logrus.Fields{
+			"error" : err,
+			"error_string" : errString,
+			"stack_trace" : stackTrace,
+			"mail_error" : sendErr,
+			"args" : fmt.Sprintf("%+v", args),
+		}).Error("Mailer error : "+tag)
 	}
 }
 

@@ -18,11 +18,11 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 	// gets the stack trace of current go routine
 	stackTrace := string(debug.Stack())
 
-	errString := fmt.Sprintf("%#v", err)
+	errString := fmt.Sprintf("%+v", err)
 	argsString := ""
 
 	if len(args) > 0 {
-		argsString = fmt.Sprintf("%#v", args)
+		argsString = fmt.Sprintf("%+v", args)
 	}
 
 	if config.IsDevelopment() || config.IsStaging() {

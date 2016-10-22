@@ -67,9 +67,6 @@ func SetLogger() {
 	_ = os.Mkdir(path,os.ModePerm)
 
 	SetLogOutput()
-	log_file_scheduler := gocron.NewScheduler()
-	log_file_scheduler.Every(1).Day().At("00.00").Do(SetLogOutput)
-	log_file_scheduler.Start()
 }
 func SetLogOutput() {
 
@@ -79,7 +76,10 @@ func SetLogOutput() {
 		case STR_TYPE_CONSOLE:
 			logr.Out = os.Stdout
 		case STR_TYPE_FILE:
-			logr.Out = GetFileIO(path + "/" + GetFileName())
+			SetFileIO()
+			log_file_scheduler := gocron.NewScheduler()
+			log_file_scheduler.Every(1).Day().At("00.00").Do(SetFileIO)
+			log_file_scheduler.Start()
 		case STR_TYPE_ERROR:
 			logr.Out = os.Stderr
 
@@ -106,20 +106,20 @@ func GetFileName() string{
 	return "log_"+dateString+".txt"
 }
 
-func GetFileIO(path string) *os.File{
-	CreateFile(path)
-	ret,_ := os.OpenFile(path,os.O_RDWR|os.O_APPEND,0660)
-	return ret
+func SetFileIO() {
+	file_location := path + "/" + GetFileName()
+	CreateFile(file_location)
+	logr.Out,_ = os.OpenFile(file_location,os.O_RDWR|os.O_APPEND,0660)
 }
 
-func CreateFile(path string) {
+func CreateFile(file_location string) {
 
 	// detect if file exists
-	var _, err = os.Stat(path)
+	var _, err = os.Stat(file_location)
 
 	// create file if not exists
 	if os.IsNotExist(err) {
-		var file, _ = os.Create(path)
+		var file, _ = os.Create(file_location)
 		defer file.Close()
 	}
 }

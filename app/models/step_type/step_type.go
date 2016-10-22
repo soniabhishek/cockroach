@@ -20,8 +20,8 @@ const (
 	Error
 )
 
-func (s StepType) Value() (driver.Value, error) {
-	return uint(s), nil
+func (s *StepType) Value() (driver.Value, error) {
+	return uint(*s), nil
 }
 func (s *StepType) Scan(src interface{}) error {
 

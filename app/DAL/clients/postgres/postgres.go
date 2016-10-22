@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/DAL/repositories/queries"
 	"gopkg.in/gorp.v1"
 )
@@ -15,6 +16,8 @@ import (
 type postgres_db struct {
 	gorpDbMap *gorp.DbMap
 }
+
+var _ repositories.IDatabase = &postgres_db{}
 
 func (pg *postgres_db) Insert(list ...interface{}) (err error) {
 	err = pg.gorpDbMap.Insert(list...)

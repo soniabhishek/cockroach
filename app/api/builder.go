@@ -14,6 +14,7 @@ import (
 
 	"time"
 
+	"github.com/crowdflux/angel/app/services/work_flow_builder_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
 	"github.com/itsjamie/gin-cors"
@@ -79,6 +80,10 @@ func Build() {
 		flu_svc_transport.AddHttpTransport(authorized)
 	}
 
+	workFlow := r.Group("/api/v0")
+	{
+		work_flow_builder_svc.AddHttpTransport(workFlow)
+	}
 	var _ image_svc1.IImageService
 
 	r.Run(":8999") // listen and serve on 127.0.0.1:8999

@@ -47,3 +47,10 @@ type RouteWithLogicGate struct {
 	Route
 	LogicGate LogicGate
 }
+
+type WorkflowContainer struct {
+	WorkFlow
+	Steps []Step `json:"steps"`
+	//Routes []RouteWithStepLabel
+	Routes []Route `json:"routes"`
+}

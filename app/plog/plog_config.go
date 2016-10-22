@@ -41,11 +41,11 @@ const (
 )
 
 var plogLevel levelType
-var logr *logrus.Logger
+var logr = logrus.New()
 
 func init() {
 
-	logr = GetLogger()
+	SetLogger()
 
 	logLevelStr := strings.ToUpper(config.PLOG_LEVEL.Get())
 
@@ -56,10 +56,10 @@ func init() {
 	}
 }
 
-func GetLogger() *logrus.Logger{
+func SetLogger() {
 	logTypeStr := strings.ToUpper(config.PLOG_TYPE.Get())
 
-	var logr = logrus.New()
+	logr.Formatter = &logrus.JSONFormatter{}
 
 	logr.Level = logrus.DebugLevel
 
@@ -79,7 +79,6 @@ func GetLogger() *logrus.Logger{
 
 	default: logr.Out = os.Stdout
 	}
-	return logr
 }
 
 

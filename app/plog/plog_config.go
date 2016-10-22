@@ -8,6 +8,7 @@ import (
 	"time"
 	"fmt"
 	"path/filepath"
+	"github.com/jasonlvhit/gocron"
 )
 
 type levelType uint
@@ -42,6 +43,7 @@ const (
 
 var plogLevel levelType
 var logr = logrus.New()
+var path,_= filepath.Abs("./app_logs")
 
 func init() {
 
@@ -57,28 +59,32 @@ func init() {
 }
 
 func SetLogger() {
-	logTypeStr := strings.ToUpper(config.PLOG_TYPE.Get())
 
 	logr.Formatter = &logrus.JSONFormatter{}
 
 	logr.Level = logrus.DebugLevel
 
-	path,_ := filepath.Abs("./app_logs")
-
 	_ = os.Mkdir(path,os.ModePerm)
 
-	switch logTypeStr {
+	SetLogOutput()
+}
+func SetLogOutput() {
 
-	//TODO: Add file logger
-	case STR_TYPE_CONSOLE:
-		logr.Out = os.Stdout
-	case STR_TYPE_FILE:
-		logr.Out = getFileIO(path+"/"+getFileName())
-	case STR_TYPE_ERROR:
-		logr.Out = os.Stderr
+		logTypeStr := strings.ToUpper(config.PLOG_TYPE.Get())
 
-	default: logr.Out = os.Stdout
-	}
+		switch logTypeStr {
+		case STR_TYPE_CONSOLE:
+			logr.Out = os.Stdout
+		case STR_TYPE_FILE:
+			SetFileIO()
+			log_file_scheduler := gocron.NewScheduler()
+			log_file_scheduler.Every(1).Day().At("00.00").Do(SetFileIO)
+			log_file_scheduler.Start()
+		case STR_TYPE_ERROR:
+			logr.Out = os.Stderr
+
+		default: logr.Out = os.Stdout
+		}
 }
 
 
@@ -94,26 +100,26 @@ func GetLevelFromEnvironment() levelType {
 	return levelNone
 }
 
-func getFileName() string{
+func GetFileName() string{
 	y,m,d := time.Now().Date()
 	dateString:= fmt.Sprintf("%d_%d_%d", y,m,d)
 	return "log_"+dateString+".txt"
 }
 
-func getFileIO(path string) *os.File{
-	createFile(path)
-	ret,_ := os.OpenFile(path,os.O_RDWR|os.O_APPEND,0660)
-	return ret
+func SetFileIO() {
+	file_location := path + "/" + GetFileName()
+	CreateFile(file_location)
+	logr.Out,_ = os.OpenFile(file_location,os.O_RDWR|os.O_APPEND,0660)
 }
 
-func createFile(path string) {
+func CreateFile(file_location string) {
 
 	// detect if file exists
-	var _, err = os.Stat(path)
+	var _, err = os.Stat(file_location)
 
 	// create file if not exists
 	if os.IsNotExist(err) {
-		var file, _ = os.Create(path)
+		var file, _ = os.Create(file_location)
 		defer file.Close()
 	}
 }

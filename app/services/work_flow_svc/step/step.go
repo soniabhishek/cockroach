@@ -50,13 +50,14 @@ func (s *Step) RemoveFromBuffer(flu feed_line.FLU) error {
 	return nil
 }
 
+// Connect auto starts the step
 func (s *Step) Connect(routerIn *feed_line.Fl) *feed_line.Fl {
 
 	// Send output of this step to the router's input
 	// for next rerouting
 	s.OutQ = *routerIn
 
-	s.start()
+	s.Start()
 
 	// Return the input channel of this step
 	// so that router can push flu to it
@@ -68,7 +69,7 @@ func (s *Step) SetFluProcessor(p processFlu) {
 	s.processFlu = p
 }
 
-func (s *Step) start() {
+func (s *Step) Start() {
 
 	if s.processFlu == nil {
 		panic(errors.New("processFlu nil for the step"))

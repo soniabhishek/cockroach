@@ -24,3 +24,13 @@ func New() IWorkflowBuilderService {
 		projectsRep:    projects_repo.New(),
 	}
 }
+
+type IStepConfigurationSvc interface {
+	GetTransformationStepConfig(stepId uuid.UUID) models.TransformationConfig
+	GetBifurcationStepConfig(stepId uuid.UUID) models.BifurcationConfig
+	GetUnificationStepConfig(stepId uuid.UUID) models.UnificationConfig
+}
+
+func NewStepConfigService() IStepConfigurationSvc {
+	return nil
+}

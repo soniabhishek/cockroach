@@ -73,7 +73,12 @@ func (w *workFlowBuilderService) InitWorkflowContainer(projectId uuid.UUID) (wor
 
 }
 
+/**
+This will be used to add a new Workflow for a given projectId
+
+*/
 func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer models.WorkflowContainer) (workflowContainer models.WorkflowContainer, err error) {
+	//Checks If the project Id is valid or not
 	exist, err := w.projectsRep.IfIdExist(receivedWorkflowContainer.ProjectId)
 	if err != nil {
 		return
@@ -85,8 +90,8 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 	receivedWorkflowContainer.WorkFlow.ID = uuid.NewV4()
 	receivedWorkflowContainer.WorkFlow.CreatedAt = pq.NullTime{time.Now(), true}
 	receivedWorkflowContainer.WorkFlow.UpdatedAt = receivedWorkflowContainer.WorkFlow.CreatedAt
-
 	creationTime := pq.NullTime{time.Now(), true}
+	//Here we will update the creation and updated at time
 	for i, _ := range receivedWorkflowContainer.Steps {
 		receivedWorkflowContainer.Steps[i].WorkFlowId = receivedWorkflowContainer.WorkFlow.ID
 		receivedWorkflowContainer.Steps[i].CreatedAt = creationTime
@@ -113,7 +118,11 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 	return receivedWorkflowContainer, nil
 }
 
+/**
+This will update the existing workflow
+*/
 func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContainer models.WorkflowContainer) (workflowContainer models.WorkflowContainer, err error) {
+	//This will check if Project Id in body exist or not
 	exist, err := w.projectsRep.IfIdExist(receivedWorkflowContainer.ProjectId)
 	if err != nil {
 		return
@@ -122,24 +131,35 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 		err = projects_repo.ErrProjectNotFound
 		return
 	}
+
+	//This will check if Workflow Id in body exist or not
 	exist, err = w.workflowRepo.IfIdExist(receivedWorkflowContainer.ID)
-	if err != nil || !exist {
+	if err != nil {
+		return
+	}
+	if !exist {
 		err = workflow_repo.ErrWorkflowNotFound
 		return
 	}
+
+	//existing steps will be fetched based on the provided workflowId
 	existingSteps, err := w.stepRepo.GetStepsByWorkflowId(receivedWorkflowContainer.ID)
 	if err != nil {
 		return
 	}
+	//existing routes will be fetched based on the provided workflowId
 	existingRoutes, err := w.stepRouterRepo.GetRoutesByWorkFlowId(receivedWorkflowContainer.ID)
 	if err != nil {
 		return
 	}
 
+	//This will categorize by comparing existing routes with routes in body into what needs to be inserted, updates or deleted
 	insertRoutes, updateRoutes, deleteRoutes, err := computeRouteComparision(receivedWorkflowContainer.Routes, existingRoutes)
 	if err != nil {
 		return
 	}
+
+	//This will categorize by comparing existing steps with steps in body into what needs to be inserted, updates or deleted
 	insertSteps, updateSteps, deleteSteps, err := computeStepComparision(receivedWorkflowContainer.Steps, existingSteps, receivedWorkflowContainer.ID)
 	if err != nil {
 		return
@@ -176,10 +196,15 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 		return
 	}
 
+	//finally after all insert update and delete mechanism we will fetch whole new workflow from backend
 	return w.GetWorkflowContainer(receivedWorkflowContainer.ID)
 
 }
 
+/**
+This is a utility function for comparing, validating and classifying Steps also it will change their Updated at time
+This should be containing all the validation steps if required in future for steps
+*/
 func computeStepComparision(receivedSteps, existingSteps []models.Step, workflowID uuid.UUID) ([]models.Step, []models.Step, []models.Step, error) {
 	var forUpdate, forInsert []models.Step
 	for _, received := range receivedSteps {
@@ -206,6 +231,10 @@ func computeStepComparision(receivedSteps, existingSteps []models.Step, workflow
 	return forInsert, forUpdate, existingSteps, nil
 }
 
+/**
+This is a utility function for comparing, validating and classifying Routes also it will change their Updated at time
+This should be containing all the validation routes if required in future for routes
+*/
 func computeRouteComparision(receivedRoutes, existingRoutes []models.Route) ([]models.Route, []models.Route, []models.Route, error) {
 	var forUpdate, forInsert []models.Route
 	for _, received := range receivedRoutes {
@@ -228,6 +257,10 @@ func computeRouteComparision(receivedRoutes, existingRoutes []models.Route) ([]m
 	}
 	return forInsert, forUpdate, existingRoutes, nil
 }
+
+/**
+Not required for now it was for a different approach where all initialization will be from backend
+*/
 func generateCornerSteps(workflowId uuid.UUID) []models.Step {
 	startStep := models.Step{}
 	startStep.ID = uuid.NewV4()

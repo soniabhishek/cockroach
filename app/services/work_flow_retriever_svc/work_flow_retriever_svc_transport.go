@@ -1,9 +1,9 @@
 package work_flow_retriever_svc
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -28,7 +28,7 @@ func workFlowGetHandler(workFlowService IWorkflowRetrieverService) gin.HandlerFu
 			plog.Error("WorkflowFetching : ", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
-				"error":  err.Error(),
+				"error":   err.Error(),
 			})
 			return
 		}

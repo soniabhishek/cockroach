@@ -11,7 +11,7 @@ type IWorkflowRepo interface {
 	Update(models.WorkFlow) error
 	Delete(uuid.UUID) error
 	GetById(id uuid.UUID) (models.WorkFlow, error)
-	GetWorkFlowByProjectIdAndTag(projectId uuid.UUID, tag string)  (models.WorkFlow, error)
+	GetWorkFlowByProjectIdAndTag(projectId uuid.UUID, tag string) (models.WorkFlow, error)
 	GetWorkFlowsByProjectId(projectId uuid.UUID) ([]models.WorkFlow, error)
 	IfIdExist(uuid.UUID) (bool, error)
 }

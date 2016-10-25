@@ -52,7 +52,6 @@ func (wr *workflow_repo) GetWorkFlowsByProjectId(projectId uuid.UUID) (workFlows
 	return
 }
 
-
 func (i *workflow_repo) IfIdExist(id uuid.UUID) (ifExist bool, err error) {
 	err = i.db.SelectOne(&ifExist, `select exists(select 1 from work_flow where id=$1)`, id)
 	if err != nil {

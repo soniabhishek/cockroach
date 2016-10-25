@@ -19,7 +19,13 @@ type FLU struct {
 
 func (flu *FLU) ConfirmReceive() {
 
+	defer func() {
+		// to handle if flu.once is nil
+		recover()
+	}()
+
 	flu.once.Do(func() {
+
 		err := flu.delivery.Ack(false)
 		if err != nil {
 			plog.Error("FLU", err, "error while ack", "fluId: "+flu.FeedLineUnit.ID.String())

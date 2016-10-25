@@ -18,6 +18,7 @@ const (
 	Manual
 	Gateway
 	Error
+	StartStep
 	Test
 )
 
@@ -52,6 +53,7 @@ var stepTypeNames = map[StepType]string{
 	Manual:           "Manual",
 	Gateway:          "Gateway",
 	Error:            "Error",
+	StartStep:        "StartStep",
 	Test:             "Test",
 }
 

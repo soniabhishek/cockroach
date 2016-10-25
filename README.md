@@ -46,6 +46,8 @@ Migrate db to latest schema: `$ knex migrate:latest`
 Push new schema change: `$ knex migrate:make <name_of_migration_file>`. This will be generated in `app/DAL/migrations`.
 Refer the other migration files to learn how to write that.
 
+If you are getting syntax error in javascript files, edit the javascript version to Ecmascript 6 in Intellij Idea Preferences.
+
 - Install mongodb:
 
 ```

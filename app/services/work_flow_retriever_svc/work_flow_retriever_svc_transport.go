@@ -22,16 +22,12 @@ func workFlowGetHandler(workFlowService IWorkflowRetrieverService) gin.HandlerFu
 		}
 
 		tag := c.Query("tag")
-		if err != nil {
-			c.JSON(http.StatusBadRequest, "Invalid tag")
-			return
-		}
 
 		response, err := workFlowService.GetWorkFlow(projectId, tag)
 		if err != nil {
 			plog.Error("WorkflowFetching : ", err)
 			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "Failure",
+				"success": false,
 				"error":  err.Error(),
 			})
 			return

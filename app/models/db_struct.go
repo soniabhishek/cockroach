@@ -586,5 +586,5 @@ type WorkFlow struct {
 	IsDeleted sql.NullBool   `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
 	CreatedAt pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt pq.NullTime    `db:"updated_at" json:"updated_at" bson:"updated_at"`
-	Tag	  sql.NullString `db:"tag" json:"tag" bson:"tag"`
+	Tag	  string `db:"tag" json:"tag" bson:"tag"`
 }

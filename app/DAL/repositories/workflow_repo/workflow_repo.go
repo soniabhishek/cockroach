@@ -49,7 +49,6 @@ func (wr *workflow_repo) GetWorkFlowByProjectIdAndTag(projectId uuid.UUID, tag s
 
 func (wr *workflow_repo) GetWorkFlowsByProjectId(projectId uuid.UUID) (workFlows []models.WorkFlow, err error) {
 	_, err = wr.db.Select(&workFlows, `select * from work_flow where project_id = $1`, projectId.String())
-	fmt.Println(workFlows)
 	return
 }
 

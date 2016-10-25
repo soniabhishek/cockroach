@@ -15,11 +15,11 @@ import (
 	"time"
 
 	"github.com/crowdflux/angel/app/services/work_flow_builder_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_retriever_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
 	"github.com/itsjamie/gin-cors"
 	"github.com/newrelic/go-agent"
-	"github.com/crowdflux/angel/app/services/work_flow_retriever_svc"
 )
 
 func Build() {

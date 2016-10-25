@@ -584,9 +584,10 @@ type User struct {
 }
 
 type WorkFlow struct {
-	ID        uuid.UUID    `db:"id" json:"id" bson:"_id"`
-	ProjectId uuid.UUID    `db:"project_id" json:"project_id" bson:"project_id"`
-	IsDeleted sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
-	CreatedAt pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
-	UpdatedAt pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	ID        uuid.UUID      `db:"id" json:"id" bson:"_id"`
+	ProjectId uuid.UUID      `db:"project_id" json:"project_id" bson:"project_id"`
+	IsDeleted sql.NullBool   `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
+	CreatedAt pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt pq.NullTime    `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	Tag	  string `db:"tag" json:"tag" bson:"tag"`
 }

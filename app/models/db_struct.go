@@ -483,8 +483,10 @@ type Route struct {
 	LogicGateId uuid.UUID    `db:"logic_gate_id" json:"logic_gate_id" bson:"logic_gate_id"`
 	NextStepId  uuid.UUID    `db:"next_step_id" json:"next_step_id" bson:"next_step_id"`
 	IsDeleted   sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
+	Label       string       `db:"label" json:"label" bson:"label"`
 	CreatedAt   pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	Config      JsonF        `db:"config" json:"config" bson:"config"`
 }
 
 type Step struct {
@@ -495,6 +497,7 @@ type Step struct {
 	CreatedAt  pq.NullTime        `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt  pq.NullTime        `db:"updated_at" json:"updated_at" bson:"updated_at"`
 	IsStart    bool               `db:"is_start" json:"is_start" bson:"is_start"`
+	Label      string             `db:"label" json:"label" bson:"label"`
 	Config     JsonF              `db:"config" json:"config" bson:"config"`
 }
 

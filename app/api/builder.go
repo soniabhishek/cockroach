@@ -14,7 +14,7 @@ import (
 
 	"time"
 
-	"github.com/crowdflux/angel/app/services/work_flow_builder_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_io_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
 	"github.com/itsjamie/gin-cors"
@@ -82,7 +82,7 @@ func Build() {
 
 	workFlow := r.Group("/api/v0")
 	{
-		work_flow_builder_svc.AddHttpTransport(workFlow)
+		work_flow_io_svc.AddHttpTransport(workFlow)
 	}
 	var _ image_svc1.IImageService
 

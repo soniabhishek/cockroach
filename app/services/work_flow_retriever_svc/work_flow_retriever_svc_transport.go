@@ -9,20 +9,19 @@ import (
 
 func AddHttpTransport(routerGroup *gin.RouterGroup) {
 	workFlowRetrieverService := New()
-
 	routerGroup.GET("/workflow", workFlowGetHandler(workFlowRetrieverService))
 
 }
 
 func workFlowGetHandler(workFlowService IWorkflowRetrieverService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		projectId, err := uuid.FromString(c.Param("projectId"))
+		projectId, err := uuid.FromString(c.Query("projectId"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, "Invalid id")
+			c.JSON(http.StatusBadRequest, "Invalid ProjectId")
 			return
 		}
 
-		tag := c.Param("tag")
+		tag := c.Query("tag")
 		if err != nil {
 			c.JSON(http.StatusBadRequest, "Invalid tag")
 			return

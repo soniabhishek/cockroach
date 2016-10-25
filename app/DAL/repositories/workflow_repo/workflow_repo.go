@@ -42,13 +42,14 @@ func (wr *workflow_repo) GetById(id uuid.UUID) (wf models.WorkFlow, err error) {
 }
 
 func (wr *workflow_repo) GetWorkFlowByProjectIdAndTag(projectId uuid.UUID, tag string) (workFlow models.WorkFlow, err error) {
-	err = wr.db.SelectOne(&workFlow, `select * from work_flow_id where project_id = $1 and tag = $2 `, projectId.String(), tag)
+	err = wr.db.SelectOne(&workFlow, `select * from work_flow where project_id = $1 and tag = $2 `, projectId.String(), tag)
 	return
 
 }
 
 func (wr *workflow_repo) GetWorkFlowsByProjectId(projectId uuid.UUID) (workFlows []models.WorkFlow, err error) {
-	_, err = wr.db.Select(&workFlows, `select * from work_flow_id where project_id = $1`, projectId.String())
+	_, err = wr.db.Select(&workFlows, `select * from work_flow where project_id = $1`, projectId.String())
+	fmt.Println(workFlows)
 	return
 }
 

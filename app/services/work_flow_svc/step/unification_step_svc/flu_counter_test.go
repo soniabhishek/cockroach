@@ -21,7 +21,7 @@ func TestFluCounter_Clear(t *testing.T) {
 	fc := newFluCounter()
 
 	flu := newRandomFlu()
-	flu.StepMetaData = models.JsonF{index: 0}
+	flu.CopyId = 0
 
 	fc.UpdateCount(flu)
 
@@ -38,7 +38,7 @@ func TestFluCounter_GetCount(t *testing.T) {
 	fc := newFluCounter()
 
 	flu := newRandomFlu()
-	flu.StepMetaData = models.JsonF{index: 0}
+	flu.CopyId = 0
 
 	flu2 := flu
 
@@ -52,11 +52,10 @@ func TestFluCounter_UpdateCount(t *testing.T) {
 	fc := newFluCounter()
 
 	flu := newRandomFlu()
-	flu.StepMetaData = models.JsonF{index: 0}
+	flu.CopyId = 0
 
 	flu2 := flu
-	flu2.StepMetaData = models.JsonF{}
-	flu2.StepMetaData = models.JsonF{index: 1}
+	flu2.CopyId = 1
 
 	fc.UpdateCount(flu)
 	fc.UpdateCount(flu2)

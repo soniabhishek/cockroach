@@ -41,11 +41,10 @@ func (f *fluCounter) UpdateCount(flu feed_line.FLU) {
 
 	for _, eFlu := range existingFLus {
 
-		if eFlu.StepMetaData[index] == flu.StepMetaData[index] {
+		if eFlu.CopyId == flu.CopyId {
 
-			index := eFlu.StepMetaData[index].(int)
-			indexStr := strconv.Itoa(index)
-			plog.Error("FLU Counter", errors.New("Already updated counter for flu_id : "+flu.ID.String()+" index : "+indexStr))
+			copyIdStr := strconv.Itoa(eFlu.CopyId)
+			plog.Error("FLU Counter", errors.New("Already updated counter for flu_id : "+flu.ID.String()+" index : "+copyIdStr))
 			return
 		}
 	}

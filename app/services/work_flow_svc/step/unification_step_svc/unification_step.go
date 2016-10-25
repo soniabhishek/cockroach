@@ -16,8 +16,6 @@ type unificationStep struct {
 	fluCounter fluCounter
 }
 
-const index = "$index"
-
 func (u *unificationStep) processFlu(flu feed_line.FLU) {
 
 	unificationConfig, err := u.stepConfigSvc.GetUnificationStepConfig(flu.StepId)

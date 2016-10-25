@@ -133,16 +133,16 @@ type ExternalAccount struct {
 }
 
 type FeedLineUnit struct {
-	ID           uuid.UUID   `db:"id" json:"id" bson:"_id"`
-	ReferenceId  string      `db:"reference_id" json:"reference_id" bson:"reference_id"`
-	Data         JsonF       `db:"data" json:"data" bson:"data"`
-	Tag          string      `db:"tag" json:"tag" bson:"tag"`
-	CreatedAt    pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
-	UpdatedAt    pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
-	StepId       uuid.UUID   `db:"step_id" json:"step_id" bson:"step_id"`
-	StepMetaData JsonF       `db:"step_meta_data" json:"step_meta_data" bson:"step_meta_data"`
-	Build        JsonF       `db:"build" json:"build" bson:"build"`
-	ProjectId    uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
+	ID          uuid.UUID   `db:"id" json:"id" bson:"_id"`
+	ReferenceId string      `db:"reference_id" json:"reference_id" bson:"reference_id"`
+	Data        JsonF       `db:"data" json:"data" bson:"data"`
+	Tag         string      `db:"tag" json:"tag" bson:"tag"`
+	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	StepId      uuid.UUID   `db:"step_id" json:"step_id" bson:"step_id"`
+	CopyId      int         `db:"copy_id" json:"copy_id" bson:"copy_id"`
+	Build       JsonF       `db:"build" json:"build" bson:"build"`
+	ProjectId   uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
 }
 
 type FeedLineLog struct {

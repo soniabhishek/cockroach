@@ -41,19 +41,19 @@ func TestUnification_ProcessFlu(t *testing.T) {
 
 	inputFlu := feed_line.FLU{
 		FeedLineUnit: models.FeedLineUnit{
-			ID:           uuid.NewV4(),
-			Build:        models.JsonF{"prop0": "a"},
-			StepMetaData: models.JsonF{"index": 0},
+			ID:     uuid.NewV4(),
+			Build:  models.JsonF{"prop0": "a"},
+			CopyId: 0,
 		},
 	}
 
 	inputFlu2 := inputFlu
 	inputFlu2.Build = models.JsonF{"prop1": 11}
-	inputFlu2.StepMetaData = models.JsonF{"index": 1}
+	inputFlu2.CopyId = 1
 
 	inputFlu3 := inputFlu
 	inputFlu3.Build = models.JsonF{"prop2": true}
-	inputFlu3.StepMetaData = models.JsonF{"index": 2}
+	inputFlu3.CopyId = 2
 
 	unifStp.InQ.Push(inputFlu)
 	unifStp.InQ.Push(inputFlu2)

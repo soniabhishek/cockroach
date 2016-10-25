@@ -5,7 +5,6 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
-	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_io_svc"
@@ -16,8 +15,6 @@ type bifurcationStep struct {
 	step.Step
 	stepConfigSvc work_flow_io_svc.IStepConfigurationSvc
 }
-
-const index = "$index"
 
 func (b *bifurcationStep) processFlu(flu feed_line.FLU) {
 
@@ -37,7 +34,7 @@ func (b *bifurcationStep) processFlu(flu feed_line.FLU) {
 		for i := 0; i < bifurcationConfig.Multiplication; i++ {
 
 			newFlu := flu
-			newFlu.StepMetaData = models.JsonF{index: i}
+			newFlu.CopyId = i
 
 			b.finishFlu(newFlu)
 		}

@@ -1,7 +1,6 @@
 package bifurcation_step_svc
 
 import (
-	"fmt"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
@@ -51,10 +50,8 @@ func TestBifurcation_ProcessFlu(t *testing.T) {
 	for flu := range bfs.OutQ.Receiver() {
 		flu.ConfirmReceive()
 
-		fmt.Println(flu.Build)
-
 		assert.EqualValues(t, inputFlu.ID, flu.ID)
-		assert.EqualValues(t, flu.StepMetaData[index], i)
+		assert.EqualValues(t, flu.CopyId, i)
 		i++
 
 		if i >= 4 {

@@ -37,6 +37,17 @@ $ go get -v
 $ go get -t -v
 ```
 
+- Migrate DB
+
+One time setup: `$ npm install`
+
+Migrate db to latest schema: `$ knex migrate:latest`
+
+Push new schema change: `$ knex migrate:make <name_of_migration_file>`. This will be generated in `app/DAL/migrations`.
+Refer the other migration files to learn how to write that.
+
+If you are getting syntax error in javascript files, edit the javascript version to Ecmascript 6 in Intellij Idea Preferences.
+
 - Install mongodb:
 
 ```
@@ -59,6 +70,19 @@ $ mongo
   }
 );
 ```
+
+
+
+- Copy config file
+
+```
+$ cp app/config/development_example.json app/config/development.json
+```
+
+After copying edit the configuration file according to your local system
+
+
+
 
 # Usage
 

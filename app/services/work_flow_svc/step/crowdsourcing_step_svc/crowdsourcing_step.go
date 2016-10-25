@@ -44,7 +44,6 @@ func (c *crowdSourcingStep) finishFlu(flu feed_line.FLU) bool {
 		plog.Trace("Crowdsourcing Step", err, "flu not present", flu.ID)
 		//return false
 	}
-	counter.Print(flu, "crowdsourcing")
 	c.OutQ.Push(flu)
 	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.CrowdSourcing, flu.Redelivered())
 	return true

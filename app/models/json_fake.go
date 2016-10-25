@@ -76,3 +76,15 @@ func (j *JsonF) StringPretty() string {
 	bty, _ := json.MarshalIndent(*j, "", "  ")
 	return string(bty)
 }
+
+func (j *JsonF) CastTo(i interface{}) error {
+	bty, _ := json.Marshal(*j)
+	return json.Unmarshal(bty, i)
+}
+
+func (j *JsonF) Set(key string, val interface{}) {
+	if *j == nil {
+		*j = JsonF{}
+	}
+	(*j)[key] = val
+}

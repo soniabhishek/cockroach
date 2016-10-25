@@ -43,7 +43,7 @@ func (fl *Fl) Push(flu FLU) {
 		flu.ConfirmReceive()
 	}
 
-	plog.Info("feedline", "complete push from: ", fl.queueName, "id: ", flu.ID.String())
+	plog.Trace("feedline", "complete push from: ", fl.queueName, "id: ", flu.ID.String())
 }
 
 func (fl *Fl) Receiver() <-chan FLU {
@@ -69,7 +69,7 @@ func (fl *Fl) Receiver() <-chan FLU {
 					delivery:     msg,
 					once:         &sync.Once{},
 				}
-				plog.Info("feedline", "sent to FLU chan, name: ", fl.queueName, "id: ", flu.ID.String())
+				plog.Trace("feedline", "sent to FLU chan, name: ", fl.queueName, "id: ", flu.ID.String())
 			}
 		}()
 

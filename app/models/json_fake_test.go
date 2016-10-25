@@ -69,3 +69,21 @@ func TestJsonF_Scan(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, j1, j2)
 }
+
+func TestJsonF_CastTo(t *testing.T) {
+
+	jsn := JsonF{
+		"abcd": 123,
+	}
+
+	type TestStruct struct {
+		ABCD int
+	}
+
+	var testStruct TestStruct
+
+	err := jsn.CastTo(&testStruct)
+
+	assert.NoError(t, err)
+	assert.EqualValues(t, 123, testStruct.ABCD)
+}

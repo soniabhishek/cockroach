@@ -1,4 +1,4 @@
-package work_flow_builder_svc
+package work_flow_io_svc
 
 import (
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
@@ -26,9 +26,9 @@ func New() IWorkflowBuilderService {
 }
 
 type IStepConfigurationSvc interface {
-	GetTransformationStepConfig(stepId uuid.UUID) models.TransformationConfig
-	GetBifurcationStepConfig(stepId uuid.UUID) models.BifurcationConfig
-	GetUnificationStepConfig(stepId uuid.UUID) models.UnificationConfig
+	GetTransformationStepConfig(stepId uuid.UUID) (models.TransformationConfig, error)
+	GetBifurcationStepConfig(stepId uuid.UUID) (models.BifurcationConfig, error)
+	GetUnificationStepConfig(stepId uuid.UUID) (models.UnificationConfig, error)
 }
 
 func NewStepConfigService() IStepConfigurationSvc {

@@ -1,11 +1,10 @@
 package counter
 
 import (
-	"fmt"
-
 	"github.com/crowdflux/angel/app/DAL/feed_line"
+	"github.com/crowdflux/angel/app/plog"
 )
 
 func Print(flu feed_line.FLU, step string) {
-	fmt.Println(flu.ID.String() + " reached in " + step)
+	plog.Info(step, "reached: "+flu.ID.String())
 }

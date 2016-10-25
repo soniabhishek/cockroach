@@ -19,6 +19,7 @@ import (
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
 	"github.com/itsjamie/gin-cors"
 	"github.com/newrelic/go-agent"
+	"github.com/crowdflux/angel/app/services/work_flow_retriever_svc"
 )
 
 func Build() {
@@ -83,6 +84,11 @@ func Build() {
 	workFlow := r.Group("/api/v0")
 	{
 		work_flow_builder_svc.AddHttpTransport(workFlow)
+	}
+
+	workFlowRetriever := r.Group("/api/v0")
+	{
+		work_flow_retriever_svc.AddHttpTransport(workFlowRetriever)
 	}
 	var _ image_svc1.IImageService
 

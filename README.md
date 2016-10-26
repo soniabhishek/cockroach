@@ -46,6 +46,9 @@ Migrate db to latest schema: `$ knex migrate:latest`
 Push new schema change: `$ knex migrate:make <name_of_migration_file>`. This will be generated in `app/DAL/migrations`.
 Refer the other migration files to learn how to write that.
 
+Rollback last migration run: `$ knex migrate:rollback`
+
+
 - Install mongodb:
 
 ```

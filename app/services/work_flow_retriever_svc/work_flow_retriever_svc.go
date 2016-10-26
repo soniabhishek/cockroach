@@ -14,14 +14,12 @@ func (w *workFlowRetrieverService) GetWorkFlow(projectId uuid.UUID, tag string) 
 
 	if tag == "" {
 		workflow, err = w.workflowRepo.GetWorkFlowsByProjectId(projectId)
-		if err != nil || len(workflow) == 0 {
-			err = workflow_repo.ErrWorkflowNotFound
+		if err != nil {
 			return
 		}
 	} else {
 		wf, err := w.workflowRepo.GetWorkFlowByProjectIdAndTag(projectId, tag)
 		if err != nil {
-			err = workflow_repo.ErrWorkflowNotFound
 			return workflow, err
 		}
 		workflow = append(workflow, wf)

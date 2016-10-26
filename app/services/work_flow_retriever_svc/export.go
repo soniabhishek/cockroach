@@ -2,8 +2,8 @@ package work_flow_retriever_svc
 
 import (
 	"github.com/crowdflux/angel/app/DAL/repositories/workflow_repo"
-	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 type IWorkflowRetrieverService interface {
@@ -12,8 +12,6 @@ type IWorkflowRetrieverService interface {
 
 func New() IWorkflowRetrieverService {
 	return &workFlowRetrieverService{
-	 	workflowRepo:   workflow_repo.New(),
+		workflowRepo: workflow_repo.New(),
 	}
 }
-
-

@@ -14,7 +14,7 @@ const (
 
 const (
 	//TODO find an alternative. Might be like make it configurable.
-	TEMP_FOLDER  = `./`
+	TEMP_FOLDER  = `./uploads/`
 	FLU_ID_INDEX = 0
 	BUILD_INDEX  = 1
 	COMMA        = ","

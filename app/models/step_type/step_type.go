@@ -18,6 +18,7 @@ const (
 	Manual
 	Gateway
 	Error
+	StartStep
 )
 
 func (s *StepType) Value() (driver.Value, error) {
@@ -51,6 +52,7 @@ var stepTypeNames = map[StepType]string{
 	Manual:           "Manual",
 	Gateway:          "Gateway",
 	Error:            "Error",
+	StartStep:        "StartStep",
 }
 
 func (s *StepType) String() string {

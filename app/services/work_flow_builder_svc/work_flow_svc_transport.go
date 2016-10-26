@@ -18,6 +18,9 @@ func AddHttpTransport(routerGroup *gin.RouterGroup) {
 
 }
 
+/**
+This is used to return the Workflow based on the provided workflowId
+*/
 func workFlowGetHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		workflowId, err := uuid.FromString(c.Param("workflowId"))
@@ -80,7 +83,10 @@ func addWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 			})
 			return
 		}
-		c.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, gin.H{
+			"data":    response,
+			"success": true,
+		})
 	}
 }
 

@@ -1,14 +1,12 @@
 package plog
 
 import (
-	"gopkg.in/sendgrid/sendgrid-go.v2"
-	"github.com/crowdflux/angel/app/config"
-	"runtime/debug"
 	"fmt"
 	"github.com/Sirupsen/logrus"
+	"github.com/crowdflux/angel/app/config"
+	"gopkg.in/sendgrid/sendgrid-go.v2"
+	"runtime/debug"
 )
-
-
 
 func ErrorMail(tag string, err error, args ...interface{}) {
 
@@ -27,11 +25,11 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 
 	if config.IsDevelopment() || config.IsStaging() {
 		logr.WithFields(logrus.Fields{
-			"err" : err,
-			"err_string" : errString,
+			"err":         err,
+			"err_string":  errString,
 			"args_string": argsString,
-			"stack_trace" : stackTrace,
-		}).Debug("Mailer in Dev/Staging: "+ tag)
+			"stack_trace": stackTrace,
+		}).Debug("Mailer in Dev/Staging: " + tag)
 		fmt.Println(tag)
 		fmt.Println(err)
 		fmt.Println(errString)
@@ -39,9 +37,9 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 		fmt.Println(stackTrace)
 		return
 	}
-	subject:= "Error | Angel | " + tag + " | " + err.Error() + " | " + config.GetEnv()
+	subject := "Error | Angel | " + tag + " | " + err.Error() + " | " + config.GetEnv()
 
-	text:=
+	text :=
 		`
 		Error occured : ` + err.Error() + `
 			---
@@ -52,20 +50,20 @@ func ErrorMail(tag string, err error, args ...interface{}) {
 
 			` + stackTrace
 
-	sendErr:= sendMail(subject,text)
+	sendErr := sendMail(subject, text)
 	if sendErr != nil {
 
 		logr.WithFields(logrus.Fields{
-			"error" : err,
-			"error_string" : errString,
-			"stack_trace" : stackTrace,
-			"mail_error" : sendErr,
-			"args" : fmt.Sprintf("%+v", args),
-		}).Error("Mailer error : "+tag)
+			"error":        err,
+			"error_string": errString,
+			"stack_trace":  stackTrace,
+			"mail_error":   sendErr,
+			"args":         fmt.Sprintf("%+v", args),
+		}).Error("Mailer error : " + tag)
 	}
 }
 
-func sendMail (subject string, text string) error {
+func sendMail(subject string, text string) error {
 
 	cl := sendgrid.NewSendGridClientWithApiKey(config.SENDGRID_API_KEY.Get())
 
@@ -83,4 +81,3 @@ func sendMail (subject string, text string) error {
 	return sendErr
 
 }
-

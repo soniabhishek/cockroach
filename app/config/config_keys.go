@@ -48,7 +48,7 @@ const (
 	MEGATRON_API  = configKey("megatron.base.api")
 
 	PLOG_LEVEL = configKey("plog.log_level")
-	PLOG_TYPE = configKey("plog.log_type")
+	PLOG_TYPE  = configKey("plog.log_type")
 
 	NEW_RELIC_KEY = configKey("newrelic.key")
 

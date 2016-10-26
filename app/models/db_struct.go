@@ -145,6 +145,13 @@ type FeedLineUnit struct {
 	ProjectId   uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
 }
 
+type FluStepAssociator struct {
+	ID     int       `db:"id" json:"id" bson:"_id"`
+	FluId  int       `db:"flu_id" json:"flu_id" bson:"flu_id"`
+	CopyId int       `db:"copy_id" json:"copy_id" bson:"copy_id"`
+	StepId uuid.UUID `db:"step_id" json:"step_id" bson:"step_id"`
+}
+
 type FeedLineLog struct {
 	ID        int            `db:"id" json:"id" bson:"_id"`
 	FluId     uuid.UUID      `db:"flu_id" json:"flu_id" bson:"flu_id"`

@@ -33,8 +33,8 @@ func workFlowGetHandler(workFlowService IWorkflowRetrieverService) gin.HandlerFu
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"data":    response,
-			"success": true,
+			"workflows": response,
+			"success":   true,
 		})
 	}
 

@@ -55,11 +55,11 @@ func (i *fluService) SyncInputFeedLine() error {
 
 	if len(flus) > 0 {
 
-		for _, flu := range flus {
+		for i, _ := range flus {
 
-			flu.MasterId = flu.ID
-			flu.IsActive = true
-			flu.IsMaster = true
+			flus[i].MasterId = flu.ID
+			flus[i].IsActive = true
+			flus[i].IsMaster = true
 		}
 
 		err = i.fluRepo.BulkInsert(flus)

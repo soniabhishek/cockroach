@@ -88,3 +88,18 @@ func (j *JsonF) Set(key string, val interface{}) {
 	}
 	(*j)[key] = val
 }
+
+func (j *JsonF) Copy() JsonF {
+
+	jsonF := JsonF{}
+
+	if *j == nil || len(*j) == 0 {
+		return jsonF
+	}
+
+	for k, v := range *j {
+		jsonF[k] = v
+	}
+
+	return jsonF
+}

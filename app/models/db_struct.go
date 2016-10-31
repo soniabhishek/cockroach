@@ -140,16 +140,9 @@ type FeedLineUnit struct {
 	CreatedAt   pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 	StepId      uuid.UUID   `db:"step_id" json:"step_id" bson:"step_id"`
-	CopyId      int         `db:"copy_id" json:"copy_id" bson:"copy_id"`
 	Build       JsonF       `db:"build" json:"build" bson:"build"`
 	ProjectId   uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
-}
-
-type FluStepAssociator struct {
-	ID     int       `db:"id" json:"id" bson:"_id"`
-	FluId  int       `db:"flu_id" json:"flu_id" bson:"flu_id"`
-	CopyId int       `db:"copy_id" json:"copy_id" bson:"copy_id"`
-	StepId uuid.UUID `db:"step_id" json:"step_id" bson:"step_id"`
+	MasterId    uuid.UUID   `db:"master_id" json:"master_id" bson:"master_id"`
 }
 
 type FeedLineLog struct {
@@ -265,6 +258,7 @@ type MacroTask struct {
 	UpdatedAt pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 	ProjectId uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
 	CreatorId uuid.UUID   `db:"creator_id" json:"creator_id" bson:"creator_id"`
+	IsDeleted bool        `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
 }
 
 type MicroTaskQuestionAssociator struct {
@@ -410,6 +404,7 @@ type Project struct {
 	CreatorId uuid.UUID   `db:"creator_id" json:"creator_id" bson:"creator_id"`
 	StartedAt pq.NullTime `db:"started_at" json:"started_at" bson:"started_at"`
 	EndedAt   pq.NullTime `db:"ended_at" json:"ended_at" bson:"ended_at"`
+	IsDeleted bool        `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
 	CreatedAt pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }

@@ -57,8 +57,8 @@ var stepTypeNames = map[StepType]string{
 	Test:             "Test",
 }
 
-func (s *StepType) String() string {
-	if name, ok := stepTypeNames[*s]; ok {
+func (s StepType) String() string {
+	if name, ok := stepTypeNames[s]; ok {
 		return name
 	}
 	return "NoName"

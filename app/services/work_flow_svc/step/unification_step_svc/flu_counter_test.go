@@ -9,11 +9,14 @@ import (
 )
 
 func newRandomFlu() feed_line.FLU {
+	id := uuid.NewV4()
 	return feed_line.FLU{
 		FeedLineUnit: models.FeedLineUnit{
-			ID:     uuid.NewV4(),
-			Build:  models.JsonF{},
-			StepId: uuid.NewV4(),
+			ID:       id,
+			Build:    models.JsonF{},
+			StepId:   uuid.NewV4(),
+			IsMaster: true,
+			MasterId: id,
 		},
 	}
 }
@@ -39,7 +42,6 @@ func TestFluCounter_GetCount(t *testing.T) {
 	fc := newFluCounter()
 
 	flu := newRandomFlu()
-	flu.Build[index] = 0
 
 	flu2 := flu.Copy()
 
@@ -56,7 +58,8 @@ func TestFluCounter_UpdateCount(t *testing.T) {
 
 	flu2 := flu.Copy()
 	flu.ID = uuid.NewV4()
-	flu2.MasterId = flu.ID
+	flu.IsMaster = false
+	flu2.MasterId = flu.MasterId
 
 	fc.UpdateCount(flu)
 	fc.UpdateCount(flu2)

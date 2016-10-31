@@ -2,6 +2,7 @@ package unification_step_svc
 
 import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
+	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
@@ -12,19 +13,17 @@ import (
 
 type unificationStep struct {
 	step.Step
-	stepConfigSvc work_flow_io_svc.IStepConfigurationSvc
-
-	fluCounter fluCounter
+	stepConfigSvc work_flow_io_svc.IStepConfigSvc
+	fluRepo       feed_line_repo.IFluRepo
+	fluCounter    fluCounter
 }
-
-const index string = "index"
 
 func (u *unificationStep) processFlu(flu feed_line.FLU) {
 
 	unificationConfig, err := u.stepConfigSvc.GetUnificationStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("Bifurcation Step", err, "error getting step", "fluId: "+flu.ID.String())
-		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Unification, "Error getting bifurcation Config", flu.Redelivered())
+		plog.Error("Unification Step", err, "error getting step", "fluId: "+flu.ID.String())
+		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Unification, "Error getting unification Config", flu.Redelivered())
 		return
 	}
 
@@ -37,15 +36,53 @@ func (u *unificationStep) processFlu(flu feed_line.FLU) {
 
 		waitingFlus := u.fluCounter.Get(flu)
 
+		var masterFlu feed_line.FLU
+
 		for _, wFlu := range waitingFlus {
 			flu.Build.Merge(wFlu.Build)
+
+			if wFlu.IsMaster {
+				masterFlu = wFlu
+			} else {
+				wFlu.IsActive = false
+				err := u.fluRepo.Update(wFlu.FeedLineUnit)
+				if err != nil {
+					plog.Error("Unification Step", err, "error updating flu", "fluid "+flu.ID.String(), "masterid "+flu.MasterId.String())
+					return
+				}
+			}
 		}
 
-		u.fluCounter.Clear(flu)
-		u.finishFlu(flu)
-	}
+		// master flu not found
+		if masterFlu.ID == uuid.Nil {
 
-	flu.ConfirmReceive()
+			u.finishFlu(flu)
+		} else {
+
+			// if master flu found
+			// then send it forward (reason not clear)
+			masterFlu.Build = flu.Build.Copy()
+			flu.IsActive = false
+
+			err := u.fluRepo.Update(flu.FeedLineUnit)
+			if err != nil {
+				plog.Error("Unification Step", err, "error updating flu", "fluid "+flu.ID.String(), "masterid "+flu.MasterId.String())
+				return
+			}
+
+			err = u.fluRepo.Update(masterFlu.FeedLineUnit)
+			if err != nil {
+				plog.Error("Unification Step", err, "error updating masterflu", "fluid "+masterFlu.ID.String(), "masterid "+flu.MasterId.String())
+				return
+			}
+
+			u.finishFlu(masterFlu)
+		}
+
+		// clear counter
+		u.fluCounter.Clear(flu)
+		flu.ConfirmReceive()
+	}
 }
 
 func (u *unificationStep) finishFlu(flu feed_line.FLU) bool {
@@ -54,10 +91,14 @@ func (u *unificationStep) finishFlu(flu feed_line.FLU) bool {
 	return true
 }
 
-func getMasterFluId(flu feed_line.FLU) uuid.UUID {
-	if flu.MasterId == uuid.Nil {
-		return flu.ID
-	} else {
-		return flu.MasterId
+func newStdUnificationStep() *unificationStep {
+	ts := &unificationStep{
+		Step:          step.New(step_type.Unification),
+		fluRepo:       feed_line_repo.New(),
+		stepConfigSvc: work_flow_io_svc.NewStepConfigService(),
+		fluCounter:    newFluCounter(),
 	}
+
+	ts.SetFluProcessor(ts.processFlu)
+	return ts
 }

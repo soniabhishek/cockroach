@@ -2,6 +2,7 @@ package unification_step_svc
 
 import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
+	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
@@ -13,7 +14,7 @@ import (
 
 type stepConfigSvcMock struct{}
 
-var _ work_flow_io_svc.IStepConfigurationSvc = &stepConfigSvcMock{}
+var _ work_flow_io_svc.IStepConfigSvc = &stepConfigSvcMock{}
 
 func (s *stepConfigSvcMock) GetTransformationStepConfig(stepId uuid.UUID) (config models.TransformationConfig, err error) {
 	return
@@ -29,9 +30,12 @@ func (s *stepConfigSvcMock) GetUnificationStepConfig(stepId uuid.UUID) (config m
 
 func TestUnification_ProcessFlu(t *testing.T) {
 
+	fluRepo := feed_line_repo.Mock()
+
 	unifStp := unificationStep{
 		Step:          step.New(step_type.Test),
 		stepConfigSvc: &stepConfigSvcMock{},
+		fluRepo:       fluRepo,
 		fluCounter:    newFluCounter(),
 	}
 
@@ -39,23 +43,33 @@ func TestUnification_ProcessFlu(t *testing.T) {
 
 	unifStp.Start()
 
+	id := uuid.NewV4()
 	inputFlu := feed_line.FLU{
 		FeedLineUnit: models.FeedLineUnit{
-			ID:     uuid.NewV4(),
-			Build:  models.JsonF{"prop0": "a"},
-			StepId: uuid.NewV4(),
+			ID:       id,
+			Build:    models.JsonF{"prop0": "a"},
+			StepId:   uuid.NewV4(),
+			IsActive: true,
+			IsMaster: true,
+			MasterId: id,
 		},
 	}
 
 	inputFlu2 := inputFlu
 	inputFlu2.ID = uuid.NewV4()
-	inputFlu2.MasterId = inputFlu.ID
+	inputFlu2.IsMaster = false
+	inputFlu2.MasterId = inputFlu.MasterId
 	inputFlu2.Build = models.JsonF{"prop1": 11}
 
 	inputFlu3 := inputFlu
 	inputFlu3.ID = uuid.NewV4()
-	inputFlu3.MasterId = inputFlu.ID
+	inputFlu3.IsMaster = false
+	inputFlu3.MasterId = inputFlu.MasterId
 	inputFlu3.Build = models.JsonF{"prop2": true}
+
+	fluRepo.Add(inputFlu.FeedLineUnit)
+	fluRepo.Add(inputFlu2.FeedLineUnit)
+	fluRepo.Add(inputFlu3.FeedLineUnit)
 
 	unifStp.InQ.Push(inputFlu)
 	unifStp.InQ.Push(inputFlu2)
@@ -67,7 +81,9 @@ func TestUnification_ProcessFlu(t *testing.T) {
 
 	flu.ConfirmReceive()
 
-	assert.EqualValues(t, inputFlu3.ID, flu.ID)
+	assert.EqualValues(t, inputFlu.ID, flu.ID)
+	assert.True(t, flu.IsMaster)
+	assert.True(t, flu.IsActive)
 	assert.Equal(t, "a", flu.Build["prop0"])
 	assert.EqualValues(t, 11, flu.Build["prop1"])
 	assert.Equal(t, true, flu.Build["prop2"])

@@ -47,7 +47,7 @@ func (f *fluCounter) UpdateCount(flu feed_line.FLU) {
 
 		if eFlu.ID == flu.ID {
 
-			plog.Error("FLU Counter", errors.New("Already updated counter for flu_id : "+flu.ID.String()), "Masterfluid: "+getMasterFluId(flu).String())
+			plog.Error("FLU Counter", errors.New("Already updated counter for flu_id : "+flu.ID.String()), "Masterfluid: "+flu.MasterId.String())
 			return
 		}
 	}
@@ -77,5 +77,5 @@ func newFluCounter() fluCounter {
 }
 
 func getFluStepGroup(flu feed_line.FLU) fluStepGroup {
-	return fluStepGroup{getMasterFluId(flu), flu.StepId}
+	return fluStepGroup{flu.MasterId, flu.StepId}
 }

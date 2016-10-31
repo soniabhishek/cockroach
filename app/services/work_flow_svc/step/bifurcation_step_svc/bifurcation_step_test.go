@@ -14,7 +14,7 @@ import (
 
 type stepConfigSvcMock struct{}
 
-var _ work_flow_io_svc.IStepConfigurationSvc = &stepConfigSvcMock{}
+var _ work_flow_io_svc.IStepConfigSvc = &stepConfigSvcMock{}
 
 func (s *stepConfigSvcMock) GetTransformationStepConfig(stepId uuid.UUID) (config models.TransformationConfig, err error) {
 	return
@@ -40,9 +40,12 @@ func TestBifurcation_ProcessFlu(t *testing.T) {
 
 	bfs.Start()
 
+	fluId := uuid.NewV4()
 	inputFlu := feed_line.FLU{
 		FeedLineUnit: models.FeedLineUnit{
-			ID: uuid.NewV4(),
+			ID:       fluId,
+			IsMaster: true,
+			MasterId: fluId,
 		},
 	}
 
@@ -54,9 +57,10 @@ func TestBifurcation_ProcessFlu(t *testing.T) {
 
 		if i == 0 {
 			assert.EqualValues(t, inputFlu.ID, flu.ID)
-			assert.EqualValues(t, uuid.Nil, flu.MasterId)
+			assert.True(t, flu.IsMaster)
 		} else {
-			assert.EqualValues(t, inputFlu.ID, flu.MasterId)
+			assert.EqualValues(t, inputFlu.MasterId, flu.MasterId)
+			assert.False(t, flu.IsMaster)
 		}
 
 		assert.EqualValues(t, flu.Build[index], i)

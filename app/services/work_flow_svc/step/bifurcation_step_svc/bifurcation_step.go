@@ -18,7 +18,7 @@ import (
 type bifurcationStep struct {
 	step.Step
 	fluRepo       feed_line_repo.IFluRepo
-	stepConfigSvc work_flow_io_svc.IStepConfigurationSvc
+	stepConfigSvc work_flow_io_svc.IStepConfigSvc
 }
 
 const index string = "index"
@@ -48,7 +48,8 @@ func (b *bifurcationStep) processFlu(flu feed_line.FLU) {
 				newFlu.ID = uuid.NewV4()
 				newFlu.CreatedAt = pq.NullTime{time.Now(), true}
 				newFlu.UpdatedAt = newFlu.CreatedAt
-				newFlu.MasterId = getMasterId(flu)
+				newFlu.MasterId = flu.MasterId
+				newFlu.IsMaster = false
 
 				err := b.fluRepo.Add(newFlu.FeedLineUnit)
 				if err != nil {
@@ -74,13 +75,13 @@ func (c *bifurcationStep) finishFlu(flu feed_line.FLU) bool {
 	return true
 }
 
-func getMasterId(flu feed_line.FLU) uuid.UUID {
-
-	var masterFluId uuid.UUID
-	if flu.MasterId == uuid.Nil {
-		masterFluId = flu.ID
-	} else {
-		masterFluId = flu.MasterId
+func newStdBifurcation() *bifurcationStep {
+	ts := &bifurcationStep{
+		Step:          step.New(step_type.Bifurcation),
+		fluRepo:       feed_line_repo.New(),
+		stepConfigSvc: work_flow_io_svc.NewStepConfigService(),
 	}
-	return masterFluId
+
+	ts.SetFluProcessor(ts.processFlu)
+	return ts
 }

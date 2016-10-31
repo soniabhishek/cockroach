@@ -77,18 +77,12 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
 		return s.True(), nil
 	case "bifurcation":
-		options, ok1 := l.InputTemplate["options"].(map[string]interface{})
-		index, ok2 := options["index"].(int)
-		if !ok1 || !ok2 {
+		options, ok := l.InputTemplate["options"].(map[string]interface{})
+		if !ok {
 			return false, ErrMalformedLogicOptions
 		}
 
-		fluIndexValue, ok := flu.Build["index"].(int)
-		if !ok {
-			return false, ErrIndexNotFoundInFluBuild
-		}
-
-		return fluIndexValue == index
+		return options["index"] == flu.Build["index"], nil
 
 	default:
 		return false, ErrLogicNotFound

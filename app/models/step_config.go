@@ -4,6 +4,7 @@ import "github.com/crowdflux/angel/app/models/uuid"
 
 type CrowdsourcingConfig struct {
 	MicroTaskId uuid.UUID
+	AnswerKey   string
 }
 
 type InternalSourcingConfig struct {

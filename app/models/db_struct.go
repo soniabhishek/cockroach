@@ -154,6 +154,7 @@ type FeedLineLog struct {
 	StepType  sql.NullInt64  `db:"step_type" json:"step_type" bson:"step_type"`
 	StepId    uuid.UUID      `db:"step_id" json:"step_id" bson:"step_id"`
 	CreatedAt pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
+	MasterId  uuid.UUID      `db:"master_id" json:"master_id" bson:"master_id"`
 }
 
 type Feedback struct {

@@ -47,6 +47,7 @@ func log(flu models.FeedLineUnit, event int, stepType step_type.StepType, messag
 		StepType:  sql.NullInt64{int64(stepType), true},
 		StepId:    flu.StepId,
 		CreatedAt: pq.NullTime{time.Now(), true},
+		MasterId:  flu.MasterId,
 	}
 
 	feed_line.GetFeedlineLoggerChannel().Push(fluLog)

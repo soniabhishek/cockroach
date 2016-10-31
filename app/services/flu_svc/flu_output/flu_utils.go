@@ -96,6 +96,7 @@ func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp FluRespo
 			StepType:  sql.NullInt64{int64(12), true},
 			StepId:    fl.StepId,
 			CreatedAt: fl.CreatedAt,
+			MasterId:  fl.MasterId,
 		}
 		dbLogArr[i] = dbLog
 	}

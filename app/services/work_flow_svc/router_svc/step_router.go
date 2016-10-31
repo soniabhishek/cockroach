@@ -69,11 +69,9 @@ func (sr *stepRouter) getRoute(flu *feed_line.FLU) (route *feed_line.Fl) {
 	// then its a new flu directly from outside
 	// Get that step or send it to error step
 	if flu.StepId == uuid.Nil {
-		nextStep, err = sr.routeGetter.GetStartStep(*flu)
-		if err != nil {
-			plog.Error("Router", err, "error occured while getting start step")
-			return sr.routeTable[step_type.Error]
-		}
+
+		plog.Error("Router", err, "StepId is nil", "fluId: "+flu.ID.String())
+		return sr.routeTable[step_type.Error]
 
 	} else {
 

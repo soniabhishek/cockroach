@@ -38,6 +38,9 @@ func start(sr *stepRouter) {
 						plog.Info("Router", "Sent to manual after panic", flu)
 					}
 
+					//confirm to channel that flu have processed'
+					flu.ConfirmReceive()
+
 					// Free the buffer
 					<-sr.buffer
 				}()

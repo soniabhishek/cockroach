@@ -14,6 +14,9 @@ func (s *stepRepoMock) GetById(id uuid.UUID) (step models.Step, err error) { ret
 func (s *stepRepoMock) GetStartStep(projectId uuid.UUID, tag string) (step models.Step, err error) {
 	return
 }
+func (s *stepRepoMock) GetStartStepOrDefault(projectId uuid.UUID, tag string) (step models.Step, err error) {
+	return
+}
 func (s *stepRepoMock) GetEndStep(projectId uuid.UUID) (step models.Step, err error)       { return }
 func (s *stepRepoMock) GetStepsByWorkflowId(id uuid.UUID) (steps []models.Step, err error) { return }
 func (s *stepRepoMock) AddMany([]models.Step) (err error)                                  { return }

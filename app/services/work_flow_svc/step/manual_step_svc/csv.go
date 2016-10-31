@@ -82,46 +82,6 @@ func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.U
 	return filePath, l, err
 }
 
-func createCSV(flus []models.FeedLineUnit, path string, manualStepId uuid.UUID) (file string, err error) {
-
-	file = path + string(os.PathSeparator) + manualStepId.String() + ".csv"
-	err = createFile(file)
-	if err != nil {
-		plog.Error("Create file error", err, manualStepId)
-		return constants.Empty, nil
-	}
-	csvBuff := [][]string{{ID, REF_ID, DATA, BUILD, TAG, PROJECT_ID, STEP_ID, CREATED_ID, UPDATED_AT}}
-
-	for _, obj := range flus {
-		record := make([]string, 0)
-		record = append(record, obj.ID.String())
-		record = append(record, obj.ReferenceId)
-		record = append(record, obj.Data.String())
-		record = append(record, obj.Build.String())
-		record = append(record, obj.Tag)
-		record = append(record, obj.ProjectId.String())
-		record = append(record, obj.StepId.String())
-
-		if obj.CreatedAt.Valid {
-			record = append(record, obj.CreatedAt.Time.Format(timeFormat))
-		} else {
-			record = append(record, constants.Empty)
-		}
-
-		if obj.UpdatedAt.Valid {
-			record = append(record, obj.UpdatedAt.Time.Format(timeFormat))
-		} else {
-			record = append(record, constants.Empty)
-		}
-
-		csvBuff = append(csvBuff, record)
-	}
-
-	// Write unmarshaled json data to CSV file
-	err = writeCSV(file, csvBuff)
-	return file, err
-}
-
 func UploadCsv(filename string) error {
 	file := TEMP_FOLDER + string(os.PathSeparator) + filename
 	csvFile, err := os.Open(file)

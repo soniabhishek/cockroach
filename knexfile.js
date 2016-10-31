@@ -1,3 +1,6 @@
+require("babel-register");
+require("babel-polyfill");
+
 var Config = require('config-js');
 var config = new Config('./app/config/##.json');
 

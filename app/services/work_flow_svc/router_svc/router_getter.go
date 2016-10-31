@@ -11,7 +11,6 @@ import (
 
 type IRouteGetter interface {
 	GetNextStep(feed_line.FLU) (models.Step, error)
-	GetStartStep(flu feed_line.FLU) (models.Step, error)
 }
 
 type routeGetter struct {
@@ -20,21 +19,20 @@ type routeGetter struct {
 	stepRepo       step_repo.IStepRepo
 }
 
-func (r *routeGetter) GetStartStep(flu feed_line.FLU) (models.Step, error) {
-	return r.stepRepo.GetStartStep(flu.ProjectId)
-}
-
 func (r *routeGetter) GetNextStep(flu feed_line.FLU) (models.Step, error) {
 
 	var step models.Step
 
-	routes, err := r.stepRouterRepo.GetRoutesWithLogicByStepId(flu.StepId)
+	routes, err := r.stepRouterRepo.GetRoutesByStepId(flu.StepId)
 	if err != nil {
 		return step, err
 	}
 
 	for _, route := range routes {
-		correct, err := Logic(flu, route.LogicGate)
+
+		var logicGate models.LogicGate
+		logicGate.InputTemplate = route.Config
+		correct, err := Logic(flu, logicGate)
 		if err != nil {
 			return step, err
 		} else if correct {

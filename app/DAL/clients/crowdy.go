@@ -10,6 +10,7 @@ import (
 
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 var crowdyBaseApiUrl = config.CROWDY_BASE_API.Get()
@@ -28,12 +29,13 @@ type pushFluResponse struct {
 }
 
 type pushFluReq struct {
-	Flu models.FeedLineUnit `json:"flu"`
+	Flu         models.FeedLineUnit `json:"flu"`
+	MicroTaskId uuid.UUID           `json:"micro_task_id"`
 }
 
-func (*crowdyClient) PushFLU(flu models.FeedLineUnit) (bool, error) {
+func (*crowdyClient) PushFLU(flu models.FeedLineUnit, microTaskId uuid.UUID) (bool, error) {
 
-	bty, _ := json.Marshal(pushFluReq{flu})
+	bty, _ := json.Marshal(pushFluReq{flu, microTaskId})
 
 	req, _ := http.NewRequest("POST", pushFluUrl, bytes.NewBuffer(bty))
 

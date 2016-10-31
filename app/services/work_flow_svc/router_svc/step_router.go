@@ -9,9 +9,11 @@ import (
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/bifurcation_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/transformation_step_csv"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/unification_step_svc"
 )
 
 type routeTable map[step_type.StepType]*feed_line.Fl
@@ -42,6 +44,8 @@ func (sr *stepRouter) connectAll() {
 	var crowdSourcingConn IConnector = crowdsourcing_step_svc.StdCrowdSourcingStep
 	var manualStepConn IConnector = manual_step_svc.StdManualStep
 	var transformationStepConn IConnector = transformation_step_svc.StdTransformationStep
+	var bifurcationStepConn IConnector = bifurcation_step_svc.StdBifurcationStep
+	var unificationStepConn IConnector = unification_step_svc.StdUnificationStep
 
 	sr.routeTable = routeTable{
 
@@ -50,8 +54,8 @@ func (sr *stepRouter) connectAll() {
 		step_type.Manual:           manualStepConn.Connect(&sr.InQ),
 		step_type.Transformation:   transformationStepConn.Connect(&sr.InQ),
 		step_type.Algorithm:        manualStepConn.Connect(&sr.InQ),
-		step_type.Bifurcation:      manualStepConn.Connect(&sr.InQ),
-		step_type.Unification:      manualStepConn.Connect(&sr.InQ),
+		step_type.Bifurcation:      bifurcationStepConn.Connect(&sr.InQ),
+		step_type.Unification:      unificationStepConn.Connect(&sr.InQ),
 		step_type.Error:            manualStepConn.Connect(&sr.InQ),
 
 		// Special case
@@ -69,11 +73,9 @@ func (sr *stepRouter) getRoute(flu *feed_line.FLU) (route *feed_line.Fl) {
 	// then its a new flu directly from outside
 	// Get that step or send it to error step
 	if flu.StepId == uuid.Nil {
-		nextStep, err = sr.routeGetter.GetStartStep(*flu)
-		if err != nil {
-			plog.Error("Router", err, "error occured while getting start step")
-			return sr.routeTable[step_type.Error]
-		}
+
+		plog.Error("Router", err, "StepId is nil", "fluId: "+flu.ID.String())
+		return sr.routeTable[step_type.Error]
 
 	} else {
 

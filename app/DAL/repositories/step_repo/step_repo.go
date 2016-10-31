@@ -3,6 +3,7 @@ package step_repo
 import (
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 )
 
@@ -25,12 +26,28 @@ func (s *stepRepo) GetStepsByWorkflowId(workFlowId uuid.UUID) (steps []models.St
 	return
 }
 
-func (s *stepRepo) GetStartStep(projectId uuid.UUID) (step models.Step, err error) {
+func (s *stepRepo) GetStartStep(projectId uuid.UUID, tag string) (step models.Step, err error) {
 
 	err = s.Db.SelectOne(&step, `
 	select s.* from step s
 	inner join work_flow w on w.id = s.work_flow_id
-	where w.project_id = $1 and is_start is true`, projectId.String())
+	where w.project_id = $1 and w.tag = $2 and s.type = $3`, projectId.String(), tag, step_type.StartStep)
+	return
+}
+
+func (s *stepRepo) GetStartStepOrDefault(projectId uuid.UUID, tag string) (step models.Step, err error) {
+	err = s.Db.SelectOne(&step, `
+	select s.* from step s
+	inner join work_flow w on w.id = s.work_flow_id
+	where w.project_id = $1 and w.tag = $2 and s.type = $3`, projectId.String(), tag, step_type.StartStep)
+	if err == nil {
+		return
+	}
+
+	err = s.Db.SelectOne(&step, `
+	select s.* from step s
+	inner join work_flow w on w.id = s.work_flow_id
+	where w.project_id = $1 and s.type = $3 limit 1`, projectId.String(), step_type.StartStep)
 	return
 }
 

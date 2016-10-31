@@ -1,4 +1,4 @@
-package work_flow_builder_svc
+package work_flow_io_svc
 
 import (
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"

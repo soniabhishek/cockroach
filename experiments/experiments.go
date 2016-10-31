@@ -66,7 +66,7 @@ func mainHit() {
 	plog.Info("Sent file for upload: ", filename)
 }
 
-func main() {
+func main12() {
 
 	//url := "http://localhost:8080/JServer/HelloServlet"
 	url := "https://catalogadmin-staging.paytm.com/v1/tp/product/qc-status"

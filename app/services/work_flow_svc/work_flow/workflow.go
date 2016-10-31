@@ -2,8 +2,11 @@ package work_flow
 
 import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
+	"github.com/crowdflux/angel/app/DAL/repositories/step_repo"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/router_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
 )
 
 type WorkFlow struct {
@@ -27,16 +30,28 @@ func newStdWorkFlow() WorkFlow {
 		inputQueue := w.InQ.Receiver()
 		outputQueue := router_svc.StdStepRouter.ProcessedFluQ.Receiver()
 
+		stepRepo := step_repo.New()
+
 		for {
 			select {
 
 			case flu := <-inputQueue:
-				counter.Print(flu, "workflow in")
-				router_svc.StdStepRouter.InQ.Push(flu)
+
+				startStep, err := stepRepo.GetStartStepOrDefault(flu.ProjectId, flu.Tag)
+				if err != nil {
+					plog.Error("Worflow", err, "error getting start step", "fluId: "+flu.ID.String(), "sending to manual step")
+					manual_step_svc.StdManualStep.InQ.Push(flu)
+				} else {
+					flu.StepId = startStep.ID
+					counter.Print(flu, "workflow in")
+					router_svc.StdStepRouter.InQ.Push(flu)
+				}
+				flu.ConfirmReceive()
 
 			case flu := <-outputQueue:
 				counter.Print(flu, "workflow out")
 				w.OutQ.Push(flu)
+				flu.ConfirmReceive()
 			}
 		}
 	}()
@@ -62,6 +77,7 @@ func NewShortCircuit() WorkFlow {
 		for flu := range w.InQ.Receiver() {
 			counter.Print(flu, "shortcircuit workflow out")
 			w.OutQ.Push(flu)
+			flu.ConfirmReceive()
 		}
 	}()
 

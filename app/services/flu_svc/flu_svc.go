@@ -55,6 +55,13 @@ func (i *fluService) SyncInputFeedLine() error {
 
 	if len(flus) > 0 {
 
+		for i, _ := range flus {
+
+			flus[i].MasterId = flus[i].ID
+			flus[i].IsActive = true
+			flus[i].IsMaster = true
+		}
+
 		err = i.fluRepo.BulkInsert(flus)
 
 		if err != nil {
@@ -66,6 +73,7 @@ func (i *fluService) SyncInputFeedLine() error {
 		go func() {
 
 			for _, flu := range flus {
+
 				i.workFlowSvc.AddFLU(flu)
 			}
 		}()

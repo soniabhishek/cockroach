@@ -12,7 +12,7 @@ import (
 
 	"time"
 
-	"github.com/crowdflux/angel/app/services/work_flow_builder_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_io_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_retriever_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
@@ -71,7 +71,7 @@ func Build() {
 		manual_step_svc.AddHttpTransport(api)
 		utils_api.AddHttpTransport(api)
 		work_flow_retriever_svc.AddHttpTransport(api)
-		work_flow_builder_svc.AddHttpTransport(api)
+		work_flow_io_svc.AddHttpTransport(api)
 	}
 
 	authorized := r.Group("/api/v0", auther.GinAuther())

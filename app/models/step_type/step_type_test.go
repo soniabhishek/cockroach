@@ -3,7 +3,7 @@ package step_type
 import (
 	"testing"
 
-	"github.com/notnow/src/encoding/json"
+	"encoding/json"
 	"github.com/stretchr/testify/assert"
 )
 

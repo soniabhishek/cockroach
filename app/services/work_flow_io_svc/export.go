@@ -25,12 +25,15 @@ func New() IWorkflowBuilderService {
 	}
 }
 
-type IStepConfigurationSvc interface {
+type IStepConfigSvc interface {
+	GetCrowdsourcingStepConfig(stepId uuid.UUID) (models.CrowdsourcingConfig, error)
 	GetTransformationStepConfig(stepId uuid.UUID) (models.TransformationConfig, error)
 	GetBifurcationStepConfig(stepId uuid.UUID) (models.BifurcationConfig, error)
 	GetUnificationStepConfig(stepId uuid.UUID) (models.UnificationConfig, error)
 }
 
-func NewStepConfigService() IStepConfigurationSvc {
-	return nil
+func NewStepConfigService() IStepConfigSvc {
+	return &stepConfigSvc{
+		stepRepo: step_repo.New(),
+	}
 }

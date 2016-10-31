@@ -9,6 +9,7 @@ import (
 type IStepRepo interface {
 	GetById(id uuid.UUID) (models.Step, error)
 	GetStartStep(projectId uuid.UUID, tag string) (models.Step, error)
+	GetStartStepOrDefault(projectId uuid.UUID, tag string) (models.Step, error)
 	GetEndStep(projectId uuid.UUID) (models.Step, error)
 	GetStepsByWorkflowId(id uuid.UUID) ([]models.Step, error)
 	AddMany([]models.Step) error

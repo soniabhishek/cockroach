@@ -37,7 +37,7 @@ func newStdWorkFlow() WorkFlow {
 
 			case flu := <-inputQueue:
 
-				startStep, err := stepRepo.GetStartStep(flu.ProjectId, flu.Tag)
+				startStep, err := stepRepo.GetStartStepOrDefault(flu.ProjectId, flu.Tag)
 				if err != nil {
 					plog.Error("Worflow", err, "error getting start step", "fluId: "+flu.ID.String(), "sending to manual step")
 					manual_step_svc.StdManualStep.InQ.Push(flu)

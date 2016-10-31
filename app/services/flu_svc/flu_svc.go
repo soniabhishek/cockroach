@@ -57,7 +57,7 @@ func (i *fluService) SyncInputFeedLine() error {
 
 		for i, _ := range flus {
 
-			flus[i].MasterId = flu.ID
+			flus[i].MasterId = flus[i].ID
 			flus[i].IsActive = true
 			flus[i].IsMaster = true
 		}

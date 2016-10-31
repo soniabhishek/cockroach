@@ -5,31 +5,35 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
-	"strconv"
 	"sync"
 )
 
+type fluStepGroup struct {
+	MasterFluId uuid.UUID
+	StepId      uuid.UUID
+}
+
 type fluCounter struct {
-	counter map[uuid.UUID][]feed_line.FLU
+	counter map[fluStepGroup][]feed_line.FLU
 
 	// Read Write lock to enable concurrent
 	// reads by single writes
 	sync.RWMutex
 }
 
-func (f *fluCounter) GetCount(fluId uuid.UUID) int {
+func (f *fluCounter) GetCount(flu feed_line.FLU) int {
 
 	f.RLock()
 	defer f.RUnlock()
 
-	return len(f.counter[fluId])
+	return len(f.counter[getFluStepGroup(flu)])
 }
 
-func (f *fluCounter) Get(fluId uuid.UUID) []feed_line.FLU {
+func (f *fluCounter) Get(flu feed_line.FLU) []feed_line.FLU {
 	f.RLock()
 	defer f.RUnlock()
 
-	return f.counter[fluId]
+	return f.counter[getFluStepGroup(flu)]
 }
 
 func (f *fluCounter) UpdateCount(flu feed_line.FLU) {
@@ -37,27 +41,26 @@ func (f *fluCounter) UpdateCount(flu feed_line.FLU) {
 	f.Lock()
 	defer f.Unlock()
 
-	existingFLus := f.counter[flu.ID]
+	existingFLus := f.counter[getFluStepGroup(flu)]
 
 	for _, eFlu := range existingFLus {
 
-		if eFlu.CopyId == flu.CopyId {
+		if eFlu.ID == flu.ID {
 
-			copyIdStr := strconv.Itoa(eFlu.CopyId)
-			plog.Error("FLU Counter", errors.New("Already updated counter for flu_id : "+flu.ID.String()+" index : "+copyIdStr))
+			plog.Error("FLU Counter", errors.New("Already updated counter for flu_id : "+flu.ID.String()), "Masterfluid: "+getMasterFluId(flu).String())
 			return
 		}
 	}
 
-	f.counter[flu.ID] = append(existingFLus, flu)
+	f.counter[getFluStepGroup(flu)] = append(existingFLus, flu)
 }
 
-func (f *fluCounter) Clear(fluId uuid.UUID) {
+func (f *fluCounter) Clear(flu feed_line.FLU) {
 
 	f.Lock()
 	defer f.Unlock()
 
-	flus, ok := f.counter[fluId]
+	flus, ok := f.counter[getFluStepGroup(flu)]
 	if !ok {
 		return
 	}
@@ -66,9 +69,13 @@ func (f *fluCounter) Clear(fluId uuid.UUID) {
 		flu.ConfirmReceive()
 	}
 
-	delete(f.counter, fluId)
+	delete(f.counter, getFluStepGroup(flu))
 }
 
 func newFluCounter() fluCounter {
-	return fluCounter{make(map[uuid.UUID][]feed_line.FLU), sync.RWMutex{}}
+	return fluCounter{make(map[fluStepGroup][]feed_line.FLU), sync.RWMutex{}}
+}
+
+func getFluStepGroup(flu feed_line.FLU) fluStepGroup {
+	return fluStepGroup{getMasterFluId(flu), flu.StepId}
 }

@@ -3,6 +3,7 @@ package unification_step_svc
 import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/step_type"
+	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_io_svc"
@@ -15,6 +16,8 @@ type unificationStep struct {
 
 	fluCounter fluCounter
 }
+
+const index string = "index"
 
 func (u *unificationStep) processFlu(flu feed_line.FLU) {
 
@@ -30,15 +33,15 @@ func (u *unificationStep) processFlu(flu feed_line.FLU) {
 	// If count is less then awaited count
 	// then add it to the counter & don't finish it
 
-	if u.fluCounter.GetCount(flu.ID) >= unificationConfig.Multiplication {
+	if u.fluCounter.GetCount(flu) >= unificationConfig.Multiplication {
 
-		waitingFlus := u.fluCounter.Get(flu.ID)
+		waitingFlus := u.fluCounter.Get(flu)
 
 		for _, wFlu := range waitingFlus {
 			flu.Build.Merge(wFlu.Build)
 		}
 
-		u.fluCounter.Clear(flu.ID)
+		u.fluCounter.Clear(flu)
 		u.finishFlu(flu)
 	}
 
@@ -49,4 +52,12 @@ func (u *unificationStep) finishFlu(flu feed_line.FLU) bool {
 	u.OutQ.Push(flu)
 	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Unification, flu.Redelivered())
 	return true
+}
+
+func getMasterFluId(flu feed_line.FLU) uuid.UUID {
+	if flu.MasterId == uuid.Nil {
+		return flu.ID
+	} else {
+		return flu.MasterId
+	}
 }

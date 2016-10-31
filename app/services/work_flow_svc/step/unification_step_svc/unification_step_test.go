@@ -43,17 +43,19 @@ func TestUnification_ProcessFlu(t *testing.T) {
 		FeedLineUnit: models.FeedLineUnit{
 			ID:     uuid.NewV4(),
 			Build:  models.JsonF{"prop0": "a"},
-			CopyId: 0,
+			StepId: uuid.NewV4(),
 		},
 	}
 
 	inputFlu2 := inputFlu
+	inputFlu2.ID = uuid.NewV4()
+	inputFlu2.MasterId = inputFlu.ID
 	inputFlu2.Build = models.JsonF{"prop1": 11}
-	inputFlu2.CopyId = 1
 
 	inputFlu3 := inputFlu
+	inputFlu3.ID = uuid.NewV4()
+	inputFlu3.MasterId = inputFlu.ID
 	inputFlu3.Build = models.JsonF{"prop2": true}
-	inputFlu3.CopyId = 2
 
 	unifStp.InQ.Push(inputFlu)
 	unifStp.InQ.Push(inputFlu2)
@@ -65,7 +67,7 @@ func TestUnification_ProcessFlu(t *testing.T) {
 
 	flu.ConfirmReceive()
 
-	assert.EqualValues(t, inputFlu.ID, flu.ID)
+	assert.EqualValues(t, inputFlu3.ID, flu.ID)
 	assert.Equal(t, "a", flu.Build["prop0"])
 	assert.EqualValues(t, 11, flu.Build["prop1"])
 	assert.Equal(t, true, flu.Build["prop2"])

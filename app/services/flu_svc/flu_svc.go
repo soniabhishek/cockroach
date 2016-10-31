@@ -66,6 +66,11 @@ func (i *fluService) SyncInputFeedLine() error {
 		go func() {
 
 			for _, flu := range flus {
+
+				flu.MasterId = flu.ID
+				flu.IsActive = true
+				flu.IsMaster = true
+
 				i.workFlowSvc.AddFLU(flu)
 			}
 		}()

@@ -40,14 +40,14 @@ func log(flu models.FeedLineUnit, event int, stepType step_type.StepType, messag
 	}
 
 	fluLog := models.FeedLineLog{
-		FluId:     flu.ID,
-		Message:   sql.NullString{message, !IsEmpty(message)},
-		MetaData:  metaData,
-		Event:     event,
-		StepType:  sql.NullInt64{int64(stepType), true},
-		StepId:    flu.StepId,
-		CreatedAt: pq.NullTime{time.Now(), true},
-		MasterId:  flu.MasterId,
+		FluId:       flu.ID,
+		Message:     sql.NullString{message, !IsEmpty(message)},
+		MetaData:    metaData,
+		Event:       event,
+		StepType:    sql.NullInt64{int64(stepType), true},
+		StepId:      flu.StepId,
+		CreatedAt:   pq.NullTime{time.Now(), true},
+		MasterFluId: flu.MasterId,
 	}
 
 	feed_line.GetFeedlineLoggerChannel().Push(fluLog)

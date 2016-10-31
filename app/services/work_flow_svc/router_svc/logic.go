@@ -12,6 +12,7 @@ var ErrLogicNotFound = errors.New("Logic not found")
 var ErrLogicKeyNotFound = errors.New("logic key not found")
 var ErrLogicKeyNotValid = errors.New("logic key not valid")
 var ErrMalformedLogicOptions = errors.New("Malformed logic options")
+var ErrIndexNotFoundInFluBuild = errors.New("index (integer) property not found")
 
 //var ErrPropNotFoundInFluBuild = errors.New("property not found in flu build")
 
@@ -75,6 +76,19 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		}
 
 		return s.True(), nil
+	case "bifurcation":
+		options, ok1 := l.InputTemplate["options"].(map[string]interface{})
+		index, ok2 := options["index"].(int)
+		if !ok1 || !ok2 {
+			return false, ErrMalformedLogicOptions
+		}
+
+		fluIndexValue, ok := flu.Build["index"].(int)
+		if !ok {
+			return false, ErrIndexNotFoundInFluBuild
+		}
+
+		return fluIndexValue == index
 
 	default:
 		return false, ErrLogicNotFound

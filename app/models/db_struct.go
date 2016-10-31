@@ -143,18 +143,20 @@ type FeedLineUnit struct {
 	Build       JsonF       `db:"build" json:"build" bson:"build"`
 	ProjectId   uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
 	MasterId    uuid.UUID   `db:"master_id" json:"master_id" bson:"master_id"`
+	IsActive    bool        `db:"is_active" json:"is_active" bson:"is_active"`
+	IsMaster    bool        `db:"is_master" json:"is_master" bson:"is_master"`
 }
 
 type FeedLineLog struct {
-	ID        int            `db:"id" json:"id" bson:"_id"`
-	FluId     uuid.UUID      `db:"flu_id" json:"flu_id" bson:"flu_id"`
-	Message   sql.NullString `db:"message" json:"message" bson:"message"`
-	MetaData  JsonF          `db:"meta_data" json:"meta_data" bson:"meta_data"`
-	Event     int            `db:"event" json:"event" bson:"event"`
-	StepType  sql.NullInt64  `db:"step_type" json:"step_type" bson:"step_type"`
-	StepId    uuid.UUID      `db:"step_id" json:"step_id" bson:"step_id"`
-	CreatedAt pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
-	MasterId  uuid.UUID      `db:"master_id" json:"master_id" bson:"master_id"`
+	ID          int            `db:"id" json:"id" bson:"_id"`
+	FluId       uuid.UUID      `db:"flu_id" json:"flu_id" bson:"flu_id"`
+	Message     sql.NullString `db:"message" json:"message" bson:"message"`
+	MetaData    JsonF          `db:"meta_data" json:"meta_data" bson:"meta_data"`
+	Event       int            `db:"event" json:"event" bson:"event"`
+	StepType    sql.NullInt64  `db:"step_type" json:"step_type" bson:"step_type"`
+	StepId      uuid.UUID      `db:"step_id" json:"step_id" bson:"step_id"`
+	CreatedAt   pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
+	MasterFluId uuid.UUID      `db:"master_flu_id" json:"master_flu_id" bson:"master_flu_id"`
 }
 
 type Feedback struct {

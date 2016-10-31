@@ -20,7 +20,7 @@ func TestWorkFlowBuilderService_GetWorkflowContainer(t *testing.T) {
 	container, err := serviceObject.GetWorkflowContainer(uuid.NewV4())
 	fmt.Println(container, err)
 
-	assert.NoError(t, err)
+	assert.Error(t, err)
 }
 
 /**

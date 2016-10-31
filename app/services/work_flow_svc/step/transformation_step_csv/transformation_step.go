@@ -47,6 +47,7 @@ func (t *transformationStep) finishFlu(flu feed_line.FLU) bool {
 		//return false
 	}
 	t.OutQ.Push(flu)
+	flu.ConfirmReceive()
 	plog.Info("transformation out", flu.ID)
 	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Transformation, flu.Redelivered())
 

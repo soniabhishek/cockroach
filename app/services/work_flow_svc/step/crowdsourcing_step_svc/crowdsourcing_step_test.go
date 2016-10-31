@@ -6,10 +6,10 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 	"github.com/stretchr/testify/assert"
-	//"time"
 	"time"
 )
 
@@ -44,12 +44,14 @@ func Test(t *testing.T) {
 	fluRepo.Save(flu.FeedLineUnit)
 
 	cs := crowdSourcingStep{
-		Step:      step.New(),
+		Step:      step.New(step_type.Test),
 		fluRepo:   feed_line_repo.New(),
 		fluClient: fakeFluPusher{},
 	}
 
-	cs.start()
+	cs.SetFluProcessor(cs.processFlu)
+
+	cs.Start()
 
 	cs.InQ.Push(flu)
 
@@ -60,15 +62,15 @@ func Test(t *testing.T) {
 	flu.Build["new_prop"] = 123
 
 	ok := cs.finishFlu(flu)
-
 	assert.True(t, ok)
 
 	var fluNew feed_line.FLU
 	select {
 	case fluNew = <-cs.OutQ.Receiver():
+		fluNew.ConfirmReceive()
 		assert.EqualValues(t, flu.ID, fluNew.ID)
 		assert.EqualValues(t, flu.Build["new_prop"], 123)
-	default:
+	case <-time.After(time.Duration(2) * time.Second):
 		assert.FailNow(t, "nothing came out of crowdsourcing queue")
 	}
 
@@ -83,12 +85,12 @@ func TestInvalidFlu(t *testing.T) {
 	fluRepo.Save(flu.FeedLineUnit)
 
 	cs := crowdSourcingStep{
-		Step:      step.New(),
+		Step:      step.New(step_type.Test),
 		fluRepo:   feed_line_repo.New(),
 		fluClient: fakeFluPusher{},
 	}
 
-	cs.start()
+	cs.Start()
 
 	cs.InQ.Push(flu)
 

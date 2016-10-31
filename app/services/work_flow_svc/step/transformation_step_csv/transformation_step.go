@@ -3,23 +3,23 @@ package transformation_step_svc
 import (
 	"github.com/crowdflux/angel/app/DAL/clients"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
-	"github.com/crowdflux/angel/app/DAL/repositories/step_configuration_repo"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_io_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 )
 
 type transformationStep struct {
 	step.Step
-	transformationConfigRepo step_configuration_repo.ITransformationStepConfigurationRepo
+	stepConfigSvc work_flow_io_svc.IStepConfigSvc
 }
 
 func (t *transformationStep) processFlu(flu feed_line.FLU) {
 	t.AddToBuffer(flu)
 	plog.Info("transformation Step flu reached", flu.ID)
 
-	tStep, err := t.transformationConfigRepo.GetByStepId(flu.StepId)
+	tStep, err := t.stepConfigSvc.GetTransformationStepConfig(flu.StepId)
 	if err != nil {
 		plog.Error("transformation step", err, "fluId: "+flu.ID.String(), "stepid: "+flu.StepId.String(), flu.FeedLineUnit)
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Transformation, "TransformationConfigError", flu.Redelivered())
@@ -56,8 +56,8 @@ func (t *transformationStep) finishFlu(flu feed_line.FLU) bool {
 
 func newStdTransformer() *transformationStep {
 	ts := &transformationStep{
-		Step: step.New(step_type.Transformation),
-		transformationConfigRepo: step_configuration_repo.NewTransformationStepConfigurationRepo(),
+		Step:          step.New(step_type.Transformation),
+		stepConfigSvc: work_flow_io_svc.NewStepConfigService(),
 	}
 
 	ts.SetFluProcessor(ts.processFlu)

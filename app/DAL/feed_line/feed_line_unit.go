@@ -37,3 +37,11 @@ func (flu *FLU) ConfirmReceive() {
 func (flu *FLU) Redelivered() bool {
 	return flu.delivery.Redelivered
 }
+
+func (flu FLU) Copy() FLU {
+	flu.Build = flu.Build.Copy()
+
+	flu.delivery = amqp.Delivery{}
+	flu.once = &sync.Once{}
+	return flu
+}

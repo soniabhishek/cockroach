@@ -30,12 +30,12 @@ func (s *stepConfigSvcMock) GetUnificationStepConfig(stepId uuid.UUID) (config m
 
 func TestUnification_ProcessFlu(t *testing.T) {
 
-	fluRepo := feed_line_repo.Mock()
+	fluRepoMock := feed_line_repo.Mock()
 
 	unifStp := unificationStep{
 		Step:          step.New(step_type.Test),
 		stepConfigSvc: &stepConfigSvcMock{},
-		fluRepo:       fluRepo,
+		fluRepo:       fluRepoMock,
 		fluCounter:    newFluCounter(),
 	}
 
@@ -67,9 +67,9 @@ func TestUnification_ProcessFlu(t *testing.T) {
 	inputFlu3.MasterId = inputFlu.MasterId
 	inputFlu3.Build = models.JsonF{"prop2": true}
 
-	fluRepo.Add(inputFlu.FeedLineUnit)
-	fluRepo.Add(inputFlu2.FeedLineUnit)
-	fluRepo.Add(inputFlu3.FeedLineUnit)
+	fluRepoMock.Add(inputFlu.FeedLineUnit)
+	fluRepoMock.Add(inputFlu2.FeedLineUnit)
+	fluRepoMock.Add(inputFlu3.FeedLineUnit)
 
 	unifStp.InQ.Push(inputFlu)
 	unifStp.InQ.Push(inputFlu2)

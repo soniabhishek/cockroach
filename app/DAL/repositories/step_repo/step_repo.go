@@ -47,7 +47,7 @@ func (s *stepRepo) GetStartStepOrDefault(projectId uuid.UUID, tag string) (step 
 	err = s.Db.SelectOne(&step, `
 	select s.* from step s
 	inner join work_flow w on w.id = s.work_flow_id
-	where w.project_id = $1 and s.type = $3 limit 1`, projectId.String(), step_type.StartStep)
+	where w.project_id = $1 and s.type = $2 limit 1`, projectId.String(), step_type.StartStep)
 	return
 }
 

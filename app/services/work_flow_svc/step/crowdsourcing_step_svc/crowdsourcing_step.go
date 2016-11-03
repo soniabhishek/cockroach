@@ -27,6 +27,12 @@ type crowdsourcingGatewayClient interface {
 
 func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
+	if isDuplicate(flu.ID) {
+		flu.ConfirmReceive()
+		plog.Info("crowdsourcing step", "duplicate flu found")
+		return
+	}
+
 	c.AddToBuffer(flu)
 
 	cc, err := c.stepConfigSvc.GetCrowdsourcingStepConfig(flu.StepId)

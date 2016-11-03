@@ -3,6 +3,7 @@ package crowdsourcing_step_svc
 import (
 	"testing"
 
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
@@ -18,7 +19,7 @@ import (
 type fakeFluPusher struct {
 }
 
-func (fakeFluPusher) PushFLU(models.FeedLineUnit) (bool, error) {
+func (fakeFluPusher) PushFLU(models.FeedLineUnit, uuid.UUID) (bool, error) {
 	return true, nil
 }
 
@@ -100,4 +101,42 @@ func TestInvalidFlu(t *testing.T) {
 	ok := cs.finishFlu(inValidFlu)
 
 	assert.False(t, ok)
+}
+
+func TestCustom(t *testing.T) {
+
+	fluRepo := feed_line_repo.Mock()
+
+	fluRepo.Save(flu.FeedLineUnit)
+
+	cs := crowdSourcingStep{
+		Step:      step.New(step_type.CrowdSourcing),
+		fluRepo:   feed_line_repo.New(),
+		fluClient: fakeFluPusher{},
+	}
+
+	cs.SetFluProcessor(cs.processFlu)
+
+	cs.Start()
+
+	pgClient := postgres.GetPostgresClient()
+
+	var duplicateFluIds []uuid.UUID
+
+	_, err := pgClient.Select(&duplicateFluIds, `
+	SELECT DISTINCT (flu_id) from feed_line_log
+	WHERE event = 3 AND message = 'crowdySendFailure';`)
+	if err != nil {
+		panic(err)
+	}
+
+	for flu := range cs.OutQ.Receiver() {
+
+		for _, dFlu := range duplicateFluIds {
+			if flu.ID == dFlu {
+				flu.ConfirmReceive()
+				break
+			}
+		}
+	}
 }

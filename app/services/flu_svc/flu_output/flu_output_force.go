@@ -122,10 +122,10 @@ func sendFluBack(config models.ProjectConfiguration, flu models.FeedLineUnit, ch
 	}
 }
 
-func sendBackToClientCustom(fpsModel models.ProjectConfiguration, fluProjectResp []fluOutputStruct) (*Response, status_codes.StatusCode) {
+func sendBackToClientCustom(fpsModel models.ProjectConfiguration, fluProjectResp []fluOutputStruct) (*FluResponse, status_codes.StatusCode) {
 
 	if len(fluProjectResp) < 1 {
-		return &Response{}, status_codes.NoFluToSend
+		return &FluResponse{}, status_codes.NoFluToSend
 	}
 
 	url := fpsModel.PostBackUrl
@@ -137,7 +137,7 @@ func sendBackToClientCustom(fpsModel models.ProjectConfiguration, fluProjectResp
 	jsonBytes, err := json.Marshal(sendResp)
 	if err != nil {
 		plog.Error("JSON Marshalling Error:", err)
-		return &Response{}, status_codes.UnknownFailure
+		return &FluResponse{}, status_codes.UnknownFailure
 	}
 	jsonBytes = utilities.ReplaceEscapeCharacters(jsonBytes)
 	plog.Trace("Sending JSON:", string(jsonBytes))
@@ -157,7 +157,7 @@ func sendBackToClientCustom(fpsModel models.ProjectConfiguration, fluProjectResp
 	resp, err := client.Do(req)
 	if err != nil {
 		plog.Error("HTTP Error:", err)
-		return &Response{}, status_codes.UnknownFailure
+		return &FluResponse{}, status_codes.UnknownFailure
 	}
 
 	fluResp, status := validationErrorCallback(resp)

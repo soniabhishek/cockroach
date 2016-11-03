@@ -23,7 +23,7 @@ type IFluRepo interface {
 }
 
 type IFluLogger interface {
-	Log([]models.FeedLineLog)
+	Log([]models.FeedLineLog) error
 }
 
 //--------------------------------------------------------------------------------//

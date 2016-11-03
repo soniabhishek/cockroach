@@ -48,7 +48,7 @@ func BenchmarkAuthor_Check(b *testing.B) {
 
 func TestProdAuther(t *testing.T) {
 	//id := uuid.NewV4()
-	id := uuid.FromStringOrNil("89658f2b-0536-40f6-88b7-92e39d0e0e09")
+	id := uuid.FromStringOrNil("1d4c1174-73d3-46e2-adc2-ab2873fd115f")
 	s := StdProdAuther.GetAPIKey(id)
 	fmt.Println(id)
 	fmt.Println(s)

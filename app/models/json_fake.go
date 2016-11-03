@@ -61,6 +61,11 @@ func (j *JsonF) String() string {
 }
 
 func (j *JsonF) Merge(a JsonF) JsonF {
+
+	if *j == nil {
+		*j = JsonF{}
+	}
+
 	for k, v := range a {
 		(*j)[k] = v
 	}
@@ -70,4 +75,31 @@ func (j *JsonF) Merge(a JsonF) JsonF {
 func (j *JsonF) StringPretty() string {
 	bty, _ := json.MarshalIndent(*j, "", "  ")
 	return string(bty)
+}
+
+func (j *JsonF) CastTo(i interface{}) error {
+	bty, _ := json.Marshal(*j)
+	return json.Unmarshal(bty, i)
+}
+
+func (j *JsonF) Set(key string, val interface{}) {
+	if *j == nil {
+		*j = JsonF{}
+	}
+	(*j)[key] = val
+}
+
+func (j *JsonF) Copy() JsonF {
+
+	jsonF := JsonF{}
+
+	if *j == nil || len(*j) == 0 {
+		return jsonF
+	}
+
+	for k, v := range *j {
+		jsonF[k] = v
+	}
+
+	return jsonF
 }

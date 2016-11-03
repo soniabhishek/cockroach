@@ -80,3 +80,10 @@ func (i *projectsRepo) Delete(id uuid.UUID) error {
 	}
 	return err
 }
+func (i *projectsRepo) IfIdExist(id uuid.UUID) (ifExist bool, err error) {
+	err = i.pg.SelectOne(&ifExist, `select exists(select 1 from projects where id=$1)`, id)
+	if err != nil {
+		return
+	}
+	return
+}

@@ -16,7 +16,7 @@ func newStd() IWorkFlowSvc {
 	fOut := flu_output.New()
 
 	completeHandler := func(flu models.FeedLineUnit) {
-		fmt.Println("on complete handler called", flu)
+		fmt.Println("on complete handler called", flu.ID)
 		fOut.AddToOutputQueue(flu)
 	}
 

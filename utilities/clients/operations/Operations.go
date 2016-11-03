@@ -107,7 +107,7 @@ func (s *Service) CreateClient(cl *utilModels.Client) (status bool, err error) {
 	/**-------- Creating Workflow ---------**/
 	wfId := uuid.NewV4()
 	wfr := workflow_repo.New()
-	err = wfr.Add(models.WorkFlow{
+	err = wfr.Add(&models.WorkFlow{
 		ID:        wfId,
 		ProjectId: projectId,
 		IsDeleted: sql.NullBool{false, true},

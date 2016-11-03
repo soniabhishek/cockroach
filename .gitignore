@@ -8,6 +8,8 @@ app/config/development.json
 
 app/api/auther/prod.go
 
+node_modules
+
 ### Windows ###
 # Windows image file caches
 Thumbs.db

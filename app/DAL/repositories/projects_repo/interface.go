@@ -13,6 +13,7 @@ type IProjectsRepo interface {
 	Add(models.Project) error
 	Update(models.Project) error
 	Delete(id uuid.UUID) error
+	IfIdExist(uuid.UUID) (bool, error)
 }
 
 //=============================================================================================//
@@ -43,6 +44,9 @@ func (i *inMemProjectRepo) Update(models.Project) error {
 }
 func (i *inMemProjectRepo) Delete(uuid.UUID) error {
 	return nil
+}
+func (i *inMemProjectRepo) IfIdExist(uuid.UUID) (bool, error) {
+	return false, nil
 }
 
 func (i *inMemProjectRepo) Save(pr models.Project) error {

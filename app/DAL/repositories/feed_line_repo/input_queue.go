@@ -51,6 +51,10 @@ func (i *inputQueue) Add(flu models.FeedLineUnit) (id uuid.UUID, err error) {
 		flu.CreatedAt = pq.NullTime{time.Now(), true}
 	}
 
+	flu.IsMaster = true
+	flu.IsActive = true
+	flu.MasterId = flu.ID
+
 	err = i.mgo.C("feedline_input").
 		Insert(&feedLineInputModel{
 			FeedLineUnit:    flu,

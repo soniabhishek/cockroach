@@ -88,6 +88,12 @@
     }
   },
 
+  "abacus" :{
+    "base" : {
+      "api" : "http://104.155.217.201"
+    }
+  },
+
   "plog" :{
     "log_level" : "<log_level>",
     "log_type" :"<log_type>"

@@ -46,9 +46,9 @@ const (
 
 	DOWNLOAD_PATH = configKey("workflow_step.manual_download_path")
 	MEGATRON_API  = configKey("megatron.base.api")
-
-	PLOG_LEVEL = configKey("plog.log_level")
-	PLOG_TYPE  = configKey("plog.log_type")
+	ABACUS_API    = configKey("abacus.base.api")
+	PLOG_LEVEL    = configKey("plog.log_level")
+	PLOG_TYPE     = configKey("plog.log_type")
 
 	NEW_RELIC_KEY = configKey("newrelic.key")
 

@@ -9,6 +9,7 @@ import (
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/algorithm_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/bifurcation_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
@@ -46,6 +47,7 @@ func (sr *stepRouter) connectAll() {
 	var transformationStepConn IConnector = transformation_step_svc.StdTransformationStep
 	var bifurcationStepConn IConnector = bifurcation_step_svc.StdBifurcationStep
 	var unificationStepConn IConnector = unification_step_svc.StdUnificationStep
+	var algorithmStepConn IConnector = algorithm_step_svc.StdAlgorithmStep
 
 	sr.routeTable = routeTable{
 
@@ -56,6 +58,7 @@ func (sr *stepRouter) connectAll() {
 		step_type.Algorithm:        manualStepConn.Connect(&sr.InQ),
 		step_type.Bifurcation:      bifurcationStepConn.Connect(&sr.InQ),
 		step_type.Unification:      unificationStepConn.Connect(&sr.InQ),
+		step_type.Algorithm:        algorithmStepConn.Connect(&sr.InQ),
 		step_type.Error:            manualStepConn.Connect(&sr.InQ),
 
 		// Special case

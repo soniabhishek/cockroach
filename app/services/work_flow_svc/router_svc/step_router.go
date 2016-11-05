@@ -12,6 +12,7 @@ import (
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/bifurcation_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/start_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/transformation_step_csv"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/unification_step_svc"
 )
@@ -40,7 +41,7 @@ type stepRouter struct {
 }
 
 func (sr *stepRouter) connectAll() {
-
+	var startStepConn IConnector = start_step_svc.StdStartStep
 	var crowdSourcingConn IConnector = crowdsourcing_step_svc.StdCrowdSourcingStep
 	var manualStepConn IConnector = manual_step_svc.StdManualStep
 	var transformationStepConn IConnector = transformation_step_svc.StdTransformationStep
@@ -49,6 +50,7 @@ func (sr *stepRouter) connectAll() {
 
 	sr.routeTable = routeTable{
 
+		step_type.StartStep:        startStepConn.Connect(&sr.InQ),
 		step_type.CrowdSourcing:    crowdSourcingConn.Connect(&sr.InQ),
 		step_type.InternalSourcing: crowdSourcingConn.Connect(&sr.InQ),
 		step_type.Manual:           manualStepConn.Connect(&sr.InQ),

@@ -88,6 +88,11 @@
     }
   },
 
+  "luigi" :{
+    "base" : {
+      "api" : "http://megatron-staging.playment.in"
+    }
+  },
   "plog" :{
     "log_level" : "<log_level>",
     "log_type" :"<log_type>"

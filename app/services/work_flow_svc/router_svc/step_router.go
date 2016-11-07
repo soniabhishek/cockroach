@@ -12,7 +12,6 @@ import (
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/bifurcation_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/start_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/transformation_step_csv"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/unification_step_svc"
 )

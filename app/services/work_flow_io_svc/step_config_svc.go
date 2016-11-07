@@ -22,7 +22,6 @@ const (
 	multiplication = "multiplication"
 	microTaskId    = "micro_task_id"
 	answerKey      = "answer_key"
-	imageFieldKey  = "image_field_key"
 )
 
 func (s *stepConfigSvc) GetCrowdsourcingStepConfig(stepId uuid.UUID) (tc models.CrowdsourcingConfig, err error) {

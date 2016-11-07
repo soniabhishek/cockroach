@@ -34,15 +34,12 @@ type encryptionRequest struct {
 
 func (*luigiClient) GetEncryptedUrls(images interface{}) ([]models.JsonF, error) {
 
-	plog.Debug("GetEnc", images.(string))
-	bty, _ := json.Marshal(encryptionRequest{images.(string)})
+	bty, _ := json.Marshal(encryptionRequest{images})
 
 	req, _ := http.NewRequest("POST", encryptionUrl, bytes.NewBuffer(bty))
 	req.Header.Add("content-type", "application/json")
-	plog.Debug("2", fmt.Sprintf("%s", bty))
 
 	res, err := http.DefaultClient.Do(req)
-	plog.Debug("3")
 
 	if err != nil {
 		return nil, err
@@ -57,7 +54,6 @@ func (*luigiClient) GetEncryptedUrls(images interface{}) ([]models.JsonF, error)
 	body, _ := ioutil.ReadAll(res.Body)
 	var encResponse encryptionResponse
 	//err = json.NewDecoder(encResponse).Decode(res.Body)
-	plog.Debug("3")
 	err = json.Unmarshal(body, &encResponse)
 	if err != nil {
 		return []models.JsonF{}, err

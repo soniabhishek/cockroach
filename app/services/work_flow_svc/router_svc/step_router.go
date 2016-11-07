@@ -41,7 +41,6 @@ type stepRouter struct {
 }
 
 func (sr *stepRouter) connectAll() {
-	var startStepConn IConnector = start_step_svc.StdStartStep
 	var crowdSourcingConn IConnector = crowdsourcing_step_svc.StdCrowdSourcingStep
 	var manualStepConn IConnector = manual_step_svc.StdManualStep
 	var transformationStepConn IConnector = transformation_step_svc.StdTransformationStep
@@ -50,7 +49,6 @@ func (sr *stepRouter) connectAll() {
 
 	sr.routeTable = routeTable{
 
-		step_type.StartStep:        startStepConn.Connect(&sr.InQ),
 		step_type.CrowdSourcing:    crowdSourcingConn.Connect(&sr.InQ),
 		step_type.InternalSourcing: crowdSourcingConn.Connect(&sr.InQ),
 		step_type.Manual:           manualStepConn.Connect(&sr.InQ),

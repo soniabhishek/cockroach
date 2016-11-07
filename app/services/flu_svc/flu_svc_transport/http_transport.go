@@ -11,6 +11,7 @@ import (
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
+	"github.com/crowdflux/angel/app/DAL/clients"
 )
 
 //TODO Create another file for validator http transport. In future we may have to make a separate service for validatorss
@@ -43,7 +44,6 @@ func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
 			// Incoming FLU is not valid.
 			return
 		}
-
 		// This has to be done for chutiya paytm dev
 		if c.Keys["show_old"] == true {
 			c.JSON(http.StatusOK, gin.H{
@@ -212,7 +212,7 @@ func showErrorResponse(c *gin.Context, err error) {
 //--------------------------------------------------------------------------------//
 //Validator
 
-func validateInputFLU(c *gin.Context, fluService flu_svc.IFluService) (flu models.FeedLineUnit, err error) {
+func validateInputFLU(c *gin.Context, fluService flu_svc.IFluServiceExtended) (flu models.FeedLineUnit, err error) {
 
 	//Variable name will be changed to projectId after the schema refactoring
 	var projectId uuid.UUID
@@ -249,6 +249,16 @@ func validateInputFLU(c *gin.Context, fluService flu_svc.IFluService) (flu model
 		return
 	}
 
+	input_config,ok := fluService.GetValidators(flu.ProjectId,flu.Tag)
+	if ok!=nil{
+		err = flu_svc.ErrDataMissing
+	}
+	err = imageUrlValidator(&flu,input_config)
+	if err != nil {
+		showErrorResponse(c, err)
+		return
+	}
+
 	flu.ProjectId = projectId
 	err = fluService.AddFeedLineUnit(&flu)
 	if err != nil {
@@ -258,6 +268,54 @@ func validateInputFLU(c *gin.Context, fluService flu_svc.IFluService) (flu model
 		}
 		showErrorResponse(c, err)
 		return
+	}
+	return
+}
+func  imageUrlValidator(flu *models.FeedLineUnit, input_config []models.FLUValidator) (err error) {
+	img_config := ""
+	for _,item := range input_config{
+		if item.Type=="image"{
+			if img_config!=""{
+				err = plerrors.ServiceError{"CR 0001", "Multiple image configurations for Project and tag combination"}
+				return
+			}
+			img_config = item.FieldName
+		}
+	}
+	var c = flu.Data[img_config]
+	if err != nil {
+		return flu_svc.ErrDataMissing
+	}
+	if c == nil || c.(string) == "" {
+		return flu_svc.ErrDataMissing
+	}
+
+	//Image encryption
+	urlSlice, err := GetEncryptedUrls(c)
+
+	if err != nil {
+		return
+	}
+	flu.Data.Merge(models.JsonF{"image_url": urlSlice})
+	return
+}
+
+func GetEncryptedUrls(imageField interface{}) (urlSlice []string, err error) {
+
+	encResult, er := clients.GetLuigiClient().GetEncryptedUrls(imageField)
+
+	if er != nil {
+		err = er
+		return
+	}
+	var d = 0
+	for _, item := range encResult {
+		if item["valid"] == false {
+			err = flu_svc.ErrImageNotFound
+			return
+		}
+		urlSlice[d] = item["playment_url"].(string)
+		d++
 	}
 	return
 }

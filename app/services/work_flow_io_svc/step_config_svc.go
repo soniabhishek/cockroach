@@ -113,22 +113,3 @@ func (s *stepConfigSvc) GetUnificationStepConfig(stepId uuid.UUID) (uc models.Un
 
 	return
 }
-
-func (s *stepConfigSvc) GetStartStepConfig(stepId uuid.UUID) (uc models.StartStepConfig, err error) {
-	step, err := s.stepRepo.GetById(stepId)
-	if err != nil {
-		return
-	}
-
-	imageFieldKey, ok := step.Config[imageFieldKey]
-	if !ok {
-		err = ErrConfigNotFound
-		return
-	}
-
-	imageFieldKeyString := imageFieldKey.(string)
-
-	uc.ImageFieldKey = imageFieldKeyString
-
-	return
-}

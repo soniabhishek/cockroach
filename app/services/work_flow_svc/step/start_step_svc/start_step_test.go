@@ -37,7 +37,7 @@ var flu = feed_line.FLU{
 		Tag:         "Brand",
 		Data: models.JsonF{
 			"brand":     "Otter",
-			"image_url": "[\"https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg\",\"https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg\"",
+			"image_url": `["https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg","https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"`,
 		},
 		Build: models.JsonF{},
 	},

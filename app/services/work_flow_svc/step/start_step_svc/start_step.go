@@ -11,6 +11,7 @@ import (
 	//	"reflect"
 	"github.com/crowdflux/angel/app/DAL/clients"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/pkg/errors"
 )
 
 type starterStep struct {
@@ -69,15 +70,15 @@ func GetEncryptedUrls(imageField interface{}) (urlSlice []string, err error) {
 	if err != nil {
 		plog.Debug("slsl", encResult)
 	}
-	//var d = 0
-	for item, _ := range encResult {
-		//if item["valid"] == false {
-		//	err = errors.New("Image not found")
-		//	plog.Error("Image Encryption step : Image not encryptable", err)
-		//	return
-		//}
-		//urlSlice[d] = string(item["playment_url"])
-		//d++
+	var d = 0
+	for _, item := range encResult {
+		if item["valid"] == false {
+			err = errors.New("Image not found")
+			plog.Error("Image Encryption step : Image not encryptable", err)
+			return
+		}
+		urlSlice[d] = item["playment_url"].(string)
+		d++
 		plog.Debug("item", item)
 	}
 	return

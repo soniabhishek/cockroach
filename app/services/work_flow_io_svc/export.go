@@ -30,6 +30,7 @@ type IStepConfigSvc interface {
 	GetTransformationStepConfig(stepId uuid.UUID) (models.TransformationConfig, error)
 	GetBifurcationStepConfig(stepId uuid.UUID) (models.BifurcationConfig, error)
 	GetUnificationStepConfig(stepId uuid.UUID) (models.UnificationConfig, error)
+	GetStartStepConfig(stepId uuid.UUID) (models.StartStepConfig, error)
 }
 
 func NewStepConfigService() IStepConfigSvc {

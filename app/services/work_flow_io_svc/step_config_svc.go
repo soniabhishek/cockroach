@@ -22,6 +22,7 @@ const (
 	multiplication = "multiplication"
 	microTaskId    = "micro_task_id"
 	answerKey      = "answer_key"
+	imageFieldKey  = "image_field_key"
 )
 
 func (s *stepConfigSvc) GetCrowdsourcingStepConfig(stepId uuid.UUID) (tc models.CrowdsourcingConfig, err error) {
@@ -92,6 +93,7 @@ func (s *stepConfigSvc) GetBifurcationStepConfig(stepId uuid.UUID) (bc models.Bi
 
 	return
 }
+
 func (s *stepConfigSvc) GetUnificationStepConfig(stepId uuid.UUID) (uc models.UnificationConfig, err error) {
 	step, err := s.stepRepo.GetById(stepId)
 	if err != nil {
@@ -108,6 +110,25 @@ func (s *stepConfigSvc) GetUnificationStepConfig(stepId uuid.UUID) (uc models.Un
 		plog.Error("StepConfigSvc", ErrConfigMalformed, "stepId "+stepId.String())
 		return
 	}
+
+	return
+}
+
+func (s *stepConfigSvc) GetStartStepConfig(stepId uuid.UUID) (uc models.StartStepConfig, err error) {
+	step, err := s.stepRepo.GetById(stepId)
+	if err != nil {
+		return
+	}
+
+	imageFieldKey, ok := step.Config[imageFieldKey]
+	if !ok {
+		err = ErrConfigNotFound
+		return
+	}
+
+	imageFieldKeyString := imageFieldKey.(string)
+
+	uc.ImageFieldKey = imageFieldKeyString
 
 	return
 }

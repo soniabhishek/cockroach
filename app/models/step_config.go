@@ -22,3 +22,7 @@ type UnificationConfig struct {
 type BifurcationConfig struct {
 	Multiplication int
 }
+
+type StartStepConfig struct {
+	ImageFieldKey string
+}

@@ -9,8 +9,8 @@ import (
 	//	"github.com/crowdflux/angel/app/services/work_flow_io_svc"
 	//	"fmt"
 	//	"reflect"
+	"github.com/crowdflux/angel/app/DAL/clients"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/services/image_svc/encryptor"
 )
 
 type starterStep struct {
@@ -20,17 +20,19 @@ type starterStep struct {
 func (t *starterStep) processFlu(flu feed_line.FLU) {
 
 	var c = flu.Data["image_url"]
-	if c == nil || string(c) == "" {
-		t.OutQ.Push()
+	if c == nil || c.(string) == "" {
+		t.OutQ.Push(flu)
 		flu.ConfirmReceive()
 		return
 	}
+
+	plog.Debug("####", flu.Data)
 
 	t.AddToBuffer(flu)
 	plog.Info("Start Step flu reached", flu.ID)
 
 	//Image encryption
-	urlSlice, err := encryptor.GetEncryptedUrls(c)
+	urlSlice, err := GetEncryptedUrls(c)
 
 	if err != nil {
 		plog.Error("Image Encryption step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
@@ -56,6 +58,29 @@ func (t *starterStep) finishFlu(flu feed_line.FLU) bool {
 	plog.Info("Start step out", flu.ID)
 	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.StartStep, flu.Redelivered())
 	return true
+}
+
+func GetEncryptedUrls(imageField interface{}) (urlSlice []string, err error) {
+
+	plog.Debug("enc", imageField, "{}")
+	encResult, err := clients.GetLuigiClient().GetEncryptedUrls(imageField)
+	plog.Debug("ERROR", err, "{}")
+
+	if err != nil {
+		plog.Debug("slsl", encResult)
+	}
+	//var d = 0
+	for item, _ := range encResult {
+		//if item["valid"] == false {
+		//	err = errors.New("Image not found")
+		//	plog.Error("Image Encryption step : Image not encryptable", err)
+		//	return
+		//}
+		//urlSlice[d] = string(item["playment_url"])
+		//d++
+		plog.Debug("item", item)
+	}
+	return
 }
 
 /*

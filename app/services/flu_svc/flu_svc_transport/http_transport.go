@@ -35,7 +35,7 @@ type fluPostResponse struct {
 	Tag         string    `json:"tag"`
 }
 
-func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
+func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
@@ -253,7 +253,7 @@ func validateInputFLU(c *gin.Context, fluService flu_svc.IFluServiceExtended) (f
 	if ok!=nil{
 		err = flu_svc.ErrDataMissing
 	}
-	err = imageUrlValidator(&flu,input_config)
+	err = ImageUrlValidator(&flu,input_config)
 	if err != nil {
 		showErrorResponse(c, err)
 		return
@@ -271,7 +271,7 @@ func validateInputFLU(c *gin.Context, fluService flu_svc.IFluServiceExtended) (f
 	}
 	return
 }
-func  imageUrlValidator(flu *models.FeedLineUnit, input_config []models.FLUValidator) (err error) {
+func  ImageUrlValidator(flu *models.FeedLineUnit, input_config []models.FLUValidator) (err error) {
 	img_config := ""
 	for _,item := range input_config{
 		if item.Type=="image"{

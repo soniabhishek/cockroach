@@ -5,13 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	//	"io/ioutil"
-	"net/http"
-
-	"fmt"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/plog"
 	"io/ioutil"
+	"net/http"
 )
 
 var luigiBaseApiUrl = config.LUIGI_API.Get()

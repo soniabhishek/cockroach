@@ -90,7 +90,7 @@
 
   "luigi" :{
     "base" : {
-      "api" : "http://megatron-staging.playment.in"
+      "api" : "http://104.199.205.9:11080/luigi"
     }
   },
   "plog" :{

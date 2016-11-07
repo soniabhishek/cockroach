@@ -282,21 +282,21 @@ func  imageUrlValidator(flu *models.FeedLineUnit, input_config []models.FLUValid
 			img_config = item.FieldName
 		}
 	}
-	var c = flu.Data[img_config]
+	var img_urls = flu.Data[img_config]
 	if err != nil {
 		return flu_svc.ErrDataMissing
 	}
-	if c == nil || c.(string) == "" {
+	if img_urls == nil || img_urls.(string) == "" {
 		return flu_svc.ErrDataMissing
 	}
 
 	//Image encryption
-	urlSlice, err := GetEncryptedUrls(c)
+	urlSlice, err := GetEncryptedUrls(img_urls)
 
 	if err != nil {
 		return
 	}
-	flu.Data.Merge(models.JsonF{"image_url": urlSlice})
+	flu.Data.Merge(models.JsonF{img_config: urlSlice})
 	return
 }
 

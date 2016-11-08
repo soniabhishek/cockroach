@@ -1,7 +1,6 @@
 package flu_svc_transport
 
 import (
-	"fmt"
 	"github.com/asaskevich/govalidator"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"

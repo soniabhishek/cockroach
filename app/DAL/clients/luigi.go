@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
 	"io/ioutil"
@@ -36,7 +35,6 @@ func (*luigiClient) GetEncryptedUrls(images []string) (models.JsonF, error) {
 	req.Header.Add("content-type", "application/json")
 
 	res, err := http.DefaultClient.Do(req)
-	fmt.Println("8787kllkl878", fmt.Sprintln(res))
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +48,6 @@ func (*luigiClient) GetEncryptedUrls(images []string) (models.JsonF, error) {
 	body, _ := ioutil.ReadAll(res.Body)
 	var encResponse encryptionResponse
 	err = json.Unmarshal(body, &encResponse)
-	fmt.Println("$$$$", fmt.Sprintf("%+v", body))
 
 	if err != nil {
 		return models.JsonF{}, err

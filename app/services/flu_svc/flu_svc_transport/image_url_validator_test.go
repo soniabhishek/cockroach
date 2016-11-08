@@ -1,9 +1,8 @@
-package flu_svc_transport_test
+package flu_svc_transport
 
 import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_svc_transport"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -25,7 +24,8 @@ var input_config = []models.FLUValidator{
 }
 
 func Test(t *testing.T) {
-	flu_svc_transport.ImageUrlValidator(&flu, input_config)
-	//assert.EqualValues(t, flu.ID, fluNew.ID)
-	assert.EqualValues(t, flu.Build["new_prop"], 123)
+	initialUrl := flu.Data["image_url"]
+	imageUrlEncryptor(&flu, input_config)
+	assert.EqualValues(t, len(flu.Data["image_url"].([]string)), 2)
+	assert.NotEqual(t, flu.Data["image_url"], initialUrl)
 }

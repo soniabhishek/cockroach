@@ -54,6 +54,6 @@ func Test_for_invalid_urls(t *testing.T) {
 }
 
 func Test_for_invalid_config(t *testing.T) {
-	err := imageUrlEncryptor(&invalid_url_flu, invalid_input_config)
+	err := imageUrlEncryptor(&valid_flu, invalid_input_config)
 	assert.Error(t, err)
 }

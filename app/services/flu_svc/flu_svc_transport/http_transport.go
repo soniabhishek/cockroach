@@ -276,7 +276,7 @@ func imageUrlEncryptor(flu *models.FeedLineUnit, input_config []models.FLUValida
 	for _,item := range input_config{
 		if item.Type=="image"{
 			if img_config!=""{
-				err = plerrors.ServiceError{"CR 0001", "Multiple image configurations for Project and tag combination"}
+				err = plerrors.ServiceError{"GE_0002", "Multiple image_url configurations for Project and tag combination"}
 				return
 			}
 			img_config = item.FieldName
@@ -285,7 +285,7 @@ func imageUrlEncryptor(flu *models.FeedLineUnit, input_config []models.FLUValida
 
 	var img_urls = flu.Data[img_config].([]string)
 
-	if err != nil || img_urls == nil{
+	if err != nil || len(img_urls) == 0{
 		return flu_svc.ErrDataMissing
 	}
 
@@ -302,17 +302,17 @@ func imageUrlEncryptor(flu *models.FeedLineUnit, input_config []models.FLUValida
 
 func GetEncryptedUrls(imageField []string) (urlSlice []string, err error) {
 
-	encResult, er := clients.GetLuigiClient().GetEncryptedUrls(imageField)
-	if er != nil {
-		err = er
+	encResult, err := clients.GetLuigiClient().GetEncryptedUrls(imageField)
+	if err != nil {
 		return
 	}
 	for _, item := range imageField {
-		  returnItem:= encResult[item].(map[string]interface{})
+		returnItem:= encResult[item].(map[string]interface{})
 		if returnItem["valid"] == false {
-			err = flu_svc.ErrImageNotFound
+			err = flu_svc.ErrImageNotValid
 			return
 		}
+
 		urlSlice = append(urlSlice,returnItem["playment_url"].(string))
 	}
 	return

@@ -7,13 +7,11 @@ exports.up = function(knex, Promise) {
             t.string('tag_name')
                 .notNullable()
                 .index()
-            t.uuid('project_id')
-                .notNullable()
-                .index()
             t.uuid('work_flow_id')
             t.timestamp('created_at')
             t.timestamp('updated_at')
             t.unique('tag_name')
+            t.foreign('work_flow_id').references('work_flow.id')            
     }),
    knex.schema
     .table('work_flow', t=> {

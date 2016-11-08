@@ -600,7 +600,6 @@ type WorkFlow struct {
 type WorkFlowTagAssociators struct {
 	ID         int         `db:"id" json:"id" bson:"_id"`
 	TagName    string      `db:"tag_name" json:"tag_name" bson:"tag_name"`
-	ProjectId  uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
 	WorkFlowId uuid.UUID   `db:"work_flow_id" json:"work_flow_id" bson:"work_flow_id"`
 	CreatedAt  pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt  pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`

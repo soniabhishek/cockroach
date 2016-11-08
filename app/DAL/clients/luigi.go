@@ -21,14 +21,21 @@ type luigiClient struct {
 }
 
 type encryptionResponse struct {
-	Images models.JsonF `json:"images"`
+	Images map[string]LuigiResponse `json:"images"`
 }
 
 type encryptionRequest struct {
 	Image_urls []string `json:"image_urls"`
 }
 
-func (*luigiClient) GetEncryptedUrls(images []string) (models.JsonF, error) {
+type LuigiResponse struct {
+	Value        bool           `json:"valid"`
+	SourceUrl    string         `json:"source_url"`
+	PlaymentUrl  string         `json:"playment_url"`
+	ScaledImages []models.JsonF `json:"scaled_images"`
+}
+
+func (*luigiClient) GetEncryptedUrls(images []string) (map[string]LuigiResponse, error) {
 	bty, _ := json.Marshal(encryptionRequest{images})
 
 	req, _ := http.NewRequest("POST", encryptionUrl, bytes.NewBuffer(bty))
@@ -50,7 +57,7 @@ func (*luigiClient) GetEncryptedUrls(images []string) (models.JsonF, error) {
 	err = json.Unmarshal(body, &encResponse)
 
 	if err != nil {
-		return models.JsonF{}, err
+		return map[string]LuigiResponse{}, err
 	}
 	return encResponse.Images, nil
 }

@@ -1,4 +1,4 @@
-package flu_svc_transport
+package flu_validator
 
 import (
 	"github.com/asaskevich/govalidator"
@@ -34,18 +34,17 @@ var invalid_url_flu = models.FeedLineUnit{
 }
 
 var input_config = []models.FLUValidator{
-	{uuid.NewV4(), "image_url", "image", false, "Ola", pq.NullTime{}, pq.NullTime{}, uuid.NewV4()},
+	{uuid.NewV4(), "image_url", "image_array", false, "Ola", pq.NullTime{}, pq.NullTime{}, uuid.NewV4()},
 }
 
 var invalid_input_config = []models.FLUValidator{
-	{uuid.NewV4(), "image_ur", "image", false, "Ola", pq.NullTime{}, pq.NullTime{}, uuid.NewV4()},
+	{uuid.NewV4(), "image_ur", "image_array", false, "Ola", pq.NullTime{}, pq.NullTime{}, uuid.NewV4()},
 }
 
 func Test_for_valid_urls(t *testing.T) {
 	initialUrl := valid_flu.Data["image_url"]
 	err := imageUrlEncryptor(&valid_flu, input_config)
 	returnedUrlList := valid_flu.Data["image_url"].([]string)
-
 	assert.True(t, govalidator.IsURL(returnedUrlList[0]))
 	assert.True(t, govalidator.IsURL(returnedUrlList[1]))
 	assert.Nil(t, err)

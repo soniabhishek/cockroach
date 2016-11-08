@@ -1,4 +1,4 @@
-package flu_svc
+package flu_errors
 
 import "github.com/crowdflux/angel/app/services/plerrors"
 

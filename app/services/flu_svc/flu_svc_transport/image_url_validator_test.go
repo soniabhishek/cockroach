@@ -1,6 +1,8 @@
 package flu_svc_transport
 
 import (
+	"fmt"
+	"github.com/asaskevich/govalidator"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/lib/pq"
@@ -43,6 +45,8 @@ var invalid_input_config = []models.FLUValidator{
 func Test_for_valid_urls(t *testing.T) {
 	initialUrl := valid_flu.Data["image_url"]
 	err := imageUrlEncryptor(&valid_flu, input_config)
+	assert.True(t, govalidator.IsURL(valid_flu.Data["image_url"].([]string)[0]))
+	assert.True(t, govalidator.IsURL(valid_flu.Data["image_url"].([]string)[1]))
 	assert.Nil(t, err)
 	assert.EqualValues(t, len(valid_flu.Data["image_url"].([]string)), 2)
 	assert.NotEqual(t, valid_flu.Data["image_url"], initialUrl)

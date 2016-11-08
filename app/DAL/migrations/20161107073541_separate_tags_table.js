@@ -2,9 +2,9 @@
 exports.up = function(knex, Promise) {
   return Promise.all([
   knex.schema
-    .createTable('feed_line_tags',t=>{
+    .createTable('work_flow_tag_associators',t=>{
             t.increments()
-            t.var('tag_name')
+            t.string('tag_name')
                 .notNullable()
                 .index()
             t.uuid('project_id')
@@ -31,7 +31,7 @@ exports.down = function(knex, Promise) {
   			t.string('tag')
   					.notNullable()
   					.defaultTo('')
-  			})
+  			}),
   		 knex
   		    .schema
   		    .dropTableIfExists('feed_line_tags')

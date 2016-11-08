@@ -8,10 +8,10 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/services/flu_svc"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 )
 
 //TODO Create another file for validator http transport. In future we may have to make a separate service for validatorss
@@ -34,7 +34,6 @@ type fluPostResponse struct {
 	ReferenceId string    `json:"reference_id"`
 	Tag         string    `json:"tag"`
 }
-
 
 func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 

@@ -238,6 +238,3 @@ func showErrorResponse(c *gin.Context, err error) {
 		"success": false,
 	})
 }
-
-//--------------------------------------------------------------------------------//
-//Validator

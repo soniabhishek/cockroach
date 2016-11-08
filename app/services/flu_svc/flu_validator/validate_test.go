@@ -48,7 +48,7 @@ func TestValidateFluEmptyValidator(t *testing.T) {
 		Tag: "PAYTM_TSHIRT",
 	}
 
-	isValid, err := validateFlu(&fakeValidatorRepo{}, flu)
+	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 
 	assert.NoError(t, err, "Error occured while validating")
 	assert.True(t, isValid, "Expected valid flu but found inValid")
@@ -69,7 +69,7 @@ func TestValidateFluPerfectFlu(t *testing.T) {
 		Tag: "PAYTM_TSHIRT",
 	}
 
-	isValid, err := validateFlu(&fakeValidatorRepo{}, flu)
+	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 
 	assert.NoError(t, err, "Error occured while validating")
 	assert.True(t, isValid, "Expected valid flu but found inValid")
@@ -89,7 +89,7 @@ func TestValidateFluForFieldNotFound(t *testing.T) {
 		Tag: "PAYTM_TSHIRT",
 	}
 
-	isValid, err := validateFlu(&fakeValidatorRepo{}, flu)
+	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 	validationErrs := err.(DataValidationError).Validations
 
 	assert.Error(t, err, "Error occured while validating")
@@ -114,7 +114,7 @@ func TestValidateFluForWrongDataType(t *testing.T) {
 		Tag: "PAYTM_TSHIRT",
 	}
 
-	isValid, err := validateFlu(&fakeValidatorRepo{}, flu)
+	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 	validationErrs := err.(DataValidationError).Validations
 
 	assert.Error(t, err, "Error occured while validating")
@@ -139,7 +139,7 @@ func TestValidateFluForMandatoryField(t *testing.T) {
 		Tag: "PAYTM_TSHIRT",
 	}
 
-	isValid, err := validateFlu(&fakeValidatorRepo{}, flu)
+	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 	validationErrs := err.(DataValidationError).Validations
 
 	assert.Error(t, err, "Error occured while validating")

@@ -11,9 +11,10 @@ import (
 
 //Does the data validation for incoming flu
 //Third parameter has been called macroTaskId here & it will be called projectId in future once we have refactored the schema
-func validateFlu(v flu_validator_repo.IFluValidatorRepo, flu models.FeedLineUnit) (IsValid bool, err error) {
+func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineUnit) (IsValid bool, err error) {
 
 	// fluVs -> flu validators
+	flu := *fluOb
 	fluVs, err := v.GetValidatorsForProject(flu.ProjectId, flu.Tag)
 
 	if err != nil {
@@ -80,7 +81,7 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, flu models.FeedLineUnit
 		}
 	}
 
-	err = imageUrlEncryptor(&flu, fluVs)
+	err = imageUrlEncryptor(fluOb, fluVs)
 	if err != nil {
 		return
 	}

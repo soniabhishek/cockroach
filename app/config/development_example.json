@@ -90,7 +90,7 @@
 
   "luigi" :{
     "base" : {
-      "api" : "http://104.199.205.9:11080/luigi"
+      "api" : "https://luigi.playment.in"
     }
   },
   "plog" :{

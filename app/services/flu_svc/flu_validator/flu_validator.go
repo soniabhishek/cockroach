@@ -74,6 +74,6 @@ func (i *fluValidator) DeleteValidator(fv models.FLUValidator) (err error) {
 	return
 }
 
-func (i *fluValidator) Validate(flu models.FeedLineUnit) (IsValid bool, err error) {
+func (i *fluValidator) Validate(flu *models.FeedLineUnit) (IsValid bool, err error) {
 	return validateFlu(i.fluValidatorRepo, flu)
 }

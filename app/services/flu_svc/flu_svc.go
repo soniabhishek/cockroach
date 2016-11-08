@@ -22,7 +22,7 @@ var _ IFluService = &fluService{}
 
 func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 
-	_, err := i.fluValidator.Validate(*flu)
+	_, err := i.fluValidator.Validate(flu)
 	if err != nil {
 		return err
 	}

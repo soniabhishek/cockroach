@@ -4,7 +4,6 @@ import (
 	"github.com/crowdflux/angel/app/DAL/clients"
 	"github.com/crowdflux/angel/app/DAL/repositories/flu_validator_repo"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"strings"

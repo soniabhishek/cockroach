@@ -43,6 +43,7 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 	fieldNotFound := validationError{ValidationCode: fieldNotFoundVCode}
 	wrongDataType := validationError{ValidationCode: wrongDataTypeVCode}
 	mandatoryFieldEmpty := validationError{ValidationCode: mandatoryFieldEmptyVCode}
+	invalidImageLink := validationError{ValidationCode: invalidImageLinkVCode}
 
 	for _, fluV := range fluVs {
 
@@ -55,17 +56,43 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 			continue
 		}
 
-		// Check if field value is string or not
-		fieldValStr, ok := fieldVal.(string)
-		if !ok {
-			wrongDataType.AddMetaDataField(name)
-			continue
-		}
+		switch fluV.Type {
+		case "STRING":
+			// Check if field value is string or not
+			fieldValStr, ok := fieldVal.(string)
+			if !ok {
+				wrongDataType.AddMetaDataField(name)
+				continue
+			}
 
-		// Check if field is mandatory & not empty
-		if fluV.IsMandatory && fieldValStr == "" {
-			mandatoryFieldEmpty.AddMetaDataField(name)
-			continue
+			// Check if field is mandatory & not empty
+			if fluV.IsMandatory && fieldValStr == "" {
+				mandatoryFieldEmpty.AddMetaDataField(name)
+				continue
+			}
+		case "IMAGE_ARRAY":
+			// Check if field value is string or not
+			fieldValImgArray, ok := fieldVal.([]string)
+			if !ok {
+				wrongDataType.AddMetaDataField(name)
+				continue
+			}
+
+			// Check if field is mandatory & not empty
+			if fluV.IsMandatory && len(fieldValImgArray) == 0 {
+				mandatoryFieldEmpty.AddMetaDataField(name)
+				continue
+			}
+
+			//Image encryption
+			encUrls, err := GetEncryptedUrls(fieldValImgArray)
+			if err != nil {
+				invalidImageLink.AddMetaDataField(name)
+				continue
+			}
+
+			//Edit the flu
+			flu.Data[name] = encUrls
 		}
 	}
 
@@ -80,11 +107,6 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 			vErrs = append(vErrs, v)
 			success = false
 		}
-	}
-
-	err = imageUrlEncryptor(fluOb, fluVs)
-	if err != nil {
-		plog.Error("image encryption error", err)
 	}
 
 	if success {
@@ -115,6 +137,7 @@ func (v *validationError) AddMetaDataField(field string) {
 const fieldNotFoundVCode = "FIELD_NOT_FOUND"
 const wrongDataTypeVCode = "WRONG_DATA_TYPE"
 const mandatoryFieldEmptyVCode = "MANDATORY_FIELD_EMPTY"
+const invalidImageLinkVCode = "INVALID_IMAGE_LINK"
 
 func imageUrlEncryptor(flu *models.FeedLineUnit, input_config []models.FLUValidator) (err error) {
 	img_config := ""

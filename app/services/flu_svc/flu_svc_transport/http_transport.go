@@ -282,11 +282,10 @@ func  ImageUrlValidator(flu *models.FeedLineUnit, input_config []models.FLUValid
 			img_config = item.FieldName
 		}
 	}
-	var img_urls = flu.Data[img_config]
-	if err != nil {
-		return flu_svc.ErrDataMissing
-	}
-	if img_urls == nil || img_urls.(string) == "" {
+
+	var img_urls = flu.Data[img_config].([]string)
+
+	if err != nil || img_urls == nil{
 		return flu_svc.ErrDataMissing
 	}
 
@@ -296,26 +295,25 @@ func  ImageUrlValidator(flu *models.FeedLineUnit, input_config []models.FLUValid
 	if err != nil {
 		return
 	}
+
 	flu.Data.Merge(models.JsonF{img_config: urlSlice})
 	return
 }
 
-func GetEncryptedUrls(imageField interface{}) (urlSlice []string, err error) {
+func GetEncryptedUrls(imageField []string) (urlSlice []string, err error) {
 
 	encResult, er := clients.GetLuigiClient().GetEncryptedUrls(imageField)
-
 	if er != nil {
 		err = er
 		return
 	}
-	var d = 0
-	for _, item := range encResult {
-		if item["valid"] == false {
+	for _, item := range imageField {
+		  returnItem:= encResult[item].(map[string]interface{})
+		if returnItem["valid"] == false {
 			err = flu_svc.ErrImageNotFound
 			return
 		}
-		urlSlice[d] = item["playment_url"].(string)
-		d++
+		urlSlice = append(urlSlice,returnItem["playment_url"].(string))
 	}
 	return
 }

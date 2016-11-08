@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	//	"io/ioutil"
+	"fmt"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
 	"io/ioutil"
@@ -22,22 +22,21 @@ type luigiClient struct {
 }
 
 type encryptionResponse struct {
-	Images []models.JsonF `json:"images"`
+	Images models.JsonF `json:"images"`
 }
 
 type encryptionRequest struct {
-	Image_urls interface{} `json:"image_urls"`
+	Image_urls []string `json:"image_urls"`
 }
 
-func (*luigiClient) GetEncryptedUrls(images interface{}) ([]models.JsonF, error) {
-
+func (*luigiClient) GetEncryptedUrls(images []string) (models.JsonF, error) {
 	bty, _ := json.Marshal(encryptionRequest{images})
 
 	req, _ := http.NewRequest("POST", encryptionUrl, bytes.NewBuffer(bty))
 	req.Header.Add("content-type", "application/json")
 
 	res, err := http.DefaultClient.Do(req)
-
+	fmt.Println("8787kllkl878", fmt.Sprintln(res))
 	if err != nil {
 		return nil, err
 	}
@@ -50,10 +49,11 @@ func (*luigiClient) GetEncryptedUrls(images interface{}) ([]models.JsonF, error)
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 	var encResponse encryptionResponse
-	//err = json.NewDecoder(encResponse).Decode(res.Body)
 	err = json.Unmarshal(body, &encResponse)
+	fmt.Println("$$$$", fmt.Sprintf("%+v", body))
+
 	if err != nil {
-		return []models.JsonF{}, err
+		return models.JsonF{}, err
 	}
 	return encResponse.Images, nil
 }

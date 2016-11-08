@@ -9,23 +9,51 @@ import (
 )
 
 var fluId = uuid.NewV4()
-var c = []string{"https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
-var flu = models.FeedLineUnit{
+var image_url_valid = []string{"https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
+var image_url_invalid = []string{"https://s-ap-southeast-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
+
+var valid_flu = models.FeedLineUnit{
 	ID:          fluId,
 	ReferenceId: "PayFlip123",
 	Tag:         "Ola",
 	Data: models.JsonF{
 		"brand":     "Sony",
-		"image_url": c},
+		"image_url": image_url_valid},
 	Build: models.JsonF{},
 }
+
+var invalid_url_flu = models.FeedLineUnit{
+	ID:          fluId,
+	ReferenceId: "PayFlip123",
+	Tag:         "Ola",
+	Data: models.JsonF{
+		"brand":     "Sony",
+		"image_url": image_url_invalid},
+	Build: models.JsonF{},
+}
+
 var input_config = []models.FLUValidator{
 	{uuid.NewV4(), "image_url", "image", false, "Ola", pq.NullTime{}, pq.NullTime{}, uuid.NewV4()},
 }
 
-func Test(t *testing.T) {
-	initialUrl := flu.Data["image_url"]
-	imageUrlEncryptor(&flu, input_config)
-	assert.EqualValues(t, len(flu.Data["image_url"].([]string)), 2)
-	assert.NotEqual(t, flu.Data["image_url"], initialUrl)
+var invalid_input_config = []models.FLUValidator{
+	{uuid.NewV4(), "image_ur", "image", false, "Ola", pq.NullTime{}, pq.NullTime{}, uuid.NewV4()},
+}
+
+func Test_for_valid_urls(t *testing.T) {
+	initialUrl := valid_flu.Data["image_url"]
+	err := imageUrlEncryptor(&valid_flu, input_config)
+	assert.Nil(t, err)
+	assert.EqualValues(t, len(valid_flu.Data["image_url"].([]string)), 2)
+	assert.NotEqual(t, valid_flu.Data["image_url"], initialUrl)
+}
+
+func Test_for_invalid_urls(t *testing.T) {
+	err := imageUrlEncryptor(&invalid_url_flu, input_config)
+	assert.Error(t, err)
+}
+
+func Test_for_invalid_config(t *testing.T) {
+	err := imageUrlEncryptor(&invalid_url_flu, invalid_input_config)
+	assert.Error(t, err)
 }

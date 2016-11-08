@@ -283,6 +283,12 @@ func imageUrlEncryptor(flu *models.FeedLineUnit, input_config []models.FLUValida
 		}
 	}
 
+	if img_config=="" || flu.Data[img_config]==nil{
+		err = plerrors.ServiceError{"GE_0003", "Invalid image_url config for the flu received"}
+		return
+	}
+
+
 	var img_urls = flu.Data[img_config].([]string)
 
 	if err != nil || len(img_urls) == 0{

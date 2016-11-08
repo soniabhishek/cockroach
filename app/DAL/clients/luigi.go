@@ -41,7 +41,7 @@ func (*luigiClient) GetEncryptedUrls(images []string) (models.JsonF, error) {
 
 	if res.StatusCode != http.StatusOK {
 
-		return nil, errors.New("Error occured in luigi")
+		return nil, errors.New("Error occured in luigi. Check image urls")
 	}
 
 	defer res.Body.Close()

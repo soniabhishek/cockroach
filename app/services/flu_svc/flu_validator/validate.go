@@ -87,7 +87,6 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 		plog.Error("image encryption error", err)
 	}
 
-	return
 	if success {
 		return true, nil
 	} else {

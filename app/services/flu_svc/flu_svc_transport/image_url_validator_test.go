@@ -44,10 +44,12 @@ var invalid_input_config = []models.FLUValidator{
 func Test_for_valid_urls(t *testing.T) {
 	initialUrl := valid_flu.Data["image_url"]
 	err := imageUrlEncryptor(&valid_flu, input_config)
-	assert.True(t, govalidator.IsURL(valid_flu.Data["image_url"].([]string)[0]))
-	assert.True(t, govalidator.IsURL(valid_flu.Data["image_url"].([]string)[1]))
+	returnedUrlList := valid_flu.Data["image_url"].([]string)
+
+	assert.True(t, govalidator.IsURL(returnedUrlList[0]))
+	assert.True(t, govalidator.IsURL(returnedUrlList[1]))
 	assert.Nil(t, err)
-	assert.EqualValues(t, len(valid_flu.Data["image_url"].([]string)), 2)
+	assert.EqualValues(t, len(returnedUrlList), 2)
 	assert.NotEqual(t, valid_flu.Data["image_url"], initialUrl)
 }
 

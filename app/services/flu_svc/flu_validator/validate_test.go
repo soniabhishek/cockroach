@@ -3,6 +3,7 @@ package flu_validator
 import (
 	"testing"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/stretchr/testify/assert"
@@ -24,10 +25,16 @@ func (f *fakeValidatorRepo) GetValidatorsForProject(projectId uuid.UUID, tag str
 			IsMandatory: true,
 		},
 		models.FLUValidator{
+			FieldName:   "image_url",
+			Type:        "IMAGE_ARRAY",
+			IsMandatory: false,
+		},
+		models.FLUValidator{
 			FieldName:   "category_id",
 			Type:        "STRING",
 			IsMandatory: false,
 		}}, nil
+
 }
 
 func (f *fakeValidatorRepo) Save(*models.FLUValidator) error {
@@ -130,11 +137,11 @@ func TestValidateFluForMandatoryField(t *testing.T) {
 	flu := models.FeedLineUnit{
 		ReferenceId: "PAYTM_123",
 		Data: models.JsonF{
-			"product_id":  "40843808",
-			"category_id": "t_shirt_12",
-			"name":        "XYZ Men's Gold T-Shirt",
-			"brand":       "XYZ",
-			"color":       "",
+			"product_id": "40843808",
+
+			"name":  "XYZ Men's Gold T-Shirt",
+			"brand": "XYZ",
+			"color": "",
 		},
 		Tag: "PAYTM_TSHIRT",
 	}
@@ -148,4 +155,57 @@ func TestValidateFluForMandatoryField(t *testing.T) {
 	assert.Equal(t, 1, len(validationErrs), "More than one validation Error found")
 	assert.Equal(t, mandatoryFieldEmptyVCode, validationErrs[0].ValidationCode, mandatoryFieldEmptyVCode+" error was expected")
 	assert.Equal(t, []string{"color"}, validationErrs[0].MetaData.Fields, "only color was expected")
+}
+
+func TestEncryptionForValidImageUrls(t *testing.T) {
+
+	var fluId = uuid.NewV4()
+	var image_url_valid = []string{"https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
+
+	var flu = models.FeedLineUnit{
+		ID:          fluId,
+		ReferenceId: "Ola123",
+		Tag:         "Ola",
+		Data: models.JsonF{
+			"brand":       "Sony",
+			"category_id": "t_shirt_12",
+			"color":       "Gold",
+			"image_url":   image_url_valid},
+		Build: models.JsonF{},
+	}
+
+	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
+
+	returnedUrlList := flu.Data["image_url"].([]string)
+	assert.True(t, govalidator.IsURL(returnedUrlList[0]))
+	assert.True(t, govalidator.IsURL(returnedUrlList[1]))
+	assert.True(t, isValid)
+	assert.Nil(t, err)
+	assert.EqualValues(t, len(returnedUrlList), 2)
+	assert.NotEqual(t, returnedUrlList, image_url_valid)
+
+}
+
+func Test_for_invalid_urls(t *testing.T) {
+
+	var fluId = uuid.NewV4()
+	var image_url_invalid = []string{"https://s3-ap-southeas-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
+
+	var flu = models.FeedLineUnit{
+		ID:          fluId,
+		ReferenceId: "Ola123",
+		Tag:         "Ola",
+		Data: models.JsonF{
+			"brand":       "Sony",
+			"category_id": "t_shirt_12",
+			"color":       "Gold",
+			"image_url":   image_url_invalid},
+		Build: models.JsonF{},
+	}
+
+	returnedUrlList := flu.Data["image_url"].([]string)
+	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
+	assert.True(t, isValid)
+	assert.Nil(t, err)
+	assert.Equal(t, returnedUrlList, image_url_invalid)
 }

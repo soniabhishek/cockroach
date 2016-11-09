@@ -54,14 +54,8 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 			showErrorResponse(c, plerrors.ErrMalformedJson)
 			return
 		}
-
-		//flu, err := validateInputFLU(c, fluService)
-		if err != nil {
-			// Incoming FLU is not valid.
-			return
-		}
-
 		flu.ProjectId = projectId
+
 		err = fluService.AddFeedLineUnit(&flu)
 		if err != nil {
 			if err == projects_repo.ErrProjectNotFound {

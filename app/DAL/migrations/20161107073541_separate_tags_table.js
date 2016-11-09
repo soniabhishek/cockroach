@@ -32,6 +32,6 @@ exports.down = function(knex, Promise) {
   			}),
   		 knex
   		    .schema
-  		    .dropTableIfExists('feed_line_tags')
+  		    .dropTableIfExists('work_flow_tag_associators')
   		])
 };

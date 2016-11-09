@@ -8,6 +8,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/services/flu_svc"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
@@ -34,15 +35,37 @@ type fluPostResponse struct {
 	Tag         string    `json:"tag"`
 }
 
-func feedLineInputHandler(fluService flu_svc.IFluService) gin.HandlerFunc {
+func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
-		flu, err := validateInputFLU(c, fluService)
+		var flu models.FeedLineUnit
+
+		var projectId uuid.UUID
+		var err error
+		projectId, err = uuid.FromString(c.Param("projectId"))
 		if err != nil {
-			// Incoming FLU is not valid.
+			showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
 			return
 		}
+
+		// Validating JSON
+		if err = c.BindJSON(&flu); err != nil {
+			showErrorResponse(c, plerrors.ErrMalformedJson)
+			return
+		}
+		flu.ProjectId = projectId
+
+		err = fluService.AddFeedLineUnit(&flu)
+		if err != nil {
+			if err == projects_repo.ErrProjectNotFound {
+				//Temporary hack. Wait for schema refactoring
+				err = plerrors.ServiceError{"PR_0001", "Project not found"}
+			}
+			showErrorResponse(c, err)
+			return
+		}
+		return
 
 		// This has to be done for chutiya paytm dev
 		if c.Keys["show_old"] == true {
@@ -119,7 +142,7 @@ func validatorGetHandler(validatorSvc flu_validator.IFluValidatorService) gin.Ha
 		tag := c.Query("tag")
 
 		if tag == "" {
-			showErrorResponse(c, flu_svc.ErrTagMissing)
+			showErrorResponse(c, flu_errors.ErrTagMissing)
 			return
 		}
 
@@ -207,57 +230,4 @@ func showErrorResponse(c *gin.Context, err error) {
 		"error":   msg,
 		"success": false,
 	})
-}
-
-//--------------------------------------------------------------------------------//
-//Validator
-
-func validateInputFLU(c *gin.Context, fluService flu_svc.IFluService) (flu models.FeedLineUnit, err error) {
-
-	//Variable name will be changed to projectId after the schema refactoring
-	var projectId uuid.UUID
-	projectId, err = uuid.FromString(c.Param("projectId"))
-	if err != nil {
-		showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
-		return
-	}
-
-	// Validating JSON
-	if err = c.BindJSON(&flu); err != nil {
-		showErrorResponse(c, plerrors.ErrMalformedJson)
-		return
-	}
-
-	// Validating ReferenceID
-	if flu.ReferenceId == "" {
-		err = flu_svc.ErrReferenceIdMissing
-		showErrorResponse(c, flu_svc.ErrReferenceIdMissing)
-		return
-	}
-
-	// Validating TAG
-	if flu.Tag == "" {
-		err = flu_svc.ErrTagMissing
-		showErrorResponse(c, flu_svc.ErrTagMissing)
-		return
-	}
-
-	// Validating Data
-	if flu.Data == nil {
-		err = flu_svc.ErrDataMissing
-		showErrorResponse(c, flu_svc.ErrDataMissing)
-		return
-	}
-
-	flu.ProjectId = projectId
-	err = fluService.AddFeedLineUnit(&flu)
-	if err != nil {
-		if err == projects_repo.ErrProjectNotFound {
-			//Temporary hack. Wait for schema refactoring
-			err = plerrors.ServiceError{"PR_0001", "Project not found"}
-		}
-		showErrorResponse(c, err)
-		return
-	}
-	return
 }

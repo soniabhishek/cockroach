@@ -37,17 +37,19 @@ func (f *fakeValidatorRepo) GetValidatorsForProject(projectId uuid.UUID, tag str
 
 }
 
+var image_url_valid = []string{"https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
+
 func (f *fakeValidatorRepo) Save(*models.FLUValidator) error {
 	return nil
 }
 
 func TestValidateFluEmptyValidator(t *testing.T) {
-
 	flu := models.FeedLineUnit{
 		ReferenceId: "PAYTM_123",
 		Data: models.JsonF{
 			"product_id":  "40843808",
 			"category_id": "t_shirt_12",
+			"image_url":   image_url_valid,
 			"name":        "XYZ Men's Gold T-Shirt",
 			"brand":       "XYZ",
 			"color":       "Gold",
@@ -63,12 +65,12 @@ func TestValidateFluEmptyValidator(t *testing.T) {
 }
 
 func TestValidateFluPerfectFlu(t *testing.T) {
-
 	flu := models.FeedLineUnit{
 		ReferenceId: "PAYTM_123",
 		Data: models.JsonF{
 			"product_id":  "40843808",
 			"category_id": "t_shirt_12",
+			"image_url":   image_url_valid,
 			"name":        "XYZ Men's Gold T-Shirt",
 			"brand":       "XYZ",
 			"color":       "Gold",
@@ -90,6 +92,7 @@ func TestValidateFluForFieldNotFound(t *testing.T) {
 		Data: models.JsonF{
 			"product_id": "40843808",
 			"name":       "XYZ Men's Gold T-Shirt",
+			"image_url":  image_url_valid,
 			"brand":      "XYZ",
 			"color":      "Gold",
 		},
@@ -114,6 +117,7 @@ func TestValidateFluForWrongDataType(t *testing.T) {
 		Data: models.JsonF{
 			"product_id":  "40843808",
 			"category_id": "t_shirt_12",
+			"image_url":   image_url_valid,
 			"name":        "XYZ Men's Gold T-Shirt",
 			"brand":       []string{"123", "1233"},
 			"color":       "Gold",
@@ -137,11 +141,12 @@ func TestValidateFluForMandatoryField(t *testing.T) {
 	flu := models.FeedLineUnit{
 		ReferenceId: "PAYTM_123",
 		Data: models.JsonF{
-			"product_id": "40843808",
-
-			"name":  "XYZ Men's Gold T-Shirt",
-			"brand": "XYZ",
-			"color": "",
+			"product_id":  "40843808",
+			"image_url":   image_url_valid,
+			"name":        "XYZ Men's Gold T-Shirt",
+			"category_id": "t_shirt_12",
+			"brand":       "XYZ",
+			"color":       "",
 		},
 		Tag: "PAYTM_TSHIRT",
 	}
@@ -160,7 +165,6 @@ func TestValidateFluForMandatoryField(t *testing.T) {
 func TestEncryptionForValidImageUrls(t *testing.T) {
 
 	var fluId = uuid.NewV4()
-	var image_url_valid = []string{"https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
 
 	var flu = models.FeedLineUnit{
 		ID:          fluId,
@@ -189,7 +193,7 @@ func TestEncryptionForValidImageUrls(t *testing.T) {
 func Test_for_invalid_urls(t *testing.T) {
 
 	var fluId = uuid.NewV4()
-	var image_url_invalid = []string{"https://s3-ap-southeas-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
+	var image_url_invalid = []string{"https://s3-ap-southea-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
 
 	var flu = models.FeedLineUnit{
 		ID:          fluId,
@@ -205,7 +209,13 @@ func Test_for_invalid_urls(t *testing.T) {
 
 	returnedUrlList := flu.Data["image_url"].([]string)
 	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
-	assert.True(t, isValid)
-	assert.Nil(t, err)
+	validationErrs := err.(DataValidationError).Validations
+
+	assert.Error(t, err, "Error occured while validating")
+	assert.False(t, isValid, "Expected inValid flu but found valid")
+	assert.NotEmpty(t, validationErrs, "Validations errors were empty for inValid flu")
+	assert.Equal(t, 1, len(validationErrs), "More than one validation Error found")
+	assert.Equal(t, invalidImageLinkVCode, validationErrs[0].ValidationCode, invalidImageLinkVCode+" error was expected")
+	assert.Equal(t, []string{"image_url"}, validationErrs[0].MetaData.Fields, "only image_url was expected")
 	assert.Equal(t, returnedUrlList, image_url_invalid)
 }

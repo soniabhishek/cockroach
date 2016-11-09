@@ -49,7 +49,11 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 		// Check if field value is present or not
 		fieldVal, ok := flu.Data[name]
 		if !ok {
-			fieldNotFound.AddMetaDataField(name)
+			if !fluV.IsMandatory {
+				fieldNotFound.AddMetaDataField(name)
+			} else {
+				mandatoryFieldEmpty.AddMetaDataField(name)
+			}
 			continue
 		}
 
@@ -98,7 +102,7 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 	var vErrs []validationError
 
 	// Loop over all the possible errors
-	for _, v := range []validationError{fieldNotFound, wrongDataType, mandatoryFieldEmpty} {
+	for _, v := range []validationError{fieldNotFound, wrongDataType, mandatoryFieldEmpty, invalidImageLink} {
 
 		// Check if any error occurred
 		if len(v.MetaData.Fields) > 0 {

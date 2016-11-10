@@ -65,7 +65,6 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 			showErrorResponse(c, err)
 			return
 		}
-		return
 
 		// This has to be done for chutiya paytm dev
 		if c.Keys["show_old"] == true {

@@ -242,3 +242,22 @@ func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.
 
 	return updatableRows, nil
 }
+
+func (e *fluRepo) GetFlusNotSent(StepId uuid.UUID) (flus []models.FeedLineUnit, err error) {
+
+	_, err = e.Db.Select(&flus, `SELECT fl.*
+FROM feed_line_log fll
+INNER JOIN feed_line fl on fl.id = fll.flu_id
+WHERE fll.step_id =$1
+AND fll.meta_data->>'HttpStatusCode'!='200'
+and fll.created_at > date_trunc('day',now()-interval '30 days')
+AND fll.flu_id not in (
+  SELECT fll.flu_id
+  FROM feed_line_log fll
+  WHERE step_id = '43dacf34-83fc-4628-b276-23f05d23e6f7'
+        AND created_at > date_trunc('day',now()-interval '30 days')
+        AND (fll.meta_data ->> 'HttpStatusCode' = '200') AND fll.message = 'SUCCESS'
+);`, StepId)
+
+	return
+}

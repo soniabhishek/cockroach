@@ -15,5 +15,5 @@ func New() IFluValidatorService {
 type IFluValidatorService interface {
 	GetValidators(projectId uuid.UUID, tag string) (fvs []models.FLUValidator, err error)
 	SaveValidator(fv *models.FLUValidator) (err error)
-	Validate(flu models.FeedLineUnit) (IsValid bool, err error)
+	Validate(flu *models.FeedLineUnit) (IsValid bool, err error)
 }

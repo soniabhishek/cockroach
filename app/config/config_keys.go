@@ -47,6 +47,8 @@ const (
 	DOWNLOAD_PATH = configKey("workflow_step.manual_download_path")
 	MEGATRON_API  = configKey("megatron.base.api")
 
+	LUIGI_API = configKey("luigi.base.api")
+
 	PLOG_LEVEL = configKey("plog.log_level")
 	PLOG_TYPE  = configKey("plog.log_type")
 

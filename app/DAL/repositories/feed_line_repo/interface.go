@@ -19,6 +19,7 @@ type IFluRepo interface {
 	GetByStepId(StepId uuid.UUID) ([]models.FeedLineUnit, error)
 	BulkFluBuildUpdate(flus []models.FeedLineUnit) error
 	BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, err error)
+	GetFlusNotSent(StepId uuid.UUID) ([]models.FeedLineUnit, error)
 }
 
 type IFluLogger interface {
@@ -111,11 +112,17 @@ func (i *inMemFluRepo) GetByStepId(stepId uuid.UUID) (stepFlus []models.FeedLine
 }
 
 func (e *inMemFluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
-
+	panic("not implemented")
 	return nil
 }
 
 func (e *inMemFluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, err error) {
+	panic("not implemented")
+	return
+}
+
+func (e *inMemFluRepo) GetFlusNotSent(StepId uuid.UUID) (flus []models.FeedLineUnit, err error) {
+	panic("not implemented")
 	return
 }
 

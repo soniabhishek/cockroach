@@ -18,7 +18,9 @@ func TestCrowdy(t *testing.T) {
 		ID: uuid.NewV4(),
 	}
 
-	success, err := cc.PushFLU(flu)
+	micId := uuid.NewV4()
+
+	success, err := cc.PushFLU(flu, micId)
 
 	assert.True(t, success)
 	assert.NoError(t, err)

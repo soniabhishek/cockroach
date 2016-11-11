@@ -19,10 +19,10 @@ func GetAbacusClient() *abacusClient {
 type abacusClient struct {
 }
 
-type algorithmResponse struct {
-	prediction string      `json:"prediction"`
-	Success    bool        `json:"success"`
-	Error      interface{} `json:"error"`
+type algorithmResponser struct {
+	Prediction string `json:"prediction"`
+	//	Success    bool        `json:"success"`
+	//	Error      interface{} `json:"error"`
 }
 
 type algorithmRequest struct {
@@ -49,11 +49,11 @@ func (*abacusClient) Predict(text string) (string, error) {
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 
-	var algorithmResponse algorithmResponse
+	var algoResponse algorithmResponser
 
-	err = json.Unmarshal(body, &algorithmResponse)
+	err = json.Unmarshal(body, &algoResponse)
 	if err != nil {
 		return "", err
 	}
-	return algorithmResponse.prediction, nil
+	return algoResponse.Prediction, nil
 }

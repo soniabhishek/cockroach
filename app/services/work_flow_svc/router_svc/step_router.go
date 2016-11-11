@@ -55,10 +55,9 @@ func (sr *stepRouter) connectAll() {
 		step_type.InternalSourcing: crowdSourcingConn.Connect(&sr.InQ),
 		step_type.Manual:           manualStepConn.Connect(&sr.InQ),
 		step_type.Transformation:   transformationStepConn.Connect(&sr.InQ),
-		step_type.Algorithm:        manualStepConn.Connect(&sr.InQ),
+		step_type.Algorithm:        algorithmStepConn.Connect(&sr.InQ),
 		step_type.Bifurcation:      bifurcationStepConn.Connect(&sr.InQ),
 		step_type.Unification:      unificationStepConn.Connect(&sr.InQ),
-		step_type.Algorithm:        algorithmStepConn.Connect(&sr.InQ),
 		step_type.Error:            manualStepConn.Connect(&sr.InQ),
 
 		// Special case

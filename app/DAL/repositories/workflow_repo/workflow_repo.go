@@ -43,7 +43,7 @@ func (wr *workflow_repo) GetById(id uuid.UUID) (wf models.WorkFlow, err error) {
 }
 
 func (wr *workflow_repo) GetWorkFlowByProjectIdAndTag(projectId uuid.UUID, tag string) (workFlow models.WorkFlow, err error) {
-	err = wr.db.SelectOne(&workFlow, `select * from work_flow where project_id = $1 and tag = $2 `, projectId.String(), tag)
+	err = wr.db.SelectOne(&workFlow, `select * from work_flow wf join work_flow_tag_associators wft on wf.id = wft.work_flow_id and wf.project_id = $1 and wf.id = wft.work_flow_id where wft.tag_name = $2 `, projectId.String(), tag)
 	if err == sql.ErrNoRows {
 		err = ErrWorkflowNotFound
 	}

@@ -17,7 +17,6 @@ import (
 	"github.com/crowdflux/angel/app/services/work_flow_retriever_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/work_flow"
 	"github.com/itsjamie/gin-cors"
 	"github.com/newrelic/go-agent"
 )

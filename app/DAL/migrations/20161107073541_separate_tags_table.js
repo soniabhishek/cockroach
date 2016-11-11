@@ -6,11 +6,14 @@ exports.up = function(knex, Promise) {
             t.increments()
             t.string('tag_name')
                 .notNullable()
-                .index()
             t.uuid('work_flow_id')
+                .notNullable
+                .index()
+            t.uuid('project_id')
             t.timestamp('created_at')
-            t.unique('tag_name')
-            t.foreign('work_flow_id').references('work_flow.id')            
+            t.unique(['tag_name','project_id'])
+            t.foreign('work_flow_id').references('work_flow.id')
+            t.foreign('project_id').references('projects.id')
     }),
    knex.schema
     .table('work_flow', t=> {

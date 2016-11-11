@@ -115,6 +115,7 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 	for i, _ := range receivedWorkflowContainer.Tags {
 		receivedWorkflowContainer.Tags[i].CreatedAt = creationTime
 		receivedWorkflowContainer.Tags[i].WorkFlowId = receivedWorkflowContainer.WorkFlow.ID
+		receivedWorkflowContainer.Tags[i].ProjectId = receivedWorkflowContainer.ProjectId
 	}
 	/* Here All Validations Needs to be Performed so as to make Complete Operation Atomic*/
 

@@ -9,7 +9,6 @@ exports.up = function(knex, Promise) {
                 .index()
             t.uuid('work_flow_id')
             t.timestamp('created_at')
-            t.timestamp('updated_at')
             t.unique('tag_name')
             t.foreign('work_flow_id').references('work_flow.id')            
     }),

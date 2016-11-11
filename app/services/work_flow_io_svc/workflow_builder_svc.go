@@ -114,7 +114,7 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 	}
 	for i, _ := range receivedWorkflowContainer.Tags {
 		receivedWorkflowContainer.Tags[i].CreatedAt = creationTime
-		receivedWorkflowContainer.Tags[i].UpdatedAt = creationTime
+		receivedWorkflowContainer.Tags[i].WorkFlowId = receivedWorkflowContainer.WorkFlow.ID
 	}
 	/* Here All Validations Needs to be Performed so as to make Complete Operation Atomic*/
 
@@ -314,7 +314,7 @@ func computeTagsComparision(receivedTags, existingTags []models.WorkFlowTagAssoc
 		for index, existing := range existingTags {
 			if received.TagName == existing.TagName {
 				update = true
-				received.UpdatedAt = pq.NullTime{time.Now(), true}
+				received.CreatedAt = pq.NullTime{time.Now(), true}
 				forUpdate = append(forUpdate, received)
 				existingTags = append(existingTags[:index], existingTags[index+1:]...)
 				break
@@ -323,7 +323,7 @@ func computeTagsComparision(receivedTags, existingTags []models.WorkFlowTagAssoc
 		if !update {
 			creationTime := pq.NullTime{time.Now(), true}
 			received.CreatedAt = creationTime
-			received.UpdatedAt = creationTime
+			received.CreatedAt = creationTime
 			forInsert = append(forInsert, received)
 		}
 	}

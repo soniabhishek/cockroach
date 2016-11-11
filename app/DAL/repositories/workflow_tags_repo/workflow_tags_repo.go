@@ -1,6 +1,7 @@
 package workflow_tags_repo
 
 import (
+	"database/sql"
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
@@ -39,6 +40,11 @@ func (wtr *workflow_tags_repo) Delete(wfTags []models.WorkFlowTagAssociators) er
 	return err
 }
 func (wtr *workflow_tags_repo) GetByWorkFlowId(id uuid.UUID) (wfTags []models.WorkFlowTagAssociators, err error) {
-	err = wtr.db.SelectById(&wfTags, id)
+	_, err = wtr.db.Select(&wfTags, `select * from work_flow_tag_associators where work_flow_id = $1  `, id)
+
+	if err == sql.ErrNoRows || len(wfTags) == 0 {
+		err = ErrWorkflowTagsNotFound
+	}
+
 	return
 }

@@ -14,6 +14,7 @@ type IProjectsRepo interface {
 	Update(models.Project) error
 	Delete(id uuid.UUID) error
 	IfIdExist(uuid.UUID) (bool, error)
+	GetByClientId(uuid.UUID) ([]models.Project, error)
 }
 
 //=============================================================================================//
@@ -34,6 +35,10 @@ func (i *inMemProjectRepo) GetById(id uuid.UUID) (pr models.Project, err error) 
 		return pr, errors.New("not found")
 	}
 	return pr, nil
+}
+
+func (i *inMemProjectRepo) GetByClientId(id uuid.UUID) (pr []models.Project, err error) {
+	return
 }
 
 func (i *inMemProjectRepo) Add(models.Project) error {

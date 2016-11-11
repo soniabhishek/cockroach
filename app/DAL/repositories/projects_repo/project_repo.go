@@ -47,6 +47,11 @@ func (r *projectsRepo) GetById(id uuid.UUID) (m models.Project, err error) {
 	return
 }
 
+func (r *projectsRepo) GetByClientId(id uuid.UUID) (m []models.Project, err error) {
+	_, err = r.pg.Select(&m, `select * from projects where client_id = $1`, id.String())
+	return
+}
+
 func (r *projectsRepo) saveMgo(m models.Project) error {
 	return r.mgo.C(projectTable).Insert(&m)
 }

@@ -43,3 +43,17 @@ func (c *clientsRepo) Delete(id uuid.UUID) error {
 	}
 	return err
 }
+
+func (c *clientsRepo) GetAllClients() (response []models.ClientModel, err error) {
+	_, err = c.Db.Select(&response, `select c.id, u.username from clients c, users u`)
+	return
+}
+
+//var v models.ClientModel
+//fmt.Printf("%+v", v)
+//err = c.Db.SelectOne(&v, `select u.* from users       as u limit 1`)
+//fmt.Println(v)
+//if err != nil {
+//return nil, err
+//}
+//return

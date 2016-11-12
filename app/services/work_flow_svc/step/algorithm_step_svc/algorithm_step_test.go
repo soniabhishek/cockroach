@@ -45,7 +45,7 @@ var badFlu = feed_line.FLU{
 		ReferenceId: "PayFlip123",
 		Tag:         "Brand",
 		Data: models.JsonF{
-			"review_body": "Jango Fett",
+			"review_body": "Darth Vader",
 		},
 		Build: models.JsonF{"Luke": "I am your father"},
 	},

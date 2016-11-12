@@ -1,7 +1,7 @@
 
 exports.up = function(knex, Promise) {
-  return knex.schema
-		.table('feed_line',t=>t.dropUnique(['reference_id','project_id']))
+  //return knex.schema//
+	//	.table('feed_line',t=>t.dropUnique(['reference_id','project_id']))
 };
 
 exports.down = function(knex, Promise) {

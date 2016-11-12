@@ -13,11 +13,13 @@ import (
 const ENDPOINT = "/create-client"
 const FETCHCLIENTS = "/fetch-clients"
 const FETCHPROJECTS = "/fetch-client-projects/:clientId"
+const FETCHWORKFLOWS = "/fetch-project-workflows/:projectId"
 
 func AddHttpTransport(routerGroup *gin.RouterGroup) {
 	clientService := New()
 	routerGroup.GET(FETCHCLIENTS, fetchClientsHandler(clientService))
 	routerGroup.GET(FETCHPROJECTS, fetchProjectsHandler(clientService))
+	routerGroup.GET(FETCHWORKFLOWS, fetchWorkflowsHandler(clientService))
 	routerGroup.POST(ENDPOINT, createClientHandler(clientService))
 }
 
@@ -84,6 +86,26 @@ func fetchProjectsHandler(clientService IWorkFlowExplorerService) gin.HandlerFun
 			c.JSON(http.StatusOK, gin.H{
 				"success":  true,
 				"projects": response,
+			})
+		}
+	}
+}
+
+func fetchWorkflowsHandler(clientService IWorkFlowExplorerService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		projectId, err := uuid.FromString(c.Param("projectId"))
+		if err != nil {
+			plog.Error("Invalid Id", err)
+			validator.ShowErrorResponseOverHttp(c, err)
+		}
+		response, err := clientService.FetchWorkflowsByProjectId(projectId)
+		if err != nil {
+			plog.Error("Fetching Projects workflows Error", err)
+			validator.ShowErrorResponseOverHttp(c, err)
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"success":   true,
+				"workflows": response,
 			})
 		}
 	}

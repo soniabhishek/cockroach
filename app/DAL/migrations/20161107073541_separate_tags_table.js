@@ -7,7 +7,7 @@ exports.up = function(knex, Promise) {
             t.string('tag_name')
                 .notNullable()
             t.uuid('work_flow_id')
-                .notNullable
+                .notNullable()
                 .index()
             t.uuid('project_id')
             t.timestamp('created_at')

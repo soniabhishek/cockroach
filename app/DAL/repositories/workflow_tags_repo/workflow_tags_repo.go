@@ -48,3 +48,7 @@ func (wtr *workflow_tags_repo) GetByWorkFlowId(id uuid.UUID) (wfTags []models.Wo
 
 	return
 }
+func (wtr *workflow_tags_repo) GetByProjectId(id uuid.UUID) (wfTags []models.WorkFlowTagAssociators, err error) {
+	_, err = wtr.db.Select(&wfTags, `select * from work_flow_tag_associators where project_id = $1  `, id)
+	return
+}

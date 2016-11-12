@@ -11,6 +11,7 @@ type IWorkflowTagsRepo interface {
 	Update([]models.WorkFlowTagAssociators) error
 	Delete([]models.WorkFlowTagAssociators) error
 	GetByWorkFlowId(id uuid.UUID) ([]models.WorkFlowTagAssociators, error)
+	GetByProjectId(id uuid.UUID) ([]models.WorkFlowTagAssociators, error)
 }
 
 func New() IWorkflowTagsRepo {

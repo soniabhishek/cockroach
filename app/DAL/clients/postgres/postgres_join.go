@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -35,13 +34,11 @@ func (pg *postgres_db) SelectOneJoin(holder interface{}, query string, args ...i
 	if err != nil {
 		return err
 	}
-
 	//check if any row is present
-	if r.Next() {
-
+	for r.Next() {
 		// reflect value of holder
 		v := reflect.ValueOf(holder)
-
+		fmt.Printf("XXX %+v \n", v)
 		// value should be a pointer
 		if v.Kind() != reflect.Ptr {
 			err = fmt.Errorf("must pass a pointer, not a value, to StructScan destination")
@@ -56,15 +53,12 @@ func (pg *postgres_db) SelectOneJoin(holder interface{}, query string, args ...i
 		if err != nil {
 			return err
 		}
-
 		rvalues := mapColumnsToInterfaces(v, columns)
-
+		fmt.Println(rvalues)
 		// Scan method takes interfaces & puts values in it according to the order
-		return r.Scan(rvalues...)
-
-	} else {
-		return errors.New("No matching rows found")
+		r.Scan(rvalues...)
 	}
+	return nil
 }
 
 func getDbTagFieldMap(v reflect.Value, t reflect.Type) map[string]reflect.Value {
@@ -76,7 +70,6 @@ func getDbTagFieldMap(v reflect.Value, t reflect.Type) map[string]reflect.Value 
 	for i := 0; i < fieldCount; i++ {
 		typ := t.Field(i)
 		val := v.Field(i)
-
 		if dbTag := typ.Tag.Get(dbTag); dbTag != "" && dbTag != "-" {
 			fieldTag[dbTag] = val
 		}
@@ -85,31 +78,27 @@ func getDbTagFieldMap(v reflect.Value, t reflect.Type) map[string]reflect.Value 
 }
 
 func mapColumnsToInterfaces(inVal reflect.Value, columns []string) []interface{} {
-
 	// Get the underlying val's type
 	inTyp := inVal.Type()
-
 	// initial the array to hold references of struct fields mapped to the columns
 	rvalues := make([]interface{}, len(columns))
 	start := 0
 	end := 0
-
 	// Loop on the embedded structs
 	for i := 0; i < inVal.NumField(); i++ {
 
 		// Get ith embedded type & value
 		embeddedT := inTyp.Field(i).Type
 		embeddedV := inVal.Field(i)
-
+		fmt.Println(embeddedT, embeddedV)
 		// Get dbTag-Field Map of the struct
 		tagFieldMap := getDbTagFieldMap(embeddedV, embeddedT)
-
 		// start from the last end
 		start = end
 
 		// get embedded struct's number of fields and put the end there
 		end += len(tagFieldMap)
-
+		fmt.Println(tagFieldMap)
 		// filter all columns by start & end
 		innerCols := columns[start:end]
 

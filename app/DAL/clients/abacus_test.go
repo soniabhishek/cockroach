@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAbacusGood(t *testing.T) {
+func TestAbacusSuccesfulPrediction(t *testing.T) {
 	cc := GetAbacusClient()
 	actualResult, err, success := cc.Predict("Good item")
 	expectedResult := "Approve"
@@ -14,7 +14,7 @@ func TestAbacusGood(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestAbacusBad(t *testing.T) {
+func TestAbacusUnsuccessfulPrediciton(t *testing.T) {
 	cc := GetAbacusClient()
 	actualResult, err, success := cc.Predict("Jango Fett")
 	assert.NotEqual(t, actualResult, "Approve")

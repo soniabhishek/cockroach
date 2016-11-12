@@ -39,6 +39,18 @@ var flu = feed_line.FLU{
 	},
 }
 
+var badFlu = feed_line.FLU{
+	FeedLineUnit: models.FeedLineUnit{
+		ID:          fluId,
+		ReferenceId: "PayFlip123",
+		Tag:         "Brand",
+		Data: models.JsonF{
+			"review_body": "Jango Fett",
+		},
+		Build: models.JsonF{"Luke": "I am your father"},
+	},
+}
+
 func (s *stepConfigSvcMock) GetAlgorithmStepConfig(stepId uuid.UUID) (config models.AlgorithmConfig, err error) {
 	config.AnswerFieldKey = "algo_result"
 	config.TextFieldKey = "review_body"
@@ -49,18 +61,16 @@ func (s *stepConfigSvcMock) GetTransformationStepConfig(stepId uuid.UUID) (confi
 	return
 }
 func (s *stepConfigSvcMock) GetBifurcationStepConfig(stepId uuid.UUID) (config models.BifurcationConfig, err error) {
-	config.Multiplication = 2
 	return
 }
 func (s *stepConfigSvcMock) GetUnificationStepConfig(stepId uuid.UUID) (config models.UnificationConfig, err error) {
-	config.Multiplication = 2
 	return
 }
 
 func (s *stepConfigSvcMock) GetCrowdsourcingStepConfig(stepId uuid.UUID) (config models.CrowdsourcingConfig, err error) {
 	return
 }
-func Test(t *testing.T) {
+func TestSuccessfulPrediction(t *testing.T) {
 
 	fluRepo := feed_line_repo.Mock()
 
@@ -87,6 +97,39 @@ func Test(t *testing.T) {
 		fluNew.ConfirmReceive()
 		assert.EqualValues(t, flu.ID, fluNew.ID)
 		assert.EqualValues(t, "Approve", fluNew.Build["algo_result"])
+	case <-time.After(time.Duration(2) * time.Second):
+		assert.FailNow(t, "nothing came out of crowdsourcing queue")
+	}
+
+}
+
+func TestUnSuccessfulPrediction(t *testing.T) {
+
+	fluRepo := feed_line_repo.Mock()
+
+	fluRepo.Save(badFlu.FeedLineUnit)
+
+	cs := algorithmStep{
+		Step:          step.New(step_type.Test),
+		stepConfigSvc: &stepConfigSvcMock{},
+	}
+
+	cs.SetFluProcessor(cs.processFlu)
+
+	cs.Start()
+
+	cs.InQ.Push(badFlu)
+
+	// Giving it time to finish adding to buffer
+	// as its happening in another goroutine
+	time.Sleep(time.Duration(100) * time.Millisecond)
+
+	var fluNew feed_line.FLU
+	select {
+	case fluNew = <-cs.OutQ.Receiver():
+		fluNew.ConfirmReceive()
+		assert.EqualValues(t, badFlu.ID, fluNew.ID)
+		assert.EqualValues(t, badFlu.Build, fluNew.Build)
 	case <-time.After(time.Duration(2) * time.Second):
 		assert.FailNow(t, "nothing came out of crowdsourcing queue")
 	}

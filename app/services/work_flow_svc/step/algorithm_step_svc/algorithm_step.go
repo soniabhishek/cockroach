@@ -19,30 +19,27 @@ type algorithmStep struct {
 func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 	t.AddToBuffer(flu)
 
+	plog.Info("algorithm Step flu reached", flu.ID)
 	tStep, err := t.stepConfigSvc.GetAlgorithmStepConfig(flu.StepId)
 	if err != nil {
 		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), "stepid: "+flu.StepId.String(), flu.FeedLineUnit)
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Algorithm, "Algorithm Config Error", flu.Redelivered())
+		t.finishFlu(flu)
+		flu.ConfirmReceive()
 		return
 	}
 
-	text, ok := flu.Data[tStep.TextFieldKey]
-	if !ok {
+	text := flu.Data[tStep.TextFieldKey]
 
-	}
-	textSting, ok := text.(string)
-	if !ok {
+	textSting := text.(string)
 
-	}
 	algoResult, err := clients.GetAbacusClient().Predict(textSting)
 	if err != nil {
 		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Algorithm, "Algorithm Error", flu.Redelivered())
-		return
+	} else {
+		flu.Build.Merge(models.JsonF{tStep.AnswerFieldKey: algoResult})
 	}
-
-	flu.Build.Merge(models.JsonF{tStep.AnswerFieldKey: algoResult})
-
 	t.finishFlu(flu)
 	flu.ConfirmReceive()
 }
@@ -60,7 +57,7 @@ func (t *algorithmStep) finishFlu(flu feed_line.FLU) bool {
 	return true
 }
 
-func newStdAlgorithmer() *algorithmStep {
+func newStdPredictor() *algorithmStep {
 	ts := &algorithmStep{
 		Step:          step.New(step_type.Algorithm),
 		stepConfigSvc: work_flow_io_svc.NewStepConfigService(),

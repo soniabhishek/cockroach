@@ -3,7 +3,6 @@ package algorithm_step_svc
 import (
 	"testing"
 
-	"fmt"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
@@ -34,7 +33,7 @@ var flu = feed_line.FLU{
 		ReferenceId: "PayFlip123",
 		Tag:         "Brand",
 		Data: models.JsonF{
-			"review_body": "Something",
+			"review_body": "Good product",
 		},
 		Build: models.JsonF{},
 	},
@@ -50,11 +49,11 @@ func (s *stepConfigSvcMock) GetTransformationStepConfig(stepId uuid.UUID) (confi
 	return
 }
 func (s *stepConfigSvcMock) GetBifurcationStepConfig(stepId uuid.UUID) (config models.BifurcationConfig, err error) {
-	config.Multiplication = 4
+	config.Multiplication = 2
 	return
 }
 func (s *stepConfigSvcMock) GetUnificationStepConfig(stepId uuid.UUID) (config models.UnificationConfig, err error) {
-	config.Multiplication = 4
+	config.Multiplication = 2
 	return
 }
 
@@ -82,18 +81,12 @@ func Test(t *testing.T) {
 	// as its happening in another goroutine
 	time.Sleep(time.Duration(100) * time.Millisecond)
 
-	flu.Build["new_prop"] = 123
-
-	//ok := cs.finishFlu(flu)
-	fmt.Println(flu.Build)
-	//assert.True(t, ok)
-
 	var fluNew feed_line.FLU
 	select {
 	case fluNew = <-cs.OutQ.Receiver():
 		fluNew.ConfirmReceive()
 		assert.EqualValues(t, flu.ID, fluNew.ID)
-		assert.EqualValues(t, flu.Build["new_prop"], 123)
+		assert.EqualValues(t, "Approve", fluNew.Build["algo_result"])
 	case <-time.After(time.Duration(2) * time.Second):
 		assert.FailNow(t, "nothing came out of crowdsourcing queue")
 	}

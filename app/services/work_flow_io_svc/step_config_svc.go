@@ -127,7 +127,7 @@ func (s *stepConfigSvc) GetAlgorithmStepConfig(stepId uuid.UUID) (ac models.Algo
 	}
 	answerFieldKeyString, ok := answerFieldKey.(string)
 	textFieldKeyString, ok2 := textFieldKey.(string)
-	if !ok || !ok2 {
+	if !ok || !ok2 || answerFieldKey == "" || textFieldKey == "" {
 		err = ErrConfigNotFound
 		return
 	}

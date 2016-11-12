@@ -21,7 +21,7 @@ type abacusClient struct {
 
 type algorithmResponser struct {
 	Prediction string `json:"prediction"`
-	//	Success    bool        `json:"success"`
+	Success    bool   `json:"success"`
 	//	Error      interface{} `json:"error"`
 }
 
@@ -29,7 +29,7 @@ type algorithmRequest struct {
 	Input string `json:"review"`
 }
 
-func (*abacusClient) Predict(text string) (string, error) {
+func (*abacusClient) Predict(text string) (string, error, bool) {
 
 	bty, _ := json.Marshal(algorithmRequest{text})
 
@@ -38,12 +38,12 @@ func (*abacusClient) Predict(text string) (string, error) {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", err, false
 	}
 
 	if res.StatusCode != http.StatusOK {
 
-		return "", errors.New("Error occured in abacus")
+		return "", errors.New("Error occured in abacus"), false
 	}
 
 	defer res.Body.Close()
@@ -53,7 +53,7 @@ func (*abacusClient) Predict(text string) (string, error) {
 
 	err = json.Unmarshal(body, &algoResponse)
 	if err != nil {
-		return "", err
+		return "", err, false
 	}
-	return algoResponse.Prediction, nil
+	return algoResponse.Prediction, nil, algoResponse.Success
 }

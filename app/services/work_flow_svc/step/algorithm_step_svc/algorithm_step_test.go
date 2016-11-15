@@ -26,6 +26,7 @@ func (fakeFluPusher) PushFLU(models.FeedLineUnit) (bool, error) {
 }
 
 var fluId = uuid.NewV4()
+var badFluId = uuid.NewV4()
 
 var flu = feed_line.FLU{
 	FeedLineUnit: models.FeedLineUnit{
@@ -41,7 +42,7 @@ var flu = feed_line.FLU{
 
 var badFlu = feed_line.FLU{
 	FeedLineUnit: models.FeedLineUnit{
-		ID:          fluId,
+		ID:          badFluId,
 		ReferenceId: "PayFlip123",
 		Tag:         "Brand",
 		Data: models.JsonF{

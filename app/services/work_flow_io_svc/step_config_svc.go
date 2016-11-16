@@ -22,7 +22,6 @@ const (
 	multiplication = "multiplication"
 	microTaskId    = "micro_task_id"
 	answerKey      = "answer_key"
-	answerFieldKey = "answer_field_key"
 	textFieldKey   = "text_field_key"
 )
 
@@ -119,7 +118,7 @@ func (s *stepConfigSvc) GetAlgorithmStepConfig(stepId uuid.UUID) (ac models.Algo
 		return
 	}
 
-	answerFieldKey, ok := step.Config[answerFieldKey]
+	answerFieldKey, ok := step.Config[answerKey]
 	textFieldKey, ok2 := step.Config[textFieldKey]
 	if !ok || !ok2 {
 		err = ErrConfigNotFound
@@ -131,7 +130,7 @@ func (s *stepConfigSvc) GetAlgorithmStepConfig(stepId uuid.UUID) (ac models.Algo
 		err = ErrConfigNotFound
 		return
 	}
-	ac.AnswerFieldKey = answerFieldKeyString
+	ac.AnswerKey = answerFieldKeyString
 	ac.TextFieldKey = textFieldKeyString
 
 	return

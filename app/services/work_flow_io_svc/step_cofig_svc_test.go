@@ -103,11 +103,11 @@ func TestStepConfigSvc_GetAlgorithmStepConfig(t *testing.T) {
 	bc, err = stepConfigSvc.GetAlgorithmStepConfig(uuid.NewV4())
 	assert.Error(t, err)
 
-	stepRepo.StepToReturn = models.Step{Config: models.JsonF{answerFieldKey: 121, textFieldKey: "text_field"}}
+	stepRepo.StepToReturn = models.Step{Config: models.JsonF{answerKey: 121, textFieldKey: "text_field"}}
 	bc, err = stepConfigSvc.GetAlgorithmStepConfig(uuid.NewV4())
 	assert.Error(t, err)
 
-	stepRepo.StepToReturn = models.Step{Config: models.JsonF{answerFieldKey: "", textFieldKey: "text_field"}}
+	stepRepo.StepToReturn = models.Step{Config: models.JsonF{answerKey: "", textFieldKey: "text_field"}}
 	bc, err = stepConfigSvc.GetAlgorithmStepConfig(uuid.NewV4())
 	assert.Error(t, err)
 
@@ -115,10 +115,10 @@ func TestStepConfigSvc_GetAlgorithmStepConfig(t *testing.T) {
 	bc, err = stepConfigSvc.GetAlgorithmStepConfig(uuid.NewV4())
 	assert.Error(t, err)
 
-	stepRepo.StepToReturn = models.Step{Config: models.JsonF{answerFieldKey: "answer_field", textFieldKey: "text_field"}}
+	stepRepo.StepToReturn = models.Step{Config: models.JsonF{answerKey: "answer_field", textFieldKey: "text_field"}}
 	bc, err = stepConfigSvc.GetAlgorithmStepConfig(uuid.NewV4())
 	assert.NoError(t, err)
-	assert.EqualValues(t, "answer_field", bc.AnswerFieldKey)
+	assert.EqualValues(t, "answer_field", bc.AnswerKey)
 	assert.EqualValues(t, "text_field", bc.TextFieldKey)
 
 }

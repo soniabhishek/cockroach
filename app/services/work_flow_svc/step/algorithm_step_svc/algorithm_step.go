@@ -38,7 +38,7 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Algorithm, "Algorithm Error", flu.Redelivered())
 	} else if success {
-		flu.Build.Merge(models.JsonF{tStep.AnswerFieldKey: algoResult})
+		flu.Build.Merge(models.JsonF{tStep.AnswerKey: algoResult})
 	}
 
 	t.finishFlu(flu)

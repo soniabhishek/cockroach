@@ -53,7 +53,7 @@ var badFlu = feed_line.FLU{
 }
 
 func (s *stepConfigSvcMock) GetAlgorithmStepConfig(stepId uuid.UUID) (config models.AlgorithmConfig, err error) {
-	config.AnswerFieldKey = "algo_result"
+	config.AnswerKey = "algo_result"
 	config.TextFieldKey = "review_body"
 	return
 }

@@ -25,6 +25,6 @@ type BifurcationConfig struct {
 }
 
 type AlgorithmConfig struct {
-	TextFieldKey   string
-	AnswerFieldKey string
+	TextFieldKey string
+	AnswerKey    string
 }

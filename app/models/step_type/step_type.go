@@ -19,6 +19,7 @@ const (
 	Gateway
 	Error
 	StartStep
+	LogicGate
 	Test
 )
 
@@ -54,6 +55,7 @@ var stepTypeNames = map[StepType]string{
 	Gateway:          "Gateway",
 	Error:            "Error",
 	StartStep:        "StartStep",
+	LogicGate:        "LogicGate",
 	Test:             "Test",
 }
 

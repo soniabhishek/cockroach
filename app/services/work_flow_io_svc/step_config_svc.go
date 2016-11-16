@@ -93,6 +93,7 @@ func (s *stepConfigSvc) GetBifurcationStepConfig(stepId uuid.UUID) (bc models.Bi
 
 	return
 }
+
 func (s *stepConfigSvc) GetUnificationStepConfig(stepId uuid.UUID) (uc models.UnificationConfig, err error) {
 	step, err := s.stepRepo.GetById(stepId)
 	if err != nil {

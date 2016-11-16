@@ -3,6 +3,7 @@ package crowdsourcing_step_svc
 import (
 	"testing"
 
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
@@ -18,7 +19,7 @@ import (
 type fakeFluPusher struct {
 }
 
-func (fakeFluPusher) PushFLU(models.FeedLineUnit) (bool, error) {
+func (fakeFluPusher) PushFLU(models.FeedLineUnit, uuid.UUID) (bool, error) {
 	return true, nil
 }
 

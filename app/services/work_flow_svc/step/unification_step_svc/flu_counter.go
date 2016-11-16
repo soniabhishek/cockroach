@@ -17,7 +17,7 @@ type fluCounter struct {
 	counter map[fluStepGroup][]feed_line.FLU
 
 	// Read Write lock to enable concurrent
-	// reads by single writes
+	// reads and single writes
 	sync.RWMutex
 }
 

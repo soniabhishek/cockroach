@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
 )
@@ -21,7 +22,7 @@ var _ IFluService = &fluService{}
 
 func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 
-	_, err := i.fluValidator.Validate(*flu)
+	_, err := i.fluValidator.Validate(flu)
 	if err != nil {
 		return err
 	}
@@ -35,7 +36,7 @@ func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 	id, err := fin.Add(*flu)
 	flu.ID = id
 	if err != nil && err == feed_line_repo.ErrDuplicateReferenceId {
-		err = ErrDuplicateReferenceId
+		err = flu_errors.ErrDuplicateReferenceId
 	}
 
 	return err
@@ -95,7 +96,7 @@ func (i *fluService) GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, erro
 
 	flu, err := i.fluRepo.GetById(fluId)
 	if err != nil && err == feed_line_repo.ErrFLUNotFoundInInputQueue {
-		err = ErrFluNotFound
+		err = flu_errors.ErrFluNotFound
 	}
 	return flu, err
 }

@@ -22,7 +22,6 @@ type abacusClient struct {
 type algorithmResponser struct {
 	Prediction string `json:"prediction"`
 	Success    bool   `json:"success"`
-	//	Error      interface{} `json:"error"`
 }
 
 type algorithmRequest struct {
@@ -42,7 +41,6 @@ func (*abacusClient) Predict(text string) (string, error, bool) {
 	}
 
 	if res.StatusCode != http.StatusOK {
-
 		return "", errors.New("Error occured in abacus"), false
 	}
 

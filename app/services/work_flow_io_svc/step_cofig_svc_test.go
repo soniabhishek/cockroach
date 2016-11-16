@@ -119,5 +119,6 @@ func TestStepConfigSvc_GetAlgorithmStepConfig(t *testing.T) {
 	bc, err = stepConfigSvc.GetAlgorithmStepConfig(uuid.NewV4())
 	assert.NoError(t, err)
 	assert.EqualValues(t, "answer_field", bc.AnswerFieldKey)
+	assert.EqualValues(t, "text_field", bc.TextFieldKey)
 
 }

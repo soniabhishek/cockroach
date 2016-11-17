@@ -9,6 +9,7 @@ type CrowdsourcingConfig struct {
 
 type InternalSourcingConfig struct {
 	MicroTaskId uuid.UUID
+	AnswerKey   string
 }
 
 type TransformationConfig struct {
@@ -21,4 +22,10 @@ type UnificationConfig struct {
 
 type BifurcationConfig struct {
 	Multiplication int
+}
+
+type AlgorithmConfig struct {
+	TextFieldKey string
+	AnswerKey    string
+	TimeDelay    int
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_io_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
+	"math/rand"
 	"time"
 )
 
@@ -42,7 +43,15 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 		flu.Build.Merge(models.JsonF{tStep.AnswerKey: algoResult})
 	}
 
-	time.Sleep(time.Duration(tStep.TimeDelay) * time.Second)
+	timeDiff := tStep.TimeDelayStop - tStep.TimeDelayStart
+
+	if timeDiff < 0 {
+		timeDiff = timeDiff * -1
+	}
+
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
+	time.Sleep(time.Duration(tStep.TimeDelayStart*60+r1.Intn(timeDiff*60)) * time.Second)
 	t.finishFlu(flu)
 	flu.ConfirmReceive()
 }

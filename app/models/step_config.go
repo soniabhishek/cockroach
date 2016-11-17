@@ -25,7 +25,8 @@ type BifurcationConfig struct {
 }
 
 type AlgorithmConfig struct {
-	TextFieldKey string
-	AnswerKey    string
-	TimeDelay    int
+	TextFieldKey   string
+	AnswerKey      string
+	TimeDelayStart int
+	TimeDelayStop  int
 }

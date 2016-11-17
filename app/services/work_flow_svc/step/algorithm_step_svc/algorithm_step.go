@@ -46,7 +46,7 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 	timeDiff := tStep.TimeDelayStop - tStep.TimeDelayStart
 
 	if timeDiff < 0 {
-		timeDiff = timeDiff * -1
+		timeDiff = 0
 	}
 
 	s1 := rand.NewSource(time.Now().UnixNano())

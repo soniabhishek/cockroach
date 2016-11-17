@@ -23,6 +23,7 @@ const (
 	microTaskId    = "micro_task_id"
 	answerKey      = "answer_key"
 	textFieldKey   = "text_field_key"
+	timeDelay      = "time_delay"
 )
 
 func (s *stepConfigSvc) GetCrowdsourcingStepConfig(stepId uuid.UUID) (tc models.CrowdsourcingConfig, err error) {
@@ -131,6 +132,19 @@ func (s *stepConfigSvc) GetAlgorithmStepConfig(stepId uuid.UUID) (ac models.Algo
 		err = ErrConfigNotFound
 		return
 	}
+
+	timeDelay, ok := step.Config[timeDelay]
+	if ok {
+		timeDelayint, ok2 := timeDelay.(int)
+		if ok2 {
+			ac.TimeDelay = timeDelayint
+		} else {
+			ac.TimeDelay = 0
+		}
+	} else {
+		ac.TimeDelay = 0
+	}
+
 	ac.AnswerKey = answerFieldKeyString
 	ac.TextFieldKey = textFieldKeyString
 

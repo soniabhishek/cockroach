@@ -9,6 +9,7 @@ import (
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_io_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
+	"time"
 )
 
 type algorithmStep struct {
@@ -41,6 +42,7 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 		flu.Build.Merge(models.JsonF{tStep.AnswerKey: algoResult})
 	}
 
+	time.Sleep(time.Duration(tStep.TimeDelay) * time.Second)
 	t.finishFlu(flu)
 	flu.ConfirmReceive()
 }

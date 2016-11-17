@@ -22,6 +22,9 @@ const (
 	multiplication = "multiplication"
 	microTaskId    = "micro_task_id"
 	answerKey      = "answer_key"
+	textFieldKey   = "text_field_key"
+	timeDelayStart = "time_delay_start"
+	timeDelayStop  = "time_delay_stop"
 )
 
 func (s *stepConfigSvc) GetCrowdsourcingStepConfig(stepId uuid.UUID) (tc models.CrowdsourcingConfig, err error) {
@@ -109,6 +112,55 @@ func (s *stepConfigSvc) GetUnificationStepConfig(stepId uuid.UUID) (uc models.Un
 		plog.Error("StepConfigSvc", ErrConfigMalformed, "stepId "+stepId.String())
 		return
 	}
+
+	return
+}
+func (s *stepConfigSvc) GetAlgorithmStepConfig(stepId uuid.UUID) (ac models.AlgorithmConfig, err error) {
+	step, err := s.stepRepo.GetById(stepId)
+	if err != nil {
+		return
+	}
+
+	answerFieldKey, ok := step.Config[answerKey]
+	textFieldKey, ok2 := step.Config[textFieldKey]
+	if !ok || !ok2 {
+		err = ErrConfigNotFound
+		return
+	}
+	answerFieldKeyString, ok := answerFieldKey.(string)
+	textFieldKeyString, ok2 := textFieldKey.(string)
+	if !ok || !ok2 || answerFieldKey == "" || textFieldKey == "" {
+		err = ErrConfigNotFound
+		return
+	}
+
+	timeDelayStart, ok := step.Config[timeDelayStart]
+	if ok {
+		timeDelayStartInt, ok1 := timeDelayStart.(int)
+
+		if ok1 {
+			ac.TimeDelayStart = timeDelayStartInt
+		} else {
+			ac.TimeDelayStart = 0
+		}
+	} else {
+		ac.TimeDelayStart = 0
+	}
+
+	timeDelayStop, ok := step.Config[timeDelayStop]
+	if ok {
+		timeDelayStopInt, ok1 := timeDelayStop.(int)
+		if ok1 {
+			ac.TimeDelayStop = timeDelayStopInt
+		} else {
+			ac.TimeDelayStop = 0
+		}
+	} else {
+		ac.TimeDelayStop = 0
+	}
+
+	ac.AnswerKey = answerFieldKeyString
+	ac.TextFieldKey = textFieldKeyString
 
 	return
 }

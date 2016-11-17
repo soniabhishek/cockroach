@@ -88,6 +88,12 @@
     }
   },
 
+  "abacus" :{
+    "base" : {
+      "api" : "http://10.0.0.18"
+    }
+  },
+
   "luigi" :{
     "base" : {
       "api" : "https://luigi.playment.in"

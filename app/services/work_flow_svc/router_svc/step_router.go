@@ -9,6 +9,7 @@ import (
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/work_flow_svc/step/algorithm_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/bifurcation_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step/empty_step_svc"
@@ -47,6 +48,7 @@ func (sr *stepRouter) connectAll() {
 	var bifurcationStepConn IConnector = bifurcation_step_svc.StdBifurcationStep
 	var unificationStepConn IConnector = unification_step_svc.StdUnificationStep
 	var emptyStepConn IConnector = empty_step_svc.StdEmptyStep
+	var algorithmStepConn IConnector = algorithm_step_svc.StdAlgorithmStep
 
 	sr.routeTable = routeTable{
 
@@ -54,7 +56,7 @@ func (sr *stepRouter) connectAll() {
 		step_type.InternalSourcing: crowdSourcingConn.Connect(&sr.InQ),
 		step_type.Manual:           manualStepConn.Connect(&sr.InQ),
 		step_type.Transformation:   transformationStepConn.Connect(&sr.InQ),
-		step_type.Algorithm:        manualStepConn.Connect(&sr.InQ),
+		step_type.Algorithm:        algorithmStepConn.Connect(&sr.InQ),
 		step_type.Bifurcation:      bifurcationStepConn.Connect(&sr.InQ),
 		step_type.Unification:      unificationStepConn.Connect(&sr.InQ),
 		step_type.Error:            manualStepConn.Connect(&sr.InQ),

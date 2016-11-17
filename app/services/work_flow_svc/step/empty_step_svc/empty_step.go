@@ -1,4 +1,4 @@
-package logic_gate_step_svc
+package empty_step_svc
 
 import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
@@ -9,26 +9,26 @@ import (
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 )
 
-type logic_gate_Step struct {
+type empty_Step struct {
 	step.Step
 }
 
-func (m *logic_gate_Step) processFlu(flu feed_line.FLU) {
+func (m *empty_Step) processFlu(flu feed_line.FLU) {
 	flu.ConfirmReceive()
-	plog.Info("Manual Step flu reached", flu.ID)
-	counter.Print(flu, "manual")
+	plog.Info("Empty step flu reached", flu.ID)
+	counter.Print(flu, "empty")
 	m.finishFlu(flu)
 }
 
-func (m *logic_gate_Step) finishFlu(flu feed_line.FLU) bool {
+func (m *empty_Step) finishFlu(flu feed_line.FLU) bool {
 	m.OutQ.Push(flu)
-	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Manual, flu.Redelivered())
+	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.EmptyStep, flu.Redelivered())
 	return true
 }
 
-func newLogicGateStep() *logic_gate_Step {
-	ms := &logic_gate_Step{
-		Step: step.New(step_type.LogicGate),
+func newEmptyStep() *empty_Step {
+	ms := &empty_Step{
+		Step: step.New(step_type.EmptyStep),
 	}
 	ms.Step.SetFluProcessor(ms.processFlu)
 	return ms

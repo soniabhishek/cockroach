@@ -9,25 +9,25 @@ import (
 	"github.com/crowdflux/angel/app/services/work_flow_svc/step"
 )
 
-type empty_Step struct {
+type emptyStep struct {
 	step.Step
 }
 
-func (m *empty_Step) processFlu(flu feed_line.FLU) {
+func (m *emptyStep) processFlu(flu feed_line.FLU) {
 	flu.ConfirmReceive()
 	plog.Info("Empty step flu reached", flu.ID)
 	counter.Print(flu, "empty")
 	m.finishFlu(flu)
 }
 
-func (m *empty_Step) finishFlu(flu feed_line.FLU) bool {
+func (m *emptyStep) finishFlu(flu feed_line.FLU) bool {
 	m.OutQ.Push(flu)
 	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.EmptyStep, flu.Redelivered())
 	return true
 }
 
-func newEmptyStep() *empty_Step {
-	ms := &empty_Step{
+func newEmptyStep() *emptyStep {
+	ms := &emptyStep{
 		Step: step.New(step_type.EmptyStep),
 	}
 	ms.Step.SetFluProcessor(ms.processFlu)

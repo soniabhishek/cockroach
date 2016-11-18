@@ -192,7 +192,7 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 	}
 
 	//This will categorize by comparing existing steps with steps in body into what needs to be inserted, updates or deleted
-	insertTags, updateTags, deleteTags, err := computeTagsComparision(receivedWorkflowContainer.Tags, existingTags)
+	insertTags, updateTags, deleteTags, err := computeTagsComparision(receivedWorkflowContainer.Tags, existingTags, receivedWorkflowContainer.ID, receivedWorkflowContainer.ProjectId)
 	if err != nil {
 		return
 	}
@@ -308,7 +308,7 @@ func computeRouteComparision(receivedRoutes, existingRoutes []models.Route) ([]m
 This is a utility function for comparing, validating and classifying Tags also it will change their Updated at time
 This should be containing all the validation routes if required in future for routes
 */
-func computeTagsComparision(receivedTags, existingTags []models.WorkFlowTagAssociators) ([]models.WorkFlowTagAssociators, []models.WorkFlowTagAssociators, []models.WorkFlowTagAssociators, error) {
+func computeTagsComparision(receivedTags, existingTags []models.WorkFlowTagAssociators, workflowID, projectID uuid.UUID) ([]models.WorkFlowTagAssociators, []models.WorkFlowTagAssociators, []models.WorkFlowTagAssociators, error) {
 	var forUpdate, forInsert []models.WorkFlowTagAssociators
 	for _, received := range receivedTags {
 		var update bool
@@ -316,6 +316,8 @@ func computeTagsComparision(receivedTags, existingTags []models.WorkFlowTagAssoc
 			if received.TagName == existing.TagName {
 				update = true
 				received.CreatedAt = pq.NullTime{time.Now(), true}
+				received.WorkFlowId = workflowID
+				received.ProjectId = projectID
 				forUpdate = append(forUpdate, received)
 				existingTags = append(existingTags[:index], existingTags[index+1:]...)
 				break
@@ -323,7 +325,8 @@ func computeTagsComparision(receivedTags, existingTags []models.WorkFlowTagAssoc
 		}
 		if !update {
 			creationTime := pq.NullTime{time.Now(), true}
-			received.CreatedAt = creationTime
+			received.WorkFlowId = workflowID
+			received.ProjectId = projectID
 			received.CreatedAt = creationTime
 			forInsert = append(forInsert, received)
 		}

@@ -20,7 +20,5 @@ func TestPostgres_db_SelectOneJoin(t *testing.T) {
 	var macroUser []MacroTaskWithCreator
 
 	err := pg.SelectOneJoin(&macroUser, `select u.*, c.* from users u, clients c order by u.username`)
-	fmt.Println("FINAL OUTPUT", macroUser)
 	assert.NoError(t, err)
-	//assert.EqualValues(t, macroUser.User.ID.String(), macroUser.CreatorId.String())
 }

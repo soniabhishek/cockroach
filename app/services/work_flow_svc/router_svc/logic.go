@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
+	"strings"
 )
 
 var ErrLogicNotFound = errors.New("Logic not found")
@@ -83,6 +84,47 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		}
 
 		return options["index"] == flu.Build["index"], nil
+
+	case "is_null":
+		options, ok1 := l.InputTemplate["options"].(map[string]interface{})
+		shouldBeNull, ok2 := options["should_be_null"].(bool)
+		fieldName, ok3 := options["field_name"].(string)
+
+		if !ok1 || !ok2 || !ok3 {
+			return false, ErrMalformedLogicOptions
+		}
+
+		fieldValue, ok := flu.Build[fieldName].(string)
+		if !ok || fieldValue == "" {
+			return shouldBeNull, nil
+		}
+
+		return !shouldBeNull, nil
+
+	case "contained_in":
+		options, ok1 := l.InputTemplate["options"].(map[string]interface{})
+		shouldBeContained, ok2 := options["should_be_contained_in"].(bool)
+		fieldName, ok3 := options["field_name"].(string)
+		expectedFieldVal, ok4 := options["field_value"].(string)
+
+		if !ok1 || !ok2 || !ok3 || !ok4 {
+			return false, ErrMalformedLogicOptions
+		}
+		fieldValue, ok := flu.Build[fieldName].(string)
+		if !ok {
+			plog.Trace("logic gate", "field not found for fluid ", flu.ID)
+		}
+
+		result := strings.Split(expectedFieldVal, ",")
+
+		for item := range result {
+
+			if strings.EqualFold(strings.TrimSpace(item), strings.TrimSpace(fieldValue)) {
+
+				return shouldBeContained
+			}
+		}
+		return !shouldBeContained
 
 	default:
 		return false, ErrLogicNotFound

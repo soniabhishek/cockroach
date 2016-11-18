@@ -117,14 +117,14 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
 		result := strings.Split(expectedFieldVal, ",")
 
-		for item := range result {
+		for _, item := range result {
 
 			if strings.EqualFold(strings.TrimSpace(item), strings.TrimSpace(fieldValue)) {
 
-				return shouldBeContained
+				return shouldBeContained, nil
 			}
 		}
-		return !shouldBeContained
+		return !shouldBeContained, nil
 
 	default:
 		return false, ErrLogicNotFound

@@ -1,7 +1,9 @@
 
 exports.up = function(knex, Promise) {
-  //return knex.schema//
-	//	.table('feed_line',t=>t.dropUnique(['reference_id','project_id']))
+	return co(function * () {
+		yield knex.raw(`ALTER TABLE feed_line DROP CONSTRAINT IF EXISTS feed_line_reference_id_project_id_unique;`)
+		yield knex.raw(`ALTER TABLE feed_line DROP CONSTRAINT IF EXISTS feed_line_project_id_reference_id_unique;`)
+	})
 };
 
 exports.down = function(knex, Promise) {

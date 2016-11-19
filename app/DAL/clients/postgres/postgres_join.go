@@ -64,7 +64,6 @@ func (pg *postgres_db) SelectOneJoin(holder interface{}, query string, args ...i
 	} else {
 		return errors.New("No matching rows found")
 	}
-	return nil
 }
 
 func getDbTagFieldMap(v reflect.Value, t reflect.Type) map[string]reflect.Value {

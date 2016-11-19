@@ -48,12 +48,3 @@ func (c *clientsRepo) GetAllClients() (response []models.ClientModel, err error)
 	_, err = c.Db.Select(&response, `select c.id, u.username from clients c, users u where c.user_id = u.id`)
 	return
 }
-
-//var v models.ClientModel
-//fmt.Printf("%+v", v)
-//err = c.Db.SelectOne(&v, `select u.* from users       as u limit 1`)
-//fmt.Println(v)
-//if err != nil {
-//return nil, err
-//}
-//return

@@ -8,6 +8,8 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/lib/pq"
+	"time"
 )
 
 type workflow_repo struct {
@@ -17,11 +19,15 @@ type workflow_repo struct {
 var _ IWorkflowRepo = &workflow_repo{}
 
 func (wr *workflow_repo) Add(wf *models.WorkFlow) error {
+	wf.ID = uuid.NewV4()
+	wf.CreatedAt = pq.NullTime{time.Now(), true}
+	wf.UpdatedAt = wf.CreatedAt
 	return wr.db.Insert(wf)
 }
 
-func (wr *workflow_repo) Update(wf models.WorkFlow) error {
-	_, err := wr.db.Update(&wf)
+func (wr *workflow_repo) Update(wf *models.WorkFlow) error {
+	wf.UpdatedAt = pq.NullTime{time.Now(), true}
+	_, err := wr.db.Update(wf)
 	return err
 }
 

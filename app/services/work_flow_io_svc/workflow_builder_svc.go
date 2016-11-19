@@ -98,11 +98,23 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 	if len(receivedWorkflowContainer.Tags) < 1 {
 		return
 	}
-	receivedWorkflowContainer.WorkFlow.ID = uuid.NewV4()
-	receivedWorkflowContainer.WorkFlow.CreatedAt = pq.NullTime{time.Now(), true}
-	receivedWorkflowContainer.WorkFlow.UpdatedAt = receivedWorkflowContainer.WorkFlow.CreatedAt
 	creationTime := pq.NullTime{time.Now(), true}
+
+	/* Here All Validations Needs to be Performed so as to make Complete Operation Atomic*/
+
+	err = w.workflowRepo.Add(&receivedWorkflowContainer.WorkFlow) /*Perform in End */
+	if err != nil {
+		return
+	}
+
 	//Here we will update the creation and updated at time
+
+	for i, _ := range receivedWorkflowContainer.Tags {
+		receivedWorkflowContainer.Tags[i].CreatedAt = creationTime
+		receivedWorkflowContainer.Tags[i].WorkFlowId = receivedWorkflowContainer.WorkFlow.ID
+		receivedWorkflowContainer.Tags[i].ProjectId = receivedWorkflowContainer.ProjectId
+	}
+
 	for i, _ := range receivedWorkflowContainer.Steps {
 		receivedWorkflowContainer.Steps[i].WorkFlowId = receivedWorkflowContainer.WorkFlow.ID
 		receivedWorkflowContainer.Steps[i].CreatedAt = creationTime
@@ -112,17 +124,7 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 		receivedWorkflowContainer.Routes[i].CreatedAt = creationTime
 		receivedWorkflowContainer.Routes[i].UpdatedAt = creationTime
 	}
-	for i, _ := range receivedWorkflowContainer.Tags {
-		receivedWorkflowContainer.Tags[i].CreatedAt = creationTime
-		receivedWorkflowContainer.Tags[i].WorkFlowId = receivedWorkflowContainer.WorkFlow.ID
-		receivedWorkflowContainer.Tags[i].ProjectId = receivedWorkflowContainer.ProjectId
-	}
-	/* Here All Validations Needs to be Performed so as to make Complete Operation Atomic*/
 
-	err = w.workflowRepo.Add(&receivedWorkflowContainer.WorkFlow) /*Perform in End */
-	if err != nil {
-		return
-	}
 	err = w.stepRepo.AddMany(receivedWorkflowContainer.Steps)
 	if err != nil {
 		return
@@ -242,6 +244,10 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 	if err != nil {
 		return
 	}
+	err = w.workflowRepo.Update(&receivedWorkflowContainer.WorkFlow)
+	if err != nil {
+		return
+	}
 	//finally after all insert update and delete mechanism we will fetch whole new workflow from backend
 	return w.GetWorkflowContainer(receivedWorkflowContainer.ID)
 
@@ -308,8 +314,8 @@ func computeRouteComparision(receivedRoutes, existingRoutes []models.Route) ([]m
 This is a utility function for comparing, validating and classifying Tags also it will change their Updated at time
 This should be containing all the validation routes if required in future for routes
 */
-func computeTagsComparision(receivedTags, existingTags []models.WorkFlowTagAssociators, workflowID, projectID uuid.UUID) ([]models.WorkFlowTagAssociators, []models.WorkFlowTagAssociators, []models.WorkFlowTagAssociators, error) {
-	var forUpdate, forInsert []models.WorkFlowTagAssociators
+func computeTagsComparision(receivedTags, existingTags []models.WorkFlowTagAssociator, workflowID, projectID uuid.UUID) ([]models.WorkFlowTagAssociator, []models.WorkFlowTagAssociator, []models.WorkFlowTagAssociator, error) {
+	var forUpdate, forInsert []models.WorkFlowTagAssociator
 	for _, received := range receivedTags {
 		var update bool
 		for index, existing := range existingTags {

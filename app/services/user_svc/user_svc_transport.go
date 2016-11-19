@@ -1,25 +1,17 @@
 package user_svc
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/crowdflux/angel/app/api/auther"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/utilities/clients/models"
-	"github.com/crowdflux/angel/utilities/clients/operations"
 	"github.com/crowdflux/angel/utilities/clients/validator"
 	"github.com/gin-gonic/gin"
 )
 
-const ENDPOINT = "/createuser"
-
-var OK bool = true
-
 func AddHttpTransport(routerGroup *gin.RouterGroup) {
 	userService := New()
-	routerGroup.POST(ENDPOINT, createUserHandler(userService))
+	routerGroup.POST("/createuser", createUserHandler(userService))
 }
 
 //--------------------------------------------------------------------------------//

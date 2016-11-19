@@ -50,7 +50,7 @@ type RouteWithLogicGate struct {
 
 type WorkflowContainer struct {
 	WorkFlow
-	Steps  []Step                   `json:"steps"`
-	Routes []Route                  `json:"routes"`
-	Tags   []WorkFlowTagAssociators `json:"tags"`
+	Steps  []Step                  `json:"steps"`
+	Routes []Route                 `json:"routes"`
+	Tags   []WorkFlowTagAssociator `json:"tags"`
 }

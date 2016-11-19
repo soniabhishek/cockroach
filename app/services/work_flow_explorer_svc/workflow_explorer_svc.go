@@ -4,7 +4,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/clients_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/user_repo"
-	"github.com/crowdflux/angel/app/DAL/repositories/workflow_tags_repo"
+	"github.com/crowdflux/angel/app/DAL/repositories/workflow_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/lib/pq"
@@ -13,10 +13,10 @@ import (
 )
 
 type workflowExplorerService struct {
-	clientsRepo      clients_repo.IClientsRepo
-	userRepo         user_repo.IUserRepo
-	projectsRepo     projects_repo.IProjectsRepo
-	workflowTagsRepo workflow_tags_repo.IWorkflowTagsRepo
+	clientsRepo  clients_repo.IClientsRepo
+	userRepo     user_repo.IUserRepo
+	projectsRepo projects_repo.IProjectsRepo
+	workflowRepo workflow_repo.IWorkflowRepo
 }
 
 func (cs *workflowExplorerService) CreateClient(client models.Client) (response models.Client, err error) {
@@ -52,25 +52,6 @@ func (cs *workflowExplorerService) FetchProjectsByClientId(clientId uuid.UUID) (
 	return cs.projectsRepo.GetByClientId(clientId)
 }
 
-func (cs *workflowExplorerService) FetchWorkflowsByProjectId(projectId uuid.UUID) ([]models.TagExplorerModel, error) {
-	wfta, err := cs.workflowTagsRepo.GetByProjectId(projectId)
-	if err != nil {
-		return nil, err
-	}
-	if len(wfta) < 1 {
-		return nil, err
-	}
-	temp := make(map[uuid.UUID]string)
-	for _, v := range wfta {
-		if val, ok := temp[v.WorkFlowId]; ok {
-			temp[v.WorkFlowId] = val + " " + v.TagName
-		} else {
-			temp[v.WorkFlowId] = v.TagName
-		}
-	}
-	var result []models.TagExplorerModel
-	for k, v := range temp {
-		result = append(result, models.TagExplorerModel{v, k})
-	}
-	return result, err
+func (cs *workflowExplorerService) FetchWorkflowsByProjectId(projectId uuid.UUID) ([]models.WorkFlow, error) {
+	return cs.workflowRepo.GetWorkFlowsByProjectId(projectId)
 }

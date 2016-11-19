@@ -13,7 +13,7 @@ type workflow_tags_repo struct {
 
 var _ IWorkflowTagsRepo = &workflow_tags_repo{}
 
-func (wtr *workflow_tags_repo) Add(wfTags []models.WorkFlowTagAssociators) error {
+func (wtr *workflow_tags_repo) Add(wfTags []models.WorkFlowTagAssociator) error {
 	var tagsInterface []interface{} = make([]interface{}, len(wfTags))
 	for i, _ := range wfTags {
 		tagsInterface[i] = &wfTags[i]
@@ -22,7 +22,7 @@ func (wtr *workflow_tags_repo) Add(wfTags []models.WorkFlowTagAssociators) error
 	return wtr.db.Insert(tagsInterface...)
 }
 
-func (wtr *workflow_tags_repo) Update(wfTags []models.WorkFlowTagAssociators) error {
+func (wtr *workflow_tags_repo) Update(wfTags []models.WorkFlowTagAssociator) error {
 	var tagsInterface []interface{} = make([]interface{}, len(wfTags))
 	for i, _ := range wfTags {
 		tagsInterface[i] = &wfTags[i]
@@ -31,7 +31,7 @@ func (wtr *workflow_tags_repo) Update(wfTags []models.WorkFlowTagAssociators) er
 	return err
 }
 
-func (wtr *workflow_tags_repo) Delete(wfTags []models.WorkFlowTagAssociators) error {
+func (wtr *workflow_tags_repo) Delete(wfTags []models.WorkFlowTagAssociator) error {
 	var tagsInterface []interface{} = make([]interface{}, len(wfTags))
 	for i, _ := range wfTags {
 		tagsInterface[i] = &wfTags[i]
@@ -39,7 +39,7 @@ func (wtr *workflow_tags_repo) Delete(wfTags []models.WorkFlowTagAssociators) er
 	_, err := wtr.db.Delete(tagsInterface...)
 	return err
 }
-func (wtr *workflow_tags_repo) GetByWorkFlowId(id uuid.UUID) (wfTags []models.WorkFlowTagAssociators, err error) {
+func (wtr *workflow_tags_repo) GetByWorkFlowId(id uuid.UUID) (wfTags []models.WorkFlowTagAssociator, err error) {
 	_, err = wtr.db.Select(&wfTags, `select * from work_flow_tag_associators where work_flow_id = $1  `, id)
 
 	if err == sql.ErrNoRows || len(wfTags) == 0 {
@@ -48,7 +48,7 @@ func (wtr *workflow_tags_repo) GetByWorkFlowId(id uuid.UUID) (wfTags []models.Wo
 
 	return
 }
-func (wtr *workflow_tags_repo) GetByProjectId(id uuid.UUID) (wfTags []models.WorkFlowTagAssociators, err error) {
+func (wtr *workflow_tags_repo) GetByProjectId(id uuid.UUID) (wfTags []models.WorkFlowTagAssociator, err error) {
 	_, err = wtr.db.Select(&wfTags, `select * from work_flow_tag_associators where project_id = $1  `, id)
 	return
 }

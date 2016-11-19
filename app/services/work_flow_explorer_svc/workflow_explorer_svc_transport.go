@@ -10,17 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const ENDPOINT = "/create-client"
-const FETCHCLIENTS = "/fetch-clients"
-const FETCHPROJECTS = "/fetch-client-projects/:clientId"
-const FETCHWORKFLOWS = "/fetch-project-workflows/:projectId"
-
 func AddHttpTransport(routerGroup *gin.RouterGroup) {
 	clientService := New()
-	routerGroup.GET(FETCHCLIENTS, fetchClientsHandler(clientService))
-	routerGroup.GET(FETCHPROJECTS, fetchProjectsHandler(clientService))
-	routerGroup.GET(FETCHWORKFLOWS, fetchWorkflowsHandler(clientService))
-	routerGroup.POST(ENDPOINT, createClientHandler(clientService))
+	routerGroup.GET("/create-client", fetchClientsHandler(clientService))
+	routerGroup.GET("/fetch-clients", fetchProjectsHandler(clientService))
+	routerGroup.GET("/fetch-client-projects/:clientId", fetchWorkflowsHandler(clientService))
+	routerGroup.POST("/fetch-project-workflows/:projectId", createClientHandler(clientService))
 }
 
 //--------------------------------------------------------------------------------//

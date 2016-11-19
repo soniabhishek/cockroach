@@ -7,11 +7,11 @@ import (
 )
 
 type IWorkflowTagsRepo interface {
-	Add([]models.WorkFlowTagAssociators) error
-	Update([]models.WorkFlowTagAssociators) error
-	Delete([]models.WorkFlowTagAssociators) error
-	GetByWorkFlowId(id uuid.UUID) ([]models.WorkFlowTagAssociators, error)
-	GetByProjectId(id uuid.UUID) ([]models.WorkFlowTagAssociators, error)
+	Add([]models.WorkFlowTagAssociator) error
+	Update([]models.WorkFlowTagAssociator) error
+	Delete([]models.WorkFlowTagAssociator) error
+	GetByWorkFlowId(id uuid.UUID) ([]models.WorkFlowTagAssociator, error)
+	GetByProjectId(id uuid.UUID) ([]models.WorkFlowTagAssociator, error)
 }
 
 func New() IWorkflowTagsRepo {

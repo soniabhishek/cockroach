@@ -38,7 +38,6 @@ func (pg *postgres_db) SelectOneJoin(holder interface{}, query string, args ...i
 	for r.Next() {
 		// reflect value of holder
 		v := reflect.ValueOf(holder)
-		fmt.Printf("XXX %+v \n", v)
 		// value should be a pointer
 		if v.Kind() != reflect.Ptr {
 			err = fmt.Errorf("must pass a pointer, not a value, to StructScan destination")

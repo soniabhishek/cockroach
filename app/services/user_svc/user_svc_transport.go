@@ -11,7 +11,7 @@ import (
 
 func AddHttpTransport(routerGroup *gin.RouterGroup) {
 	userService := New()
-	routerGroup.POST("/createuser", createUserHandler(userService))
+	routerGroup.POST("/users/create", createUserHandler(userService))
 }
 
 //--------------------------------------------------------------------------------//

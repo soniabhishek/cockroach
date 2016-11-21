@@ -11,10 +11,10 @@ import (
 func AddHttpTransport(routerGroup *gin.RouterGroup) {
 	workFlowBuilderService := New()
 
-	routerGroup.GET("/workflow/:workflowId", workFlowGetHandler(workFlowBuilderService))
-	routerGroup.POST("/workflow", addWorkFlowHandler(workFlowBuilderService))
-	routerGroup.POST("/workflow/init/:projectId", intitWorkFlowHandler(workFlowBuilderService))
-	routerGroup.PUT("/workflow", updateWorkFlowHandler(workFlowBuilderService))
+	routerGroup.GET("/workflows/:workflowId", workFlowGetHandler(workFlowBuilderService))
+	routerGroup.POST("/workflows", addWorkFlowHandler(workFlowBuilderService))
+	routerGroup.POST("/workflows/init/:projectId", intitWorkFlowHandler(workFlowBuilderService))
+	routerGroup.PUT("/workflows", updateWorkFlowHandler(workFlowBuilderService))
 
 }
 

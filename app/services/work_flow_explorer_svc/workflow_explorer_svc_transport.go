@@ -12,10 +12,10 @@ import (
 
 func AddHttpTransport(routerGroup *gin.RouterGroup) {
 	clientService := New()
-	routerGroup.GET("/fetch-clients", fetchClientsHandler(clientService))
-	routerGroup.GET("/fetch-client-projects/:clientId", fetchProjectsHandler(clientService))
-	routerGroup.GET("/fetch-project-workflows/:projectId", fetchWorkflowsHandler(clientService))
-	routerGroup.POST("/create-client", createClientHandler(clientService))
+	routerGroup.GET("/clients", fetchClientsHandler(clientService))
+	routerGroup.GET("/clients/:clientId/projects", fetchProjectsHandler(clientService))
+	routerGroup.GET("/projects/:projectId/workflows", fetchWorkflowsHandler(clientService))
+	routerGroup.POST("/clients", createClientHandler(clientService))
 }
 
 //--------------------------------------------------------------------------------//

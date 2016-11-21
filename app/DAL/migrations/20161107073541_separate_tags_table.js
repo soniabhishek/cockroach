@@ -10,6 +10,7 @@ exports.up = function(knex, Promise) {
                 .notNullable()
                 .index()
             t.uuid('project_id')
+				.notNullable()
             t.timestamp('created_at')
             t.unique(['tag_name','project_id'])
             t.foreign('work_flow_id').references('work_flow.id')

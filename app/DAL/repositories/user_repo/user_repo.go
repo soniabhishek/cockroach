@@ -38,8 +38,5 @@ func (ur *user_repo) Delete(id uuid.UUID) error {
 
 func (ur *user_repo) IfIdExist(id uuid.UUID) (ifExist bool, err error) {
 	err = ur.db.SelectOne(&ifExist, `select exists(select 1 from users where id=$1)`, id)
-	if err != nil {
-		return
-	}
 	return
 }

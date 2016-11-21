@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
+	"strconv"
 	"strings"
 )
 
@@ -94,8 +95,9 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 			return false, ErrMalformedLogicOptions
 		}
 
-		fieldValue, ok := flu.Build[fieldName].(string)
-		if !ok || fieldValue == "" {
+		_, ok := flu.Build[fieldName]
+
+		if !ok {
 			return shouldBeNull, nil
 		}
 
@@ -110,16 +112,29 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		if !ok1 || !ok2 || !ok3 || !ok4 {
 			return false, ErrMalformedLogicOptions
 		}
-		fieldValue, ok := flu.Build[fieldName].(string)
+
+		fieldValue, ok := flu.Build[fieldName]
 		if !ok {
 			plog.Trace("logic gate", "field not found for fluid ", flu.ID)
+			return false, ErrMalformedLogicOptions
+		}
+
+		var fieldValueString string
+
+		switch fieldValue.(type) {
+		case int:
+			fieldValueString = strconv.Itoa(fieldValue.(int))
+		case string:
+			fieldValueString = strings.TrimSpace(fieldValue.(string))
+		default:
+			return false, ErrMalformedLogicOptions
 		}
 
 		result := strings.Split(expectedFieldVal, ",")
 
 		for _, item := range result {
 
-			if strings.EqualFold(strings.TrimSpace(item), strings.TrimSpace(fieldValue)) {
+			if strings.EqualFold(strings.TrimSpace(item), strings.TrimSpace(fieldValueString)) {
 
 				return shouldBeContained, nil
 			}

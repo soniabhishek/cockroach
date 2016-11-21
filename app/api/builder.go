@@ -63,7 +63,7 @@ func Build() {
 	//Api prefix
 	api := r.Group("/api/v0")
 	{
-
+		api.GET("", func(c *gin.Context) {})
 		api.POST("/bulkdownloadimages", handlers.BulkDownloadImages)
 		api.POST("/bulkdownloadimagesfromcsv", handlers.BulkDownloadedImagesFromCSV)
 

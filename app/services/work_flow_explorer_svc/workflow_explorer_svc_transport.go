@@ -30,11 +30,6 @@ func createClientHandler(clientService IWorkFlowExplorerService) gin.HandlerFunc
 			validator.ShowErrorResponseOverHttp(c, err)
 			return
 		}
-		err = validator.ValidateClient(obj)
-		if err != nil {
-			validator.ShowErrorResponseOverHttp(c, err)
-			return
-		}
 		client, err := clientService.CreateClient(obj)
 		if err != nil {
 			validator.ShowErrorResponseOverHttp(c, err)
@@ -56,6 +51,7 @@ func fetchClientsHandler(clientService IWorkFlowExplorerService) gin.HandlerFunc
 		if err != nil {
 			plog.Error("Fetching Clients Error", err)
 			validator.ShowErrorResponseOverHttp(c, err)
+			return
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"success": true,
@@ -72,11 +68,13 @@ func fetchProjectsHandler(clientService IWorkFlowExplorerService) gin.HandlerFun
 		if err != nil {
 			plog.Error("Invalid Id", err)
 			validator.ShowErrorResponseOverHttp(c, err)
+			return
 		}
 		response, err := clientService.FetchProjectsByClientId(clientId)
 		if err != nil {
 			plog.Error("Fetching Client Projects Error", err)
 			validator.ShowErrorResponseOverHttp(c, err)
+			return
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"success":  true,
@@ -92,11 +90,13 @@ func fetchWorkflowsHandler(clientService IWorkFlowExplorerService) gin.HandlerFu
 		if err != nil {
 			plog.Error("Invalid Id", err)
 			validator.ShowErrorResponseOverHttp(c, err)
+			return
 		}
 		response, err := clientService.FetchWorkflowsByProjectId(projectId)
 		if err != nil {
 			plog.Error("Fetching Projects workflows Error", err)
 			validator.ShowErrorResponseOverHttp(c, err)
+			return
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"success":   true,

@@ -13,7 +13,6 @@ func AddHttpTransport(routerGroup *gin.RouterGroup) {
 
 	routerGroup.GET("/workflows/:workflowId", workFlowGetHandler(workFlowBuilderService))
 	routerGroup.POST("/workflows", addWorkFlowHandler(workFlowBuilderService))
-	routerGroup.POST("/workflows/init/:projectId", intitWorkFlowHandler(workFlowBuilderService))
 	routerGroup.PUT("/workflows", updateWorkFlowHandler(workFlowBuilderService))
 
 }
@@ -44,27 +43,6 @@ func workFlowGetHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 		})
 	}
 
-}
-
-func intitWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		projectID, err := uuid.FromString(c.Param("projectId"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, "Invalid id")
-			return
-		}
-
-		response, err := workFlowService.InitWorkflowContainer(projectID)
-		if err != nil {
-			plog.Error("WorkflowInitializing : ", err)
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "Failure",
-				"error":  err.Error(),
-			})
-			return
-		}
-		c.JSON(http.StatusOK, response)
-	}
 }
 
 func addWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc {

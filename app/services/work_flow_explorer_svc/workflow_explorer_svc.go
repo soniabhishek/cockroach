@@ -7,6 +7,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/workflow_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/utilities/clients/validator"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"time"
@@ -20,6 +21,10 @@ type workflowExplorerService struct {
 }
 
 func (cs *workflowExplorerService) CreateClient(client models.Client) (response models.Client, err error) {
+	err = validator.ValidateClient(client)
+	if err != nil {
+		return
+	}
 	exist, err := cs.userRepo.IfIdExist(client.UserId)
 	if err != nil {
 		return

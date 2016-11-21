@@ -9,9 +9,9 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/workflow_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/workflow_tags_repo"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 )
 
 type workFlowBuilderService struct {
@@ -50,37 +50,6 @@ func (w *workFlowBuilderService) GetWorkflowContainer(workflowId uuid.UUID) (wor
 
 }
 
-func (w *workFlowBuilderService) InitWorkflowContainer(projectId uuid.UUID) (workflowContainer models.WorkflowContainer, err error) {
-	exist, err := w.projectsRep.IfIdExist(projectId)
-	if err != nil {
-		return
-	}
-	if !exist {
-		err = projects_repo.ErrProjectNotFound
-		return
-	}
-	newWorkflow := models.WorkFlow{}
-	newWorkflow.ID = uuid.NewV4()
-	newWorkflow.CreatedAt = pq.NullTime{time.Now(), true}
-	newWorkflow.UpdatedAt = newWorkflow.CreatedAt
-	newWorkflow.ProjectId = projectId
-
-	cornerSteps := generateCornerSteps(newWorkflow.ID)
-
-	err = w.workflowRepo.Add(&newWorkflow)
-	if err != nil {
-		return
-	}
-	err = w.stepRepo.AddMany(cornerSteps)
-	if err != nil {
-		return
-	}
-	workflowContainer.WorkFlow = newWorkflow
-	workflowContainer.Steps = cornerSteps
-	return
-
-}
-
 /**
 This will be used to add a new Workflow for a given projectId
 
@@ -96,9 +65,9 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 		return
 	}
 	if len(receivedWorkflowContainer.Tags) < 1 {
+		err = errors.New("Tags list is empty")
 		return
 	}
-	creationTime := pq.NullTime{time.Now(), true}
 
 	/* Here All Validations Needs to be Performed so as to make Complete Operation Atomic*/
 
@@ -110,19 +79,12 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 	//Here we will update the creation and updated at time
 
 	for i, _ := range receivedWorkflowContainer.Tags {
-		receivedWorkflowContainer.Tags[i].CreatedAt = creationTime
 		receivedWorkflowContainer.Tags[i].WorkFlowId = receivedWorkflowContainer.WorkFlow.ID
 		receivedWorkflowContainer.Tags[i].ProjectId = receivedWorkflowContainer.ProjectId
 	}
 
 	for i, _ := range receivedWorkflowContainer.Steps {
 		receivedWorkflowContainer.Steps[i].WorkFlowId = receivedWorkflowContainer.WorkFlow.ID
-		receivedWorkflowContainer.Steps[i].CreatedAt = creationTime
-		receivedWorkflowContainer.Steps[i].UpdatedAt = creationTime
-	}
-	for i, _ := range receivedWorkflowContainer.Routes {
-		receivedWorkflowContainer.Routes[i].CreatedAt = creationTime
-		receivedWorkflowContainer.Routes[i].UpdatedAt = creationTime
 	}
 
 	err = w.stepRepo.AddMany(receivedWorkflowContainer.Steps)
@@ -154,6 +116,7 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 		return
 	}
 	if len(receivedWorkflowContainer.Tags) < 1 {
+		err = errors.New("Tags list is empty")
 		return
 	}
 	//This will check if Workflow Id in body exist or not
@@ -265,7 +228,6 @@ func computeStepComparision(receivedSteps, existingSteps []models.Step, workflow
 			if received.ID == existing.ID {
 				update = true
 				//compare received and existing value here
-				received.UpdatedAt = pq.NullTime{time.Now(), true}
 				received.WorkFlowId = workflowID
 				forUpdate = append(forUpdate, received)
 				existingSteps = append(existingSteps[:index], existingSteps[index+1:]...)
@@ -273,9 +235,6 @@ func computeStepComparision(receivedSteps, existingSteps []models.Step, workflow
 			}
 		}
 		if !update {
-			creationTime := pq.NullTime{time.Now(), true}
-			received.CreatedAt = creationTime
-			received.UpdatedAt = creationTime
 			received.WorkFlowId = workflowID
 			forInsert = append(forInsert, received)
 		}
@@ -294,16 +253,12 @@ func computeRouteComparision(receivedRoutes, existingRoutes []models.Route) ([]m
 		for index, existing := range existingRoutes {
 			if received.ID == existing.ID {
 				update = true
-				received.UpdatedAt = pq.NullTime{time.Now(), true}
 				forUpdate = append(forUpdate, received)
 				existingRoutes = append(existingRoutes[:index], existingRoutes[index+1:]...)
 				break
 			}
 		}
 		if !update {
-			creationTime := pq.NullTime{time.Now(), true}
-			received.CreatedAt = creationTime
-			received.UpdatedAt = creationTime
 			forInsert = append(forInsert, received)
 		}
 	}
@@ -338,26 +293,4 @@ func computeTagsComparision(receivedTags, existingTags []models.WorkFlowTagAssoc
 		}
 	}
 	return forInsert, forUpdate, existingTags, nil
-}
-
-/**
-Not required for now it was for a different approach where all initialization will be from backend
-*/
-func generateCornerSteps(workflowId uuid.UUID) []models.Step {
-	startStep := models.Step{}
-	startStep.ID = uuid.NewV4()
-	startStep.CreatedAt = pq.NullTime{time.Now(), true}
-	startStep.UpdatedAt = startStep.CreatedAt
-	startStep.IsStart = true
-	startStep.Type = step_type.Manual
-	startStep.WorkFlowId = workflowId
-
-	endStep := models.Step{}
-	endStep.ID = uuid.NewV4()
-	endStep.CreatedAt = pq.NullTime{time.Now(), true}
-	endStep.UpdatedAt = endStep.CreatedAt
-	endStep.Type = step_type.Manual
-	endStep.WorkFlowId = workflowId
-
-	return []models.Step{startStep, endStep}
 }

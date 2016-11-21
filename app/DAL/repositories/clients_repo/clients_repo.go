@@ -44,7 +44,7 @@ func (c *clientsRepo) Delete(id uuid.UUID) error {
 	return err
 }
 
-func (c *clientsRepo) GetAllClients() (response []models.ClientModel, err error) {
-	_, err = c.Db.Select(&response, `select c.id, u.username from clients c, users u where c.user_id = u.id`)
+func (c *clientsRepo) GetAllClients() (clients []models.ClientModel, err error) {
+	_, err = c.Db.Select(&clients, `select c.id, u.username from clients c, users u where c.user_id = u.id`)
 	return
 }

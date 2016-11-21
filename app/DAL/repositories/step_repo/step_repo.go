@@ -5,6 +5,8 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/lib/pq"
+	"time"
 )
 
 type stepRepo struct {
@@ -62,6 +64,8 @@ func (s *stepRepo) GetEndStep(projectId uuid.UUID) (step models.Step, err error)
 func (s *stepRepo) AddMany(steps []models.Step) (err error) {
 	var stepsInterface []interface{} = make([]interface{}, len(steps))
 	for i, _ := range steps {
+		steps[i].CreatedAt = pq.NullTime{time.Now(), true}
+		steps[i].UpdatedAt = steps[i].CreatedAt
 		stepsInterface[i] = &steps[i]
 	}
 
@@ -72,6 +76,7 @@ func (s *stepRepo) AddMany(steps []models.Step) (err error) {
 func (s *stepRepo) UpdateMany(steps []models.Step) (result int64, err error) {
 	var stepsInterface []interface{} = make([]interface{}, len(steps))
 	for i, _ := range steps {
+		steps[i].UpdatedAt = pq.NullTime{time.Now(), true}
 		stepsInterface[i] = &steps[i]
 	}
 

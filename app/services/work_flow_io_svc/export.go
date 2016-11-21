@@ -13,7 +13,6 @@ import (
 type IWorkflowBuilderService interface {
 	GetWorkflowContainer(uuid.UUID) (models.WorkflowContainer, error)
 	AddWorkflowContainer(models.WorkflowContainer) (models.WorkflowContainer, error)
-	InitWorkflowContainer(uuid.UUID) (models.WorkflowContainer, error)
 	UpdateWorkflowContainer(models.WorkflowContainer) (models.WorkflowContainer, error)
 }
 

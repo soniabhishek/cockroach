@@ -32,16 +32,14 @@ func (s *stepRepo) GetStartStep(projectId uuid.UUID, tag string) (step models.St
 
 	err = s.Db.SelectOne(&step, `
 	select s.* from step s
-	inner join work_flow w on w.id = s.work_flow_id
-	where w.project_id = $1 and w.tag = $2 and s.type = $3`, projectId.String(), tag, step_type.StartStep)
+	  inner join work_flow w on w.id = s.work_flow_id
+	  INNER JOIN work_flow_tag_associators wta ON w.id = wta.work_flow_id
+	where w.project_id = $1 and wta.tag_name = $2 and s.type = $3`, projectId.String(), tag, step_type.StartStep)
 	return
 }
 
 func (s *stepRepo) GetStartStepOrDefault(projectId uuid.UUID, tag string) (step models.Step, err error) {
-	err = s.Db.SelectOne(&step, `
-	select s.* from step s
-	inner join work_flow w on w.id = s.work_flow_id
-	where w.project_id = $1 and w.tag = $2 and s.type = $3`, projectId.String(), tag, step_type.StartStep)
+	step, err = s.GetStartStep(projectId, tag)
 	if err == nil {
 		return
 	}

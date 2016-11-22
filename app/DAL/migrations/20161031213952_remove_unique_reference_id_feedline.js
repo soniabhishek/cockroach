@@ -1,3 +1,4 @@
+import co from 'co'
 
 exports.up = function(knex, Promise) {
 	return co(function * () {

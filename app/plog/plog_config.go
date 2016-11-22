@@ -47,18 +47,18 @@ var path, _ = filepath.Abs("./app_logs")
 
 func init() {
 
-	SetLogger()
+	setLogger()
 
 	logLevelStr := strings.ToUpper(config.PLOG_LEVEL.Get())
 
 	plogLevel = levels[logLevelStr]
 
 	if plogLevel == 0 {
-		plogLevel = GetLevelFromEnvironment()
+		plogLevel = getLevelFromEnvironment()
 	}
 }
 
-func SetLogger() {
+func setLogger() {
 
 	logr.Formatter = &logrus.JSONFormatter{}
 
@@ -66,9 +66,9 @@ func SetLogger() {
 
 	_ = os.Mkdir(path, os.ModePerm)
 
-	SetLogOutput()
+	setLogOutput()
 }
-func SetLogOutput() {
+func setLogOutput() {
 
 	logTypeStr := strings.ToUpper(config.PLOG_TYPE.Get())
 
@@ -76,9 +76,9 @@ func SetLogOutput() {
 	case STR_TYPE_CONSOLE:
 		logr.Out = os.Stdout
 	case STR_TYPE_FILE:
-		SetFileIO()
+		setFileIO()
 		log_file_scheduler := gocron.NewScheduler()
-		log_file_scheduler.Every(1).Day().At("00.00").Do(SetFileIO)
+		log_file_scheduler.Every(1).Day().At("00.00").Do(setFileIO)
 		log_file_scheduler.Start()
 	case STR_TYPE_ERROR:
 		logr.Out = os.Stderr
@@ -88,7 +88,7 @@ func SetLogOutput() {
 	}
 }
 
-func GetLevelFromEnvironment() levelType {
+func getLevelFromEnvironment() levelType {
 	if config.IsDevelopment() {
 		return levelTrace
 	} else if config.IsStaging() {
@@ -100,19 +100,19 @@ func GetLevelFromEnvironment() levelType {
 	return levelNone
 }
 
-func GetFileName() string {
+func getFileName() string {
 	y, m, d := time.Now().Date()
 	dateString := fmt.Sprintf("%d_%d_%d", y, m, d)
 	return "log_" + dateString + ".txt"
 }
 
-func SetFileIO() {
-	file_location := path + "/" + GetFileName()
-	CreateFile(file_location)
+func setFileIO() {
+	file_location := path + "/" + getFileName()
+	createFile(file_location)
 	logr.Out, _ = os.OpenFile(file_location, os.O_RDWR|os.O_APPEND, 0660)
 }
 
-func CreateFile(file_location string) {
+func createFile(file_location string) {
 
 	// detect if file exists
 	var _, err = os.Stat(file_location)

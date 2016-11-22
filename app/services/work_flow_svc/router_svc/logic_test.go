@@ -283,7 +283,7 @@ func TestLogic_ContainedIn(t *testing.T) {
 		logicGateTestCase{
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
-					"logic": "string_equal",
+					"logic": "contained_in",
 				},
 			},
 			Result: false,
@@ -372,6 +372,19 @@ func TestLogic_IsNull(t *testing.T) {
 					"options": map[string]interface{}{
 						"field_name":     "mnop",
 						"should_be_null": false,
+					},
+				},
+			},
+			Result: true,
+			Error:  nil,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "is_null",
+					"options": map[string]interface{}{
+						"field_name":     "xyz",
+						"should_be_null": true,
 					},
 				},
 			},

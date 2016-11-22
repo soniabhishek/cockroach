@@ -48,6 +48,9 @@ Refer the other migration files to learn how to write that.
 
 If you are getting syntax error in javascript files, edit the javascript version to Ecmascript 6 in Intellij Idea Preferences.
 
+Rollback last migration run: `$ knex migrate:rollback`
+
+
 - Install mongodb:
 
 ```

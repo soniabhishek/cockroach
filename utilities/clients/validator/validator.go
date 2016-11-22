@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/utilities"
 	"github.com/crowdflux/angel/utilities/clients/models"
@@ -51,6 +53,29 @@ func ValidateInput(obj utilModels.Client) (err error) {
 		return
 	}
 
+	return
+}
+
+func ValidateUser(obj models.User) (err error) {
+	// Validating UserName
+	if obj.Username == "" {
+		err = errors.New("username invalid")
+		return
+	}
+
+	// Validating Password
+	if obj.Password.Valid == false {
+		err = errors.New("password invalid")
+		return
+	}
+	return
+}
+
+func ValidateClient(obj models.Client) (err error) {
+	if obj.UserId == uuid.Nil {
+		err = errors.New("invalid Client")
+		return
+	}
 	return
 }
 

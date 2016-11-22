@@ -11,6 +11,7 @@ type IClientsRepo interface {
 	Add(models.Client) error
 	Update(models.Client) error
 	Delete(id uuid.UUID) error
+	GetAllClients() ([]models.ClientModel, error)
 }
 
 func New() IClientsRepo {

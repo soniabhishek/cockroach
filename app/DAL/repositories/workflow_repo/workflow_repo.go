@@ -8,6 +8,8 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/lib/pq"
+	"time"
 )
 
 type workflow_repo struct {
@@ -17,11 +19,15 @@ type workflow_repo struct {
 var _ IWorkflowRepo = &workflow_repo{}
 
 func (wr *workflow_repo) Add(wf *models.WorkFlow) error {
+	wf.ID = uuid.NewV4()
+	wf.CreatedAt = pq.NullTime{time.Now(), true}
+	wf.UpdatedAt = wf.CreatedAt
 	return wr.db.Insert(wf)
 }
 
-func (wr *workflow_repo) Update(wf models.WorkFlow) error {
-	_, err := wr.db.Update(&wf)
+func (wr *workflow_repo) Update(wf *models.WorkFlow) error {
+	wf.UpdatedAt = pq.NullTime{time.Now(), true}
+	_, err := wr.db.Update(wf)
 	return err
 }
 
@@ -43,7 +49,7 @@ func (wr *workflow_repo) GetById(id uuid.UUID) (wf models.WorkFlow, err error) {
 }
 
 func (wr *workflow_repo) GetWorkFlowByProjectIdAndTag(projectId uuid.UUID, tag string) (workFlow models.WorkFlow, err error) {
-	err = wr.db.SelectOne(&workFlow, `select * from work_flow where project_id = $1 and tag = $2 `, projectId.String(), tag)
+	err = wr.db.SelectOne(&workFlow, `select * from work_flow wf join work_flow_tag_associators wft on wf.id = wft.work_flow_id and wf.project_id = $1 and wf.id = wft.work_flow_id where wft.tag_name = $2 `, projectId.String(), tag)
 	if err == sql.ErrNoRows {
 		err = ErrWorkflowNotFound
 	}

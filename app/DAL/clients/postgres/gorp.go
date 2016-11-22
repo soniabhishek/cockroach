@@ -54,6 +54,7 @@ func addTableInfo(dbMap *gorp.DbMap) {
 	dbMap.AddTableWithName(models.Client{}, "clients").SetKeys(false, "id")
 	dbMap.AddTableWithName(models.ProjectConfiguration{}, "project_configuration").SetKeys(false, "project_id")
 	dbMap.AddTableWithName(models.WorkFlow{}, "work_flow").SetKeys(false, "id")
+	dbMap.AddTableWithName(models.WorkFlowTagAssociator{}, "work_flow_tag_associators").SetKeys(true, "id")
 }
 
 func GetGorpClient() *gorp.DbMap {

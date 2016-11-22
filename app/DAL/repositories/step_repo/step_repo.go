@@ -5,6 +5,8 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/lib/pq"
+	"time"
 )
 
 type stepRepo struct {
@@ -30,16 +32,14 @@ func (s *stepRepo) GetStartStep(projectId uuid.UUID, tag string) (step models.St
 
 	err = s.Db.SelectOne(&step, `
 	select s.* from step s
-	inner join work_flow w on w.id = s.work_flow_id
-	where w.project_id = $1 and w.tag = $2 and s.type = $3`, projectId.String(), tag, step_type.StartStep)
+	  inner join work_flow w on w.id = s.work_flow_id
+	  INNER JOIN work_flow_tag_associators wta ON w.id = wta.work_flow_id
+	where w.project_id = $1 and wta.tag_name = $2 and s.type = $3`, projectId.String(), tag, step_type.StartStep)
 	return
 }
 
 func (s *stepRepo) GetStartStepOrDefault(projectId uuid.UUID, tag string) (step models.Step, err error) {
-	err = s.Db.SelectOne(&step, `
-	select s.* from step s
-	inner join work_flow w on w.id = s.work_flow_id
-	where w.project_id = $1 and w.tag = $2 and s.type = $3`, projectId.String(), tag, step_type.StartStep)
+	step, err = s.GetStartStep(projectId, tag)
 	if err == nil {
 		return
 	}
@@ -62,6 +62,8 @@ func (s *stepRepo) GetEndStep(projectId uuid.UUID) (step models.Step, err error)
 func (s *stepRepo) AddMany(steps []models.Step) (err error) {
 	var stepsInterface []interface{} = make([]interface{}, len(steps))
 	for i, _ := range steps {
+		steps[i].CreatedAt = pq.NullTime{time.Now(), true}
+		steps[i].UpdatedAt = steps[i].CreatedAt
 		stepsInterface[i] = &steps[i]
 	}
 
@@ -72,6 +74,7 @@ func (s *stepRepo) AddMany(steps []models.Step) (err error) {
 func (s *stepRepo) UpdateMany(steps []models.Step) (result int64, err error) {
 	var stepsInterface []interface{} = make([]interface{}, len(steps))
 	for i, _ := range steps {
+		steps[i].UpdatedAt = pq.NullTime{time.Now(), true}
 		stepsInterface[i] = &steps[i]
 	}
 

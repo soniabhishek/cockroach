@@ -4,6 +4,8 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/lib/pq"
+	"time"
 )
 
 type stepRouteRepo struct {
@@ -70,6 +72,8 @@ func (s *stepRouteRepo) GetRoutesByWorkFlowId(workFlowId uuid.UUID) (routes []mo
 func (s *stepRouteRepo) AddMany(routes []models.Route) (err error) {
 	var routesInterface []interface{} = make([]interface{}, len(routes))
 	for i, _ := range routes {
+		routes[i].CreatedAt = pq.NullTime{time.Now(), true}
+		routes[i].UpdatedAt = routes[i].CreatedAt
 		routesInterface[i] = &routes[i]
 	}
 
@@ -79,6 +83,7 @@ func (s *stepRouteRepo) AddMany(routes []models.Route) (err error) {
 func (s *stepRouteRepo) UpdateMany(routes []models.Route) (response int64, err error) {
 	var routesInterface []interface{} = make([]interface{}, len(routes))
 	for i, _ := range routes {
+		routes[i].UpdatedAt = pq.NullTime{time.Now(), true}
 		routesInterface[i] = &routes[i]
 	}
 

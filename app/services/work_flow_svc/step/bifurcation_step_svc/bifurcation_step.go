@@ -41,7 +41,8 @@ func (b *bifurcationStep) processFlu(flu feed_line.FLU) {
 		for i := 0; i < bifurcationConfig.Multiplication; i++ {
 
 			newFlu := flu.Copy()
-			newFlu.Build[index] = i
+			// Index starts from 1
+			newFlu.Build[index] = i + 1
 
 			// Created new Flus with masterId original Id
 			if i > 0 {
@@ -54,6 +55,12 @@ func (b *bifurcationStep) processFlu(flu feed_line.FLU) {
 				err := b.fluRepo.Add(newFlu.FeedLineUnit)
 				if err != nil {
 					flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Bifurcation, "Error saving duplicate flu to db", flu.Redelivered())
+					continue
+				}
+			} else {
+				err := b.fluRepo.Update(newFlu.FeedLineUnit)
+				if err != nil {
+					flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Bifurcation, "Error updating flu to db", flu.Redelivered())
 					continue
 				}
 			}

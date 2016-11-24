@@ -20,32 +20,20 @@ func Logic2(flu feed_line.FLU, l models.LogicGate) (value interface{}, err error
 		return false, ErrMalformedLogicOptions
 	}
 
-	// extracting variables from the expression using reg ex
-	re := regexp.MustCompile(expRegEx)
-	fields := re.FindAllString(exp, -1)
+	fields := getFieldsFromExpression(expRegEx, exp)
 
-	//trimming the expression and fields of curly braces
-	for i, field := range fields {
-		fields[i] = strings.TrimLeft(strings.TrimRight(field, "}"), "{")
-	}
+	//trimming actual expression of curly braces
 	exp = strings.Replace(strings.Replace(exp, "{", "", -1), "}", "", -1)
 
-	//getting the actual parameters from flu using keys
-	parameters := make(map[string]interface{}, len(fields))
-	for _, field := range fields {
-		parameters[field] = flu.Build[field]
-	}
+	parameters := getParametersFromFlu(flu, fields)
 
-	expression, ok := expressionCache[exp]
-	if !ok {
-		expression, err = govaluate.NewEvaluableExpressionWithFunctions(exp, getCustomFunctions(flu, fields))
-		if err != nil {
-			return false, ErrMalformedLogicOptions
-		}
-		expressionCache[exp] = expression
+	expression, err := getEvaluatableExpression(exp, flu, fields)
+	if err != nil {
+		return false, err
 	}
 
 	value, err = expression.Evaluate(parameters)
+
 	if err != nil {
 		return false, ErrMalformedLogicOptions
 	}
@@ -65,4 +53,38 @@ func getCustomFunctions(flu feed_line.FLU, fields []string) map[string]govaluate
 		},
 	}
 	return funcs
+}
+
+// extracting variables from the expression using reg ex
+func getFieldsFromExpression(regEx string, exp string) (fields []string) {
+	re := regexp.MustCompile(regEx)
+	fields = re.FindAllString(exp, -1)
+
+	//trimming the expression and fields of curly braces
+	for i, field := range fields {
+		fields[i] = strings.TrimLeft(strings.TrimRight(field, "}"), "{")
+	}
+	return
+}
+
+func getParametersFromFlu(flu feed_line.FLU, fields []string) (parameters map[string]interface{}) {
+	//getting the actual parameters from flu using keys
+	parameters = make(map[string]interface{}, len(fields))
+	for _, field := range fields {
+		parameters[field] = flu.Build[field]
+	}
+	return
+}
+
+func getEvaluatableExpression(exp string, flu feed_line.FLU, fields []string) (expression *govaluate.EvaluableExpression, err error) {
+	//get from cache if it's there
+	expression, ok := expressionCache[exp]
+	if !ok {
+		expression, err = govaluate.NewEvaluableExpressionWithFunctions(exp, getCustomFunctions(flu, fields))
+		if err != nil {
+			return expression, ErrMalformedLogicOptions
+		}
+		expressionCache[exp] = expression
+	}
+	return expression, nil
 }

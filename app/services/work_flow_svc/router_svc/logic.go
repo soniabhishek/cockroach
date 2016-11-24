@@ -32,7 +32,8 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
 	switch templateTypeStr {
 	case "custom":
-		return Logic2(flu, l)
+		result, err := Logic2(flu, l)
+		return result.(bool), err
 	case "continue":
 		return true, nil
 	case "boolean":

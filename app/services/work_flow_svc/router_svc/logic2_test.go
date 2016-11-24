@@ -14,8 +14,7 @@ func TestLogic2(t *testing.T) {
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
 					"options": map[string]interface{}{
-						"logic_expression": "abcd >1 || xyz == 'man' || IsNull(arc)",
-						"logic_fields":     []string{"abcd", "xyz", "arc"},
+						"logic_expression": "{abcd} >1 || {xyz} == 'man' || IsNull({arc})",
 					},
 				},
 			},
@@ -26,8 +25,7 @@ func TestLogic2(t *testing.T) {
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
 					"options": map[string]interface{}{
-						"logic_expression": "pqrs && abcd <3 && xyz == 'man' && !IsNull(arc)",
-						"logic_fields":     []string{"pqrs", "abcd", "xyz", "arc"},
+						"logic_expression": "{pqrs} && {abcd} <3 && {xyz} == 'man' && !IsNull({arc})",
 					},
 				},
 			},
@@ -38,8 +36,7 @@ func TestLogic2(t *testing.T) {
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
 					"options": map[string]interface{}{
-						"logic_expression": "abcd >1 || xyz == 'man' || IsNull(arc)",
-						"logic_fields":     []string{"abcd", "xyz"},
+						"logic_expression": "{pqrs} && {abCD} <3 && {xyz} == 'man' && !IsNull({arc})",
 					},
 				},
 			},

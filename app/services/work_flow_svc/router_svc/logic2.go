@@ -30,7 +30,7 @@ func Logic2(flu feed_line.FLU, l models.LogicGate) (value interface{}, err error
 	if !ok {
 		expression, err = govaluate.NewEvaluableExpressionWithFunctions(exp, getCustomFunctions(flu, fields))
 		if err != nil {
-			return
+			return false, ErrMalformedLogicOptions
 		}
 		expressionCache[exp] = expression
 	}

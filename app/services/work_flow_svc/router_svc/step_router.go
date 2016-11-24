@@ -86,7 +86,7 @@ func (sr *stepRouter) getRoute(flu *feed_line.FLU) (route *feed_line.Fl) {
 		nextStep, err = sr.routeGetter.GetNextStep(*flu)
 		if err != nil {
 			// Error getting the next step
-			plog.Error("Router", err, "error while getting evaluating logics in get route")
+			plog.Error("Router", err, "error while getting evaluating logics in get route", "fluId: "+flu.ID.String())
 			return sr.routeTable[step_type.Error]
 		}
 	}

@@ -1,6 +1,7 @@
 package work_flow_io_svc
 
 import (
+	"github.com/crowdflux/angel/app/DAL/repositories/clients_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/step_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/step_router_repo"
@@ -14,6 +15,7 @@ type IWorkflowBuilderService interface {
 	GetWorkflowContainer(uuid.UUID) (models.WorkflowContainer, error)
 	AddWorkflowContainer(models.WorkflowContainer) (models.WorkflowContainer, error)
 	UpdateWorkflowContainer(models.WorkflowContainer) (models.WorkflowContainer, error)
+	CloneWorkflowContainer(models.WorkFlowCloneModel) (models.WorkflowContainer, error)
 }
 
 func New() IWorkflowBuilderService {
@@ -23,6 +25,7 @@ func New() IWorkflowBuilderService {
 		workflowRepo:     workflow_repo.New(),
 		projectsRep:      projects_repo.New(),
 		workflowTagsRepo: workflow_tags_repo.New(),
+		clientsRepo:      clients_repo.New(),
 	}
 }
 

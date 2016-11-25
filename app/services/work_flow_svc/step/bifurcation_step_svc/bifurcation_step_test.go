@@ -19,6 +19,12 @@ var _ work_flow_io_svc.IStepConfigSvc = &stepConfigSvcMock{}
 func (s *stepConfigSvcMock) GetTransformationStepConfig(stepId uuid.UUID) (config models.TransformationConfig, err error) {
 	return
 }
+func (s *stepConfigSvcMock) GetAlgorithmStepConfig(stepId uuid.UUID) (config models.AlgorithmConfig, err error) {
+	return
+}
+func (s *stepConfigSvcMock) GetCrowdsourcingStepConfig(stepId uuid.UUID) (config models.CrowdsourcingConfig, err error) {
+	return
+}
 func (s *stepConfigSvcMock) GetBifurcationStepConfig(stepId uuid.UUID) (config models.BifurcationConfig, err error) {
 	config.Multiplication = 4
 	return
@@ -63,7 +69,7 @@ func TestBifurcation_ProcessFlu(t *testing.T) {
 			assert.False(t, flu.IsMaster)
 		}
 
-		assert.EqualValues(t, flu.Build[index], i)
+		assert.EqualValues(t, flu.Build[index], i+1)
 		i++
 
 		if i >= 4 {

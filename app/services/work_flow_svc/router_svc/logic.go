@@ -16,7 +16,7 @@ var ErrLogicKeyNotValid = errors.New("logic key not valid")
 var ErrMalformedLogicOptions = errors.New("Malformed logic options")
 var ErrIndexNotFoundInFluBuild = errors.New("index (integer) property not found")
 
-//var ErrPropNotFoundInFluBuild = errors.New("property not found in flu build")
+var ErrPropNotFoundInFluBuild = errors.New("property not found in flu build")
 
 func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
@@ -32,8 +32,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
 	switch templateTypeStr {
 	case "custom":
-		result, err := Logic2(flu, l)
-		return result.(bool), err
+		return LogicCustom(flu, l)
 	case "continue":
 		return true, nil
 	case "boolean":

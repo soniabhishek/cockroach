@@ -101,7 +101,7 @@ func workFlowClonehandler(workFlowService IWorkflowBuilderService) gin.HandlerFu
 		}
 		workflowCloneData := models.WorkFlowCloneModel{}
 		if err := c.BindJSON(&workflowCloneData); err != nil {
-			c.JSON(http.StatusBadRequest, "Invalid Clone Request"+err.Error())
+			c.JSON(http.StatusBadRequest, "Invalid Clone Request "+err.Error())
 			return
 		}
 		workflowCloneData.WorkFlowId = workflowId

@@ -50,8 +50,5 @@ func (c *clientsRepo) GetAllClients() (clients []models.ClientModel, err error) 
 }
 func (c *clientsRepo) IfIdExist(id uuid.UUID) (ifExist bool, err error) {
 	err = c.Db.SelectOne(&ifExist, `select exists(select 1 from clients where id=$1)`, id)
-	if err != nil {
-		return
-	}
 	return
 }

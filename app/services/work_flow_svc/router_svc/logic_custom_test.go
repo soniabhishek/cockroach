@@ -14,7 +14,7 @@ func TestLogicCustom(t *testing.T) {
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
 					"options": map[string]interface{}{
-						expression_field: "StringContains({xyz},ToUpper('man'))",
+						expression_field: "StringContains({xyz},ToUpper('ma'),'MAN')",
 					},
 				},
 			},
@@ -69,6 +69,17 @@ func TestLogicCustom(t *testing.T) {
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
 					"options": map[string]interface{}{
+						expression_field: "{bcd}==1",
+					},
+				},
+			},
+			Result: false,
+			Error:  ErrPropNotFoundInFluBuild,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"options": map[string]interface{}{
 						expression_field: "(ToUpper({ijkl})+ToLower({xyz}))=='DOGman'",
 					},
 				},
@@ -91,12 +102,12 @@ func TestLogicCustom(t *testing.T) {
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
 					"options": map[string]interface{}{
-						expression_field: "{pqrs} && {abCD} <3 && {xyz} == 'man' && !IsNull({arc})",
+						expression_field: "{pqrs} && {abCD} <3 && {xyz} in ('man','woman') && !IsNull({arc})",
 					},
 				},
 			},
 			Result: false,
-			Error:  ErrMalformedLogicOptions,
+			Error:  ErrPropNotFoundInFluBuild,
 		},
 	}
 	flu := feed_line.FLU{

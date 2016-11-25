@@ -1,12 +1,11 @@
 package router_svc
 
 import (
+	"fmt"
 	"github.com/Knetic/govaluate"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"regexp"
-	///	"strconv"
-	"fmt"
 	"strings"
 )
 
@@ -33,9 +32,12 @@ func LogicCustom(flu feed_line.FLU, l models.LogicGate) (value bool, err error) 
 	//trimming actual expression of curly braces
 	exp = strings.Replace(strings.Replace(exp, "{", "", -1), "}", "", -1)
 
-	parameters := getParametersFromFlu(flu, fields)
+	parameters, err := getParametersFromFlu(flu, fields, exp)
+	if err != nil {
+		return false, err
+	}
 
-	expression, err := getEvaluatableExpression(exp, flu, fields)
+	expression, err := getEvaluatableExpression(exp)
 	if err != nil {
 		return false, err
 	}
@@ -61,11 +63,12 @@ func getCustomFunctions() map[string]govaluate.ExpressionFunction {
 		},
 
 		"ToLower": func(params ...interface{}) (interface{}, error) {
-			if (len(params)) > 1 {
-				return false, ErrMalformedLogicOptions
-			}
 			if len(params) == 0 {
 				return false, ErrPropNotFoundInFluBuild
+			}
+
+			if (len(params)) > 1 {
+				return false, ErrMalformedLogicOptions
 			}
 
 			switch params[0].(type) {
@@ -156,16 +159,19 @@ func getFieldsFromExpression(exp string) (fields []string) {
 	return
 }
 
-func getParametersFromFlu(flu feed_line.FLU, fields []string) (parameters map[string]interface{}) {
+func getParametersFromFlu(flu feed_line.FLU, fields []string, exp string) (parameters map[string]interface{}, err error) {
 	//getting the actual parameters from flu using keys
 	parameters = make(map[string]interface{}, len(fields))
 	for _, field := range fields {
 		parameters[field] = flu.Build[field]
+		if parameters[field] == nil && !strings.Contains(exp, "IsNull("+field) {
+			return nil, ErrPropNotFoundInFluBuild
+		}
 	}
 	return
 }
 
-func getEvaluatableExpression(exp string, flu feed_line.FLU, fields []string) (expression *govaluate.EvaluableExpression, err error) {
+func getEvaluatableExpression(exp string) (expression *govaluate.EvaluableExpression, err error) {
 	//get from cache if it's there
 	expression, ok := expressionCache[exp]
 	if !ok {

@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"strings"
 )
 
 type stepConfigSvc struct {
@@ -46,13 +47,13 @@ func (s *stepConfigSvc) GetCrowdsourcingStepConfig(stepId uuid.UUID) (tc models.
 		return
 	}
 
-	microTaskUuid, err := uuid.FromString(microTaskIdString)
+	microTaskUuid, err := uuid.FromString(strings.TrimSpace(microTaskIdString))
 	if err != nil {
 		err = ErrConfigNotFound
 		return
 	}
 	tc.MicroTaskId = microTaskUuid
-	tc.AnswerKey = answerKeyString
+	tc.AnswerKey = strings.TrimSpace(answerKeyString)
 	return
 }
 
@@ -72,7 +73,7 @@ func (s *stepConfigSvc) GetTransformationStepConfig(stepId uuid.UUID) (tc models
 		err = ErrConfigNotFound
 		return
 	}
-	tc.TemplateId = templateIdString
+	tc.TemplateId = strings.TrimSpace(templateIdString)
 	return
 }
 
@@ -159,8 +160,8 @@ func (s *stepConfigSvc) GetAlgorithmStepConfig(stepId uuid.UUID) (ac models.Algo
 		ac.TimeDelayStop = 0
 	}
 
-	ac.AnswerKey = answerFieldKeyString
-	ac.TextFieldKey = textFieldKeyString
+	ac.AnswerKey = strings.TrimSpace(answerFieldKeyString)
+	ac.TextFieldKey = strings.TrimSpace(textFieldKeyString)
 
 	return
 }

@@ -56,8 +56,13 @@ func LogicCustom(flu feed_line.FLU, l models.LogicGate) (value bool, err error) 
 func getCustomFunctions() map[string]govaluate.ExpressionFunction {
 	funcs := map[string]govaluate.ExpressionFunction{
 		"IsNull": func(params ...interface{}) (interface{}, error) {
-			if len(params) > 0 {
-				return false, nil
+			if len(params) == 0 {
+				return true, nil
+			}
+			for _, param := range params {
+				if param != "" {
+					return false, nil
+				}
 			}
 			return true, nil
 		},

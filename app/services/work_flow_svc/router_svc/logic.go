@@ -49,7 +49,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		// as it will return zero value of boolean which is false
 		fieldValue, ok := flu.Build[fieldName].(bool)
 		if !ok {
-			plog.Trace("logic gate", "field not found for fluid ", flu.ID)
+			return false, ErrMalformedLogicOptions
 		}
 
 		b := Boolean{
@@ -97,9 +97,9 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 			return false, ErrMalformedLogicOptions
 		}
 
-		_, ok := flu.Build[fieldName]
+		value, ok := flu.Build[fieldName]
 
-		if !ok {
+		if !ok || value == "" {
 			return shouldBeNull, nil
 		}
 
@@ -118,7 +118,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		fieldValue, ok := flu.Build[fieldName]
 		if !ok {
 			plog.Trace("logic gate", "field not found for fluid ", flu.ID)
-			return false, ErrMalformedLogicOptions
+			return false, ErrPropNotFoundInFluBuild
 		}
 
 		var fieldValueString string

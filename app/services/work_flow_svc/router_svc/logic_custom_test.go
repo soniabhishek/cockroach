@@ -58,7 +58,18 @@ func TestLogicCustom(t *testing.T) {
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
 					"options": map[string]interface{}{
-						expression_field: "IsNull({abcd})",
+						expression_field: "IsNull({nostring})",
+					},
+				},
+			},
+			Result: true,
+			Error:  nil,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"options": map[string]interface{}{
+						expression_field: "IsNull({efgh})",
 					},
 				},
 			},
@@ -113,11 +124,12 @@ func TestLogicCustom(t *testing.T) {
 	flu := feed_line.FLU{
 		FeedLineUnit: models.FeedLineUnit{
 			Build: models.JsonF{
-				"abcd": 1,
-				"efgh": "GOD1",
-				"pqrs": false,
-				"xyz":  "MAN",
-				"ijkl": "dog",
+				"abcd":     1,
+				"efgh":     "GOD1",
+				"pqrs":     false,
+				"xyz":      "MAN",
+				"ijkl":     "dog",
+				"nostring": "",
 			},
 		},
 	}

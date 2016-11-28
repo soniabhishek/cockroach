@@ -187,9 +187,8 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 	query += `) as tmp(id, build, updated_at)
 		where tmp.id = fl.id;`
 
-	if config.IsDevelopment() || config.IsStaging() {
-		plog.Info("Running Q: ", query)
-	}
+	plog.Info("Running Q: ", query)
+
 	res, err := e.Db.Exec(query)
 	if err != nil {
 		return updatableRows, err

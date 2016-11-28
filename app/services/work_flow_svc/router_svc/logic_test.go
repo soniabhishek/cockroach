@@ -384,6 +384,19 @@ func TestLogic_IsNull(t *testing.T) {
 					"logic": "is_null",
 					"options": map[string]interface{}{
 						"field_name":     "xyz",
+						"should_be_null": false,
+					},
+				},
+			},
+			Result: false,
+			Error:  nil,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"logic": "is_null",
+					"options": map[string]interface{}{
+						"field_name":     "nilfield",
 						"should_be_null": true,
 					},
 				},
@@ -405,9 +418,11 @@ func TestLogic_IsNull(t *testing.T) {
 	flu := feed_line.FLU{
 		FeedLineUnit: models.FeedLineUnit{
 			Build: models.JsonF{
-				"abcd": 1,
-				"pqrs": true,
-				"mnop": "Hello",
+				"abcd":     1,
+				"pqrs":     true,
+				"lmno":     "",
+				"nilfield": nil,
+				"mnop":     "Hello",
 			},
 		},
 	}

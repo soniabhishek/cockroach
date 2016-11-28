@@ -16,7 +16,7 @@ var ErrLogicKeyNotValid = errors.New("logic key not valid")
 var ErrMalformedLogicOptions = errors.New("Malformed logic options")
 var ErrIndexNotFoundInFluBuild = errors.New("index (integer) property not found")
 
-//var ErrPropNotFoundInFluBuild = errors.New("property not found in flu build")
+var ErrPropNotFoundInFluBuild = errors.New("property not found in flu build")
 
 func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
@@ -31,6 +31,8 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 	}
 
 	switch templateTypeStr {
+	case "custom":
+		return LogicCustom(flu, l)
 	case "continue":
 		return true, nil
 	case "boolean":
@@ -47,7 +49,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		// as it will return zero value of boolean which is false
 		fieldValue, ok := flu.Build[fieldName].(bool)
 		if !ok {
-			plog.Trace("logic gate", "field not found for fluid ", flu.ID)
+			return false, ErrMalformedLogicOptions
 		}
 
 		b := Boolean{
@@ -95,9 +97,9 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 			return false, ErrMalformedLogicOptions
 		}
 
-		_, ok := flu.Build[fieldName]
+		value, ok := flu.Build[fieldName]
 
-		if !ok {
+		if !ok || value == "" || value == nil {
 			return shouldBeNull, nil
 		}
 
@@ -116,7 +118,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		fieldValue, ok := flu.Build[fieldName]
 		if !ok {
 			plog.Trace("logic gate", "field not found for fluid ", flu.ID)
-			return false, ErrMalformedLogicOptions
+			return false, ErrPropNotFoundInFluBuild
 		}
 
 		var fieldValueString string

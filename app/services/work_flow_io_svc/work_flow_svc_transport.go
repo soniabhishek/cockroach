@@ -14,7 +14,7 @@ func AddHttpTransport(routerGroup *gin.RouterGroup) {
 	routerGroup.GET("/workflows/:workflowId", workFlowGetHandler(workFlowBuilderService))
 	routerGroup.POST("/workflows", addWorkFlowHandler(workFlowBuilderService))
 	routerGroup.PUT("/workflows", updateWorkFlowHandler(workFlowBuilderService))
-
+	routerGroup.POST("/workflows/:workflowId/action/clone", workFlowClonehandler(workFlowBuilderService))
 }
 
 /**
@@ -32,8 +32,8 @@ func workFlowGetHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 		if err != nil {
 			plog.Error("WorkflowFetching : ", err)
 			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "Failure",
-				"error":  err.Error(),
+				"success": false,
+				"error":   err.Error(),
 			})
 			return
 		}
@@ -56,8 +56,8 @@ func addWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 		if err != nil {
 			plog.Error("WorkflowAdd : ", err)
 			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "Failure",
-				"error":  err.Error(),
+				"success": false,
+				"error":   err.Error(),
 			})
 			return
 		}
@@ -80,8 +80,36 @@ func updateWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 		if err != nil {
 			plog.Error("WorkflowUpdate : ", err)
 			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "Failure",
-				"error":  err.Error(),
+				"success": false,
+				"error":   err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"data":    response,
+			"success": true,
+		})
+	}
+}
+
+func workFlowClonehandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		workflowId, err := uuid.FromString(c.Param("workflowId"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, "Invalid id")
+			return
+		}
+		workflowCloneData := models.WorkFlowCloneModel{}
+		if err := c.BindJSON(&workflowCloneData); err != nil {
+			c.JSON(http.StatusBadRequest, "Invalid Clone Request "+err.Error())
+			return
+		}
+		workflowCloneData.WorkFlowId = workflowId
+		response, err := workFlowService.CloneWorkflowContainer(workflowCloneData)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"error":   err.Error(),
 			})
 			return
 		}

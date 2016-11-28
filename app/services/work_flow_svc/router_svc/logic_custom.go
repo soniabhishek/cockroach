@@ -60,7 +60,7 @@ func getCustomFunctions() map[string]govaluate.ExpressionFunction {
 				return true, nil
 			}
 			for _, param := range params {
-				if param != "" {
+				if param != "" && param != nil {
 					return false, nil
 				}
 			}

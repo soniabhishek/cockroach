@@ -46,7 +46,7 @@ func (s *stepConfigSvc) GetCrowdsourcingStepConfig(stepId uuid.UUID) (tc models.
 		err = ErrConfigNotFound
 		return
 	}
-
+	//TODO: Change the trimspace logic to where the data is getting inserted in db
 	microTaskUuid, err := uuid.FromString(strings.TrimSpace(microTaskIdString))
 	if err != nil {
 		err = ErrConfigNotFound

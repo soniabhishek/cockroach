@@ -99,7 +99,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
 		value, ok := flu.Build[fieldName]
 
-		if !ok || value == "" {
+		if !ok || value == "" || value == nil {
 			return shouldBeNull, nil
 		}
 

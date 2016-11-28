@@ -69,6 +69,17 @@ func TestLogicCustom(t *testing.T) {
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
 					"options": map[string]interface{}{
+						expression_field: "IsNull({nilfield})",
+					},
+				},
+			},
+			Result: true,
+			Error:  nil,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"options": map[string]interface{}{
 						expression_field: "IsNull({efgh})",
 					},
 				},
@@ -130,6 +141,7 @@ func TestLogicCustom(t *testing.T) {
 				"xyz":      "MAN",
 				"ijkl":     "dog",
 				"nostring": "",
+				"nilfield": nil,
 			},
 		},
 	}

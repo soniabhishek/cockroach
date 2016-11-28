@@ -16,6 +16,7 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/lib/pq"
+	"strings"
 )
 
 type fluRepo struct {
@@ -174,7 +175,11 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 	for i, flu := range updatableRows {
 
 		idVal, _ := flu.ID.Value()
-		buildVal, _ := flu.Build.Value()
+		buildVal := flu.Build.String()
+
+		//Replace ' with '' for psql
+		buildVal = strings.Replace(buildVal, "'", "''", -1)
+
 		updatedAtVal := pq.NullTime{time.Now(), true}.Time.Format(time.RFC3339)
 
 		if i > 0 {

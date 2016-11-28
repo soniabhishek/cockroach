@@ -89,7 +89,7 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 			}
 
 			//Edit the flu
-			flu.Data[name] = encUrls
+			flu.Build[name] = encUrls
 
 		}
 	}

@@ -49,13 +49,12 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 
 	timeDiff := tStep.TimeDelayStop - tStep.TimeDelayStart
 
-	if timeDiff < 0 {
+	if timeDiff <= 0 {
+		plog.Info("Algostep", "timediff <= 0", "value: ", timeDiff, "fluId: "+flu.ID.String())
 		timeDiff = 0
 	}
 
-	s1 := rand.NewSource(time.Now().UnixNano())
-	r1 := rand.New(s1)
-	time.Sleep(time.Duration(tStep.TimeDelayStart*60+timeDiff*r1.Intn(60)) * time.Second)
+	time.Sleep(time.Duration(tStep.TimeDelayStart*60+timeDiff*rand.Intn(60)) * time.Second)
 	t.finishFlu(flu)
 	flu.ConfirmReceive()
 }

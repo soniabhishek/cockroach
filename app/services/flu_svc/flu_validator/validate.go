@@ -1,9 +1,11 @@
 package flu_validator
 
 import (
+	"github.com/asaskevich/govalidator"
 	"github.com/crowdflux/angel/app/DAL/clients"
 	"github.com/crowdflux/angel/app/DAL/repositories/flu_validator_repo"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 )
 
@@ -68,13 +70,23 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 				continue
 			}
 		case "IMAGE_ARRAY":
+
 			// Check if field value is string or not
-			fieldValImgArray, ok := fieldVal.([]string)
+			fieldValArray, ok := fieldVal.([]interface{})
 			if !ok {
 				wrongDataType.AddMetaDataField(name)
 				continue
 			}
+			fieldValImgArray := make([]string, len(fieldValArray))
+			for i, val := range fieldValArray {
 
+				fieldValImgArray[i], ok = val.(string)
+				if !ok || !govalidator.IsURL(fieldValImgArray[i]) {
+					invalidImageLink.AddMetaDataField(name)
+					continue
+				}
+
+			}
 			// Check if field is mandatory & not empty
 			if fluV.IsMandatory && len(fieldValImgArray) == 0 {
 				mandatoryFieldEmpty.AddMetaDataField(name)

@@ -37,7 +37,7 @@ func (f *fakeValidatorRepo) GetValidatorsForProject(projectId uuid.UUID, tag str
 
 }
 
-var image_url_valid = []string{"https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
+var image_url_valid = []interface{}{"https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
 
 func (f *fakeValidatorRepo) Save(*models.FLUValidator) error {
 	return nil
@@ -56,6 +56,8 @@ func TestValidateFluEmptyValidator(t *testing.T) {
 		},
 		Tag: "PAYTM_TSHIRT",
 	}
+
+	flu.Build = flu.Data.Copy()
 
 	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 
@@ -77,6 +79,7 @@ func TestValidateFluPerfectFlu(t *testing.T) {
 		},
 		Tag: "PAYTM_TSHIRT",
 	}
+	flu.Build = flu.Data.Copy()
 
 	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 
@@ -98,6 +101,7 @@ func TestValidateFluForFieldNotFound(t *testing.T) {
 		},
 		Tag: "PAYTM_TSHIRT",
 	}
+	flu.Build = flu.Data.Copy()
 
 	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 	validationErrs := err.(DataValidationError).Validations
@@ -124,6 +128,7 @@ func TestValidateFluForWrongDataType(t *testing.T) {
 		},
 		Tag: "PAYTM_TSHIRT",
 	}
+	flu.Build = flu.Data.Copy()
 
 	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 	validationErrs := err.(DataValidationError).Validations
@@ -150,6 +155,7 @@ func TestValidateFluForMandatoryField(t *testing.T) {
 		},
 		Tag: "PAYTM_TSHIRT",
 	}
+	flu.Build = flu.Data.Copy()
 
 	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 	validationErrs := err.(DataValidationError).Validations
@@ -177,10 +183,11 @@ func TestEncryptionForValidImageUrls(t *testing.T) {
 			"image_url":   image_url_valid},
 		Build: models.JsonF{},
 	}
+	flu.Build = flu.Data.Copy()
 
 	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 
-	returnedUrlList := flu.Data["image_url"].([]string)
+	returnedUrlList := flu.Build["image_url"].([]string)
 	assert.True(t, govalidator.IsURL(returnedUrlList[0]))
 	assert.True(t, govalidator.IsURL(returnedUrlList[1]))
 	assert.True(t, isValid)
@@ -193,7 +200,7 @@ func TestEncryptionForValidImageUrls(t *testing.T) {
 func Test_for_invalid_urls(t *testing.T) {
 
 	var fluId = uuid.NewV4()
-	var image_url_invalid = []string{"https://s3-ap-southea-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
+	var image_url_invalid = []interface{}{"https://s3-ap-southea-1.amazonaws.com/playmentproduction/public/B00X0X3AKG_2.jpg", "https://s3-ap-southeast-1.amazonaws.com/playmentproduction/public/B00PU0DELW_2.jpg"}
 
 	var flu = models.FeedLineUnit{
 		ID:          fluId,
@@ -206,8 +213,9 @@ func Test_for_invalid_urls(t *testing.T) {
 			"image_url":   image_url_invalid},
 		Build: models.JsonF{},
 	}
+	flu.Build = flu.Data.Copy()
 
-	returnedUrlList := flu.Data["image_url"].([]string)
+	returnedUrlList := flu.Data["image_url"].([]interface{})
 	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
 	validationErrs := err.(DataValidationError).Validations
 

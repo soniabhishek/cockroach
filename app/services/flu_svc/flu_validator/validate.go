@@ -77,14 +77,19 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 				continue
 			}
 			fieldValImgArray := make([]string, len(fieldValArray))
+			success := true
 			for i, val := range fieldValArray {
 
 				fieldValImgArray[i], ok = val.(string)
 				if !ok || !govalidator.IsURL(fieldValImgArray[i]) {
 					invalidImageLink.AddMetaDataField(name)
-					continue
+					success = false
+					break
 				}
 
+			}
+			if !success {
+				continue
 			}
 			// Check if field is mandatory & not empty
 			if fluV.IsMandatory && len(fieldValImgArray) == 0 {

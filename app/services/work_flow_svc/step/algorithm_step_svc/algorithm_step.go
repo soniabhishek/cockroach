@@ -35,13 +35,17 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 
 	textSting := text.(string)
 
+	successMessage := tStep.AnswerKey + "_success"
+
 	algoResult, err, success := clients.GetAbacusClient().Predict(textSting)
 	if err != nil {
 		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Algorithm, "Algorithm Error", flu.Redelivered())
 	} else if success {
-		flu.Build.Merge(models.JsonF{tStep.AnswerKey: algoResult})
+		flu.Build[tStep.AnswerKey] = algoResult
 	}
+
+	flu.Build[successMessage] = success
 
 	timeDiff := tStep.TimeDelayStop - tStep.TimeDelayStart
 

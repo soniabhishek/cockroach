@@ -3,7 +3,6 @@ package algorithm_step_svc
 import (
 	"github.com/crowdflux/angel/app/DAL/clients"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
-	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"

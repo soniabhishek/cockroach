@@ -53,7 +53,7 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 		timeDiff = 0
 	}
 
-	time.Sleep(time.Duration(tStep.TimeDelayStart*60+timeDiff*rand.Intn(60)) * time.Second)
+	time.Sleep(time.Duration(int64((tStep.TimeDelayStart+timeDiff*rand.Float64())*60)) * time.Second)
 	t.finishFlu(flu)
 	flu.ConfirmReceive()
 }

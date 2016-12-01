@@ -5,12 +5,13 @@ import (
 	"testing"
 )
 
+// WORKS ONLY 10% OF THE TIME DUE TO 10% SUCCESS LOGIC IN ABACUS
 func TestAbacusSuccesfulPrediction(t *testing.T) {
 	cc := GetAbacusClient()
 	actualResult, err, success := cc.Predict("Good item")
-	expectedResult := "Approve"
-	assert.Equal(t, actualResult, expectedResult)
-	assert.True(t, success, true)
+	expectedResult := "Approve-Useful Product Review"
+	assert.Equal(t, expectedResult, actualResult)
+	assert.True(t, success)
 	assert.NoError(t, err)
 }
 

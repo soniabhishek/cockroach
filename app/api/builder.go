@@ -73,7 +73,11 @@ func Build() {
 		utils_api.AddHttpTransport(api)
 		work_flow_retriever_svc.AddHttpTransport(api)
 		work_flow_io_svc.AddHttpTransport(api)
-		work_flow_explorer_svc.AddHttpTransport(api)
+	}
+
+	authorized_header := r.Group("/api/v0", auther.AuthorizeHeader())
+	{
+		work_flow_explorer_svc.AddHttpTransport(authorized_header)
 	}
 
 	authorized := r.Group("/api/v0", auther.GinAuther())

@@ -106,6 +106,10 @@
   "newrelic" : {
     "key": "<newrelic_licence_key>"
   },
+
+  "jwt": {
+    "secret": "<jwt_secret_key>"
+  },
   "rabbitmq" : {
     "username" : "guest",
     "password" : "guest",

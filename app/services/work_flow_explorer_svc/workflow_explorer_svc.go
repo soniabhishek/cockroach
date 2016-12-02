@@ -1,6 +1,7 @@
 package work_flow_explorer_svc
 
 import (
+	"database/sql"
 	"github.com/crowdflux/angel/app/DAL/repositories/clients_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/user_repo"
@@ -8,9 +9,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/utilities/clients/validator"
-	"github.com/lib/pq"
 	"github.com/pkg/errors"
-	"time"
 )
 
 type workflowExplorerService struct {
@@ -20,43 +19,62 @@ type workflowExplorerService struct {
 	workflowRepo workflow_repo.IWorkflowRepo
 }
 
-func (cs *workflowExplorerService) CreateClient(client models.Client) (response models.Client, err error) {
-	err = validator.ValidateClient(client)
+var _ IWorkFlowExplorerService = &workflowExplorerService{}
+
+func (ws *workflowExplorerService) CreateClient(client models.Client) (response models.Client, err error) {
+	if client.Name == "" {
+		err = errors.New("Invalid Client Name")
+		return
+	}
+	user := models.User{}
+	user.Username = client.Name
+	user.FirstName = sql.NullString{client.Name, true}
+
+	err = ws.userRepo.Add(&user)
 	if err != nil {
 		return
 	}
-	exist, err := cs.userRepo.IfIdExist(client.UserId)
+	client.UserId = user.ID
+	err = ws.clientsRepo.Add(&client)
+	if err != nil {
+		return
+	}
+	client.ClientSecretUuid = uuid.Nil
+	return client, nil
+}
+
+func (ws *workflowExplorerService) GetClient(uuid.UUID) (client models.Client, err error) {
+	return
+}
+
+func (ws *workflowExplorerService) FetchAllClient() ([]models.Client, error) {
+	return ws.clientsRepo.GetAllClients()
+}
+
+func (ws *workflowExplorerService) FetchProjectsByClientId(clientId uuid.UUID) ([]models.Project, error) {
+	return ws.projectsRepo.GetByClientId(clientId)
+}
+
+func (ws *workflowExplorerService) FetchWorkflowsByProjectId(projectId uuid.UUID) ([]models.WorkFlow, error) {
+	return ws.workflowRepo.GetWorkFlowsByProjectId(projectId)
+}
+
+func (ws *workflowExplorerService) CreateProject(project models.Project) (response models.Project, err error) {
+	err = validator.ValidateProject(project)
+	if err != nil {
+		return
+	}
+	exist, err := ws.clientsRepo.IfIdExist(project.ClientId)
 	if err != nil {
 		return
 	}
 	if !exist {
-		err = errors.New("Invalid User Id")
+		err = errors.New("Invalid Project")
 		return
 	}
-	client.ClientSecretUuid = uuid.NewV4()
-	client.ID = uuid.NewV4()
-	currentTime := time.Now()
-	client.CreatedAt = pq.NullTime{currentTime, true}
-	client.UpdatedAt = pq.NullTime{currentTime, true}
-	err = cs.clientsRepo.Add(client)
+	err = ws.projectsRepo.Add(&project)
 	if err != nil {
 		return
 	}
-	return client, nil
-}
-
-func (cs *workflowExplorerService) GetClient(uuid.UUID) (client models.Client, err error) {
-	return
-}
-
-func (cs *workflowExplorerService) FetchAllClient() ([]models.ClientModel, error) {
-	return cs.clientsRepo.GetAllClients()
-}
-
-func (cs *workflowExplorerService) FetchProjectsByClientId(clientId uuid.UUID) ([]models.Project, error) {
-	return cs.projectsRepo.GetByClientId(clientId)
-}
-
-func (cs *workflowExplorerService) FetchWorkflowsByProjectId(projectId uuid.UUID) ([]models.WorkFlow, error) {
-	return cs.workflowRepo.GetWorkFlowsByProjectId(projectId)
+	return project, nil
 }

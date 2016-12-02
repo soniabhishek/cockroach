@@ -11,8 +11,11 @@ import (
 
 type IWorkFlowExplorerService interface {
 	CreateClient(models.Client) (models.Client, error)
+	CreateProject(models.Project) (models.Project, error)
+
 	GetClient(uuid.UUID) (models.Client, error)
-	FetchAllClient() ([]models.ClientModel, error)
+
+	FetchAllClient() ([]models.Client, error)
 	FetchProjectsByClientId(uuid.UUID) ([]models.Project, error)
 	FetchWorkflowsByProjectId(uuid.UUID) ([]models.WorkFlow, error)
 }

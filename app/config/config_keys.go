@@ -56,6 +56,8 @@ const (
 	RABBITMQ_USERNAME = configKey("rabbitmq.username")
 	RABBITMQ_PASSWORD = configKey("rabbitmq.password")
 	RABBITMQ_HOST     = configKey("rabbitmq.host")
+
+	JWT_SECRET_KEY = configKey("jwt.secret")
 )
 
 // Gets the value for given key from the config file.

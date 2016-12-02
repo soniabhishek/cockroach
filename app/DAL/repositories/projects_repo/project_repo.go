@@ -10,7 +10,9 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/queries"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/lib/pq"
 	"gopkg.in/mgo.v2"
+	"time"
 )
 
 const projectTable = "projects"
@@ -67,8 +69,13 @@ func transformErr(err error) error {
 	return err
 }
 
-func (i *projectsRepo) Add(p models.Project) error {
-	return i.pg.Insert(&p)
+func (i *projectsRepo) Add(p *models.Project) error {
+	p.ID = uuid.NewV4()
+	p.UpdatedAt = pq.NullTime{time.Now(), true}
+	p.CreatedAt = p.UpdatedAt
+	p.StartedAt = p.UpdatedAt
+	p.EndedAt = pq.NullTime{time.Time{}, false}
+	return i.pg.Insert(p)
 }
 func (i *projectsRepo) Update(p models.Project) error {
 	_, err := i.pg.Update(&p)

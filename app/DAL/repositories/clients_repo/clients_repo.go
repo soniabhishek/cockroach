@@ -7,6 +7,8 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/lib/pq"
+	"time"
 )
 
 type clientsRepo struct {
@@ -23,8 +25,12 @@ func (c *clientsRepo) GetByProjectId(projectId uuid.UUID) (models.Client, error)
 	return client, err
 }
 
-func (c *clientsRepo) Add(cl models.Client) error {
-	return c.Db.Insert(&cl)
+func (c *clientsRepo) Add(cl *models.Client) error {
+	cl.ID = uuid.NewV4()
+	cl.ClientSecretUuid = uuid.NewV4()
+	cl.CreatedAt = pq.NullTime{time.Now(), true}
+	cl.UpdatedAt = cl.CreatedAt
+	return c.Db.Insert(cl)
 }
 
 func (c *clientsRepo) Update(cl models.Client) error {
@@ -44,8 +50,8 @@ func (c *clientsRepo) Delete(id uuid.UUID) error {
 	return err
 }
 
-func (c *clientsRepo) GetAllClients() (clients []models.ClientModel, err error) {
-	_, err = c.Db.Select(&clients, `select c.id, u.username from clients c, users u where c.user_id = u.id`)
+func (c *clientsRepo) GetAllClients() (clients []models.Client, err error) {
+	_, err = c.Db.Select(&clients, `select id, name from clients`)
 	return
 }
 func (c *clientsRepo) IfIdExist(id uuid.UUID) (ifExist bool, err error) {

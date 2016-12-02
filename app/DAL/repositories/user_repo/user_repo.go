@@ -7,6 +7,8 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/lib/pq"
+	"time"
 )
 
 type user_repo struct {
@@ -15,8 +17,11 @@ type user_repo struct {
 
 var _ IUserRepo = &user_repo{}
 
-func (ur *user_repo) Add(u models.User) error {
-	return ur.db.Insert(&u)
+func (ur *user_repo) Add(u *models.User) error {
+	u.ID = uuid.NewV4()
+	u.UpdatedAt = pq.NullTime{time.Now(), true}
+	u.CreatedAt = u.UpdatedAt
+	return ur.db.Insert(u)
 }
 
 func (ur *user_repo) Update(u models.User) error {

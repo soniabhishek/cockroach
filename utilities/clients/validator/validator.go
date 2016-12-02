@@ -79,6 +79,18 @@ func ValidateClient(obj models.Client) (err error) {
 	return
 }
 
+func ValidateProject(obj models.Project) (err error) {
+	if obj.CreatorId == uuid.Nil {
+		err = errors.New("invalid Project")
+		return
+	}
+	if obj.ClientId == uuid.Nil {
+		err = errors.New("invalid Project")
+		return
+	}
+	return
+}
+
 //--------------------------------------------------------------------------------//
 //Helpers
 
@@ -87,7 +99,6 @@ func ShowErrorResponse(err error) {
 }
 
 func ShowErrorResponseOverHttp(c *gin.Context, err error) {
-
 	var msg interface{}
 	msg = err.Error()
 	c.JSON(http.StatusOK, gin.H{

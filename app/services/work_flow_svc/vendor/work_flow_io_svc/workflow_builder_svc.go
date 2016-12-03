@@ -264,6 +264,18 @@ func (w *workFlowBuilderService) CloneWorkflowContainer(workflowCloneData models
 /**
 This will fetch Workflows
 */
-func (w *workFlowBuilderService) FetchWorkflowsByProjectId(projectId uuid.UUID) ([]models.WorkFlow, error) {
-	return w.workflowRepo.GetWorkFlowsByProjectId(projectId)
+func (w *workFlowBuilderService) FetchWorkflows(projectId uuid.UUID, tag string) (workflows []models.WorkFlow, err error) {
+	if tag == "" {
+		workflows, err = w.workflowRepo.GetWorkFlowsByProjectId(projectId)
+		if err != nil {
+			return
+		}
+	} else {
+		wf, err := w.workflowRepo.GetWorkFlowByProjectIdAndTag(projectId, tag)
+		if err != nil {
+			return workflows, err
+		}
+		workflows = append(workflows, wf)
+	}
+	return
 }

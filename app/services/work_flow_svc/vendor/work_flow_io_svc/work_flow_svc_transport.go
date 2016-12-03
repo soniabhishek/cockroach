@@ -14,8 +14,8 @@ func AddHttpTransport(routerGroup *gin.RouterGroup) {
 
 	routerGroup.GET("/workflows", fetchWorkflowsHandler(workFlowBuilderService))
 	routerGroup.GET("/workflows/:workflowId", workFlowGetHandler(workFlowBuilderService))
-	routerGroup.POST("/workflows", addWorkFlowHandler(workFlowBuilderService))
 	routerGroup.PUT("/workflows", updateWorkFlowHandler(workFlowBuilderService))
+	routerGroup.POST("/workflows", addWorkFlowHandler(workFlowBuilderService))
 	routerGroup.POST("/workflows/:workflowId/action/clone", workFlowClonehandler(workFlowBuilderService))
 }
 
@@ -124,21 +124,23 @@ func workFlowClonehandler(workFlowService IWorkflowBuilderService) gin.HandlerFu
 
 func fetchWorkflowsHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		projectId, err := uuid.FromString(c.Param("projectId"))
+		projectId, err := uuid.FromString(c.Query("projectId"))
 		if err != nil {
-			plog.Error("Invalid Id", err)
-			validator.ShowErrorResponseOverHttp(c, err)
+			c.JSON(http.StatusBadRequest, "Invalid ProjectId")
 			return
 		}
-		response, err := workFlowService.FetchWorkflowsByProjectId(projectId)
+
+		tag := c.Query("tag")
+
+		response, err := workFlowService.FetchWorkflows(projectId, tag)
 		if err != nil {
 			plog.Error("Fetching Projects workflows Error", err)
 			validator.ShowErrorResponseOverHttp(c, err)
 			return
 		} else {
 			c.JSON(http.StatusOK, gin.H{
-				"success":   true,
-				"workflows": response,
+				"success": true,
+				"data":    response,
 			})
 		}
 	}

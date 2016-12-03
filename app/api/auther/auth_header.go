@@ -16,6 +16,7 @@ func AuthorizeHeader() gin.HandlerFunc {
 		authHeader := strings.Split(value, " ")
 		if len(authHeader) != 2 {
 			validator.ShowErrorResponseOverHttp(c, errors.New("Auth Failed"))
+			c.Abort()
 			return
 		}
 		token, err := jwt.Parse(authHeader[1], func(token *jwt.Token) (interface{}, error) {
@@ -26,7 +27,7 @@ func AuthorizeHeader() gin.HandlerFunc {
 		})
 		if err != nil || !token.Valid {
 			c.Header("authenication error", "Invalid Access")
-			c.AbortWithStatus(401)
+			c.Abort()
 			return
 		}
 
@@ -34,7 +35,7 @@ func AuthorizeHeader() gin.HandlerFunc {
 			c.Set("userId", claims["id"])
 		} else {
 			c.Header("authenication error", "Invalid Claims")
-			c.AbortWithStatus(401)
+			c.Abort()
 			return
 		}
 

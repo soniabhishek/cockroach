@@ -16,7 +16,7 @@ type IWorkflowBuilderService interface {
 	AddWorkflowContainer(models.WorkflowContainer) (models.WorkflowContainer, error)
 	UpdateWorkflowContainer(models.WorkflowContainer) (models.WorkflowContainer, error)
 	CloneWorkflowContainer(models.WorkFlowCloneModel) (models.WorkflowContainer, error)
-	FetchWorkflowsByProjectId(uuid.UUID) ([]models.WorkFlow, error)
+	FetchWorkflows(uuid.UUID, string) ([]models.WorkFlow, error)
 }
 
 func New() IWorkflowBuilderService {

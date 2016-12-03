@@ -1,66 +1,167 @@
 package work_flow_svc
 
 import (
-	"fmt"
-	"sync"
-
-	"github.com/crowdflux/angel/app/DAL/feed_line"
+	"errors"
+	"github.com/crowdflux/angel/app/DAL/repositories/step_repo"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/models/step_type"
-	"github.com/crowdflux/angel/app/services/flu_logger_svc"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/counter"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/work_flow"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
+	"strings"
 )
 
-type workFlowSvc struct {
-	work_flow.WorkFlow
-	complete  OnCompleteHandler
-	startOnce sync.Once
+type stepConfigSvc struct {
+	stepRepo step_repo.IStepRepo
 }
 
-func (w *workFlowSvc) AddFLU(flu models.FeedLineUnit) {
-	counter.Print(feed_line.FLU{FeedLineUnit: flu}, "workflowsvc")
-	w.InQ.Push(feed_line.FLU{FeedLineUnit: flu})
+var ErrConfigNotFound = errors.New("Configuration not found")
+var ErrConfigMalformed = errors.New("Configuration Malformed")
+
+var _ IStepConfigSvc = &stepConfigSvc{}
+
+const (
+	templateId     = "template_id"
+	multiplication = "multiplication"
+	microTaskId    = "micro_task_id"
+	answerKey      = "answer_key"
+	textFieldKey   = "text_field_key"
+	timeDelayStart = "time_delay_start"
+	timeDelayStop  = "time_delay_stop"
+)
+
+func (s *stepConfigSvc) GetCrowdsourcingStepConfig(stepId uuid.UUID) (tc models.CrowdsourcingConfig, err error) {
+	step, err := s.stepRepo.GetById(stepId)
+	if err != nil {
+		return
+	}
+
+	microTaskId, ok := step.Config[microTaskId]
+	answerKey, ok1 := step.Config[answerKey]
+	if !ok || !ok1 {
+		err = ErrConfigNotFound
+		return
+	}
+	microTaskIdString, ok := microTaskId.(string)
+	answerKeyString, ok1 := answerKey.(string)
+	if !ok || !ok1 {
+		err = ErrConfigNotFound
+		return
+	}
+	//TODO: Change the trimspace logic to where the data is getting inserted in db
+	microTaskUuid, err := uuid.FromString(strings.TrimSpace(microTaskIdString))
+	if err != nil {
+		err = ErrConfigNotFound
+		return
+	}
+	tc.MicroTaskId = microTaskUuid
+	tc.AnswerKey = strings.TrimSpace(answerKeyString)
+	return
 }
 
-func (w *workFlowSvc) Start() {
+func (s *stepConfigSvc) GetTransformationStepConfig(stepId uuid.UUID) (tc models.TransformationConfig, err error) {
+	step, err := s.stepRepo.GetById(stepId)
+	if err != nil {
+		return
+	}
 
-	//Executes only once, even if Start() is called multiple times
-	w.startOnce.Do(func() {
+	templateID, ok := step.Config[templateId]
+	if !ok {
+		err = ErrConfigNotFound
+		return
+	}
+	templateIdString, ok := templateID.(string)
+	if !ok {
+		err = ErrConfigNotFound
+		return
+	}
+	tc.TemplateId = strings.TrimSpace(templateIdString)
+	return
+}
 
-		w.WorkFlow = work_flow.StdWorkFlow
+func (s *stepConfigSvc) GetBifurcationStepConfig(stepId uuid.UUID) (bc models.BifurcationConfig, err error) {
+	step, err := s.stepRepo.GetById(stepId)
+	if err != nil {
+		return
+	}
 
-		if w.complete != nil {
-			startWorkflowSvc(w)
+	err = step.Config.CastTo(&bc)
+	if err != nil {
+		return
+	}
+
+	if bc.Multiplication < 1 {
+		err = ErrConfigNotFound
+		plog.Error("StepConfigSvc", ErrConfigMalformed, "stepId "+stepId.String())
+		return
+	}
+
+	return
+}
+
+func (s *stepConfigSvc) GetUnificationStepConfig(stepId uuid.UUID) (uc models.UnificationConfig, err error) {
+	step, err := s.stepRepo.GetById(stepId)
+	if err != nil {
+		return
+	}
+
+	err = step.Config.CastTo(&uc)
+	if err != nil {
+		return
+	}
+
+	if uc.Multiplication < 1 {
+		err = ErrConfigNotFound
+		plog.Error("StepConfigSvc", ErrConfigMalformed, "stepId "+stepId.String())
+		return
+	}
+
+	return
+}
+func (s *stepConfigSvc) GetAlgorithmStepConfig(stepId uuid.UUID) (ac models.AlgorithmConfig, err error) {
+	step, err := s.stepRepo.GetById(stepId)
+	if err != nil {
+		return
+	}
+
+	answerFieldKey, ok := step.Config[answerKey]
+	textFieldKey, ok2 := step.Config[textFieldKey]
+	if !ok || !ok2 {
+		err = ErrConfigNotFound
+		return
+	}
+	answerFieldKeyString, ok := answerFieldKey.(string)
+	textFieldKeyString, ok2 := textFieldKey.(string)
+	if !ok || !ok2 || answerFieldKey == "" || textFieldKey == "" {
+		err = ErrConfigNotFound
+		return
+	}
+
+	timeDelayStart, ok := step.Config[timeDelayStart]
+	if ok {
+		timeDelayStartInt, ok1 := timeDelayStart.(int)
+
+		if ok1 {
+			ac.TimeDelayStart = timeDelayStartInt
 		} else {
-			startWorkflowSvcNLog(w)
+			ac.TimeDelayStart = 0
 		}
-	})
-}
+	} else {
+		ac.TimeDelayStart = 0
+	}
 
-type OnCompleteHandler func(models.FeedLineUnit)
-
-func (w *workFlowSvc) OnComplete(f OnCompleteHandler) {
-	w.complete = f
-}
-
-func startWorkflowSvc(w *workFlowSvc) {
-	go func() {
-		for flu := range w.OutQ.Receiver() {
-			w.complete(flu.FeedLineUnit)
-			flu.ConfirmReceive()
-
-			//TODO put at correct place according to the architecture
-			flu_logger_svc.LogStepEntry(flu.FeedLineUnit, step_type.Gateway, flu.Redelivered())
+	timeDelayStop, ok := step.Config[timeDelayStop]
+	if ok {
+		timeDelayStopInt, ok1 := timeDelayStop.(int)
+		if ok1 {
+			ac.TimeDelayStop = timeDelayStopInt
+		} else {
+			ac.TimeDelayStop = 0
 		}
-	}()
-}
+	} else {
+		ac.TimeDelayStop = 0
+	}
 
-func startWorkflowSvcNLog(w *workFlowSvc) {
-	go func() {
-		for flu := range w.OutQ.Receiver() {
-			fmt.Println(flu.ID)
-			flu.ConfirmReceive()
-		}
-	}()
+	ac.AnswerKey = strings.TrimSpace(answerFieldKeyString)
+	ac.TextFieldKey = strings.TrimSpace(textFieldKeyString)
+
+	return
 }

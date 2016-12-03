@@ -1,31 +1,21 @@
 package work_flow_svc
 
 import (
-	"fmt"
-
+	"github.com/crowdflux/angel/app/DAL/repositories/step_repo"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_output"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
-type IWorkFlowSvc interface {
-	AddFLU(models.FeedLineUnit)
+type IStepConfigSvc interface {
+	GetCrowdsourcingStepConfig(stepId uuid.UUID) (models.CrowdsourcingConfig, error)
+	GetTransformationStepConfig(stepId uuid.UUID) (models.TransformationConfig, error)
+	GetBifurcationStepConfig(stepId uuid.UUID) (models.BifurcationConfig, error)
+	GetUnificationStepConfig(stepId uuid.UUID) (models.UnificationConfig, error)
+	GetAlgorithmStepConfig(stepId uuid.UUID) (models.AlgorithmConfig, error)
 }
 
-func newStd() IWorkFlowSvc {
-
-	fOut := flu_output.New()
-
-	completeHandler := func(flu models.FeedLineUnit) {
-		fmt.Println("on complete handler called", flu.ID)
-		fOut.AddToOutputQueue(flu)
+func NewStepConfigService() IStepConfigSvc {
+	return &stepConfigSvc{
+		stepRepo: step_repo.New(),
 	}
-
-	workFlowSvc := &workFlowSvc{}
-
-	workFlowSvc.OnComplete(completeHandler)
-
-	workFlowSvc.Start()
-	return workFlowSvc
 }
-
-var StdWorkFlowSvc = newStd()

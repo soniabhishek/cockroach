@@ -12,11 +12,9 @@ import (
 
 	"time"
 
-	"github.com/crowdflux/angel/app/services/work_flow_explorer_svc"
-	"github.com/crowdflux/angel/app/services/work_flow_io_svc"
-	"github.com/crowdflux/angel/app/services/work_flow_retriever_svc"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/crowdsourcing_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/manual_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc"
 	"github.com/itsjamie/gin-cors"
 	"github.com/newrelic/go-agent"
 )
@@ -71,13 +69,11 @@ func Build() {
 		crowdsourcing_step_svc.AddHttpTransport(api)
 		manual_step_svc.AddHttpTransport(api)
 		utils_api.AddHttpTransport(api)
-		work_flow_retriever_svc.AddHttpTransport(api)
-		work_flow_io_svc.AddHttpTransport(api)
 	}
 
 	authorized_header := r.Group("/api/v0", auther.AuthorizeHeader())
 	{
-		work_flow_explorer_svc.AddHttpTransport(authorized_header)
+		work_flow_svc.AddHttpTransport(authorized_header)
 	}
 
 	authorized := r.Group("/api/v0", auther.GinAuther())

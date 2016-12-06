@@ -63,6 +63,8 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 	plog.Info("FLu Monitor, flubundle count:", len(fluBundle))
 
 	mutex.Lock()
+	defer mutex.Unlock()
+
 	for _, flu := range fluBundle {
 		value, valuePresent := feedLinePipe[flu.ProjectId]
 		if valuePresent == false {
@@ -79,7 +81,7 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 		}
 		feedLinePipe[flu.ProjectId] = value
 	}
-	mutex.Unlock()
+
 	return nil
 }
 

@@ -49,7 +49,6 @@ func (pg *postgres_db) SelectOneJoin(holder interface{}, query string, args ...i
 
 		// Get the underlying val of pointer
 		v = reflect.Indirect(v)
-		fmt.Println(v)
 		// get column names in order according to sql query
 		columns, err := r.Columns()
 		if err != nil {

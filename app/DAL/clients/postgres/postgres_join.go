@@ -132,6 +132,7 @@ func (pg *postgres_db) SelectJoin(holder interface{}, query string, args ...inte
 		return err
 	}
 
+	//verify the type and get the underlying value of array
 	t, err := toSliceType(holder)
 	if err != nil {
 		return err
@@ -152,7 +153,7 @@ func (pg *postgres_db) SelectJoin(holder interface{}, query string, args ...inte
 		if err != nil {
 			return err
 		}
-
+		//This will append result to slice
 		sliceValue.Set(reflect.Append(sliceValue, v))
 	}
 	return nil
@@ -163,12 +164,12 @@ func toSliceType(i interface{}) (reflect.Type, error) {
 	if t.Kind() != reflect.Ptr {
 		// If it's a slice, return a more helpful error message
 		if t.Kind() == reflect.Slice {
-			return nil, fmt.Errorf("gorp: Cannot SELECT into a non-pointer slice: %v", t)
+			return nil, fmt.Errorf("gorp: Cannot Join into a non-pointer slice: %v", t)
 		}
-		return nil, nil
+		return nil, fmt.Errorf("Invalid Type for Join: %v", t)
 	}
 	if t = t.Elem(); t.Kind() != reflect.Slice {
-		return nil, nil
+		return nil, fmt.Errorf("Invalid Type for Join: %v", t)
 	}
 	return t.Elem(), nil
 }

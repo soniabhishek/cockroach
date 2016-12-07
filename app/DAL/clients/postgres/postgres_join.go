@@ -49,7 +49,7 @@ func (pg *postgres_db) SelectOneJoin(holder interface{}, query string, args ...i
 
 		// Get the underlying val of pointer
 		v = reflect.Indirect(v)
-
+		fmt.Println(v)
 		// get column names in order according to sql query
 		columns, err := r.Columns()
 		if err != nil {
@@ -122,4 +122,53 @@ func mapColumnsToInterfaces(inVal reflect.Value, columns []string) []interface{}
 		}
 	}
 	return rvalues
+}
+
+func (pg *postgres_db) SelectJoin(holder interface{}, query string, args ...interface{}) error {
+
+	//Db.query --> native sql drive's query method
+	r, err := pg.gorpDbMap.Db.Query(query, args...)
+	if err != nil {
+		return err
+	}
+
+	t, err := toSliceType(holder)
+	if err != nil {
+		return err
+	}
+	v := reflect.New(t).Elem()
+	sliceValue := reflect.Indirect(reflect.ValueOf(holder))
+
+	for r.Next() {
+
+		// get column names in order according to sql query
+		columns, err := r.Columns()
+		if err != nil {
+			return err
+		}
+
+		rvalues := mapColumnsToInterfaces(v, columns)
+		err = r.Scan(rvalues...)
+		if err != nil {
+			return err
+		}
+
+		sliceValue.Set(reflect.Append(sliceValue, v))
+	}
+	return nil
+}
+
+func toSliceType(i interface{}) (reflect.Type, error) {
+	t := reflect.TypeOf(i)
+	if t.Kind() != reflect.Ptr {
+		// If it's a slice, return a more helpful error message
+		if t.Kind() == reflect.Slice {
+			return nil, fmt.Errorf("gorp: Cannot SELECT into a non-pointer slice: %v", t)
+		}
+		return nil, nil
+	}
+	if t = t.Elem(); t.Kind() != reflect.Slice {
+		return nil, nil
+	}
+	return t.Elem(), nil
 }

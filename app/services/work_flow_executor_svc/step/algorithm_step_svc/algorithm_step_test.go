@@ -71,6 +71,8 @@ func (s *stepConfigSvcMock) GetUnificationStepConfig(stepId uuid.UUID) (config m
 func (s *stepConfigSvcMock) GetCrowdsourcingStepConfig(stepId uuid.UUID) (config models.CrowdsourcingConfig, err error) {
 	return
 }
+
+// WORKS ONLY 10% OF THE TIME DUE TO 10% SUCCESS LOGIC IN ABACUS
 func TestSuccessfulPrediction(t *testing.T) {
 
 	fluRepo := feed_line_repo.Mock()
@@ -130,7 +132,7 @@ func TestUnSuccessfulPrediction(t *testing.T) {
 	case fluNew = <-cs.OutQ.Receiver():
 		fluNew.ConfirmReceive()
 		assert.EqualValues(t, badFlu.ID, fluNew.ID)
-		assert.EqualValues(t, badFlu.Build, fluNew.Build)
+		assert.EqualValues(t, badFlu.Build.Merge(models.JsonF{"algo_result_success": false}), fluNew.Build)
 	case <-time.After(time.Duration(2) * time.Second):
 		assert.FailNow(t, "nothing came out of crowdsourcing queue")
 	}

@@ -137,10 +137,10 @@ func (s *stepConfigSvc) GetAlgorithmStepConfig(stepId uuid.UUID) (ac models.Algo
 
 	timeDelayStart, ok := step.Config[timeDelayStart]
 	if ok {
-		timeDelayStartInt, ok1 := timeDelayStart.(int)
+		timeDelayStartFloat, ok1 := timeDelayStart.(float64)
 
 		if ok1 {
-			ac.TimeDelayStart = timeDelayStartInt
+			ac.TimeDelayStart = timeDelayStartFloat
 		} else {
 			ac.TimeDelayStart = 0
 		}
@@ -150,9 +150,9 @@ func (s *stepConfigSvc) GetAlgorithmStepConfig(stepId uuid.UUID) (ac models.Algo
 
 	timeDelayStop, ok := step.Config[timeDelayStop]
 	if ok {
-		timeDelayStopInt, ok1 := timeDelayStop.(int)
+		timeDelayStopFloat, ok1 := timeDelayStop.(float64)
 		if ok1 {
-			ac.TimeDelayStop = timeDelayStopInt
+			ac.TimeDelayStop = timeDelayStopFloat
 		} else {
 			ac.TimeDelayStop = 0
 		}

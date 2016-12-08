@@ -20,7 +20,7 @@ func newStd() IWorkFlowSvc {
 		fOut.AddToOutputQueue(flu)
 	}
 
-	workFlowSvc := &workFlowSvc{}
+	workFlowSvc := &workFlowExecutorSvc{}
 
 	workFlowSvc.OnComplete(completeHandler)
 

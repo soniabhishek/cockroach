@@ -16,7 +16,7 @@ func TestWorkFlowSvc_AddFLU(t *testing.T) {
 
 	fluId := uuid.NewV4()
 
-	workFlowSvc := &workFlowSvc{}
+	workFlowSvc := &workFlowExecutorSvc{}
 
 	completeHandler := func(flu models.FeedLineUnit) {
 		fmt.Println("on complete handler called", flu)

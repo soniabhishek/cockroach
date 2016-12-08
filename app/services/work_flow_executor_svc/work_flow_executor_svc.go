@@ -12,18 +12,18 @@ import (
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/work_flow"
 )
 
-type workFlowSvc struct {
+type workFlowExecutorSvc struct {
 	work_flow.WorkFlow
 	complete  OnCompleteHandler
 	startOnce sync.Once
 }
 
-func (w *workFlowSvc) AddFLU(flu models.FeedLineUnit) {
+func (w *workFlowExecutorSvc) AddFLU(flu models.FeedLineUnit) {
 	counter.Print(feed_line.FLU{FeedLineUnit: flu}, "workflowsvc")
 	w.InQ.Push(feed_line.FLU{FeedLineUnit: flu})
 }
 
-func (w *workFlowSvc) Start() {
+func (w *workFlowExecutorSvc) Start() {
 
 	//Executes only once, even if Start() is called multiple times
 	w.startOnce.Do(func() {
@@ -40,11 +40,11 @@ func (w *workFlowSvc) Start() {
 
 type OnCompleteHandler func(models.FeedLineUnit)
 
-func (w *workFlowSvc) OnComplete(f OnCompleteHandler) {
+func (w *workFlowExecutorSvc) OnComplete(f OnCompleteHandler) {
 	w.complete = f
 }
 
-func startWorkflowSvc(w *workFlowSvc) {
+func startWorkflowSvc(w *workFlowExecutorSvc) {
 	go func() {
 		for flu := range w.OutQ.Receiver() {
 			w.complete(flu.FeedLineUnit)
@@ -56,7 +56,7 @@ func startWorkflowSvc(w *workFlowSvc) {
 	}()
 }
 
-func startWorkflowSvcNLog(w *workFlowSvc) {
+func startWorkflowSvcNLog(w *workFlowExecutorSvc) {
 	go func() {
 		for flu := range w.OutQ.Receiver() {
 			fmt.Println(flu.ID)

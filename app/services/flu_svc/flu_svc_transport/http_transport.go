@@ -35,6 +35,7 @@ type fluPostResponse struct {
 	Tag         string    `json:"tag"`
 }
 
+//Inserts into mongo
 func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 
 	return func(c *gin.Context) {

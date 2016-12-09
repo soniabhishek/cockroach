@@ -106,8 +106,3 @@ func ShowErrorResponseOverHttp(c *gin.Context, err error) {
 		"success": false,
 	})
 }
-
-func ShowAuthenticationErrorOverHttp(c *gin.Context, msg string) {
-	c.Header("authenication error", msg)
-	c.AbortWithStatus(http.StatusUnauthorized)
-}

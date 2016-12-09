@@ -13,7 +13,7 @@ func GinAuther() gin.HandlerFunc {
 
 		projectId, err := uuid.FromString(c.Param("projectId"))
 		if utilities.IsValidError(err) {
-			validator.ShowAuthenticationErrorOverHttp(c, "project not valid")
+			ShowAuthenticationErrorOverHttp(c, "project not valid")
 			return
 		}
 
@@ -21,19 +21,19 @@ func GinAuther() gin.HandlerFunc {
 		client, err := clientRepo.GetByProjectId(projectId)
 		// Get Client ID
 		if utilities.IsValidError(err) {
-			validator.ShowAuthenticationErrorOverHttp(c, "project not valid")
+			ShowAuthenticationErrorOverHttp(c, "project not valid")
 			return
 		}
 
 		if client.ClientSecretUuid == uuid.Nil {
-			validator.ShowAuthenticationErrorOverHttp(c, "project not valid")
+			ShowAuthenticationErrorOverHttp(c, "project not valid")
 			return
 		}
 
 		// Get Client Secret
 		clientKey := c.Request.Header.Get("x-client-key")
 		if clientKey == "" {
-			validator.ShowAuthenticationErrorOverHttp(c, "project not valid")
+			ShowAuthenticationErrorOverHttp(c, "project not valid")
 			return
 
 		}
@@ -45,7 +45,7 @@ func GinAuther() gin.HandlerFunc {
 			c.Set("show_old", client.Options["show_old"])
 
 		} else {
-			validator.ShowAuthenticationErrorOverHttp(c, "unauthorized")
+			ShowAuthenticationErrorOverHttp(c, "unauthorized")
 		}
 
 	}

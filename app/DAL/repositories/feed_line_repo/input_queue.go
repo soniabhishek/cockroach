@@ -86,23 +86,21 @@ func (i *inputQueue) Get(id uuid.UUID) (flu models.FeedLineUnit, err error) {
 	return flu, err
 }
 
-func (i *inputQueue) GetQueuedRaw() ([]feedLineInputModel, error) {
+func (i *inputQueue) GetQueuedRaw() (flus []models.FeedLineUnit, err error) {
 
-	var flus []feedLineInputModel
-	err := i.mgo.C("feedline_input").
+	err = i.mgo.C("feedline_input").
 		Find(bson.M{"status": queued}).
 		All(&flus)
-	return flus, err
+	return
 }
 
-func (i *inputQueue) GetQueued() ([]models.FeedLineUnit, error) {
+func (i *inputQueue) GetQueued() (flus []models.FeedLineUnit, err error) {
 
-	var flus []models.FeedLineUnit
-	err := i.mgo.C("feedline_input").
+	err = i.mgo.C("feedline_input").
 		Find(bson.M{"status": queued}).
 		All(&flus)
 
-	return flus, err
+	return
 }
 
 func (i *inputQueue) MarkFinished(flus []models.FeedLineUnit) error {

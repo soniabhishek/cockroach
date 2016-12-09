@@ -4,6 +4,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/clients_repo"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/utilities"
+	"github.com/crowdflux/angel/utilities/clients/validator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,8 +13,7 @@ func GinAuther() gin.HandlerFunc {
 
 		projectId, err := uuid.FromString(c.Param("projectId"))
 		if utilities.IsValidError(err) {
-			c.Header("authenication error", "project not valid")
-			c.AbortWithStatus(401)
+			validator.ShowAuthenticationErrorOverHttp(c, "project not valid")
 			return
 		}
 
@@ -21,22 +21,19 @@ func GinAuther() gin.HandlerFunc {
 		client, err := clientRepo.GetByProjectId(projectId)
 		// Get Client ID
 		if utilities.IsValidError(err) {
-			c.Header("authenication error", "project not valid")
-			c.AbortWithStatus(401)
+			validator.ShowAuthenticationErrorOverHttp(c, "project not valid")
 			return
 		}
 
 		if client.ClientSecretUuid == uuid.Nil {
-			c.Header("authenication error", "project not valid")
-			c.AbortWithStatus(401)
+			validator.ShowAuthenticationErrorOverHttp(c, "project not valid")
 			return
 		}
 
 		// Get Client Secret
 		clientKey := c.Request.Header.Get("x-client-key")
 		if clientKey == "" {
-			c.Header("authenication error", "x-client-key required")
-			c.AbortWithStatus(401)
+			validator.ShowAuthenticationErrorOverHttp(c, "project not valid")
 			return
 
 		}
@@ -48,8 +45,7 @@ func GinAuther() gin.HandlerFunc {
 			c.Set("show_old", client.Options["show_old"])
 
 		} else {
-			c.Header("authenication error", "unauthorized")
-			c.AbortWithStatus(401)
+			validator.ShowAuthenticationErrorOverHttp(c, "unauthorized")
 		}
 
 	}

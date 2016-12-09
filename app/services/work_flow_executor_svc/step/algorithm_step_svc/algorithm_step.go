@@ -53,9 +53,12 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 		timeDiff = 0
 	}
 
-	time.Sleep(time.Duration(int64((tStep.TimeDelayStart+timeDiff*rand.Float64())*60)) * time.Second)
-	t.finishFlu(flu)
-	flu.ConfirmReceive()
+	go func() {
+		time.Sleep(time.Duration(int64((tStep.TimeDelayStart+timeDiff*rand.Float64())*60)) * time.Second)
+		t.finishFlu(flu)
+		flu.ConfirmReceive()
+	}()
+
 }
 
 func (t *algorithmStep) finishFlu(flu feed_line.FLU) bool {

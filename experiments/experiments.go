@@ -14,7 +14,7 @@ import (
 
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/manual_step_svc"
 	"github.com/crowdflux/angel/experiments/util"
 	"github.com/crowdflux/angel/utilities"
 )

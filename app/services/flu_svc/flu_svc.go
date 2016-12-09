@@ -8,14 +8,14 @@ import (
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
-	"github.com/crowdflux/angel/app/services/work_flow_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc"
 )
 
 type fluService struct {
 	fluRepo      feed_line_repo.IFluRepo
 	fluValidator flu_validator.IFluValidatorService
 	projectsRepo projects_repo.IProjectsRepo
-	workFlowSvc  work_flow_svc.IWorkFlowSvc
+	workFlowSvc  work_flow_executor_svc.IWorkFlowSvc
 }
 
 var _ IFluService = &fluService{}

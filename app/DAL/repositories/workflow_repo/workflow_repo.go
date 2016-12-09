@@ -59,16 +59,10 @@ func (wr *workflow_repo) GetWorkFlowByProjectIdAndTag(projectId uuid.UUID, tag s
 
 func (wr *workflow_repo) GetWorkFlowsByProjectId(projectId uuid.UUID) (workFlows []models.WorkFlow, err error) {
 	_, err = wr.db.Select(&workFlows, `select * from work_flow where project_id = $1`, projectId.String())
-	if err == sql.ErrNoRows || len(workFlows) == 0 {
-		err = ErrWorkflowNotFound
-	}
 	return
 }
 
 func (i *workflow_repo) IfIdExist(id uuid.UUID) (ifExist bool, err error) {
 	err = i.db.SelectOne(&ifExist, `select exists(select 1 from work_flow where id=$1)`, id)
-	if err != nil {
-		return
-	}
 	return
 }

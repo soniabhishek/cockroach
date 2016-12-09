@@ -7,7 +7,7 @@ import (
 )
 
 type IUserRepo interface {
-	Add(models.User) error
+	Add(*models.User) error
 	Update(models.User) error
 	Delete(uuid.UUID) error
 	IfIdExist(uuid.UUID) (bool, error)

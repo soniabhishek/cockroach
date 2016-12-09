@@ -10,7 +10,7 @@ import (
 
 type IProjectsRepo interface {
 	GetById(uuid.UUID) (models.Project, error)
-	Add(models.Project) error
+	Add(*models.Project) error
 	Update(models.Project) error
 	Delete(id uuid.UUID) error
 	IfIdExist(uuid.UUID) (bool, error)
@@ -41,7 +41,7 @@ func (i *inMemProjectRepo) GetByClientId(id uuid.UUID) (pr []models.Project, err
 	return
 }
 
-func (i *inMemProjectRepo) Add(models.Project) error {
+func (i *inMemProjectRepo) Add(*models.Project) error {
 	return nil
 }
 func (i *inMemProjectRepo) Update(models.Project) error {

@@ -36,6 +36,7 @@ type Client struct {
 	ID               uuid.UUID   `db:"id" json:"id" bson:"_id"`
 	UserId           uuid.UUID   `db:"user_id" json:"user_id" bson:"user_id"`
 	ClientSecretUuid uuid.UUID   `db:"client_secret_uuid" json:"client_secret_uuid" bson:"client_secret_uuid"`
+	Name             string      `db:"name" json:"name" bson:"name"`
 	CreatedAt        pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt        pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 	Options          JsonF       `db:"options" json:"options" bson:"options"`

@@ -26,27 +26,18 @@ func (s *Service) CreateClient(cl *utilModels.Client) (status bool, err error) {
 	fmt.Println(cl)
 	/**-------- Creating User ---------**/
 	userRepo := user_repo.New()
-	userId := uuid.NewV4()
-	err = userRepo.Add(models.User{
-		ID:                      userId,
-		Username:                cl.UserName,
-		Password:                sql.NullString{cl.Password, true},
-		CreatedAt:               pq.NullTime{time.Now(), true},
-		UpdatedAt:               pq.NullTime{time.Now(), true},
-		Gender:                  sql.NullString{string(cl.Gender), true},
-		FirstName:               sql.NullString{string(cl.FirstName), true},
-		LastName:                sql.NullString{string(cl.LastName), true},
-		Locale:                  sql.NullString{constants.Empty, true},
-		AvatarUrl:               sql.NullString{constants.Empty, true},
-		IncorrectQuestionsCount: 0,
-		CorrectQuestionsCount:   0,
-		PendingQuestionsCount:   0,
-		CoinsCount:              0,
-		CurrentPower:            0,
-		CouponRedeemedCount:     0,
-		Phone:                   sql.NullString{string(cl.Phone), true},
-		TotalCoinsCount:         0,
-	})
+	user := models.User{
+		Username:  cl.UserName,
+		Password:  sql.NullString{cl.Password, true},
+		Gender:    sql.NullString{string(cl.Gender), true},
+		FirstName: sql.NullString{string(cl.FirstName), true},
+		LastName:  sql.NullString{string(cl.LastName), true},
+		Locale:    sql.NullString{constants.Empty, true},
+		AvatarUrl: sql.NullString{constants.Empty, true},
+		Phone:     sql.NullString{string(cl.Phone), true},
+	}
+	err = userRepo.Add(&user)
+	userId := user.ID
 	if err != nil {
 		return false, err
 	}
@@ -54,15 +45,13 @@ func (s *Service) CreateClient(cl *utilModels.Client) (status bool, err error) {
 
 	/**-------- Creating Client ---------**/
 	clientRepo := clients_repo.New()
-	clientId, clientSecretId := uuid.NewV4(), uuid.NewV4()
-	err = clientRepo.Add(models.Client{
-		ID:               clientId,
-		UserId:           userId,
-		ClientSecretUuid: clientSecretId,
-		CreatedAt:        pq.NullTime{time.Now(), true},
-		UpdatedAt:        pq.NullTime{time.Now(), true},
-		Options:          models.JsonF{},
-	})
+	client := models.Client{
+		UserId:  userId,
+		Options: models.JsonF{},
+	}
+	err = clientRepo.Add(&client)
+	clientId := client.ID
+	clientSecretId := client.ClientSecretUuid
 	if err != nil {
 		return false, err
 	}
@@ -71,22 +60,18 @@ func (s *Service) CreateClient(cl *utilModels.Client) (status bool, err error) {
 	plog.Info("Created Client. ClientId [" + clientId.String() + "] ClientSecretId [" + clientSecretId.String() + "]")
 
 	/**-------- Creating Project ---------**/
-	projectId := uuid.NewV4()
 	projectRepo := projects_repo.New()
-	err = projectRepo.Add(models.Project{
-		ID:        projectId,
+	project := models.Project{
 		Label:     cl.ProjectLabel,
 		Name:      cl.ProjectName,
 		ClientId:  clientId,
 		CreatorId: userId,
-		StartedAt: pq.NullTime{time.Now(), true},
-		EndedAt:   pq.NullTime{time.Now(), false},
-		CreatedAt: pq.NullTime{time.Now(), true},
-		UpdatedAt: pq.NullTime{time.Now(), true},
-	})
+	}
+	err = projectRepo.Add(&project)
 	if err != nil {
 		return false, err
 	}
+	projectId := project.ID
 	cl.ProjectId = projectId
 	plog.Info("Created Project. ProjectId [" + projectId.String() + "]")
 

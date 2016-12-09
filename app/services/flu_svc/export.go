@@ -8,7 +8,7 @@ import (
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
-	"github.com/crowdflux/angel/app/services/work_flow_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc"
 	"strconv"
 	"time"
 )
@@ -18,7 +18,7 @@ func New() IFluService {
 		fluRepo:      feed_line_repo.New(),
 		fluValidator: flu_validator.New(),
 		projectsRepo: projects_repo.New(),
-		workFlowSvc:  work_flow_svc.StdWorkFlowSvc,
+		workFlowSvc:  work_flow_executor_svc.StdWorkFlowSvc,
 	}
 }
 

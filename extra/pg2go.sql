@@ -49,8 +49,8 @@ CREATE FUNCTION type_pg2go(typ text, nullable boolean) RETURNS text AS $$
         WHEN 'timestamp without time zone' THEN 'pq.NullTime'
 
         WHEN 'uuid'   THEN 'uuid.UUID'
-        WHEN 'json'   THEN 'JsonFake'
-        WHEN 'jsonb'  THEN 'JsonFake'
+        WHEN 'json'   THEN 'JsonF'
+        WHEN 'jsonb'  THEN 'JsonF'
 
       ELSE 'NEED_GO_TYPE_FOR_NULLABLE_' || replace(typ, ' ', '_')
       END
@@ -64,7 +64,7 @@ CREATE FUNCTION type_pg2go(typ text, nullable boolean) RETURNS text AS $$
         WHEN 'real'             THEN 'float32'
         WHEN 'smallint'         THEN 'int'
 
-        WHEN 'bytea'              THEN '[]byte'
+        WHEN 'byte'              THEN '[]byte'
         WHEN 'character varying'  THEN 'string'
         WHEN 'character'          THEN 'string'
         WHEN 'text'               THEN 'string'

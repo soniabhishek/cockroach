@@ -46,14 +46,18 @@ const (
 
 	DOWNLOAD_PATH = configKey("workflow_step.manual_download_path")
 	MEGATRON_API  = configKey("megatron.base.api")
-
-	PLOG_LEVEL = configKey("plog.log_level")
+	ABACUS_API    = configKey("abacus.base.api")
+	PLOG_LEVEL    = configKey("plog.log_level")
+	PLOG_TYPE     = configKey("plog.log_type")
+	LUIGI_API     = configKey("luigi.base.api")
 
 	NEW_RELIC_KEY = configKey("newrelic.key")
 
 	RABBITMQ_USERNAME = configKey("rabbitmq.username")
 	RABBITMQ_PASSWORD = configKey("rabbitmq.password")
 	RABBITMQ_HOST     = configKey("rabbitmq.host")
+
+	JWT_SECRET_KEY = configKey("jwt.secret")
 )
 
 // Gets the value for given key from the config file.

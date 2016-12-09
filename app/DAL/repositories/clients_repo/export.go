@@ -8,9 +8,11 @@ import (
 
 type IClientsRepo interface {
 	GetByProjectId(projectId uuid.UUID) (models.Client, error)
-	Add(models.Client) error
+	Add(*models.Client) error
 	Update(models.Client) error
 	Delete(id uuid.UUID) error
+	GetAllClients() ([]models.Client, error)
+	IfIdExist(uuid.UUID) (bool, error)
 }
 
 func New() IClientsRepo {

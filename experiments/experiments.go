@@ -14,7 +14,7 @@ import (
 
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/manual_step_svc"
 	"github.com/crowdflux/angel/experiments/util"
 	"github.com/crowdflux/angel/utilities"
 )
@@ -66,7 +66,7 @@ func mainHit() {
 	plog.Info("Sent file for upload: ", filename)
 }
 
-func main() {
+func main12() {
 
 	//url := "http://localhost:8080/JServer/HelloServlet"
 	url := "https://catalogadmin-staging.paytm.com/v1/tp/product/qc-status"

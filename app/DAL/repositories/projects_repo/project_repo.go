@@ -10,7 +10,9 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/queries"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/lib/pq"
 	"gopkg.in/mgo.v2"
+	"time"
 )
 
 const projectTable = "projects"
@@ -47,6 +49,11 @@ func (r *projectsRepo) GetById(id uuid.UUID) (m models.Project, err error) {
 	return
 }
 
+func (r *projectsRepo) GetByClientId(id uuid.UUID) (m []models.Project, err error) {
+	_, err = r.pg.Select(&m, `select * from projects where client_id = $1`, id.String())
+	return
+}
+
 func (r *projectsRepo) saveMgo(m models.Project) error {
 	return r.mgo.C(projectTable).Insert(&m)
 }
@@ -62,8 +69,13 @@ func transformErr(err error) error {
 	return err
 }
 
-func (i *projectsRepo) Add(p models.Project) error {
-	return i.pg.Insert(&p)
+func (i *projectsRepo) Add(p *models.Project) error {
+	p.ID = uuid.NewV4()
+	p.UpdatedAt = pq.NullTime{time.Now(), true}
+	p.CreatedAt = p.UpdatedAt
+	p.StartedAt = p.UpdatedAt
+	p.EndedAt = pq.NullTime{time.Time{}, false}
+	return i.pg.Insert(p)
 }
 func (i *projectsRepo) Update(p models.Project) error {
 	_, err := i.pg.Update(&p)
@@ -79,4 +91,11 @@ func (i *projectsRepo) Delete(id uuid.UUID) error {
 		err = errors.New("Could not delete Client with ID [" + id.String() + "]")
 	}
 	return err
+}
+func (i *projectsRepo) IfIdExist(id uuid.UUID) (ifExist bool, err error) {
+	err = i.pg.SelectOne(&ifExist, `select exists(select 1 from projects where id=$1)`, id)
+	if err != nil {
+		return
+	}
+	return
 }

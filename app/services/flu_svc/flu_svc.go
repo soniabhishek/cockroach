@@ -6,22 +6,24 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
-	"github.com/crowdflux/angel/app/services/work_flow_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc"
 )
 
 type fluService struct {
 	fluRepo      feed_line_repo.IFluRepo
 	fluValidator flu_validator.IFluValidatorService
 	projectsRepo projects_repo.IProjectsRepo
-	workFlowSvc  work_flow_svc.IWorkFlowSvc
+	workFlowSvc  work_flow_executor_svc.IWorkFlowSvc
 }
 
 var _ IFluService = &fluService{}
 
 func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 
-	_, err := i.fluValidator.Validate(*flu)
+	flu.Build = flu.Data.Copy()
+	_, err := i.fluValidator.Validate(flu)
 	if err != nil {
 		return err
 	}
@@ -35,7 +37,7 @@ func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 	id, err := fin.Add(*flu)
 	flu.ID = id
 	if err != nil && err == feed_line_repo.ErrDuplicateReferenceId {
-		err = ErrDuplicateReferenceId
+		err = flu_errors.ErrDuplicateReferenceId
 	}
 
 	return err
@@ -55,6 +57,13 @@ func (i *fluService) SyncInputFeedLine() error {
 
 	if len(flus) > 0 {
 
+		for i, _ := range flus {
+
+			flus[i].MasterId = flus[i].ID
+			flus[i].IsActive = true
+			flus[i].IsMaster = true
+		}
+
 		err = i.fluRepo.BulkInsert(flus)
 
 		if err != nil {
@@ -66,6 +75,7 @@ func (i *fluService) SyncInputFeedLine() error {
 		go func() {
 
 			for _, flu := range flus {
+
 				i.workFlowSvc.AddFLU(flu)
 			}
 		}()
@@ -87,7 +97,7 @@ func (i *fluService) GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, erro
 
 	flu, err := i.fluRepo.GetById(fluId)
 	if err != nil && err == feed_line_repo.ErrFLUNotFoundInInputQueue {
-		err = ErrFluNotFound
+		err = flu_errors.ErrFluNotFound
 	}
 	return flu, err
 }

@@ -16,6 +16,7 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/lib/pq"
+	"strings"
 )
 
 type fluRepo struct {
@@ -174,7 +175,11 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 	for i, flu := range updatableRows {
 
 		idVal, _ := flu.ID.Value()
-		buildVal, _ := flu.Build.Value()
+		buildVal := flu.Build.String()
+
+		//Replace ' with '' for psql
+		buildVal = strings.Replace(buildVal, "'", "''", -1)
+
 		updatedAtVal := pq.NullTime{time.Now(), true}.Time.Format(time.RFC3339)
 
 		if i > 0 {
@@ -187,9 +192,8 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 	query += `) as tmp(id, build, updated_at)
 		where tmp.id = fl.id;`
 
-	if config.IsDevelopment() || config.IsStaging() {
-		plog.Info("Running Q: ", query)
-	}
+	plog.Info("Running Q: ", query)
+
 	res, err := e.Db.Exec(query)
 	if err != nil {
 		return updatableRows, err
@@ -241,4 +245,32 @@ func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.
 	}
 
 	return updatableRows, nil
+}
+
+func (e *fluRepo) GetFlusNotSent(StepId uuid.UUID) (flus []models.FeedLineUnit, err error) {
+
+	//	_, err = e.Db.Select(&flus, `SELECT fl.*
+	//FROM feed_line_log fll
+	//INNER JOIN feed_line fl on fl.id = fll.flu_id
+	//WHERE fll.step_id =$1
+	//AND fll.meta_data->>'HttpStatusCode'!='200'
+	//and fll.created_at > date_trunc('day',now()-interval '30 days')
+	//AND fll.flu_id not in (
+	//  SELECT fll.flu_id
+	//  FROM feed_line_log fll
+	//  WHERE step_id = $2
+	//        AND created_at > date_trunc('day',now()-interval '30 days')
+	//        AND (fll.meta_data ->> 'HttpStatusCode' = '200') AND fll.message = 'SUCCESS'
+	//);`, StepId, StepId)
+
+	_, err = e.Db.Select(&flus, `
+SELECT fl.*
+FROM feed_line fl LEFT OUTER JOIN
+  feed_line_log fll on (fl.id = fll.flu_id
+    AND fll.step_id = $1
+    AND fll.meta_data->>'HttpStatusCode'='200')
+  WHERE fl.step_id = $2
+  AND fll.id is NULL;`, StepId, StepId)
+
+	return
 }

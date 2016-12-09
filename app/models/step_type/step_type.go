@@ -18,10 +18,13 @@ const (
 	Manual
 	Gateway
 	Error
+	StartStep
+	EmptyStep
+	Test
 )
 
-func (s StepType) Value() (driver.Value, error) {
-	return uint(s), nil
+func (s *StepType) Value() (driver.Value, error) {
+	return uint(*s), nil
 }
 func (s *StepType) Scan(src interface{}) error {
 
@@ -51,10 +54,13 @@ var stepTypeNames = map[StepType]string{
 	Manual:           "Manual",
 	Gateway:          "Gateway",
 	Error:            "Error",
+	StartStep:        "StartStep",
+	EmptyStep:        "EmptyStep",
+	Test:             "Test",
 }
 
-func (s *StepType) String() string {
-	if name, ok := stepTypeNames[*s]; ok {
+func (s StepType) String() string {
+	if name, ok := stepTypeNames[s]; ok {
 		return name
 	}
 	return "NoName"

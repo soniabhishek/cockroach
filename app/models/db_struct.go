@@ -36,6 +36,7 @@ type Client struct {
 	ID               uuid.UUID   `db:"id" json:"id" bson:"_id"`
 	UserId           uuid.UUID   `db:"user_id" json:"user_id" bson:"user_id"`
 	ClientSecretUuid uuid.UUID   `db:"client_secret_uuid" json:"client_secret_uuid" bson:"client_secret_uuid"`
+	Name             string      `db:"name" json:"name" bson:"name"`
 	CreatedAt        pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt        pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 	Options          JsonF       `db:"options" json:"options" bson:"options"`
@@ -142,17 +143,21 @@ type FeedLineUnit struct {
 	StepId      uuid.UUID   `db:"step_id" json:"step_id" bson:"step_id"`
 	Build       JsonF       `db:"build" json:"build" bson:"build"`
 	ProjectId   uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
+	MasterId    uuid.UUID   `db:"master_id" json:"master_id" bson:"master_id"`
+	IsActive    bool        `db:"is_active" json:"is_active" bson:"is_active"`
+	IsMaster    bool        `db:"is_master" json:"is_master" bson:"is_master"`
 }
 
 type FeedLineLog struct {
-	ID        int            `db:"id" json:"id" bson:"_id"`
-	FluId     uuid.UUID      `db:"flu_id" json:"flu_id" bson:"flu_id"`
-	Message   sql.NullString `db:"message" json:"message" bson:"message"`
-	MetaData  JsonF          `db:"meta_data" json:"meta_data" bson:"meta_data"`
-	Event     int            `db:"event" json:"event" bson:"event"`
-	StepType  sql.NullInt64  `db:"step_type" json:"step_type" bson:"step_type"`
-	StepId    uuid.UUID      `db:"step_id" json:"step_id" bson:"step_id"`
-	CreatedAt pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
+	ID          int            `db:"id" json:"id" bson:"_id"`
+	FluId       uuid.UUID      `db:"flu_id" json:"flu_id" bson:"flu_id"`
+	Message     sql.NullString `db:"message" json:"message" bson:"message"`
+	MetaData    JsonF          `db:"meta_data" json:"meta_data" bson:"meta_data"`
+	Event       int            `db:"event" json:"event" bson:"event"`
+	StepType    sql.NullInt64  `db:"step_type" json:"step_type" bson:"step_type"`
+	StepId      uuid.UUID      `db:"step_id" json:"step_id" bson:"step_id"`
+	CreatedAt   pq.NullTime    `db:"created_at" json:"created_at" bson:"created_at"`
+	MasterFluId uuid.UUID      `db:"master_flu_id" json:"master_flu_id" bson:"master_flu_id"`
 }
 
 type Feedback struct {
@@ -257,6 +262,7 @@ type MacroTask struct {
 	UpdatedAt pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 	ProjectId uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
 	CreatorId uuid.UUID   `db:"creator_id" json:"creator_id" bson:"creator_id"`
+	IsDeleted bool        `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
 }
 
 type MicroTaskQuestionAssociator struct {
@@ -402,6 +408,7 @@ type Project struct {
 	CreatorId uuid.UUID   `db:"creator_id" json:"creator_id" bson:"creator_id"`
 	StartedAt pq.NullTime `db:"started_at" json:"started_at" bson:"started_at"`
 	EndedAt   pq.NullTime `db:"ended_at" json:"ended_at" bson:"ended_at"`
+	IsDeleted bool        `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
 	CreatedAt pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt pq.NullTime `db:"updated_at" json:"updated_at" bson:"updated_at"`
 }
@@ -483,8 +490,10 @@ type Route struct {
 	LogicGateId uuid.UUID    `db:"logic_gate_id" json:"logic_gate_id" bson:"logic_gate_id"`
 	NextStepId  uuid.UUID    `db:"next_step_id" json:"next_step_id" bson:"next_step_id"`
 	IsDeleted   sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
+	Label       string       `db:"label" json:"label" bson:"label"`
 	CreatedAt   pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt   pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	Config      JsonF        `db:"config" json:"config" bson:"config"`
 }
 
 type Step struct {
@@ -495,6 +504,8 @@ type Step struct {
 	CreatedAt  pq.NullTime        `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt  pq.NullTime        `db:"updated_at" json:"updated_at" bson:"updated_at"`
 	IsStart    bool               `db:"is_start" json:"is_start" bson:"is_start"`
+	Label      string             `db:"label" json:"label" bson:"label"`
+	Config     JsonF              `db:"config" json:"config" bson:"config"`
 }
 
 type StepTypes struct {
@@ -585,4 +596,13 @@ type WorkFlow struct {
 	IsDeleted sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
 	CreatedAt pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
 	UpdatedAt pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	Label     string       `db:"label" json:"label" bson:"label"`
+}
+
+type WorkFlowTagAssociator struct {
+	ID         int         `db:"id" json:"id" bson:"_id"`
+	TagName    string      `db:"tag_name" json:"tag_name" bson:"tag_name"`
+	WorkFlowId uuid.UUID   `db:"work_flow_id" json:"work_flow_id" bson:"work_flow_id"`
+	ProjectId  uuid.UUID   `db:"project_id" json:"project_id" bson:"project_id"`
+	CreatedAt  pq.NullTime `db:"created_at" json:"created_at" bson:"created_at"`
 }

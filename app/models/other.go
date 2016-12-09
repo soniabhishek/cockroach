@@ -47,3 +47,18 @@ type RouteWithLogicGate struct {
 	Route
 	LogicGate LogicGate
 }
+
+type WorkflowContainer struct {
+	WorkFlow
+	Steps  []Step                  `json:"steps"`
+	Routes []Route                 `json:"routes"`
+	Tags   []WorkFlowTagAssociator `json:"tags"`
+}
+
+type WorkFlowCloneModel struct {
+	ClientId   uuid.UUID               `json:"client_id"`
+	ProjectId  uuid.UUID               `json:"project_id"`
+	WorkFlowId uuid.UUID               `json:"workFlow_id"`
+	Label      string                  `json:"label"`
+	Tags       []WorkFlowTagAssociator `json:"tags"`
+}

@@ -35,7 +35,6 @@ func (pg *postgres_db) SelectOneJoin(holder interface{}, query string, args ...i
 	if err != nil {
 		return err
 	}
-
 	//check if any row is present
 	if r.Next() {
 

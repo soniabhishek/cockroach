@@ -1,21 +1,20 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/crowdflux/angel/app/api/auther"
 	"github.com/crowdflux/angel/app/api/handlers"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_svc_transport"
-	"github.com/crowdflux/angel/app/services/image_svc1"
 	"github.com/crowdflux/angel/utilities/clients/api"
 	"github.com/gin-gonic/gin"
 
 	"time"
 
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/crowdsourcing_step_svc"
-	"github.com/crowdflux/angel/app/services/work_flow_svc/step/manual_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/crowdsourcing_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/manual_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc"
 	"github.com/itsjamie/gin-cors"
 	"github.com/newrelic/go-agent"
 )
@@ -58,14 +57,12 @@ func Build() {
 		r.Use(NewRelicMiddleware(newrelicApp))
 	}
 
-	fmt.Println(config.DOWNLOAD_PATH.Get())
 	r.StaticFS("/downloadedfiles", http.Dir(config.DOWNLOAD_PATH.Get()))
 
 	//Api prefix
-
 	api := r.Group("/api/v0")
 	{
-
+		api.GET("", func(c *gin.Context) {})
 		api.POST("/bulkdownloadimages", handlers.BulkDownloadImages)
 		api.POST("/bulkdownloadimagesfromcsv", handlers.BulkDownloadedImagesFromCSV)
 
@@ -74,13 +71,15 @@ func Build() {
 		utils_api.AddHttpTransport(api)
 	}
 
+	authorized_header := r.Group("/api/v0", auther.AuthorizeHeader())
+	{
+		work_flow_svc.AddHttpTransport(authorized_header)
+	}
+
 	authorized := r.Group("/api/v0", auther.GinAuther())
 	{
 		flu_svc_transport.AddHttpTransport(authorized)
 	}
 
-	var _ image_svc1.IImageService
-
 	r.Run(":8999") // listen and serve on 127.0.0.1:8999
-
 }

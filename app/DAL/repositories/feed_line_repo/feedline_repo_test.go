@@ -46,10 +46,10 @@ func TestBulkFluBuildUpdate(t *testing.T) {
 	v2 := uuid.NewV4()
 	v3 := uuid.NewV4()
 	v4 := uuid.NewV4()
-	flus = append(flus, models.FeedLineUnit{ID: v1, Build: models.JsonF{"1": "One"}, ProjectId: projectId, StepId: step.ID})
-	flus = append(flus, models.FeedLineUnit{ID: v2, Build: models.JsonF{"2": "Two"}, ProjectId: projectId, StepId: step.ID})
-	flus = append(flus, models.FeedLineUnit{ID: v3, Build: models.JsonF{"3": "Three"}, ProjectId: projectId, StepId: step.ID})
-	flus = append(flus, models.FeedLineUnit{ID: v4, Build: models.JsonF{"4": "Four"}, ProjectId: projectId, StepId: step.ID})
+	flus = append(flus, models.FeedLineUnit{ID: v1, Build: models.JsonF{"1": "One"}, ProjectId: projectId, StepId: step.ID, MasterId: v1})
+	flus = append(flus, models.FeedLineUnit{ID: v2, Build: models.JsonF{"2": "Two"}, ProjectId: projectId, StepId: step.ID, MasterId: v2})
+	flus = append(flus, models.FeedLineUnit{ID: v3, Build: models.JsonF{"3": "Three"}, ProjectId: projectId, StepId: step.ID, MasterId: v3})
+	flus = append(flus, models.FeedLineUnit{ID: v4, Build: models.JsonF{"4": "Four"}, ProjectId: projectId, StepId: step.ID, MasterId: v4})
 
 	flRepo := fluRepo{
 		Db:       postgres.GetPostgresClient(),

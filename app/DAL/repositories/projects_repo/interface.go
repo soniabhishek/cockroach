@@ -10,9 +10,11 @@ import (
 
 type IProjectsRepo interface {
 	GetById(uuid.UUID) (models.Project, error)
-	Add(models.Project) error
+	Add(*models.Project) error
 	Update(models.Project) error
 	Delete(id uuid.UUID) error
+	IfIdExist(uuid.UUID) (bool, error)
+	GetByClientId(uuid.UUID) ([]models.Project, error)
 }
 
 //=============================================================================================//
@@ -35,7 +37,11 @@ func (i *inMemProjectRepo) GetById(id uuid.UUID) (pr models.Project, err error) 
 	return pr, nil
 }
 
-func (i *inMemProjectRepo) Add(models.Project) error {
+func (i *inMemProjectRepo) GetByClientId(id uuid.UUID) (pr []models.Project, err error) {
+	return
+}
+
+func (i *inMemProjectRepo) Add(*models.Project) error {
 	return nil
 }
 func (i *inMemProjectRepo) Update(models.Project) error {
@@ -43,6 +49,9 @@ func (i *inMemProjectRepo) Update(models.Project) error {
 }
 func (i *inMemProjectRepo) Delete(uuid.UUID) error {
 	return nil
+}
+func (i *inMemProjectRepo) IfIdExist(uuid.UUID) (bool, error) {
+	return false, nil
 }
 
 func (i *inMemProjectRepo) Save(pr models.Project) error {

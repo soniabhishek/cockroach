@@ -4,7 +4,6 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/clients_repo"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/utilities"
-	"github.com/crowdflux/angel/utilities/clients/validator"
 	"github.com/gin-gonic/gin"
 )
 

@@ -3,7 +3,6 @@ package auther
 import (
 	"fmt"
 	"github.com/crowdflux/angel/app/config"
-	"github.com/crowdflux/angel/utilities/clients/validator"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"strings"

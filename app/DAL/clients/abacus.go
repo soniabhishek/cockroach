@@ -40,6 +40,7 @@ func (*abacusClient) Predict(text string) (string, error, bool) {
 		return "", err, false
 	}
 
+	// TODO return error from abacus
 	if res.StatusCode != http.StatusOK {
 		return "", errors.New("Error occured in abacus"), false
 	}

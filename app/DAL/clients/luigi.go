@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/plog"
 	"io/ioutil"
 	"net/http"
 )
@@ -43,12 +44,12 @@ func (*luigiClient) GetEncryptedUrls(images []string) (map[string]LuigiResponse,
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
+		plog.Error("Error occured in luigi", err, res.Status)
 		return nil, err
 	}
 
 	if res.StatusCode != http.StatusOK {
-
-		return nil, errors.New("Error occured in luigi. Check image urls")
+		return nil, errors.New("Error occured in luigi. Check image urls : " + res.Status)
 	}
 
 	defer res.Body.Close()

@@ -135,7 +135,20 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 
 	//Get transaction client
 	trans := postgres.GetTransactionClient()
+	defer func() {
+		if err != nil {
+			err2 := trans.Rollback()
+			if err2 != nil {
+				plog.Error("Transactional Error", err2)
+			}
 
+		} else {
+			err2 := trans.Commit()
+			if err2 != nil {
+				plog.Error("Transactional Error", err2)
+			}
+		}
+	}()
 	//Make repos transaction
 	workflowRepo := workflow_repo.NewCustom(trans)
 	stepRepo := step_repo.NewCustom(trans)
@@ -247,6 +260,7 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 	if err != nil {
 		return
 	}
+	//TODO: Check if this will work in case of transaction
 	//finally after all insert update and delete mechanism we will fetch whole new workflow from backend
 	return w.GetWorkflowContainer(receivedWorkflowContainer.ID)
 

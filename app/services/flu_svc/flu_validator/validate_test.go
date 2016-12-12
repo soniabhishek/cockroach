@@ -37,7 +37,7 @@ func (f *fakeValidatorRepo) GetValidatorsForProject(projectId uuid.UUID, tag str
 		models.FLUValidator{
 			FieldName:   "category_id",
 			Type:        "STRING",
-			IsMandatory: false,
+			IsMandatory: true,
 		}}, nil
 
 }
@@ -119,8 +119,30 @@ func TestValidateFluForFieldNotFound(t *testing.T) {
 	assert.False(t, isValid, "Expected inValid flu but found valid")
 	assert.NotEmpty(t, validationErrs, "Validations errors were empty for inValid flu")
 	assert.Equal(t, 1, len(validationErrs), "More than one validation Error found")
-	assert.Equal(t, fieldNotFoundVCode, validationErrs[0].ValidationCode, fieldNotFoundVCode+" error was expected")
+	assert.Equal(t, mandatoryFieldEmptyVCode, validationErrs[0].ValidationCode, mandatoryFieldEmptyVCode+" error was expected")
 	assert.Equal(t, []string{"category_id"}, validationErrs[0].MetaData.Fields, "only category_id was expected")
+}
+
+func TestValidateForNonMandatoryField(t *testing.T) {
+
+	flu := models.FeedLineUnit{
+		ReferenceId: "PAYTM_123",
+		Data: models.JsonF{
+			"product_id":  "40843808",
+			"category_id": "t_shirt_12",
+			"name":        "XYZ Men's Gold T-Shirt",
+			"brand":       "XYZ",
+			"color":       "Gold",
+		},
+		Tag: "PAYTM_TSHIRT",
+	}
+	flu.Build = flu.Data.Copy()
+
+	isValid, err := validateFlu(&fakeValidatorRepo{}, &flu)
+
+	assert.NoError(t, err, "Error occured while validating")
+	assert.True(t, isValid, "Expected Valid flu but found invalid")
+	assert.Nil(t, err)
 }
 
 func TestValidateFluForWrongDataType(t *testing.T) {
@@ -160,7 +182,6 @@ func TestValidateFluForMandatoryField(t *testing.T) {
 			"image_url":    image_url_valid,
 			"image_single": image_url_valid_single,
 			"name":         "XYZ Men's Gold T-Shirt",
-			"category_id":  "t_shirt_12",
 			"brand":        "XYZ",
 			"color":        "",
 		},
@@ -176,7 +197,7 @@ func TestValidateFluForMandatoryField(t *testing.T) {
 	assert.NotEmpty(t, validationErrs, "Validations errors were empty for inValid flu")
 	assert.Equal(t, 1, len(validationErrs), "More than one validation Error found")
 	assert.Equal(t, mandatoryFieldEmptyVCode, validationErrs[0].ValidationCode, mandatoryFieldEmptyVCode+" error was expected")
-	assert.Equal(t, []string{"color"}, validationErrs[0].MetaData.Fields, "only color was expected")
+	assert.Equal(t, []string{"color", "category_id"}, validationErrs[0].MetaData.Fields, "only color was expected")
 }
 
 func TestEncryptionForValidImageUrls(t *testing.T) {
@@ -277,7 +298,6 @@ func Test_for_single_invalid_url(t *testing.T) {
 	assert.False(t, isValid, "Expected inValid flu but found valid")
 	assert.NotEmpty(t, validationErrs, "Validations errors were empty for inValid flu")
 	assert.Equal(t, 1, len(validationErrs), "More than one validation Error found")
-	assert.Equal(t, invalidImageLinkVCode, validationErrs[0].ValidationCode, invalidImageLinkVCode+" error was expected")
 	assert.Equal(t, []string{"image_single"}, validationErrs[0].MetaData.Fields, "only image_url was expected")
 	assert.Equal(t, returnedUrlList, image_url_invalid_single)
 }

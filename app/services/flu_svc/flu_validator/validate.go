@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/flu_validator_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
+	"strings"
 )
 
 //Does the data validation for incoming flu
@@ -106,6 +107,36 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 
 			//Edit the flu
 			flu.Build[name] = encUrls
+
+		case "IMAGE":
+			// Check if field value is string or not
+			fieldValString, ok := fieldVal.(string)
+			if !ok {
+				wrongDataType.AddMetaDataField(name)
+				continue
+			}
+			strArray := strings.Fields(fieldValString)
+
+			if len(strArray) > 1 || !govalidator.IsURL(fieldValString) {
+				invalidImageLink.AddMetaDataField(name)
+				continue
+			}
+
+			// Check if field is mandatory & not empty
+			if fluV.IsMandatory {
+				mandatoryFieldEmpty.AddMetaDataField(name)
+				continue
+			}
+
+			//Image encryption
+			encUrls, err := GetEncryptedUrls(strArray)
+			if err != nil {
+				invalidImageLink.AddMetaDataField(name)
+				continue
+			}
+
+			//Edit the flu
+			flu.Build[name] = encUrls[0]
 
 		}
 	}

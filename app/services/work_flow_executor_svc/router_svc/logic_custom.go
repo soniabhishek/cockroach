@@ -171,7 +171,6 @@ func getParametersFromFlu(flu feed_line.FLU, fields []string, exp string) (param
 		parameters[field] = flu.Build[field]
 
 		if parameters[field] == nil && strings.Contains(strings.Replace(exp, "IsNull("+field, "", -1), field) {
-			fmt.Println(strings.Replace(exp, "IsNull("+field, "", -1))
 			return nil, ErrPropNotFoundInFluBuild
 		}
 	}

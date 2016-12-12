@@ -58,5 +58,5 @@ func addTableInfo(dbMap *gorp.DbMap) {
 }
 
 func GetGorpClient() *gorp.DbMap {
-	return gorpDbMap.Db
+	return gorpDbMap
 }

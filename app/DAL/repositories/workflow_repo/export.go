@@ -15,7 +15,6 @@ type IWorkflowRepo interface {
 	GetWorkFlowByProjectIdAndTag(projectId uuid.UUID, tag string) (models.WorkFlow, error)
 	GetWorkFlowsByProjectId(projectId uuid.UUID) ([]models.WorkFlow, error)
 	IfIdExist(uuid.UUID) (bool, error)
-	CreateTransaction() error
 }
 
 func New() IWorkflowRepo {

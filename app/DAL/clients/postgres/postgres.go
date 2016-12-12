@@ -2,12 +2,8 @@ package postgres
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
-	"reflect"
-
 	"github.com/crowdflux/angel/app/DAL/repositories"
-	"github.com/crowdflux/angel/app/DAL/repositories/queries"
 	"gopkg.in/gorp.v1"
 )
 

@@ -21,41 +21,50 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 	t.AddToBuffer(flu)
 
 	plog.Info("algorithm Step flu reached", flu.ID)
-	tStep, err := t.stepConfigSvc.GetAlgorithmStepConfig(flu.StepId)
+	aStepConf, err := t.stepConfigSvc.GetAlgorithmStepConfig(flu.StepId)
 	if err != nil {
 		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), "stepid: "+flu.StepId.String(), flu.FeedLineUnit)
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Algorithm, "Algorithm Config Error", flu.Redelivered())
+		return
+	}
+
+	textSting, ok := flu.Build[aStepConf.TextFieldKey].(string)
+	if !ok {
+		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Algorithm, "text field: "+aStepConf.TextFieldKey+" not present as string", flu.Redelivered())
+		return
+	}
+
+	algoResult, err, success := clients.GetAbacusClient().Predict(textSting)
+	if err != nil {
+		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
+	} else if success {
+		flu.Build[aStepConf.AnswerKey] = algoResult
+	}
+
+	answerKeySuccess := aStepConf.AnswerKey + "_success"
+	flu.Build[answerKeySuccess] = success
+
+	if !success {
+
 		t.finishFlu(flu)
 		flu.ConfirmReceive()
 		return
 	}
 
-	text := flu.Data[tStep.TextFieldKey]
+	go func() {
 
-	textSting := text.(string)
+		timeDiff := aStepConf.TimeDelayStop - aStepConf.TimeDelayStart
 
-	successMessage := tStep.AnswerKey + "_success"
+		if timeDiff <= 0 {
+			plog.Info("Algostep", "timediff <= 0", "value: ", timeDiff, "fluId: "+flu.ID.String())
+			timeDiff = 0
+		}
 
-	algoResult, err, success := clients.GetAbacusClient().Predict(textSting)
-	if err != nil {
-		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
-		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Algorithm, "Algorithm Error", flu.Redelivered())
-	} else if success {
-		flu.Build[tStep.AnswerKey] = algoResult
-	}
+		time.Sleep(time.Duration(int64((aStepConf.TimeDelayStart+timeDiff*rand.Float64())*60)) * time.Second)
+		t.finishFlu(flu)
+		flu.ConfirmReceive()
+	}()
 
-	flu.Build[successMessage] = success
-
-	timeDiff := tStep.TimeDelayStop - tStep.TimeDelayStart
-
-	if timeDiff <= 0 {
-		plog.Info("Algostep", "timediff <= 0", "value: ", timeDiff, "fluId: "+flu.ID.String())
-		timeDiff = 0
-	}
-
-	time.Sleep(time.Duration(int64((tStep.TimeDelayStart+timeDiff*rand.Float64())*60)) * time.Second)
-	t.finishFlu(flu)
-	flu.ConfirmReceive()
 }
 
 func (t *algorithmStep) finishFlu(flu feed_line.FLU) bool {

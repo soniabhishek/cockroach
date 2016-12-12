@@ -58,6 +58,29 @@ func TestLogicCustom(t *testing.T) {
 			LogicGate: models.LogicGate{
 				InputTemplate: models.JsonF{
 					"options": map[string]interface{}{
+						expression_field: "IsNull({arc}) || {arc}==2",
+					},
+				},
+			},
+			Result: false,
+			Error:  ErrPropNotFoundInFluBuild,
+		},
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"options": map[string]interface{}{
+						expression_field: "IsNull({arc})?false:{arc}>3",
+					},
+				},
+			},
+			Result: false,
+			Error:  ErrPropNotFoundInFluBuild,
+		},
+
+		logicGateTestCase{
+			LogicGate: models.LogicGate{
+				InputTemplate: models.JsonF{
+					"options": map[string]interface{}{
 						expression_field: "IsNull({nostring})",
 					},
 				},

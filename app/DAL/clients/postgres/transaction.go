@@ -51,12 +51,18 @@ func (pg *transactionalPostgres) SelectJoin(holder interface{}, query string, ar
 	return selectJoin(pg.gorpDbMap.Db.Query, holder, query, args...)
 }
 
-func (pg *transactionalPostgres) Commit() error {
-	return pg.trans.Commit()
+func (pg *transactionalPostgres) Commit() {
+	if err := pg.trans.Commit(); err != nil {
+		plog.Error("Postgres client", err, "Error occured while Commit transaction")
+		panic(err)
+	}
 }
 
-func (pg *transactionalPostgres) Rollback() error {
-	return pg.trans.Rollback()
+func (pg *transactionalPostgres) Rollback() {
+	if err := pg.trans.Rollback(); err != nil {
+		plog.Error("Postgres client", err, "Error occured in Rollback transaction")
+		panic(err)
+	}
 }
 func GetTransactionClient() *transactionalPostgres {
 

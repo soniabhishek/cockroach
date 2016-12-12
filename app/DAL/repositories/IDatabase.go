@@ -14,4 +14,5 @@ type IDatabase interface {
 	SelectOne(holder interface{}, query string, args ...interface{}) error
 	SelectById(holder interface{}, id fmt.Stringer) error
 	SelectOneJoin(holder interface{}, query string, args ...interface{}) error
+	SelectJoin(holder interface{}, query string, args ...interface{}) error
 }

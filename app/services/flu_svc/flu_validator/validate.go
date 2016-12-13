@@ -51,7 +51,9 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 		// Check if field value is present or not
 		fieldVal, ok := flu.Data[name]
 		if !ok {
-			fieldNotFound.AddMetaDataField(name)
+			if fluV.IsMandatory {
+				mandatoryFieldEmpty.AddMetaDataField(name)
+			}
 			continue
 		}
 
@@ -108,6 +110,31 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 
 			//Edit the flu
 			flu.Build[name] = encUrls
+
+		case "IMAGE":
+			// Check if field value is string or not
+			fieldValString, ok := fieldVal.(string)
+			if !ok {
+				wrongDataType.AddMetaDataField(name)
+				continue
+			}
+
+			if !govalidator.IsURL(fieldValString) {
+				invalidImageLink.AddMetaDataField(name)
+				continue
+			}
+
+			strArray := []string{fieldValString}
+
+			//Image encryption
+			encUrls, err := GetEncryptedUrls(strArray)
+			if err != nil {
+				invalidImageLink.AddMetaDataField(name)
+				continue
+			}
+
+			//Edit the flu
+			flu.Build[name] = encUrls[0]
 
 		}
 	}

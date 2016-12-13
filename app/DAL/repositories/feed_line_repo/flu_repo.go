@@ -55,6 +55,7 @@ func (e *fluRepo) Update(flu models.FeedLineUnit) error {
 	return err
 }
 
+//Insert into Postgress
 func (e *fluRepo) BulkInsert(flus []models.FeedLineUnit) error {
 
 	var flusInterface []interface{} = make([]interface{}, len(flus))

@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/clients"
 	"github.com/crowdflux/angel/app/DAL/repositories/flu_validator_repo"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 )
 
@@ -59,17 +60,12 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 		switch fluV.Type {
 		case "STRING":
 			// Check if field value is string or not
-			fieldValStr, ok := fieldVal.(string)
+			_, ok := fieldVal.(string)
 			if !ok {
 				wrongDataType.AddMetaDataField(name)
 				continue
 			}
 
-			// Check if field is mandatory & not empty
-			if fluV.IsMandatory && fieldValStr == "" {
-				mandatoryFieldEmpty.AddMetaDataField(name)
-				continue
-			}
 		case "IMAGE_ARRAY":
 
 			// Check if field value is string or not
@@ -102,6 +98,7 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 			//Image encryption
 			encUrls, err := GetEncryptedUrls(fieldValImgArray)
 			if err != nil {
+				plog.Error("Error in Luigi Encryption", err, flu)
 				invalidImageLink.AddMetaDataField(name)
 				continue
 			}

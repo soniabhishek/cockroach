@@ -23,3 +23,16 @@ func TestPostgres_db_SelectOneJoin(t *testing.T) {
 	assert.NoError(t, err)
 	assert.EqualValues(t, macroUser.User.ID.String(), macroUser.CreatorId.String())
 }
+func TestPostgres_db_SelectJoin(t *testing.T) {
+	pg := postgres.GetPostgresClient()
+
+	type MacroTaskWithCreator struct {
+		models.User
+		models.Client
+	}
+
+	var macroUser []MacroTaskWithCreator
+
+	err := pg.SelectJoin(&macroUser, `select * from users inner join clients on users.id = clients.user_id`)
+	assert.NoError(t, err)
+}

@@ -169,7 +169,8 @@ func getParametersFromFlu(flu feed_line.FLU, fields []string, exp string) (param
 	parameters = make(map[string]interface{}, len(fields))
 	for _, field := range fields {
 		parameters[field] = flu.Build[field]
-		if parameters[field] == nil && !strings.Contains(exp, "IsNull("+field) {
+
+		if parameters[field] == nil && strings.Contains(strings.Replace(exp, "IsNull("+field, "", -1), field) {
 			return nil, ErrPropNotFoundInFluBuild
 		}
 	}

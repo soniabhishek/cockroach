@@ -43,7 +43,7 @@ const (
 
 var plogLevel levelType
 var logr = logrus.New()
-var path, _ = filepath.Abs("./app_logs")
+var path, _ = filepath.Abs(config.PLOG_LOCATION.Get())
 
 func init() {
 

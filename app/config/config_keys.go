@@ -49,6 +49,7 @@ const (
 	ABACUS_API    = configKey("abacus.base.api")
 	PLOG_LEVEL    = configKey("plog.log_level")
 	PLOG_TYPE     = configKey("plog.log_type")
+	PLOG_LOCATION = configKey("plog.log_location")
 	LUIGI_API     = configKey("luigi.base.api")
 
 	NEW_RELIC_KEY = configKey("newrelic.key")

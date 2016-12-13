@@ -60,17 +60,12 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 		switch fluV.Type {
 		case "STRING":
 			// Check if field value is string or not
-			fieldValStr, ok := fieldVal.(string)
+			_, ok := fieldVal.(string)
 			if !ok {
 				wrongDataType.AddMetaDataField(name)
 				continue
 			}
 
-			// Check if field is mandatory & not empty
-			if fluV.IsMandatory && fieldValStr == "" {
-				mandatoryFieldEmpty.AddMetaDataField(name)
-				continue
-			}
 		case "IMAGE_ARRAY":
 
 			// Check if field value is string or not

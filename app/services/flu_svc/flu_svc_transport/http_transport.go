@@ -69,6 +69,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 				//Temporary hack. Wait for schema refactoring
 				err = plerrors.ServiceError{"PR_0001", "Project not found"}
 			}
+			plog.Error("Error while adding flu to workflow ", err, flu)
 			showErrorResponse(c, err)
 			return
 		}

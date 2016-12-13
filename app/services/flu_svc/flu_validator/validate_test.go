@@ -197,7 +197,7 @@ func TestValidateFluForMandatoryField(t *testing.T) {
 	assert.NotEmpty(t, validationErrs, "Validations errors were empty for inValid flu")
 	assert.Equal(t, 1, len(validationErrs), "More than one validation Error found")
 	assert.Equal(t, mandatoryFieldEmptyVCode, validationErrs[0].ValidationCode, mandatoryFieldEmptyVCode+" error was expected")
-	assert.Equal(t, []string{"color", "category_id"}, validationErrs[0].MetaData.Fields, "only color was expected")
+	assert.Equal(t, []string{"category_id"}, validationErrs[0].MetaData.Fields, "only color was expected")
 }
 
 func TestEncryptionForValidImageUrls(t *testing.T) {

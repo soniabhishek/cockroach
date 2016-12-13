@@ -1,7 +1,6 @@
 package work_flow_io_svc
 
 import (
-	"context"
 	"github.com/crowdflux/angel/app/DAL/clients/postgres"
 	"github.com/crowdflux/angel/app/DAL/repositories/clients_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
@@ -60,18 +59,13 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 
 	//Get transaction client
 	trans := postgres.GetTransactionClient()
-	defer func() {
-		if err != nil {
-			trans.Rollback()
-		} else {
-			trans.Commit()
-		}
+	defer trans.RollbackIfError(&err)
 
+	defer func() {
 		if r := recover(); r != nil {
 			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), r)
 		}
 	}()
-
 	//Make repos transaction
 	workflowRepo := workflow_repo.NewCustom(trans)
 	stepRepo := step_repo.NewCustom(trans)
@@ -123,25 +117,24 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 		return
 	}
 
+	trans.Commit()
+
 	return receivedWorkflowContainer, nil
 }
 
 /**
 This will update the existing workflow
 */
-func (w *workFlowBuilderService) UpdateWorkflowContainer(ctx context.Context, receivedWorkflowContainer models.WorkflowContainer) (workflowContainer models.WorkflowContainer, err error) {
+func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContainer models.WorkflowContainer) (workflowContainer models.WorkflowContainer, err error) {
 
 	trans := postgres.GetTransactionClient()
-	defer func() {
-		if err != nil {
-			trans.Rollback()
-		}
+	defer trans.RollbackIfError(&err)
 
+	defer func() {
 		if r := recover(); r != nil {
 			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), r)
 		}
 	}()
-
 	//Make repos transaction
 	workflowRepo := workflow_repo.NewCustom(trans)
 	stepRepo := step_repo.NewCustom(trans)

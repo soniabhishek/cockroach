@@ -64,6 +64,18 @@ func (pg *transactionalPostgres) Rollback() {
 		panic(err)
 	}
 }
+
+func (pg *transactionalPostgres) RollbackIfError(err2 *error) {
+	if *err2 == nil {
+		return
+	}
+
+	if err := pg.trans.Rollback(); err != nil {
+		plog.Error("Postgres client", err, "Error occured in Rollback transaction")
+		panic(err)
+	}
+}
+
 func GetTransactionClient() *transactionalPostgres {
 
 	tx, err := gorpDbMap.Begin()

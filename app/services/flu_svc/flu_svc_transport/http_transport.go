@@ -7,6 +7,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
@@ -45,12 +46,17 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 		var err error
 		projectId, err = uuid.FromString(c.Param("projectId"))
 		if err != nil {
+			plog.Error("Invalid ProjectId from client", err, c.Param("projectId"))
 			showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
 			return
 		}
 
 		// Validating JSON
 		if err = c.BindJSON(&flu); err != nil {
+			var body []byte
+			c.Request.Body.Read(body)
+			c.Request.Body.Close()
+			plog.Error("Error binding flu from client : ", err, "Body : ", body)
 			showErrorResponse(c, plerrors.ErrMalformedJson)
 			return
 		}

@@ -1,11 +1,9 @@
 package client_svc
 
 import (
-	"net/http"
-
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/utilities/clients/validator"
+	"github.com/crowdflux/angel/app/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,21 +20,16 @@ func createClientHandler(workFlowClientService IWorkFlowClientService) gin.Handl
 		obj := models.Client{}
 		err := c.BindJSON(&obj)
 		if err != nil {
-			validator.ShowErrorResponseOverHttp(c, err)
+			services.SendBadRequest(c, "CREATECLIENT", err.Error(), nil)
 			return
 		}
 		client, err := workFlowClientService.CreateClient(obj)
 		if err != nil {
-			validator.ShowErrorResponseOverHttp(c, err)
+			services.SendFailureResponse(c, "CREATECLIENT", err.Error(), nil)
 			plog.Error("Creating client Error", err)
 			return
-		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"data":    client,
-			})
 		}
-
+		services.SendSuccessResponse(c, client)
 	}
 }
 
@@ -45,14 +38,9 @@ func fetchClientsHandler(workFlowClientService IWorkFlowClientService) gin.Handl
 		response, err := workFlowClientService.FetchAllClient()
 		if err != nil {
 			plog.Error("Fetching Clients Error", err)
-			validator.ShowErrorResponseOverHttp(c, err)
+			services.SendFailureResponse(c, "FETCHCLIENT", err.Error(), nil)
 			return
-		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"data":    response,
-			})
 		}
-
+		services.SendSuccessResponse(c, response)
 	}
 }

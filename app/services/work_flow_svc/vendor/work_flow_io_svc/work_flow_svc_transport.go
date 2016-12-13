@@ -4,9 +4,8 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/utilities/clients/validator"
+	"github.com/crowdflux/angel/app/services"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func AddHttpTransport(routerGroup *gin.RouterGroup) {
@@ -26,47 +25,33 @@ func workFlowGetHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 	return func(c *gin.Context) {
 		workflowId, err := uuid.FromString(c.Param("workflowId"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, "Invalid id")
+			services.SendBadRequest(c, "WFGET", "Invalid ID", nil)
 			return
 		}
-
 		response, err := workFlowService.GetWorkflowContainer(workflowId)
 		if err != nil {
 			plog.Error("WorkflowFetching : ", err)
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"error":   err.Error(),
-			})
+			services.SendFailureResponse(c, "WFGET", err.Error(), nil)
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"data":    response,
-			"success": true,
-		})
+		services.SendSuccessResponse(c, response)
 	}
-
 }
 
 func addWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		workflowContainer := models.WorkflowContainer{}
 		if err := c.BindJSON(&workflowContainer); err != nil {
-			c.JSON(http.StatusBadRequest, "Invalid workflow "+err.Error())
+			services.SendBadRequest(c, "WFADD", "Invalid workflow "+err.Error(), nil)
 			return
 		}
 		response, err := workFlowService.AddWorkflowContainer(workflowContainer)
 		if err != nil {
 			plog.Error("WorkflowAdd : ", err)
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"error":   err.Error(),
-			})
+			services.SendFailureResponse(c, "WFADD", err.Error(), nil)
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"data":    response,
-			"success": true,
-		})
+		services.SendSuccessResponse(c, response)
 	}
 }
 
@@ -74,23 +59,16 @@ func updateWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 	return func(c *gin.Context) {
 		workflowContainer := models.WorkflowContainer{}
 		if err := c.BindJSON(&workflowContainer); err != nil {
-			c.JSON(http.StatusBadRequest, "Invalid workflow"+err.Error())
+			services.SendBadRequest(c, "WFUPDATE", "Invalid workflow "+err.Error(), nil)
 			return
 		}
-
 		response, err := workFlowService.UpdateWorkflowContainer(workflowContainer)
 		if err != nil {
 			plog.Error("WorkflowUpdate : ", err)
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"error":   err.Error(),
-			})
+			services.SendFailureResponse(c, "WFUPDATE", err.Error(), nil)
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"data":    response,
-			"success": true,
-		})
+		services.SendSuccessResponse(c, response)
 	}
 }
 
@@ -98,27 +76,21 @@ func workFlowClonehandler(workFlowService IWorkflowBuilderService) gin.HandlerFu
 	return func(c *gin.Context) {
 		workflowId, err := uuid.FromString(c.Param("workflowId"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, "Invalid id")
+			services.SendBadRequest(c, "WFCLONE", "Invalid Id", nil)
 			return
 		}
 		workflowCloneData := models.WorkFlowCloneModel{}
 		if err := c.BindJSON(&workflowCloneData); err != nil {
-			c.JSON(http.StatusBadRequest, "Invalid Clone Request "+err.Error())
+			services.SendBadRequest(c, "WFCLONE", "Invalid Clone Request "+err.Error(), nil)
 			return
 		}
 		workflowCloneData.WorkFlowId = workflowId
 		response, err := workFlowService.CloneWorkflowContainer(workflowCloneData)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"error":   err.Error(),
-			})
+			services.SendFailureResponse(c, "WFCLONE", err.Error(), nil)
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"data":    response,
-			"success": true,
-		})
+		services.SendSuccessResponse(c, response)
 	}
 }
 
@@ -126,7 +98,7 @@ func fetchWorkflowsHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 	return func(c *gin.Context) {
 		projectId, err := uuid.FromString(c.Query("projectId"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, "Invalid ProjectId")
+			services.SendBadRequest(c, "WFFETCH", "Invalid ProjectId", nil)
 			return
 		}
 
@@ -135,13 +107,9 @@ func fetchWorkflowsHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 		response, err := workFlowService.FetchWorkflows(projectId, tag)
 		if err != nil {
 			plog.Error("Fetching Projects workflows Error", err)
-			validator.ShowErrorResponseOverHttp(c, err)
+			services.SendFailureResponse(c, "WFFETCH", err.Error(), nil)
 			return
-		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"data":    response,
-			})
 		}
+		services.SendSuccessResponse(c, response)
 	}
 }

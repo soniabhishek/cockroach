@@ -193,8 +193,6 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 	query += `) as tmp(id, build, updated_at)
 		where tmp.id = fl.id;`
 
-	plog.Info("Running Q: ", query)
-
 	res, err := e.Db.Exec(query)
 	if err != nil {
 		return updatableRows, nonUpdatableFlus, err
@@ -210,7 +208,9 @@ func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.
 
 	var stepTypeMap StepTypeMap = make(StepTypeMap)
 
-	updatableRows := make([]models.FeedLineUnit, len(flus))
+	// cant use make here as length is not known (cant put len(flus) here)
+	updatableRows := []models.FeedLineUnit{}
+
 	for _, flu := range flus {
 
 		if flu.ID == uuid.Nil {

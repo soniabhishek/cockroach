@@ -162,11 +162,11 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 
 	updatableRows, nonUpdatableFlus, err := e.getUpdableFlus(flus, stepType)
 	if err != nil {
-		return updatableRows, err
+		return updatableRows, nonUpdatableFlus, err
 	}
 
 	if len(updatableRows) == 0 {
-		return updatableRows, ErrNoUpdatableFlus
+		return updatableRows, nonUpdatableFlus, ErrNoUpdatableFlus
 	}
 
 	query := `update feed_line as fl set
@@ -197,12 +197,12 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 
 	res, err := e.Db.Exec(query)
 	if err != nil {
-		return updatableRows, err
+		return updatableRows, nonUpdatableFlus, err
 	}
 	if rows, _ := res.RowsAffected(); rows != int64(len(flus)) {
-		return updatableRows, ErrPartiallyUpdatedFlus
+		return updatableRows, nonUpdatableFlus, ErrPartiallyUpdatedFlus
 	}
-	return updatableRows, nil
+	return updatableRows, nonUpdatableFlus, nil
 }
 
 func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, nonUpdatableFlus []models.FeedLineUnit, err error) {
@@ -230,7 +230,7 @@ func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.
 			step, err := e.stepRepo.GetById(dbFlu.StepId)
 			if err != nil {
 				plog.Error("flurepo", err)
-				return []models.FeedLineUnit{}, err
+				return []models.FeedLineUnit{}, []models.FeedLineUnit{}, err
 			}
 			stepTypeMap[dbFlu.StepId] = step.Type
 			dbStepType = step.Type

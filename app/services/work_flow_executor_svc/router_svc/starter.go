@@ -34,7 +34,7 @@ func start(sr *stepRouter) {
 
 					if r := recover(); r != nil {
 						plog.Error("Router", errors.New("Panic occured in router"), r)
-						(*sr.routeTable[step_type.Manual]).Push(flu)
+						(*sr.routeTable[step_type.Error]).Push(flu)
 						plog.Info("Router", "Sent to manual after panic", flu)
 					}
 

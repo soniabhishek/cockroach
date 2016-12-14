@@ -59,10 +59,10 @@ func TestBulkFluBuildUpdate(t *testing.T) {
 	err := flRepo.Add(flus[0])
 	assert.NoError(t, err)
 
-	_, err = flRepo.BulkFluBuildUpdateByStepType(flus, step.Type)
+	_, _, err = flRepo.BulkFluBuildUpdateByStepType(flus, step.Type)
 	assert.Error(t, err)
 
-	updatedFlus, err := flRepo.BulkFluBuildUpdateByStepType(flus[0:1], step.Type)
+	updatedFlus, _, err := flRepo.BulkFluBuildUpdateByStepType(flus[0:1], step.Type)
 	plog.Info("asd", updatedFlus)
 	assert.NoError(t, err)
 

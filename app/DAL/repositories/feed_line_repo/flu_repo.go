@@ -158,9 +158,9 @@ func (e *fluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
 	return err
 }
 
-func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, err error) {
+func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, nonUpdatableFlus []models.FeedLineUnit, err error) {
 
-	updatableRows, err := e.getUpdableFlus(flus, stepType)
+	updatableRows, nonUpdatableFlus, err := e.getUpdableFlus(flus, stepType)
 	if err != nil {
 		return updatableRows, err
 	}
@@ -205,22 +205,24 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 	return updatableRows, nil
 }
 
-func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, err error) {
+func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, nonUpdatableFlus []models.FeedLineUnit, err error) {
 	type StepTypeMap map[uuid.UUID]step_type.StepType
 
 	var stepTypeMap StepTypeMap = make(StepTypeMap)
 
-	updatableRows := []models.FeedLineUnit{}
+	updatableRows := make([]models.FeedLineUnit, len(flus))
 	for _, flu := range flus {
 
 		if flu.ID == uuid.Nil {
 			//return errors.New("flu not present")
+			nonUpdatableFlus = append(nonUpdatableFlus, flu)
 			continue
 		}
 
 		dbFlu, err := e.GetById(flu.ID)
 		if err != nil {
 			plog.Info(err.Error())
+			nonUpdatableFlus = append(nonUpdatableFlus, flu)
 			continue
 		}
 		dbStepType, ok := stepTypeMap[dbFlu.StepId]
@@ -236,6 +238,7 @@ func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.
 
 		if dbStepType != stepType {
 			plog.Info("flurepo", "flu doesnot belong to this step")
+			nonUpdatableFlus = append(nonUpdatableFlus, flu)
 			continue
 		}
 
@@ -245,7 +248,7 @@ func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.
 
 	}
 
-	return updatableRows, nil
+	return updatableRows, nonUpdatableFlus, nil
 }
 
 func (e *fluRepo) GetFlusNotSent(StepId uuid.UUID) (flus []models.FeedLineUnit, err error) {

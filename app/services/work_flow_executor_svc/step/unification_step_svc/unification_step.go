@@ -1,7 +1,6 @@
 package unification_step_svc
 
 import (
-	"fmt"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models/step_type"

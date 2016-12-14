@@ -59,9 +59,10 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 
 	//Get transaction client
 	trans := postgres.GetTransactionClient()
-	defer trans.RollbackIfError(&err)
-
 	defer func() {
+		if err != nil {
+			trans.Rollback()
+		}
 		if r := recover(); r != nil {
 			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), r)
 		}
@@ -128,9 +129,10 @@ This will update the existing workflow
 func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContainer models.WorkflowContainer) (workflowContainer models.WorkflowContainer, err error) {
 
 	trans := postgres.GetTransactionClient()
-	defer trans.RollbackIfError(&err)
-
 	defer func() {
+		if err != nil {
+			trans.Rollback()
+		}
 		if r := recover(); r != nil {
 			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), r)
 		}

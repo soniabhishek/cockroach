@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -13,7 +14,7 @@ func SendSuccessResponse(c *gin.Context, response interface{}) {
 	})
 }
 
-func SendBadRequest(c *gin.Context, code, message string, data interface{}) {
+func SendBadRequest(c *gin.Context, code, message string, data models.JsonF) {
 	c.JSON(http.StatusBadRequest, plerrors.ErrorResponse{
 		Success: false,
 		Error: plerrors.ErrorBody{
@@ -24,7 +25,7 @@ func SendBadRequest(c *gin.Context, code, message string, data interface{}) {
 	})
 }
 
-func SendFailureResponse(c *gin.Context, code, message string, data interface{}) {
+func SendFailureResponse(c *gin.Context, code, message string, data models.JsonF) {
 	c.JSON(http.StatusExpectationFailed, plerrors.ErrorResponse{
 		Success: false,
 		Error: plerrors.ErrorBody{

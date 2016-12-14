@@ -65,7 +65,7 @@ func updateWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 		response, err := workFlowService.UpdateWorkflowContainer(workflowContainer)
 		if err != nil {
 			plog.Error("WorkflowUpdate : ", err)
-			services.SendFailureResponse(c, "WFUPDATE", err.Error(), nil)
+			services.SendFailureResponse(c, "WFUPDATE", err.Error(), workflowContainer)
 			return
 		}
 		services.SendSuccessResponse(c, response)

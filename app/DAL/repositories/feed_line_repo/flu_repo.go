@@ -208,8 +208,9 @@ func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.
 
 	var stepTypeMap StepTypeMap = make(StepTypeMap)
 
-	// cant use make here as length is not known (cant put len(flus) here)
-	updatableRows := []models.FeedLineUnit{}
+	// cant put non zero length here as updatableRows should strictly not have
+	// extra elements. Instead a max capacity is passed
+	updatableRows := make([]models.FeedLineUnit, 0, len(flus))
 
 	for _, flu := range flus {
 

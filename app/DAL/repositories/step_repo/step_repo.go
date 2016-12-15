@@ -5,7 +5,6 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
-	"github.com/crowdflux/angel/app/plog"
 	"github.com/lib/pq"
 	"time"
 )

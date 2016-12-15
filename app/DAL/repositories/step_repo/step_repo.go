@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/lib/pq"
 	"time"
 )
@@ -47,7 +48,7 @@ func (s *stepRepo) GetStartStepOrDefault(projectId uuid.UUID, tag string) (step 
 	err = s.Db.SelectOne(&step, `
 	select s.* from step s
 	inner join work_flow w on w.id = s.work_flow_id
-	where w.project_id = $1 and s.type = $2 limit 1`, projectId.String(), step_type.StartStep)
+	where w.project_id = $1 and s.type = $2 and w.is_default is TRUE`, projectId.String(), step_type.StartStep)
 	return
 }
 

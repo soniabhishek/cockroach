@@ -10,6 +10,7 @@ type IFluService interface {
 	AddFeedLineUnit(flu *models.FeedLineUnit) error
 	SyncInputFeedLine() error
 	GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, error)
+	BulkAddFeedLineUnit(fileName string)
 }
 
 type IFluServiceExtended interface {

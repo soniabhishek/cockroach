@@ -210,7 +210,7 @@ func (e *fluRepo) getUpdableFlus(flus []models.FeedLineUnit, stepType step_type.
 
 	var stepTypeMap StepTypeMap = make(StepTypeMap)
 
-	updatableRows := []models.FeedLineUnit{}
+	updatableRows := make([]models.FeedLineUnit, 0, len(flus))
 	for _, flu := range flus {
 
 		if flu.ID == uuid.Nil {

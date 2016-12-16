@@ -113,3 +113,16 @@ func (i *inputQueue) MarkFinished(flus []models.FeedLineUnit) error {
 	_, err := i.mgo.C("feedline_input").UpdateAll(bson.M{"id_string": bson.M{"$in": fluIdsString}}, bson.M{"$set": bson.M{"status": success}})
 	return err
 }
+
+func (i *inputQueue) BulkAdd(bulkData []interface{}) (insertedFlus []models.FeedLineUnit, nonInsertedFlus []models.FeedLineUnit, err error) {
+	bulk := i.mgo.C("testing").Bulk()
+	bulk.Unordered()
+	bulk.Insert(bulkData...)
+	_, err := bulk.Run()
+	if e, ok := err.(*mgo.BulkError); ok {
+		return e.Cases()
+	} else {
+		panic("Mongo Error")
+	}
+	return err
+}

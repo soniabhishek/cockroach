@@ -64,6 +64,7 @@ func fileUploadHandler() gin.HandlerFunc {
 			showError(c, err)
 			return
 		}
+		defer file.Close()
 
 		filename := header.Filename
 

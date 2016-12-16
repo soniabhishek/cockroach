@@ -8,11 +8,15 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/app/services/flu_svc"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	"io"
+	"os"
 )
 
 //TODO Create another file for validator http transport. In future we may have to make a separate service for validatorss
@@ -93,6 +97,41 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 			})
 		}
 	}
+}
+
+func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		file, header, err := c.Request.FormFile("upload")
+		if err != nil {
+			plog.Error("Err", errors.New("problem in uploaded file"), err)
+			services.SendBadRequest(c, "FLS000", err, nil)
+			return
+		}
+		defer file.Close()
+
+		filename := header.Filename
+
+		out, err := os.Create(`./uploads/` + filename)
+		if err != nil {
+			plog.Error("Err", errors.New("Cannot create file"), err)
+			services.SendBadRequest(c, "FLS001", err, nil)
+			return
+		}
+		defer out.Close()
+		_, err = io.Copy(out, file)
+		if err != nil {
+			plog.Error("Err", errors.New("Cannot copy file"), err)
+			services.SendBadRequest(c, "FLS002", err, nil)
+			return
+		}
+
+		plog.Info("Sent file for upload: ", filename)
+
+		go fluService.BulkAddFeedLineUnit(filename)
+		//return response for file upload
+		services.SendSuccessResponse(c, nil)
+	}
+
 }
 
 type fluGetResponse struct {

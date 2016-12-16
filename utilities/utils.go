@@ -10,7 +10,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -154,7 +153,6 @@ func ReplaceEscapeCharsInGOLAN1_7()  {
 func IsValidUTF8(rows []string) (int, error) {
 	for i, row := range rows {
 		row = strings.TrimRight(row, "\n")
-		fmt.Println(row, []byte(row))
 		if !utf8.ValidString(row) {
 			return i, errors.New("!utf8.ValidString")
 		}

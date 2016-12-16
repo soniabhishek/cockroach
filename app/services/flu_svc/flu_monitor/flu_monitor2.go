@@ -143,7 +143,9 @@ func distributor() {
 		throttle := time.Tick(rate)
 		for {
 			<-throttle
-			makeRequest(k, v)
+			go func() {
+				makeRequest(k, v)
+			}()
 			// retry logic?
 		}
 	}
@@ -151,9 +153,6 @@ func distributor() {
 }
 func makeRequest(projectId uuid.UUID, projectConfig config) error {
 	// getFluOutputObj(projectConfig)
-	// make request
-	// keep retrying in case of failure
-	// if success availableQps --
 	limit := projectConfig.maxFluCount
 	plog.Info("SENDING FLUs COUNT: ", limit)
 	queue := queues[projectConfig.projectId]
@@ -184,6 +183,9 @@ func makeRequest(projectId uuid.UUID, projectConfig config) error {
 	}
 
 	// http call and retry logic
+	// make request
+	// keep retrying in case of failure
+	// if success availableQps --
 	// defer flu.ConfirmReceive, if the server crashes before the httpcall it stays in queue??
 
 	return

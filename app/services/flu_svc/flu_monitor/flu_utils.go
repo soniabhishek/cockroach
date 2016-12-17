@@ -1,0 +1,111 @@
+package flu_monitor
+
+import (
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+
+	"database/sql"
+
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/status_codes"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_logger_svc"
+)
+
+type FluResponse struct {
+	HttpStatusCode int
+	FluStatusCode  status_codes.StatusCode
+	Invalid_Flus   []invalidFlu `json:"invalid_flus"`
+	RawResponse    string
+}
+
+func ParseFluResponse(resp *http.Response) *FluResponse {
+	fluResp := &FluResponse{}
+	fluResp.HttpStatusCode = resp.StatusCode
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	plog.Info("response Status:", resp.Status)
+	plog.Info("response Headers:", resp.Header)
+	plog.Info("response Headers:", resp)
+	plog.Info("response Body:", string(body))
+	fluResp.RawResponse = string(body)
+	err := json.Unmarshal(body, fluResp)
+	if err != nil {
+
+		/*TODO How to handle this error.
+		errors.New("asfdsgdf")
+
+		switch err.(type) {
+		case :
+
+		}*/
+
+		plog.Error("Response Parsing Error: ", err)
+		return fluResp
+	}
+	return fluResp
+}
+
+/* This function will check whether we need to try calling again to the hitting server.
+It calls back in case of
+-	HTTP ERR 408 (Request Timeout)
+-	HTTP ERR 500 (Internal Server Error)
+-	HTTP ERR 501 (Not Implemented)
+-	HTTP ERR 502 (Bad Gateway)
+-	HTTP ERR 503 (Service Unavailable)
+-	HTTP ERR 504 (Gateway Timeout)
+-	HTTP ERR 505 (HTTP Version Not Supported)
+-	HTTP ERR 511 (Network Authentication Required)
+*/
+func HttpCodeForCallback(httpStatusCode int) bool {
+	switch httpStatusCode {
+	case
+		http.StatusRequestTimeout,
+		http.StatusInternalServerError,
+		http.StatusNotImplemented,
+		http.StatusBadGateway,
+		http.StatusServiceUnavailable,
+		http.StatusGatewayTimeout,
+		http.StatusHTTPVersionNotSupported,
+		http.StatusNetworkAuthenticationRequired:
+		return true
+	}
+	return false
+}
+
+func IsValidInternalError(internalCode string) bool {
+	switch internalCode {
+	case
+		status_codes.FF_FluIdNotPresent,
+		status_codes.FF_RefIdNotPresent,
+		status_codes.FF_TagIdNotPresent,
+		status_codes.FF_ResultInvalid,
+		status_codes.FF_Other:
+		return true
+	}
+	return false
+}
+
+func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp FluResponse) {
+
+	dbLogArr := make([]models.FeedLineLog, len(completedFLUs))
+	jsObj := models.JsonF{}
+	jsonBytes, _ := json.Marshal(resp)
+	jsObj.Scan(string(jsonBytes))
+	for i, fl := range completedFLUs {
+		dbLog := models.FeedLineLog{
+			//ID         int            `db:"id" json:"id" bson:"_id"`
+			FluId:       fl.ID,
+			Message:     sql.NullString{message, true},
+			MetaData:    jsObj,
+			Event:       10,
+			StepType:    sql.NullInt64{int64(12), true},
+			StepId:      fl.StepId,
+			CreatedAt:   fl.CreatedAt,
+			MasterFluId: fl.MasterId,
+		}
+		dbLogArr[i] = dbLog
+	}
+	flu_logger_svc.LogRaw(dbLogArr)
+}

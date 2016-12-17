@@ -10,29 +10,12 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/utilities"
-	"math"
 	"sync"
 	"time"
 )
 
-type config struct {
-	projectId      uuid.UUID
-	maxFluCount    int
-	postBackUrl    string
-	queryFrequency int
-	queue          feed_line.Fl
-}
-
 type FluMonitor struct {
 	PoolIsRunning bool
-}
-
-type fluOutputStruct struct {
-	ID          uuid.UUID   `json:"flu_id"`
-	ReferenceId string      `json:"reference_id"`
-	Tag         string      `json:"tag"`
-	Status      string      `json:"status"`
-	Result      interface{} `json:"result"`
 }
 
 var retryCount = make(map[uuid.UUID]int)
@@ -53,8 +36,8 @@ var availableQps = totalQps
 
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
-	clientQ := queues[flu.ProjectId]
-	if clientQ == nil {
+	clientQ, present := queues[flu.ProjectId]
+	if !present {
 		clientQ := feed_line.New(flu.ProjectId.String())
 		queues[flu.ProjectId] = clientQ
 	}
@@ -75,123 +58,13 @@ func saveProjectConfig(flu models.FeedLineUnit) {
 			plog.Error("DB Error:", err)
 			return errors.New("No Project Configuration found for FluProject:" + flu.ProjectId.String())
 		}
+
+		// reconsider
 		maxFluCount := getMaxFluCount(fpsModel)
 		postbackUrl := fpsModel.PostBackUrl
 		//TODO Handle invalid url
 		queryFrequency := getQueryFrequency(fpsModel)
-		value = config{flu.ProjectId, maxFluCount, postbackUrl, queryFrequency}
+		value = config{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency}
 		projectConfig[flu.ProjectId] = value
 	}
 }
-
-func getQueryFrequency(fpsModel models.ProjectConfiguration) interface{} {
-	val := fpsModel.Options[QUERY_FREQUENCY]
-	if val == nil {
-		//TODO change later. take from config
-		return 5
-	}
-	queryFrequency := utilities.GetInt(val.(string))
-	if queryFrequency == 0 {
-		//TODO change later. take from config
-		queryFrequency = 5
-	}
-	return queryFrequency
-}
-
-func getMaxFluCount(fpsModel models.ProjectConfiguration) int {
-	val := fpsModel.Options[MAX_FLU_COUNT]
-	if val == nil {
-		return defaultFluThresholdCount
-	}
-	maxFluCount := utilities.GetInt(val.(string))
-	if maxFluCount == 0 {
-		maxFluCount = defaultFluThresholdCount
-	}
-	return maxFluCount
-}
-
-func (fm *FluMonitor) servicePoolStart() error {
-	if fm.PoolIsRunning {
-		return
-	}
-	fm.PoolIsRunning = true
-
-	rate := time.Second
-
-	throttle := time.Tick(rate)
-	for {
-		<-throttle
-		distributor() //call method to distribute every second
-	}
-}
-
-func distributor() {
-
-	// get clients count
-	clientCount := len(projectConfig)
-	// divide our capacity/number of clients = somenum
-	availabiltyPerClient := availableQps / clientCount
-
-	mutex.Lock // needed?
-	defer mutex.Unlock()
-	for k, v := range projectConfig {
-		actualCount := math.Min(availabiltyPerClient, v.queryFrequency)
-		//make request in 1/actual_count time intervals
-		availableQps -= actualCount
-		rate := time.Second / actualCount
-
-		throttle := time.Tick(rate)
-		for {
-			<-throttle
-			go func() {
-				makeRequest(k, v)
-			}()
-			// retry logic?
-		}
-	}
-
-}
-func makeRequest(projectId uuid.UUID, projectConfig config) error {
-	// getFluOutputObj(projectConfig)
-	limit := projectConfig.maxFluCount
-	plog.Info("SENDING FLUs COUNT: ", limit)
-	queue := queues[projectConfig.projectId]
-	var fluOutputObj []fluOutputStruct
-	for i := limit - 1; i >= 0; i-- {
-		receiver := queue.Receiver()
-
-		flu := <-receiver
-		defer flu.ConfirmReceive() // defer what happens
-
-		// if queue empty, break
-		if flu == nil {
-			delete(projectConfig, projectId)
-			break
-		}
-		result, ok := flu.Build[RESULT]
-		if !ok {
-			result = models.JsonF{}
-		}
-
-		fluOutputObj = append(fluOutputObj, fluOutputStruct{
-			ID:          flu.ID,
-			ReferenceId: flu.ReferenceId,
-			Tag:         flu.Tag,
-			Status:      STATUS_OK,
-			Result:      result,
-		})
-	}
-
-	// http call and retry logic
-	// make request
-	// keep retrying in case of failure
-	// if success availableQps --
-	// defer flu.ConfirmReceive, if the server crashes before the httpcall it stays in queue??
-
-	return
-}
-
-/*func getFluOutputObj(projectConfig config) (fluOutputObj []fluOutputStruct) {
-
-	return
-}*/

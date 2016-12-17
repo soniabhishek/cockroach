@@ -5,7 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/plog"
 )
 
-func makeRequest(projectConfig config) error {
+func makeRequest(projectConfig projectConfig) error {
 	// getFluOutputObj(projectConfig)
 	limit := projectConfig.maxFluCount
 	plog.Info("SENDING FLUs COUNT: ", limit)

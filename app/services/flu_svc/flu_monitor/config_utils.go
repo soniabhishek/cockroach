@@ -1,20 +1,9 @@
 package flu_monitor
 
 import (
-	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/utilities"
 )
-
-type config struct {
-	projectId      uuid.UUID
-	config         models.ProjectConfiguration
-	maxFluCount    int
-	postBackUrl    string
-	queryFrequency int
-	queue          feed_line.Fl
-}
 
 func getQueryFrequency(fpsModel models.ProjectConfiguration) interface{} {
 	val := fpsModel.Options[QUERY_FREQUENCY]

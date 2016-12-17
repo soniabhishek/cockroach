@@ -18,6 +18,15 @@ type FluMonitor struct {
 	PoolIsRunning bool
 }
 
+type projectConfig struct {
+	projectId      uuid.UUID
+	config         models.ProjectConfiguration
+	maxFluCount    int
+	postBackUrl    string
+	queryFrequency int
+	queue          feed_line.Fl
+}
+
 var retryCount = make(map[uuid.UUID]int)
 var mutex = &sync.RWMutex{}
 var dbLogger = feed_line_repo.NewLogger()
@@ -27,8 +36,8 @@ var fluThresholdDuration = int64(utilities.GetInt(config.FLU_THRESHOLD_DURATION.
 var monitorTimePeriod = time.Duration(utilities.GetInt(config.MONITOR_TIME_PERIOD.Get())) * time.Millisecond
 var retryThreshold = utilities.GetInt(config.FLU_RETRY_THRESHOLD.Get())
 
-var projectConfig = make(map[uuid.UUID]config) // Hash map to store config
-var queues = make(map[uuid.UUID]feed_line.Fl)  // Hash map to store queues
+var activeProjects = make(map[uuid.UUID]projectConfig) // Hash map to store config
+var queues = make(map[uuid.UUID]feed_line.Fl)          // Hash map to store queues
 
 var defaultFluThresholdCount = utilities.GetInt(config.DEFAULT_FLU_THRESHOLD_COUNT.Get())
 var totalQps = utilities.GetInt(config.TOTAL_QPS.Get())
@@ -50,7 +59,7 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 }
 
 func saveProjectConfig(flu models.FeedLineUnit) {
-	value, valuePresent := projectConfig[flu.ProjectId]
+	value, valuePresent := activeProjects[flu.ProjectId]
 	if valuePresent == false {
 		fpsRepo := project_configuration_repo.New()
 		fpsModel, err := fpsRepo.Get(flu.ProjectId)
@@ -65,6 +74,6 @@ func saveProjectConfig(flu models.FeedLineUnit) {
 		//TODO Handle invalid url
 		queryFrequency := getQueryFrequency(fpsModel)
 		value = config{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency}
-		projectConfig[flu.ProjectId] = value
+		activeProjects[flu.ProjectId] = value
 	}
 }

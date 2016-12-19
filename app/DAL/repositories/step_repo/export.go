@@ -2,6 +2,7 @@ package step_repo
 
 import (
 	"github.com/crowdflux/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 )
@@ -19,5 +20,11 @@ type IStepRepo interface {
 func New() IStepRepo {
 	return &stepRepo{
 		Db: postgres.GetPostgresClient(),
+	}
+}
+
+func NewCustom(db repositories.IDatabase) IStepRepo {
+	return &stepRepo{
+		Db: db,
 	}
 }

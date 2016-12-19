@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"reflect"
 
+	"database/sql"
 	"github.com/crowdflux/angel/utilities"
 )
 
 const dbTag string = "db"
+
+type queryFunc func(query string, args ...interface{}) (*sql.Rows, error)
 
 // This method allows you to write joins & get results from
 // multiple tables in one query
@@ -22,19 +25,21 @@ const dbTag string = "db"
 // 	models.MicroTask
 // }
 // and input query must give the results in form of macro_tasks.*, micro_task.*
-// and NO EXTRA crap (see postgres_join_test.go for more)
+// and NO EXTRA crap (see select_join_test.go for more)
 //
 // It will fill the given struct with values
 // and can be taken out for other use
 //
 // TODO Currently this doesn't support multi level embedded structs. Add it in future
-func (pg *postgres_db) SelectOneJoin(holder interface{}, query string, args ...interface{}) error {
+func selectOneJoin(qry queryFunc, holder interface{}, query string, args ...interface{}) error {
 
 	//Db.query --> native sql drive's query method
-	r, err := pg.gorpDbMap.Db.Query(query, args...)
+	r, err := qry(query, args...)
 	if err != nil {
 		return err
 	}
+	defer r.Close()
+
 	//check if any row is present
 	if r.Next() {
 
@@ -123,13 +128,14 @@ func mapColumnsToInterfaces(inVal reflect.Value, columns []string) []interface{}
 	return rvalues
 }
 
-func (pg *postgres_db) SelectJoin(holder interface{}, query string, args ...interface{}) error {
+func selectJoin(qry queryFunc, holder interface{}, query string, args ...interface{}) error {
 
 	//Db.query --> native sql drive's query method
-	r, err := pg.gorpDbMap.Db.Query(query, args...)
+	r, err := qry(query, args...)
 	if err != nil {
 		return err
 	}
+	defer r.Close()
 
 	//verify the type and get the underlying value of array
 	t, err := toSliceType(holder)

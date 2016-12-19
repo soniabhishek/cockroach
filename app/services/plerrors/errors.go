@@ -1,8 +1,21 @@
 package plerrors
 
+import "github.com/crowdflux/angel/app/models"
+
 type ServiceError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
+}
+
+type ErrorResponse struct {
+	Success bool      `json:"success"`
+	Error   ErrorBody `json:"error"`
+}
+
+type ErrorBody struct {
+	Code     string       `json:"code"`
+	Message  string       `json:"message"`
+	MetaData models.JsonF `json:"meta_data"`
 }
 
 func (s ServiceError) Error() string {

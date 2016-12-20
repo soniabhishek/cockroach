@@ -151,6 +151,7 @@ func (e *fluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
 	plog.Trace("FLUREPO", "got updatable flus")
 
 	query := queryBuffer.String()
+	plog.Trace("FLUREPO", "Query built. Running query.")
 
 	res, err := e.Db.Exec(query)
 	if err != nil {
@@ -200,6 +201,7 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 		where tmp.id = fl.id;`)
 
 	query := queryBuffer.String()
+	plog.Trace("FLU REPO. Query built. Running Query ")
 	res, err := e.Db.Exec(query)
 	if err != nil {
 		return updatableRows, nonUpdatableFlus, err

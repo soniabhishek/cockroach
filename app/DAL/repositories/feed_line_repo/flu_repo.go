@@ -7,6 +7,7 @@ import (
 
 	"fmt"
 
+	"bytes"
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/DAL/repositories/queries"
 	"github.com/crowdflux/angel/app/DAL/repositories/step_repo"
@@ -104,9 +105,12 @@ func (e *fluRepo) BulkUpdate(flus []models.FeedLineUnit) error {
 }
 
 func (e *fluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
-	query := `update feed_line as fl set
+
+	plog.Trace("FLUREPO", "Reached Bulk Update")
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(`update feed_line as fl set
 		    build = tmp.build, updated_at = tmp.updated_at
-		  from (values `
+		  from (values `)
 
 	updatableRowsCount := 0
 
@@ -124,7 +128,7 @@ func (e *fluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
 		}
 
 		if updatableRowsCount > 0 {
-			query += ","
+			queryBuffer.WriteString(",")
 		}
 		updatableRowsCount++
 
@@ -135,19 +139,22 @@ func (e *fluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
 		updatedAtVal := pq.NullTime{time.Now(), true}.Time.Format(time.RFC3339)
 
 		tmp := fmt.Sprintf(`('%v'::uuid, '%v'::jsonb, '%v'::timestamp with time zone)`, idVal, buildVal, updatedAtVal)
-		query += tmp
+		queryBuffer.WriteString(tmp)
 
 	}
-	query += `) as tmp(id, build, updated_at)
-		where tmp.id = fl.id;`
+	queryBuffer.WriteString(`) as tmp(id, build, updated_at)
+		where tmp.id = fl.id;`)
 
 	if updatableRowsCount == 0 {
 		return errors.New("No updatable flu")
 	}
+	plog.Trace("FLUREPO", "got updatable flus")
 
+	query := queryBuffer.String()
 	if config.IsDevelopment() || config.IsStaging() {
 		plog.Info("Running Q: ", query)
 	}
+	plog.Trace("FLU REPO. Running Query: ", query)
 	res, err := e.Db.Exec(query)
 	if err != nil {
 		return err
@@ -160,6 +167,7 @@ func (e *fluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
 
 func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, nonUpdatableFlus []models.FeedLineUnit, err error) {
 
+	plog.Trace("FLUREPO", "Reached Bulk Upload by step type")
 	updatableRows, nonUpdatableFlus, err := e.getUpdableFlus(flus, stepType)
 	if err != nil {
 		return updatableRows, nonUpdatableFlus, err
@@ -168,10 +176,11 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 	if len(updatableRows) == 0 {
 		return updatableRows, nonUpdatableFlus, ErrNoUpdatableFlus
 	}
-
-	query := `update feed_line as fl set
+	plog.Trace("FLUREPO", "got updatable & non updatable flus")
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(`update feed_line as fl set
 		    build = tmp.build, updated_at = tmp.updated_at
-		  from (values `
+		  from (values `)
 
 	for i, flu := range updatableRows {
 
@@ -184,15 +193,17 @@ func (e *fluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepT
 		updatedAtVal := pq.NullTime{time.Now(), true}.Time.Format(time.RFC3339)
 
 		if i > 0 {
-			query += ","
+			queryBuffer.WriteString(",")
 		}
 
 		tmp := fmt.Sprintf(`('%v'::uuid, '%v'::jsonb, '%v'::timestamp with time zone)`, idVal, buildVal, updatedAtVal)
-		query += tmp
+		queryBuffer.WriteString(tmp)
 	}
-	query += `) as tmp(id, build, updated_at)
-		where tmp.id = fl.id;`
+	queryBuffer.WriteString(`) as tmp(id, build, updated_at)
+		where tmp.id = fl.id;`)
 
+	query := queryBuffer.String()
+	plog.Trace("FLU REPO. Running Query: ", query)
 	res, err := e.Db.Exec(query)
 	if err != nil {
 		return updatableRows, nonUpdatableFlus, err

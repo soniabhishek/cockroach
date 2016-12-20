@@ -19,6 +19,8 @@ func makeRequest(projectConfig projectConfig) error {
 
 		// if queue empty, break
 		// adjust with the wait time in switch case channel
+		// some bufferred channel logic instead of counting in for loop?
+
 		if flu == nil {
 			delete(projectConfig, projectConfig.projectId)
 			break

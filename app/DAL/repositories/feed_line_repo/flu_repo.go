@@ -11,7 +11,6 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/DAL/repositories/queries"
 	"github.com/crowdflux/angel/app/DAL/repositories/step_repo"
-	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"

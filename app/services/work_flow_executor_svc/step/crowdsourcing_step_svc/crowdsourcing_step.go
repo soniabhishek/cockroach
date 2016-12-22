@@ -42,6 +42,7 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 		flu.ID == uuid.FromStringOrNil("864d6201-1d4d-4414-a5b4-cb264cd2f915") ||
 		flu.ID == uuid.FromStringOrNil("cf364845-4a92-4193-9e5c-3496607c4da7") {
 		flu.ConfirmReceive()
+		return
 	}
 	c.AddToBuffer(flu)
 

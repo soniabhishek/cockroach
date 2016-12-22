@@ -75,8 +75,8 @@ func Build() {
 	{
 		work_flow_svc.AddHttpTransport(authorized_header)
 	}
-
-	authorized := r.Group("/api/v0", auther.GinAuther())
+	//auther.GinAuther()
+	authorized := r.Group("/api/v0")
 	{
 		flu_svc_transport.AddHttpTransport(authorized)
 	}

@@ -6,6 +6,8 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
+	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/lib/pq"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -114,15 +116,47 @@ func (i *inputQueue) MarkFinished(flus []models.FeedLineUnit) error {
 	return err
 }
 
-func (i *inputQueue) BulkAdd(bulkData []interface{}) (insertedFlus []models.FeedLineUnit, nonInsertedFlus []models.FeedLineUnit, err error) {
+func (i *inputQueue) BulkAdd(flu []models.FeedLineUnit) plerrors.BulkInsertError {
+	bulkData := make([]interface{}, 0, len(flu))
+
+	for i, _ := range flu {
+		switch {
+		case flu[i].ID == uuid.Nil:
+			flu[i].ID = uuid.NewV4()
+			fallthrough
+		case flu[i].CreatedAt.Valid == false:
+			flu[i].CreatedAt = pq.NullTime{time.Now(), true}
+		}
+
+		flu[i].IsMaster = true
+		flu[i].IsActive = true
+		flu[i].MasterId = flu[i].ID
+		bulkData = append(bulkData, feedLineInputModel{
+			FeedLineUnit:    flu[i],
+			RetryCount:      0,
+			Status:          queued,
+			IdString:        flu[i].ID.String(),
+			ProjectIdString: flu[i].ProjectId.String(),
+		})
+	}
 	bulk := i.mgo.C("testing").Bulk()
 	bulk.Unordered()
 	bulk.Insert(bulkData...)
+
 	_, err := bulk.Run()
 	if e, ok := err.(*mgo.BulkError); ok {
-		return e.Cases()
+		berr := plerrors.BulkInsertError{}
+		berr.Error = flu_errors.ErrBulkError
+		for _, x := range e.Cases() {
+			berr.BulkError = append(berr.BulkError, plerrors.ChildError{
+				x.Err.Error(),
+				flu[x.Index],
+			})
+		}
+		return berr
 	} else {
-		panic("Mongo Error")
+		bulkerr := plerrors.BulkInsertError{}
+		bulkerr.Error = err
+		return bulkerr
 	}
-	return err
 }

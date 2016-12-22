@@ -18,6 +18,16 @@ type ErrorBody struct {
 	MetaData models.JsonF `json:"meta_data"`
 }
 
+type BulkInsertError struct {
+	Error     error
+	BulkError []ChildError
+}
+
+type ChildError struct {
+	Message string
+	Flu     models.FeedLineUnit
+}
+
 func (s ServiceError) Error() string {
 	return "Service Error : " + s.Code + " : " + s.Message
 }

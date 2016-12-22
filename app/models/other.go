@@ -5,6 +5,7 @@ import (
 
 	"github.com/lib/pq"
 
+	"github.com/crowdflux/angel/app/models/flu_upload_status"
 	"github.com/crowdflux/angel/app/models/uuid"
 )
 
@@ -61,4 +62,11 @@ type WorkFlowCloneModel struct {
 	WorkFlowId uuid.UUID               `json:"workFlow_id"`
 	Label      string                  `json:"label"`
 	Tags       []WorkFlowTagAssociator `json:"tags"`
+}
+
+type FluUploadStats struct {
+	Status            flu_upload_status.FluUploadStatus
+	TotalFluCount     int
+	CompletedFluCount int
+	ErrorFluCount     int
 }

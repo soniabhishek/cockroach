@@ -18,7 +18,7 @@ type IFluRepo interface {
 	Update(feedLineUnit models.FeedLineUnit) error
 	GetByStepId(StepId uuid.UUID) ([]models.FeedLineUnit, error)
 	BulkFluBuildUpdate(flus []models.FeedLineUnit) error
-	BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, err error)
+	BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, nonUpdatableFlus []models.FeedLineUnit, err error)
 	GetFlusNotSent(StepId uuid.UUID) ([]models.FeedLineUnit, error)
 }
 
@@ -117,7 +117,7 @@ func (e *inMemFluRepo) BulkFluBuildUpdate(flus []models.FeedLineUnit) error {
 	return nil
 }
 
-func (e *inMemFluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, err error) {
+func (e *inMemFluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, stepType step_type.StepType) (updatedFlus []models.FeedLineUnit, nonUpdatableFlus []models.FeedLineUnit, err error) {
 	panic("not implemented")
 	return
 }

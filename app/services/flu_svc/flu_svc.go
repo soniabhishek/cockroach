@@ -3,20 +3,22 @@ package flu_svc
 import (
 	"encoding/csv"
 	"errors"
+	"github.com/crowdflux/angel/app/DAL/imdb"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/flu_upload_status"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
+	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc"
 	"github.com/crowdflux/angel/utilities"
-	"github.com/lib/pq"
 	"io"
+	"mime/multipart"
 	"os"
 	"strconv"
-	"time"
 )
 
 type fluService struct {
@@ -35,8 +37,7 @@ func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 	if err != nil {
 		return err
 	}
-
-	err = checkProjectExists(i.projectsRepo, flu.ProjectId)
+	err = i.CheckProjectExists(flu.ProjectId)
 	if err != nil {
 		return err
 	}
@@ -110,67 +111,96 @@ func (i *fluService) GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, erro
 	return flu, err
 }
 
-func (i *fluService) BulkAddFeedLineUnit(fileName string) {
-	file := `./uploads/` + string(os.PathSeparator) + fileName
-	csvFile, err := os.Open(file)
+//This Services Read From File Descriptor and fetch contents row by row
+func (i *fluService) BulkAddFeedLineUnit(file multipart.File, errorCsv *os.File, fileName string, projectId uuid.UUID) {
+	reader := csv.NewReader(file)
+	reader.FieldsPerRecord = 3 // so the reader will always check how many records are present in each row sequence ['Reference Id', 'Tag', 'Body']
+
+	errorWriter := csv.NewWriter(errorCsv)
+
+	batcherChan := make(chan models.FeedLineUnit) //this channel will be used to batch the Flus
+	errorChan := make(chan plerrors.ChildError)   //this channel will be used to receive errors
+	errorWriterChan := make(chan []string)        //this channel is for writing data to error csv
+
+	//check header for utf-8 and csv format
+	row, err := reader.Read()
 	if err != nil {
-		plog.Error("Manual Step", err, "csv opening")
-		mongoTracker()
+		//Put Failed Status
+		plog.Error("Not in correct format.", errors.New("Invalid Upload"))
+		i.UpdateUploadStatus(projectId, flu_upload_status.Failure)
 		return
 	}
-	defer csvFile.Close()
+	wrongCol, err := utilities.IsValidUTF8(row)
+	if wrongCol != -1 {
+		//Put Failed Status
+		plog.Error("Not in correct encoding[UTF-8].", errors.New("Invalid Upload"))
+		i.UpdateUploadStatus(projectId, flu_upload_status.Failure)
+		return
+	}
 
-	reader := csv.NewReader(csvFile)
-	reader.FieldsPerRecord = 2 // so the reader will always check how many records are present in each row
+	go writeCsvError(errorWriter, errorWriterChan, projectId.String())
+	//This will be Used to collect flus from batcherChann and Create a batch of given size and returns bulk error in errorChann
+	go mongoBatcher(batcherChan, errorChan, 3000)
 
-	batcherChan := make(chan models.FeedLineUnit)
-	errorChan := make(chan error)
+	defer close(batcherChan)
 
-	go mongoBatcher(batcherChan, 1000, errorChan)
+	//This Go routine will be used to fetch errors in bulk insert and will write them in error file
+	go func() {
+		receiveBulkError(errorChan, errorWriterChan)
+		close(errorWriterChan)
+		errorWriter.Flush()
+		errorCsv.Close()
+	}()
 
-	var cnt int = -1
+	i.UpdateUploadStatus(projectId, flu_upload_status.Processing)
+	var cnt int = 1
 	for {
 		row, err := reader.Read()
 		if err == io.EOF {
-			close(batcherChan)
 			break
 		}
+
+		cnt++
+		//Updating cache Status
+
+		project := projectId.String()
+		fus, _ := imdb.FluUploadCache.Get(project)
+		fus.CompletedFluCount = cnt
+		imdb.FluUploadCache.Set(project, fus)
+
 		if err != nil {
 			plog.Error(" csv reading error", err)
-			mongoTracker()
-			return
+			row = append(row, err.Error())
+			errorWriterChan <- row
+			continue
 		}
-		cnt++
 
 		wrongCol, err := utilities.IsValidUTF8(row)
 		if wrongCol != -1 {
 			plog.Error("Not in correct encoding[UTF-8]. [Row:"+strconv.Itoa(cnt)+", Col:"+strconv.Itoa(wrongCol)+"]", err)
-			mongoTracker()
-			return
-		}
-		if cnt == 0 {
+			row = append(row, err.Error())
+			errorWriterChan <- row
 			continue
 		}
 
-		flu, err := getFlu(row)
+		flu, err := getFlu(row, projectId)
 		if err != nil {
 			plog.Error(" csv reading error", err)
-			mongoTracker()
-			return
+			row = append(row, err.Error())
+			errorWriterChan <- row
+			continue
 		}
-		flu.Build = flu.Data.Copy()
-		_, err = i.fluValidator.Validate(flu)
+		isValid, err := i.fluValidator.Validate(&flu)
 		if err != nil {
-			mongoTracker()
-			return
+			row = append(row, err.Error())
+			errorWriterChan <- row
+			continue
 		}
-
-		err = checkProjectExists(i.projectsRepo, flu.ProjectId)
-		if err != nil {
-			mongoTracker()
-			return
+		if !isValid {
+			row = append(row, err.Error())
+			errorWriterChan <- row
+			continue
 		}
-
 		batcherChan <- flu
 	}
 }
@@ -179,83 +209,31 @@ func (i *fluService) BulkAddFeedLineUnit(fileName string) {
 //CHECK PROJECT
 //--------------------------------------------------------------------------------//
 
-func checkProjectExists(r projects_repo.IProjectsRepo, mId uuid.UUID) error {
-	_, err := r.GetById(mId)
+func (i *fluService) CheckProjectExists(mId uuid.UUID) error {
+	_, err := i.projectsRepo.GetById(mId)
 	return err
 }
 
-//This Should be implemented for testing purspose
-func mongoTracker() {
-
-}
-
-func getFlu(row []string) (flu models.FeedLineUnit, err error) {
-	fluId := row[0]
-	id, err := uuid.FromString(fluId)
+func (i *fluService) CheckCsvUploaded(projectId string) (bool, error) {
+	fus, err := imdb.FluUploadCache.Get(projectId)
 	if err != nil {
-		plog.Error("Error ID:", err)
-		return flu, errors.New("ID is not valid. [" + fluId + "]")
-	}
-
-	build := models.JsonF{}
-	buildVal := row[1]
-	if err := build.Scan(buildVal); err != nil {
-		plog.Error("Error Build:", err)
-		return flu, errors.New("Build field is not valid. [" + buildVal + "]")
-	}
-
-	flu = models.FeedLineUnit{
-		ID:    id,
-		Build: build,
-	}
-	return flu, nil
-}
-
-type feedLineInputModel struct {
-	models.FeedLineUnit `bson:",inline"`
-	RetryCount          uint                `bson:"retry_count"`
-	Status              feedLineQueueStatus `bson:"status"`
-	IdString            string              `bson:"id_string"`
-	ProjectIdString     string              `bson:"project_id_string"`
-}
-
-type feedLineQueueStatus uint
-
-func mongoBatcher(c chan models.FeedLineUnit, batchSize int, err chan error) {
-	fin := feed_line_repo.NewInputQueue()
-
-	bulkData := make([]interface{}, 0, batchSize)
-	count := 0
-	for {
-		flu, ok := <-c
-		if !ok {
-			if len(bulkData != 0) {
-				fin.BulkAdd(bulkData)
-			}
-			break
-		} else {
-			switch {
-			case flu.ID == uuid.Nil:
-				flu.ID = uuid.NewV4()
-				fallthrough
-			case flu.CreatedAt.Valid == false:
-				flu.CreatedAt = pq.NullTime{time.Now(), true}
-			}
-			flu.IsMaster = true
-			flu.IsActive = true
-			flu.MasterId = flu.ID
-			bulkData = append(bulkData, feedLineInputModel{
-				FeedLineUnit:    flu,
-				RetryCount:      0,
-				Status:          0,
-				IdString:        flu.ID.String(),
-				ProjectIdString: flu.ProjectId.String(),
-			})
-			count++
-			if count%batchSize == 0 {
-				fin.BulkAdd(bulkData)
-				bulkData = bulkData[:0]
-			}
+		return true, nil
+	} else {
+		if fus.Status == flu_upload_status.Failure || fus.Status == flu_upload_status.Success || fus.Status == flu_upload_status.PartialUpload {
+			plog.Info("CHECHK CSV UPLOAD", "overriding existing status")
+			return true, nil
 		}
 	}
+	return false, errors.New("File Upload Alreay in Progress")
+}
+
+//This Will Override cached data. in case of success, failure, partial upload.
+func (i *fluService) UpdateUploadStatus(projectId uuid.UUID, status flu_upload_status.FluUploadStatus) {
+	val := models.FluUploadStats{}
+	val.Status = status
+	imdb.FluUploadCache.Set(projectId.String(), val)
+}
+
+func (i *fluService) GetUploadStatus(projectId string) (models.FluUploadStats, error) {
+	return imdb.FluUploadCache.Get(projectId)
 }

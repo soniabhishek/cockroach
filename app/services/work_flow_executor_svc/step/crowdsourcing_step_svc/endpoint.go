@@ -74,13 +74,19 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 		})
 	}
 
-	updatedFlus, err := flr.BulkFluBuildUpdateByStepType(flus, step_type.CrowdSourcing)
+	updatedFlus, nonUpdableFlus, err := flr.BulkFluBuildUpdateByStepType(flus, step_type.CrowdSourcing)
 	if err != nil {
 		if err != feed_line_repo.ErrPartiallyUpdatedFlus && err != feed_line_repo.ErrNoUpdatableFlus {
 			plog.Error("Flu Handler Bulk Update, Aborting", err)
 			return err
 		} else {
-			plog.Error("crowdy flu handler partially updated", err, "updated ids", updatedFlus)
+
+			nonUpdatableIds := []uuid.UUID{}
+			for _, flu := range nonUpdableFlus {
+				nonUpdatableIds = append(nonUpdatableIds, flu.ID)
+			}
+
+			plog.Error("crowdy flu handler partially updated", err, "nonUpdatableIds: ", nonUpdatableIds)
 			// this wont return
 			// this will continue
 		}

@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"fmt"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/config"
@@ -129,12 +128,13 @@ func UploadCsv(filename string) error {
 	plog.Info("Manual Step", "Flus going to be updated from csv upload ", len(flus), " first flu ", flus[0])
 
 	flRepo := feed_line_repo.New()
-	updatedFlus, err := flRepo.BulkFluBuildUpdateByStepType(flus, step_type.Manual)
+	updatedFlus, _, err := flRepo.BulkFluBuildUpdateByStepType(flus, step_type.Manual)
 	if err != nil {
 		if err != feed_line_repo.ErrPartiallyUpdatedFlus {
 			return err
 		}
 	}
+	plog.Trace("MANUAL STEP", "bulk update finished")
 
 	go func() {
 

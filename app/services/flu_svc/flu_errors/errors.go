@@ -1,6 +1,9 @@
 package flu_errors
 
-import "github.com/crowdflux/angel/app/services/plerrors"
+import (
+	"github.com/crowdflux/angel/app/services/plerrors"
+	"github.com/pkg/errors"
+)
 
 var ErrDuplicateReferenceId plerrors.ServiceError = plerrors.ServiceError{"FS_0001", "Duplicate Reference Id"}
 var ErrReferenceIdMissing plerrors.ServiceError = plerrors.ServiceError{"FS_0002", "Reference Id Missing"}
@@ -8,3 +11,4 @@ var ErrDataMissing plerrors.ServiceError = plerrors.ServiceError{"FS_0004", "Dat
 var ErrTagMissing plerrors.ServiceError = plerrors.ServiceError{"FS_0005", "Tag Missing"}
 var ErrFluNotFound plerrors.ServiceError = plerrors.ServiceError{"FS_0006", "FeedLineUnit not found"}
 var ErrImageNotValid plerrors.ServiceError = plerrors.ServiceError{"FS_0007", "Image urls not valid"}
+var ErrBulkError error = errors.New("Error in Bulk Insert")

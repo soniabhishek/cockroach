@@ -1,6 +1,7 @@
 package work_flow_io_svc
 
 import (
+	"github.com/crowdflux/angel/app/DAL/clients/postgres"
 	"github.com/crowdflux/angel/app/DAL/repositories/clients_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/step_repo"
@@ -9,6 +10,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/workflow_tags_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/pkg/errors"
 )
 
@@ -54,6 +56,23 @@ This will be used to add a new Workflow for a given projectId
 
 */
 func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer models.WorkflowContainer) (workflowContainer models.WorkflowContainer, err error) {
+
+	//Get transaction client
+	trans := postgres.GetTransactionClient()
+	defer func() {
+		if err != nil {
+			trans.Rollback()
+		}
+		if r := recover(); r != nil {
+			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), r)
+		}
+	}()
+	//Make repos transaction
+	workflowRepo := workflow_repo.NewCustom(trans)
+	stepRepo := step_repo.NewCustom(trans)
+	stepRouterRepo := step_router_repo.NewCustom(trans)
+	workflowTagsRepo := workflow_tags_repo.NewCustom(trans)
+
 	//Checks If the project Id is valid or not
 	exist, err := w.projectsRep.IfIdExist(receivedWorkflowContainer.ProjectId)
 	if err != nil {
@@ -70,7 +89,7 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 
 	/* Here All Validations Needs to be Performed so as to make Complete Operation Atomic*/
 
-	err = w.workflowRepo.Add(&receivedWorkflowContainer.WorkFlow) /*Perform in End */
+	err = workflowRepo.Add(&receivedWorkflowContainer.WorkFlow) /*Perform in End */
 	if err != nil {
 		return
 	}
@@ -86,18 +105,21 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 		receivedWorkflowContainer.Steps[i].WorkFlowId = receivedWorkflowContainer.WorkFlow.ID
 	}
 
-	err = w.stepRepo.AddMany(receivedWorkflowContainer.Steps)
+	err = stepRepo.AddMany(receivedWorkflowContainer.Steps)
 	if err != nil {
 		return
 	}
-	err = w.stepRouterRepo.AddMany(receivedWorkflowContainer.Routes)
+	err = stepRouterRepo.AddMany(receivedWorkflowContainer.Routes)
 	if err != nil {
 		return
 	}
-	err = w.workflowTagsRepo.Add(receivedWorkflowContainer.Tags)
+	err = workflowTagsRepo.Add(receivedWorkflowContainer.Tags)
 	if err != nil {
 		return
 	}
+
+	trans.Commit()
+
 	return receivedWorkflowContainer, nil
 }
 
@@ -105,6 +127,22 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 This will update the existing workflow
 */
 func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContainer models.WorkflowContainer) (workflowContainer models.WorkflowContainer, err error) {
+
+	trans := postgres.GetTransactionClient()
+	defer func() {
+		if err != nil {
+			trans.Rollback()
+		}
+		if r := recover(); r != nil {
+			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), r)
+		}
+	}()
+	//Make repos transaction
+	workflowRepo := workflow_repo.NewCustom(trans)
+	stepRepo := step_repo.NewCustom(trans)
+	stepRouterRepo := step_router_repo.NewCustom(trans)
+	workflowTagsRepo := workflow_tags_repo.NewCustom(trans)
+
 	//This will check if Project Id in body exist or not
 	exist, err := w.projectsRep.IfIdExist(receivedWorkflowContainer.ProjectId)
 	if err != nil {
@@ -119,7 +157,7 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 		return
 	}
 	//This will check if Workflow Id in body exist or not
-	exist, err = w.workflowRepo.IfIdExist(receivedWorkflowContainer.ID)
+	exist, err = workflowRepo.IfIdExist(receivedWorkflowContainer.ID)
 	if err != nil {
 		return
 	}
@@ -129,17 +167,17 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 	}
 
 	//existing steps will be fetched based on the provided workflowId
-	existingSteps, err := w.stepRepo.GetStepsByWorkflowId(receivedWorkflowContainer.ID)
+	existingSteps, err := stepRepo.GetStepsByWorkflowId(receivedWorkflowContainer.ID)
 	if err != nil {
 		return
 	}
 	//existing routes will be fetched based on the provided workflowId
-	existingRoutes, err := w.stepRouterRepo.GetRoutesByWorkFlowId(receivedWorkflowContainer.ID)
+	existingRoutes, err := stepRouterRepo.GetRoutesByWorkFlowId(receivedWorkflowContainer.ID)
 	if err != nil {
 		return
 	}
 	//existing tags will be fetched based on the provided workflowId
-	existingTags, err := w.workflowTagsRepo.GetByWorkFlowId(receivedWorkflowContainer.ID)
+	existingTags, err := workflowTagsRepo.GetByWorkFlowId(receivedWorkflowContainer.ID)
 	if err != nil {
 		return
 	}
@@ -162,57 +200,59 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 	}
 	//Sequence should be add, update, delete
 
-	err = w.stepRepo.AddMany(insertSteps)
+	err = stepRepo.AddMany(insertSteps)
 	if err != nil {
 		return
 	}
 
-	err = w.stepRouterRepo.AddMany(insertRoutes)
+	err = stepRouterRepo.AddMany(insertRoutes)
 	if err != nil {
 		return
 	}
 
-	_, err = w.stepRepo.UpdateMany(updateSteps)
+	_, err = stepRepo.UpdateMany(updateSteps)
 	if err != nil {
 		return
 	}
 
-	_, err = w.stepRouterRepo.UpdateMany(updateRoutes)
+	_, err = stepRouterRepo.UpdateMany(updateRoutes)
 	if err != nil {
 		return
 	}
 
-	_, err = w.stepRouterRepo.DeleteMany(deleteRoutes)
+	_, err = stepRouterRepo.DeleteMany(deleteRoutes)
 	if err != nil {
 		return
 	}
 
-	_, err = w.stepRepo.DeleteMany(deleteSteps)
+	_, err = stepRepo.DeleteMany(deleteSteps)
 	if err != nil {
 		return
 	}
 
-	err = w.workflowTagsRepo.Add(insertTags)
+	err = workflowTagsRepo.Add(insertTags)
 	if err != nil {
 		return
 	}
 
-	err = w.workflowTagsRepo.Update(updateTags)
+	err = workflowTagsRepo.Update(updateTags)
 	if err != nil {
 		return
 	}
 
-	err = w.workflowTagsRepo.Delete(deleteTags)
+	err = workflowTagsRepo.Delete(deleteTags)
 	if err != nil {
 		return
 	}
-	err = w.workflowRepo.Update(&receivedWorkflowContainer.WorkFlow)
+	err = workflowRepo.Update(&receivedWorkflowContainer.WorkFlow)
 	if err != nil {
 		return
 	}
-	//finally after all insert update and delete mechanism we will fetch whole new workflow from backend
+
+	// Commit the transaction
+	trans.Commit()
+
 	return w.GetWorkflowContainer(receivedWorkflowContainer.ID)
-
 }
 
 /**

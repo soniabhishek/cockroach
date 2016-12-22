@@ -2,6 +2,7 @@ package workflow_tags_repo
 
 import (
 	"github.com/crowdflux/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 )
@@ -16,6 +17,12 @@ type IWorkflowTagsRepo interface {
 
 func New() IWorkflowTagsRepo {
 	return &workflow_tags_repo{
-		db: postgres.GetPostgresClient(),
+		Db: postgres.GetPostgresClient(),
+	}
+}
+
+func NewCustom(db repositories.IDatabase) IWorkflowTagsRepo {
+	return &workflow_tags_repo{
+		Db: db,
 	}
 }

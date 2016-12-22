@@ -47,12 +47,16 @@ func (*luigiClient) GetEncryptedUrls(images []string) (map[string]LuigiResponse,
 	}
 
 	if res.StatusCode != http.StatusOK {
-
-		return nil, errors.New("Error occured in luigi. Check image urls")
+		return nil, errors.New("Error occured in luigi. Non 200 Response. Check image urls. Status: " + res.Status)
 	}
 
 	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
+	body, err := ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var encResponse encryptionResponse
 	err = json.Unmarshal(body, &encResponse)
 

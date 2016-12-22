@@ -101,7 +101,8 @@
   },
   "plog" :{
     "log_level" : "<log_level>",
-    "log_type" :"<log_type>"
+    "log_type" :"<log_type>",
+    "log_location" : "<log_location>"
   },
   "newrelic" : {
     "key": "<newrelic_licence_key>"

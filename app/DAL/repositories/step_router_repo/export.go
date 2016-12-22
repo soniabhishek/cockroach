@@ -2,6 +2,7 @@ package step_router_repo
 
 import (
 	"github.com/crowdflux/angel/app/DAL/clients/postgres"
+	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 )
@@ -19,5 +20,11 @@ type IStepRoutesRepo interface {
 func New() IStepRoutesRepo {
 	return &stepRouteRepo{
 		Db: postgres.GetPostgresClient(),
+	}
+}
+
+func NewCustom(db repositories.IDatabase) IStepRoutesRepo {
+	return &stepRouteRepo{
+		Db: db,
 	}
 }

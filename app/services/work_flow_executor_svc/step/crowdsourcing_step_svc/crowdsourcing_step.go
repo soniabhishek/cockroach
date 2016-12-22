@@ -27,23 +27,6 @@ type crowdsourcingGatewayClient interface {
 
 func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
-	if flu.ID == uuid.FromStringOrNil("7e764277-535e-4244-9f66-9d703b7540f2") ||
-		flu.ID == uuid.FromStringOrNil("7c79cc52-a23d-4f09-ac3d-5d04d5bc74a2") ||
-		flu.ID == uuid.FromStringOrNil("0837e141-65da-485c-a190-3bce180542c0") ||
-		flu.ID == uuid.FromStringOrNil("8d723929-dc25-4108-8fc8-20ca0ca8ce3f") ||
-		flu.ID == uuid.FromStringOrNil("cb03833e-62b1-4f10-980a-b951109a2c5b") ||
-		flu.ID == uuid.FromStringOrNil("415d0fa3-ed53-4cbc-86eb-e2306c52cca6") ||
-		flu.ID == uuid.FromStringOrNil("e575a788-315f-45a0-85cd-31a747921f55") ||
-		flu.ID == uuid.FromStringOrNil("a31d360e-aa21-4b8c-93c0-34553fe6c5df") ||
-		flu.ID == uuid.FromStringOrNil("ac30c3e5-2b85-4f52-851c-bf083875af9f") ||
-		flu.ID == uuid.FromStringOrNil("0409cc0a-e046-40a8-a1ab-ddee4fad842d") ||
-		flu.ID == uuid.FromStringOrNil("f98692f5-912e-4aed-90c7-dff255be7888") ||
-		flu.ID == uuid.FromStringOrNil("b7d5d34d-be6f-4dd7-b5f4-1be00ae8116c") ||
-		flu.ID == uuid.FromStringOrNil("864d6201-1d4d-4414-a5b4-cb264cd2f915") ||
-		flu.ID == uuid.FromStringOrNil("cf364845-4a92-4193-9e5c-3496607c4da7") {
-		flu.ConfirmReceive()
-		return
-	}
 	c.AddToBuffer(flu)
 
 	cc, err := c.stepConfigSvc.GetCrowdsourcingStepConfig(flu.StepId)

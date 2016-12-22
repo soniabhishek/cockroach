@@ -55,12 +55,15 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 	saveProjectConfig(flu)
 
 	fm.servicePoolStart()
+	//dispatcher := NewDispatcher(MaxWorker)
+	//dispatcher.Run()
+
 	return
 }
 
 func saveProjectConfig(flu models.FeedLineUnit) {
 	value, valuePresent := activeProjects[flu.ProjectId]
-	if valuePresent == false {
+	if !valuePresent {
 		fpsRepo := project_configuration_repo.New()
 		fpsModel, err := fpsRepo.Get(flu.ProjectId)
 		if utilities.IsValidError(err) {

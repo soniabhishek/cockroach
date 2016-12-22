@@ -15,4 +15,6 @@ func (fm *FluMonitor) servicePoolStart() error {
 		<-throttle
 		distributor() //call method to distribute every second
 	}
+
+	// make distributor and caller decoupled
 }

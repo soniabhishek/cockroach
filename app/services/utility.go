@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func SendSuccessResponse(c *gin.Context, response interface{}) {
@@ -34,4 +35,12 @@ func SendFailureResponse(c *gin.Context, code, message string, data models.JsonF
 			MetaData: data,
 		},
 	})
+}
+
+func AtoiOrDefault(s string, defaultVal int) (integer int) {
+	integer, err := strconv.Atoi(s)
+	if err != nil {
+		integer = defaultVal
+	}
+	return
 }

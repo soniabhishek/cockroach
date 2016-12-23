@@ -8,3 +8,4 @@ var ErrDataMissing plerrors.ServiceError = plerrors.ServiceError{"FS_0004", "Dat
 var ErrTagMissing plerrors.ServiceError = plerrors.ServiceError{"FS_0005", "Tag Missing"}
 var ErrFluNotFound plerrors.ServiceError = plerrors.ServiceError{"FS_0006", "FeedLineUnit not found"}
 var ErrImageNotValid plerrors.ServiceError = plerrors.ServiceError{"FS_0007", "Image urls not valid"}
+var ErrRequestTimedOut plerrors.ServiceError = plerrors.ServiceError{"FS_0008", "Request timed out"}

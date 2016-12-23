@@ -3,12 +3,15 @@ package flu_svc
 import (
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
+	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc"
+	"time"
 )
 
 type fluService struct {
@@ -20,17 +23,40 @@ type fluService struct {
 
 var _ IFluService = &fluService{}
 
+var timeout_sec = services.AtoiOrDefault(config.FEEDLINE_API_TIMEOUT_SEC.Get(), 10)
+
 func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 
-	flu.Build = flu.Data.Copy()
-	_, err := i.fluValidator.Validate(flu)
-	if err != nil {
-		return err
-	}
+	timedOut := time.After(time.Duration(timeout_sec) * time.Second)
 
-	err = checkProjectExists(i.projectsRepo, flu.ProjectId)
-	if err != nil {
-		return err
+	errChan := make(chan error, 1)
+
+	go func() {
+
+		flu.Build = flu.Data.Copy()
+		_, err := i.fluValidator.Validate(flu)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		err = checkProjectExists(i.projectsRepo, flu.ProjectId)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		errChan <- nil
+
+	}()
+
+	select {
+	case <-timedOut:
+		return flu_errors.ErrRequestTimedOut
+	case err := <-errChan:
+		if err != nil {
+			return err
+		}
 	}
 
 	fin := feed_line_repo.NewInputQueue()

@@ -115,5 +115,8 @@
     "username" : "guest",
     "password" : "guest",
     "host" : "localhost"
+  },
+  "feed_line_api" : {
+    "input_timeout_sec" : "1"
   }
 }

@@ -60,6 +60,8 @@ const (
 	RABBITMQ_HOST     = configKey("rabbitmq.host")
 
 	JWT_SECRET_KEY = configKey("jwt.secret")
+
+	FEEDLINE_API_TIMEOUT_SEC = configKey("feed_line_api.input_timeout_sec")
 )
 
 // Gets the value for given key from the config file.

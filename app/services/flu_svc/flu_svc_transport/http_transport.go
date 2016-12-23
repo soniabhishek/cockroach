@@ -41,6 +41,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 
 	return func(c *gin.Context) {
 
+		requestTime := time.Now()
 		var flu models.FeedLineUnit
 
 		var projectId uuid.UUID
@@ -62,6 +63,8 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 			return
 		}
 		flu.ProjectId = projectId
+
+		plog.Info("Request Inbound. Reference: ", flu.ReferenceId, " Time : ", requestTime, " Tag : ", flu.Tag, " ProjectId : ", flu.ProjectId)
 
 		err = fluService.AddFeedLineUnit(&flu)
 		if err != nil {

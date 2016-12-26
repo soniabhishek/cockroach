@@ -5,7 +5,7 @@ import (
 	"github.com/crowdflux/angel/utilities"
 )
 
-func getQueryFrequency(fpsModel models.ProjectConfiguration) interface{} {
+func getQueryFrequency(fpsModel models.ProjectConfiguration) int {
 	val := fpsModel.Options[QUERY_FREQUENCY]
 	if val == nil {
 		//TODO change later. take from config

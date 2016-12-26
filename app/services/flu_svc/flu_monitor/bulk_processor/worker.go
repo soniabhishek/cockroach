@@ -1,10 +1,12 @@
-package flu_monitor
+package bulk_processor
+
+import "github.com/crowdflux/angel/app/plog"
 
 // Worker represents the worker that executes the job
 type Worker struct {
 
-	//TODO use JobCham
-	WorkerPool chan chan Job
+	//TODO use JobChan
+	WorkerPool chan jobChannel
 	JobChannel chan Job
 	quit       chan bool
 }
@@ -18,8 +20,13 @@ func (w Worker) Start() {
 
 			select {
 			case job := <-w.JobChannel:
+
+				plog.Trace("Bulk Processor","Worker", "Starting Job")
 				// we have received a work request.
 				job.Do()
+
+				plog.Trace("Bulk Processor","Worker", "Finished Job")
+
 			case <-w.quit:
 				// we have received a signal to stop
 				return
@@ -35,9 +42,9 @@ func (w Worker) Stop() {
 	}()
 }
 
-func NewWorker(workerPool chan chan Job) Worker {
+func newWorker(workerPool chan jobChannel) Worker {
 	return Worker{
 		WorkerPool: workerPool,
-		JobChannel: make(chan Job),
+		JobChannel: make(jobChannel),
 		quit:       make(chan bool)}
 }

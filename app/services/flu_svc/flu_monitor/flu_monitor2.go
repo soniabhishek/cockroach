@@ -24,7 +24,6 @@ type projectConfig struct {
 	maxFluCount    int
 	postBackUrl    string
 	queryFrequency int
-	queue          feed_line.Fl
 }
 
 var retryCount = make(map[uuid.UUID]int)
@@ -40,7 +39,7 @@ var activeProjects = make(map[uuid.UUID]projectConfig) // Hash map to store conf
 var queues = make(map[uuid.UUID]feed_line.Fl)          // Hash map to store queues
 
 var defaultFluThresholdCount = utilities.GetInt(config.DEFAULT_FLU_THRESHOLD_COUNT.Get())
-var totalQps = utilities.GetInt(config.TOTAL_QPS.Get())
+var totalQps = 1000
 var availableQps = totalQps
 
 var dispatcherStater sync.Once
@@ -86,7 +85,7 @@ func saveProjectConfig(flu models.FeedLineUnit) error{
 		postbackUrl := fpsModel.PostBackUrl
 		//TODO Handle invalid url
 		queryFrequency := getQueryFrequency(fpsModel)
-		value = config{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency}
+		value = projectConfig{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency}
 		activeProjects[flu.ProjectId] = value
 	}
 	return nil

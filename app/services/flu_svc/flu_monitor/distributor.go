@@ -1,12 +1,14 @@
 package flu_monitor
 
 import (
-	"math"
 	"time"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
 )
 
 func distributor() {
 
+
+	bulk_processor.
 	// get clients count
 	clientCount := len(activeProjects)
 	// divide our capacity/number of clients = availabilityPerClient

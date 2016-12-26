@@ -8,7 +8,7 @@ import (
 )
 
 type TestClient struct {
-	wm                bulk_processor.WorkerManager
+	wm                *bulk_processor.WorkerManager
 	internalFluPerSec int
 	maxClientQps      int
 	waitMiliSec       int
@@ -18,31 +18,23 @@ type TestClient struct {
 func TestDispatcher_Start(t *testing.T) {
 
 	clients := []TestClient{
-		{
-			wm:                bulk_processor.NewWorkerManager(2),
-			internalFluPerSec: 1,
-			maxClientQps:      2,
-			waitMiliSec:       1,
-			name:              "C 1-10",
-		},
-		{
-			wm:                bulk_processor.NewWorkerManager(1),
-			internalFluPerSec: 1,
+		TestClient{
+			wm:                bulk_processor.NewWorkerManager(1,"1"),
+			internalFluPerSec: 10,
 			maxClientQps:      1,
-			waitMiliSec:       1,
-			name:              "C 10-1",
-
+			waitMiliSec:       3,
+			name:              "1",
 		},
-		//{
-		//	wm:                bulk_processor.NewWorkerManager(5),
-		//	internalFluPerSec: 5,
-		//	maxClientQps:      5,
-		//	name : "C 5-5",
-		//
-		//},
+		TestClient{
+			wm:                bulk_processor.NewWorkerManager(10, "2"),
+			internalFluPerSec: 1,
+			maxClientQps:      10,
+			waitMiliSec:       3,
+			name:              "2",
+		},
 	}
 
-	dispatcher := bulk_processor.NewDispatcher(2)
+	dispatcher := bulk_processor.NewDispatcher(0)
 
 	for _, c := range clients {
 		dispatcher.AddWorkerManager(c.wm)
@@ -51,7 +43,7 @@ func TestDispatcher_Start(t *testing.T) {
 	dispatcher.Start()
 
 	for _, c := range clients {
-		go SendData(c)
+		SendData(c)
 	}
 
 	time.Sleep(time.Minute * time.Duration(10))
@@ -59,12 +51,17 @@ func TestDispatcher_Start(t *testing.T) {
 
 func SendData(c TestClient) {
 
-	ticker := time.Tick(time.Duration(1000 / c.internalFluPerSec) * time.Millisecond)
+	go func() {
+		ticker := time.Tick(time.Duration(1000 / c.internalFluPerSec) * time.Millisecond)
 
-	for {
-		<-ticker
-		c.wm.PushJob(bulk_processor.NewJob(func() {
-			fmt.Println(c.name)
-		}))
-	}
+		for {
+			<-ticker
+			c.wm.PushJob(bulk_processor.NewJob(func() {
+				time.Sleep(time.Duration(c.waitMiliSec)*time.Millisecond)
+				fmt.Println("finished "+c.name)
+			}))
+		}
+	}()
+
+
 }

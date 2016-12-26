@@ -9,3 +9,5 @@ func NewJob(do func()) Job {
 		Do: do,
 	}
 }
+
+type jobChannel chan Job

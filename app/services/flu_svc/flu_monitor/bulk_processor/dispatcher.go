@@ -1,7 +1,7 @@
 package bulk_processor
 
 type Dispatcher struct {
-	workerManagers []WorkerManager
+	workerManagers []*WorkerManager
 	workerPool     chan jobChannel
 	maxWorkers     int
 }
@@ -14,7 +14,7 @@ func NewDispatcher(maxWorkers int) *Dispatcher {
 	}
 }
 
-func (d *Dispatcher) AddWorkerManager(m WorkerManager) {
+func (d *Dispatcher) AddWorkerManager(m *WorkerManager) {
 	d.workerManagers = append(d.workerManagers, m)
 }
 
@@ -36,8 +36,7 @@ func (d *Dispatcher) dispatch() {
 		if tempJobChan == nil {
 			tempJobChan = <-d.workerPool
 		}
-
-		loop:
+	loop:
 		for _, wm := range d.workerManagers {
 			select {
 			case wm.jobChannel <- tempJobChan:
@@ -49,7 +48,7 @@ func (d *Dispatcher) dispatch() {
 	}
 }
 
-func runManagers(workerManagers []WorkerManager) {
+func runManagers(workerManagers []*WorkerManager) {
 
 	if workerManagers == nil {
 		panic("no workerManagers found")

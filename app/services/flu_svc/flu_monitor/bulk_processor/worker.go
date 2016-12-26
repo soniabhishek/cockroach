@@ -1,6 +1,9 @@
 package bulk_processor
 
-import "github.com/crowdflux/angel/app/plog"
+import (
+	"github.com/crowdflux/angel/app/plog"
+	"fmt"
+)
 
 // Worker represents the worker that executes the job
 type Worker struct {
@@ -11,7 +14,10 @@ type Worker struct {
 	quit       chan bool
 }
 
-func (w Worker) Start() {
+func (w *Worker) Start() {
+
+	fmt.Println("worker started")
+
 	go func() {
 		for {
 
@@ -42,8 +48,8 @@ func (w Worker) Stop() {
 	}()
 }
 
-func newWorker(workerPool chan jobChannel) Worker {
-	return Worker{
+func newWorker(workerPool chan jobChannel) *Worker {
+	return &Worker{
 		WorkerPool: workerPool,
 		JobChannel: make(jobChannel),
 		quit:       make(chan bool)}

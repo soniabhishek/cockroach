@@ -2,45 +2,52 @@ package bulk_processor
 
 import (
 	"time"
+	//"fmt"
 )
 
 type WorkerManager struct {
 	// A pool of workers channels that are registered with the dispatcher
 	jobChannel chan jobChannel
-	throttler  *time.Ticker
+	throttler  <- chan time.Time
 
 	jobChan jobChannel
-	MaxJps int
+	MaxJps  int
+	name    string
 }
 
 func (wm *WorkerManager) Run() {
 	go func() {
 		for {
-			<-wm.throttler.C
+			// Throttle the loop according to input Jps
+			<-wm.throttler
 
+			// Get the job from PushJob()
 			job := <-wm.jobChan
 
+			// Get the job channel
 			jobChannel := <-wm.jobChannel
 
-			// a job request has been received
-			go func(job1 Job) {
-				// try to obtain a worker job channel that is available.
-				// this will block until a worker is idle
-
-				// dispatch the job to the worker job channel
-				jobChannel <- job1
-			}(job)
+			// Push the job to job channel
+			jobChannel <- job
 		}
 	}()
 }
 
+// A blocking call to WorkerManager
 func (wm *WorkerManager) PushJob(j Job) {
 	wm.jobChan <- j
 }
 
 //jps (Jobs per second) - Worker manager will throttle job execution according if it crosses maxJps
-func NewWorkerManager(maxJps int) WorkerManager {
+func NewWorkerManager(maxJps int, name string) *WorkerManager {
 
-	throttler := time.NewTicker(time.Duration(int(1000 / maxJps)) * time.Millisecond)
-	return WorkerManager{jobChannel: make(chan jobChannel), throttler:throttler, jobChan:make(jobChannel), MaxJps:maxJps}
+	throttler := time.Tick(time.Duration(int(1000 / maxJps)) * time.Millisecond)
+
+	return &WorkerManager{
+		jobChannel: make(chan jobChannel),
+		throttler:  throttler,
+		jobChan:    make(jobChannel),
+		MaxJps:     maxJps,
+		name:       name,
+	}
 }

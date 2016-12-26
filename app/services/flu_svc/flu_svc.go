@@ -157,6 +157,7 @@ func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName strin
 
 	filePath := fmt.Sprintf("./uploads/%s_%s.csv", strconv.Itoa(int(time.Now().UnixNano())), projectId.String())
 	uploadFile, err := os.Create(filePath)
+
 	if err != nil {
 		panic(err)
 	}
@@ -207,6 +208,7 @@ func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName strin
 		panic(err)
 	}
 	fls.TotalFluCount = cnt
+	fls.Status = flu_upload_status.Processing
 	setUploadStatus(projectId, fls)
 
 	go startRowsProcessing(i.fluValidator, filePath, fileName, projectId)

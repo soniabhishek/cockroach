@@ -87,7 +87,7 @@ func mongoBatcher(c chan models.FeedLineUnit, err chan plerrors.ChildError, batc
 	}
 }
 
-func writeCsvError(csvWrite *csv.Writer, c chan []string, projectId string) {
+func writeCsvError(csvWrite *csv.Writer, c chan []string, projectId, errFilePath string) {
 	count := 0
 	for {
 		row, ok := <-c
@@ -110,6 +110,10 @@ func writeCsvError(csvWrite *csv.Writer, c chan []string, projectId string) {
 		fus.Status = flu_upload_status.PartialUpload
 	} else {
 		fus.Status = flu_upload_status.Success
+		err := os.Remove(errFilePath)
+		if err != nil{
+			panic(err)
+		}
 	}
 	imdb.FluUploadCache.Set(projectId, fus)
 }
@@ -147,7 +151,7 @@ func startRowsProcessing(fv flu_validator.IFluValidatorService, filePath string,
 	errorWriterChan := make(chan []string)        //this channel is for writing data to error csv
 	validatorChan := make(chan models.FeedLineUnit)
 
-	go writeCsvError(errorWriter, errorWriterChan, projectId.String())
+	go writeCsvError(errorWriter, errorWriterChan, projectId.String(), errFilePath)
 	//This will be Used to collect flus from batcherChann and Create a batch of given size and returns bulk error in errorChann
 	go mongoBatcher(batcherChan, errorChan, 3000)
 

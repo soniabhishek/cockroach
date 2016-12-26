@@ -117,3 +117,29 @@ func receiveBulkError(errChannel chan plerrors.ChildError, c chan []string) {
 		}
 	}
 }
+
+
+func checkCsvUploaded(projectId string) (bool, error) {
+	fus, err := imdb.FluUploadCache.Get(projectId)
+	if err != nil {
+		return true, nil
+	} else {
+		if fus.Status == flu_upload_status.Failure || fus.Status == flu_upload_status.Success || fus.Status == flu_upload_status.PartialUpload {
+			plog.Info("CHECHK CSV UPLOAD", "overriding existing status")
+			return true, nil
+		}
+	}
+	return false, errors.New("File Upload Alreay in Progress")
+}
+
+//This Will Override cached data. in case of success, failure, partial upload.
+func updateUploadStatus(projectId uuid.UUID, status flu_upload_status.FluUploadStatus) {
+	val := models.FluUploadStats{}
+	val.Status = status
+	imdb.FluUploadCache.Set(projectId.String(), val)
+}
+
+func setUploadStatus(projectId uuid.UUID, fus models.FluUploadStats) {
+	imdb.FluUploadCache.Set(projectId.String(), fus)
+}
+

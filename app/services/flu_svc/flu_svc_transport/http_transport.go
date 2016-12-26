@@ -6,7 +6,6 @@ import (
 
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/models/flu_upload_status"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services"
@@ -16,7 +15,6 @@ import (
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"os"
 )
 
 //TODO Create another file for validator http transport. In future we may have to make a separate service for validatorss
@@ -109,13 +107,6 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		valid, err := fluService.CheckCsvUploaded(c.Param("projectId"))
-		if !valid {
-			plog.Error("Error While Upload", err, c.Param("projectId"))
-			services.SendBadRequest(c, "FLSUPL", err.Error(), nil)
-			return
-		}
-
 		//Validating ProjectId and checking if exist in database.
 		projectId, err := uuid.FromString(c.Param("projectId"))
 		if err != nil {
@@ -138,26 +129,18 @@ func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 			services.SendBadRequest(c, "FLS002", err.Error(), nil)
 			return
 		}
+		defer file.Close()
 
 		filename := header.Filename
 
-		errorCsv, err := os.Create(`./uploads/` + filename)
-		if err != nil {
-			plog.Error("Err", errors.New("Cannot create file"), err)
-			services.SendBadRequest(c, "FLS005", err.Error(), nil)
+		plog.Info("Sent file for upload: ", filename)
+
+		if err := fluService.CsvCheckBasicValidation(file, filename, projectId); err != nil {
+			plog.Error("Err", errors.New("Validation Failed for csv"), err)
+			services.SendBadRequest(c, "Fail", err.Error(), nil)
 			return
 		}
 
-		plog.Info("Sent file for upload: ", filename)
-
-		//Spawning go routine to fetch data from the file and making a bulk call.
-		go func() {
-			fluService.BulkAddFeedLineUnit(file, errorCsv, filename, projectId)
-			//errorCsv.Close()
-			file.Close()
-
-		}()
-		fluService.UpdateUploadStatus(projectId, flu_upload_status.Pending)
 		//return response for file upload
 		services.SendSuccessResponse(c, nil)
 	}

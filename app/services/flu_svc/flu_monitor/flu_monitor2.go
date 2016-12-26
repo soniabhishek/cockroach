@@ -43,10 +43,14 @@ var defaultFluThresholdCount = utilities.GetInt(config.DEFAULT_FLU_THRESHOLD_COU
 var totalQps = utilities.GetInt(config.TOTAL_QPS.Get())
 var availableQps = totalQps
 
+var dispatcherStater sync.Once
+
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
+	//TODO rename clientQ to projectQ, present to ok
 	clientQ, present := queues[flu.ProjectId]
 	if !present {
+		//TODO add prefix (output queue)
 		clientQ := feed_line.New(flu.ProjectId.String())
 		queues[flu.ProjectId] = clientQ
 	}
@@ -54,16 +58,20 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 	saveProjectConfig(flu)
 
-	fm.servicePoolStart()
+	dispatcherStater.Do(func() {
+		fm.servicePoolStart()
 
-	// configure maxworkers
-	dispatcher := NewDispatcher(100)
-	dispatcher.Run()
+		// configure maxworkers
+		dispatcher := NewDispatcher(100)
+		dispatcher.Run()
+	})
 
 	return nil
 }
 
 func saveProjectConfig(flu models.FeedLineUnit) error{
+
+	//TODO activeProjects to activeProjectConfigurations
 	value, valuePresent := activeProjects[flu.ProjectId]
 	if !valuePresent {
 		fpsRepo := project_configuration_repo.New()

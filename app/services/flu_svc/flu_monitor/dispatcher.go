@@ -2,8 +2,6 @@ package flu_monitor
 
 import (
 	"os"
-	"github.com/crowdflux/angel/app/models"
-	"net/http"
 )
 
 var (
@@ -18,38 +16,6 @@ type Dispatcher struct {
 	MaxWorkers int
 }
 
-func NewDispatcher(maxWorkers int) *Dispatcher {
-	pool := make(chan chan Job, maxWorkers)
-	return &Dispatcher{WorkerPool: pool}
-}
-/*
-type Payload struct {
-	models.ProjectConfiguration
-	fluProjectResp []fluOutputStruct
-}
-*/
-type Job struct {
-	Request http.Request
-	RetryCount int
-	RetryInterval
-}
-
-// A buffered channel that we can send work requests on.
-var JobQueue chan Job
-
-// Worker represents the worker that executes the job
-type Worker struct {
-	WorkerPool chan chan Job
-	JobChannel chan Job
-	quit       chan bool
-}
-
-func NewWorker(workerPool chan chan Job) Worker {
-	return Worker{
-		WorkerPool: workerPool,
-		JobChannel: make(chan Job),
-		quit:       make(chan bool)}
-}
 
 func (d *Dispatcher) Run() {
 	// starting n number of workers
@@ -80,27 +46,14 @@ func (d *Dispatcher) dispatch() {
 	}
 }
 
-func (w Worker) Start() {
-	go func() {
-		for {
-			// register the current worker into the worker queue.
-			w.WorkerPool <- w.JobChannel
 
-			select {
-			case job := <-w.JobChannel:
-			// we have received a work request.
-				job.Do()
-			case <-w.quit:
-				// we have received a signal to stop
-				return
-			}
-		}
-	}()
+func NewDispatcher(maxWorkers int) *Dispatcher {
+	pool := make(chan chan Job, maxWorkers)
+	return &Dispatcher{WorkerPool: pool}
 }
-
-// Stop signals the worker to stop listening for work requests.
-func (w Worker) Stop() {
-	go func() {
-		w.quit <- true
-	}()
+/*
+type Payload struct {
+	models.ProjectConfiguration
+	fluProjectResp []fluOutputStruct
 }
+*/

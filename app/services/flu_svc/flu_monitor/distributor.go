@@ -15,15 +15,15 @@ func distributor() {
 	//mutex.Lock // needed?
 	//defer mutex.Unlock()
 	for _, v := range activeProjects {
-		var actualCount int
-		if availabiltyPerClient>v.queryFrequency{
-			actualCount = v.queryFrequency
+		var finalQps int
+		if availabiltyPerClient > v.queryFrequency{
+			finalQps = v.queryFrequency
 		}else{
-			actualCount = availabiltyPerClient
+			finalQps = availabiltyPerClient
 		}
 		//make request in 1/actual_count time intervals
-		availableQps -= actualCount
-		rate := time.Second / time.Duration(actualCount)
+		availableQps -= finalQps
+		rate := time.Second / time.Duration(finalQps)
 
 		throttle := time.Tick(rate)
 		for {

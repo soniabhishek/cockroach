@@ -18,6 +18,7 @@ func makeRequest(projectConfig projectConfig) error {
 		receiver := queue.Receiver()
 
 		flu := <-receiver
+
 		defer flu.ConfirmReceive() // defer what happens
 
 		// if queue empty, break
@@ -25,14 +26,10 @@ func makeRequest(projectConfig projectConfig) error {
 		// some bufferred channel logic instead of counting in for loop?
 
 		select {
-		case flu, ok := <-receiver:
-			if ok {
-				defer flu.ConfirmReceive()
-			} else {
-				delete(activeProjects, projectConfig.projectId)
-				break
-			}
+		case flu := <-receiver:
+			defer flu.ConfirmReceive()
 		default:
+			delete(activeProjects, projectConfig.projectId)
 			fmt.Println("No value ready, moving on.")
 		}
 		result, ok := flu.Build[RESULT]

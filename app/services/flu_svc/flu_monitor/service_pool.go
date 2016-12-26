@@ -3,6 +3,7 @@ package flu_monitor
 import "time"
 
 func (fm *FluMonitor) servicePoolStart() error {
+
 	if fm.PoolIsRunning {
 		return nil
 	}

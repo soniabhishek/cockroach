@@ -7,7 +7,6 @@ import (
 
 // Worker represents the worker that executes the job
 type Worker struct {
-
 	//TODO use JobChan
 	WorkerPool chan jobChannel
 	JobChannel chan Job
@@ -27,11 +26,11 @@ func (w *Worker) Start() {
 			select {
 			case job := <-w.JobChannel:
 
-				plog.Trace("Bulk Processor","Worker", "Starting Job")
+				plog.Trace("Bulk Processor", "Worker", "Starting Job")
 				// we have received a work request.
 				job.Do()
 
-				plog.Trace("Bulk Processor","Worker", "Finished Job")
+				plog.Trace("Bulk Processor", "Worker", "Finished Job")
 
 			case <-w.quit:
 				// we have received a signal to stop

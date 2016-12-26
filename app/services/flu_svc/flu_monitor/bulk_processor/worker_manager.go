@@ -2,7 +2,6 @@ package bulk_processor
 
 import (
 	"time"
-	//"fmt"
 )
 
 type WorkerManager struct {

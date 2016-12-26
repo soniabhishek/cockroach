@@ -19,7 +19,7 @@ func TestDispatcher_Start(t *testing.T) {
 
 	clients := []TestClient{
 		TestClient{
-			wm:                bulk_processor.NewWorkerManager(1,"1"),
+			wm:                bulk_processor.NewWorkerManager(1, "1"),
 			internalFluPerSec: 10,
 			maxClientQps:      1,
 			waitMiliSec:       3,
@@ -57,11 +57,10 @@ func SendData(c TestClient) {
 		for {
 			<-ticker
 			c.wm.PushJob(bulk_processor.NewJob(func() {
-				time.Sleep(time.Duration(c.waitMiliSec)*time.Millisecond)
-				fmt.Println("finished "+c.name)
+				time.Sleep(time.Duration(c.waitMiliSec) * time.Millisecond)
+				fmt.Println("finished " + c.name)
 			}))
 		}
 	}()
-
 
 }

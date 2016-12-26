@@ -19,7 +19,7 @@ type fluValidatorRepo struct {
 var _ IFluValidatorRepo = &fluValidatorRepo{}
 
 func (f *fluValidatorRepo) GetValidatorsForProject(projectId uuid.UUID, tag string) (validators []models.FLUValidator, err error) {
-	_, err = f.db.Select(&validators, "select * from input_flu_validator where project_id = $1 and tag = $2", projectId, tag)
+	_, err = f.db.Select(&validators, "select * from input_flu_validator where project_id = $1 and (tag = $2 or tag = '*')", projectId, tag)
 	return
 }
 

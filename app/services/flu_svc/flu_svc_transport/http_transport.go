@@ -46,6 +46,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 
 	return func(c *gin.Context) {
 
+		requestTime := time.Now()
 		var flu models.FeedLineUnit
 
 		var projectId uuid.UUID
@@ -67,6 +68,8 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 			return
 		}
 		flu.ProjectId = projectId
+
+		plog.Info("Request Inbound. Reference: ", flu.ReferenceId, " Time : ", requestTime, " Tag : ", flu.Tag, " ProjectId : ", flu.ProjectId)
 
 		err = fluService.AddFeedLineUnit(&flu)
 		if err != nil {
@@ -112,13 +115,6 @@ func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 		if err != nil {
 			plog.Error("Invalid ProjectId in CSV upload", err, c.Param("projectId"))
 			services.SendBadRequest(c, "FLS000", err.Error(), nil)
-			return
-		}
-
-		err = fluService.CheckProjectExists(projectId)
-		if err != nil {
-			plog.Error("Invalid ProjectId in CSV upload", err, c.Param("projectId"))
-			services.SendBadRequest(c, "FLS001", err.Error(), nil)
 			return
 		}
 
@@ -296,7 +292,13 @@ func showErrorResponse(c *gin.Context, err error) {
 	default:
 		msg = err.Error()
 	}
-	c.JSON(http.StatusOK, gin.H{
+
+	statusCode := http.StatusOK
+	if err == flu_errors.ErrRequestTimedOut {
+		statusCode = http.StatusGatewayTimeout
+	}
+
+	c.JSON(statusCode, gin.H{
 		"error":   msg,
 		"success": false,
 	})

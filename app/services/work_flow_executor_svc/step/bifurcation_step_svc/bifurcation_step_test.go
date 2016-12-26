@@ -7,14 +7,14 @@ import (
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step"
-	"github.com/crowdflux/angel/app/services/work_flow_io_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_svc"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 type stepConfigSvcMock struct{}
 
-var _ work_flow_io_svc.IStepConfigSvc = &stepConfigSvcMock{}
+var _ work_flow_svc.IStepConfigSvc = &stepConfigSvcMock{}
 
 func (s *stepConfigSvcMock) GetTransformationStepConfig(stepId uuid.UUID) (config models.TransformationConfig, err error) {
 	return

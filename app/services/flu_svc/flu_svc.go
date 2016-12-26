@@ -7,20 +7,22 @@ import (
 	"github.com/crowdflux/angel/app/DAL/imdb"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
+	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/flu_upload_status"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc"
+	"time"
 	"github.com/crowdflux/angel/utilities"
 	"io"
 	"mime/multipart"
 	"os"
 	"strconv"
-	"time"
 	"sync"
 )
 
@@ -33,16 +35,40 @@ type fluService struct {
 
 var _ IFluService = &fluService{}
 
+var timeout_sec = services.AtoiOrDefault(config.FEEDLINE_API_TIMEOUT_SEC.Get(), 10)
+
 func (i *fluService) AddFeedLineUnit(flu *models.FeedLineUnit) error {
 
-	flu.Build = flu.Data.Copy()
-	_, err := i.fluValidator.Validate(flu)
-	if err != nil {
-		return err
-	}
-	err = i.CheckProjectExists(flu.ProjectId)
-	if err != nil {
-		return err
+	timedOut := time.After(time.Duration(timeout_sec) * time.Second)
+
+	errChan := make(chan error, 1)
+
+	go func() {
+
+		flu.Build = flu.Data.Copy()
+		_, err := i.fluValidator.Validate(flu)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		err = checkProjectExists(i.projectsRepo, flu.ProjectId)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		errChan <- nil
+
+	}()
+
+	select {
+	case <-timedOut:
+		return flu_errors.ErrRequestTimedOut
+	case err := <-errChan:
+		if err != nil {
+			return err
+		}
 	}
 
 	fin := feed_line_repo.NewInputQueue()
@@ -123,6 +149,11 @@ func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName strin
 	valid, err := checkCsvUploaded(projectId.String())
 	if !valid {
 		plog.Error("Already Exist", err, projectId.String())
+		return err
+	}
+	err = checkProjectExists(i.projectsRepo, projectId)
+	if err != nil {
+		plog.Error("Invalid ProjectId in CSV upload", err, projectId)
 		return err
 	}
 
@@ -285,8 +316,8 @@ func (fs *fluService) startRowsProcessing(filePath string, fileName string, proj
 	close(batcherChan)
 }
 
-func (i *fluService) CheckProjectExists(mId uuid.UUID) error {
-	_, err := i.projectsRepo.GetById(mId)
+func checkProjectExists(r projects_repo.IProjectsRepo, mId uuid.UUID) error {
+	_, err := r.GetById(mId)
 	return err
 }
 

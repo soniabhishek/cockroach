@@ -15,7 +15,6 @@ import (
 	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
-	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc"
 	"time"
 	"github.com/crowdflux/angel/utilities"
@@ -23,7 +22,6 @@ import (
 	"mime/multipart"
 	"os"
 	"strconv"
-	"sync"
 )
 
 type fluService struct {
@@ -140,10 +138,6 @@ func (i *fluService) GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, erro
 	return flu, err
 }
 
-//--------------------------------------------------------------------------------//
-//CHECK PROJECT
-//--------------------------------------------------------------------------------//
-
 func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName string, projectId uuid.UUID) error {
 
 	valid, err := checkCsvUploaded(projectId.String())
@@ -215,112 +209,20 @@ func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName strin
 	fls.TotalFluCount = cnt
 	setUploadStatus(projectId, fls)
 
-	go i.startRowsProcessing(filePath, fileName, projectId)
+	go startRowsProcessing(i.fluValidator, filePath, fileName, projectId)
 	return nil
-}
-
-func (fs *fluService) startRowsProcessing(filePath string, fileName string, projectId uuid.UUID) {
-	readerFile, err := os.Open(filePath)
-	if err != nil {
-		panic(err)
-		return
-	}
-	fileReader := csv.NewReader(readerFile)
-
-	errFilePath := fmt.Sprintf("./uploads/error_%s_%s.csv", strconv.Itoa(int(time.Now().UnixNano())), projectId.String() )
-
-	errorCsv, err := os.Create(errFilePath)
-	if err != nil {
-		panic(err)
-		return
-	}
-	errorWriter := csv.NewWriter(errorCsv)
-
-	batcherChan := make(chan models.FeedLineUnit) //this channel will be used to batch the Flus
-	errorChan := make(chan plerrors.ChildError)   //this channel will be used to receive errors
-	errorWriterChan := make(chan []string)        //this channel is for writing data to error csv
-	validatorChan := make(chan models.FeedLineUnit)
-
-	go writeCsvError(errorWriter, errorWriterChan, projectId.String())
-	//This will be Used to collect flus from batcherChann and Create a batch of given size and returns bulk error in errorChann
-	go mongoBatcher(batcherChan, errorChan, 3000)
-
-	defer func() {
-		readerFile.Close()
-		err := os.Remove(filePath)
-		if err != nil {
-			panic(err)
-		}
-	}()
-
-	var wg sync.WaitGroup
-	for i := 0; i < 50 ; i ++ {
-		go func(valChan chan models.FeedLineUnit) {
-			wg.Add(1)
-			for {
-				flu, ok := <-valChan
-				if ok {
-					isValid, err := fs.fluValidator.Validate(&flu)
-					if err != nil {
-						errorWriterChan <- []string{flu.ReferenceId, flu.Tag, flu.Build.String(), err.Error()}
-						continue
-					}
-					if !isValid {
-						errorWriterChan <- []string{flu.ReferenceId, flu.Tag, flu.Build.String(), err.Error()}
-						continue
-					}
-					batcherChan <- flu
-				} else {
-					break
-				}
-			}
-			wg.Done()
-		}(validatorChan)
-	}
-
-	//This Go routine will be used to fetch errors in bulk insert and will write them in error file
-	go func() {
-		receiveBulkError(errorChan, errorWriterChan)
-		close(errorWriterChan)
-		errorWriter.Flush()
-		errorCsv.Close()
-		fmt.Println("final", time.Now())
-	}()
-
-	cnt := 0
-	for {
-		row, err := fileReader.Read()
-		if err == io.EOF {
-			break
-		}
-
-		cnt++
-		//Updating cache Status
-
-		project := projectId.String()
-		fus, _ := fs.GetUploadStatus(project)
-		fus.CompletedFluCount = cnt
-		setUploadStatus(projectId, fus)
-
-		flu, err := getFlu(row, projectId)
-		if err != nil {
-			plog.Error(" csv reading error", err)
-			row = append(row, err.Error())
-			errorWriterChan <- row
-			continue
-		}
-		validatorChan <- flu
-	}
-	close(validatorChan)
-	wg.Wait()
-	close(batcherChan)
-}
-
-func checkProjectExists(r projects_repo.IProjectsRepo, mId uuid.UUID) error {
-	_, err := r.GetById(mId)
-	return err
 }
 
 func (i *fluService) GetUploadStatus(projectId string) (models.FluUploadStats, error) {
 	return imdb.FluUploadCache.Get(projectId)
+}
+
+//--------------------------------------------------------------------------------//
+//CHECK PROJECT
+//--------------------------------------------------------------------------------//
+
+
+func checkProjectExists(r projects_repo.IProjectsRepo, mId uuid.UUID) error {
+	_, err := r.GetById(mId)
+	return err
 }

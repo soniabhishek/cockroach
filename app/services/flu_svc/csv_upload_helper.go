@@ -11,6 +11,13 @@ import (
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/plerrors"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
+	"os"
+	"fmt"
+	"strconv"
+	"time"
+	"sync"
+	"io"
 )
 
 //This will Initialize and Return a Flu from a csv row
@@ -118,6 +125,101 @@ func receiveBulkError(errChannel chan plerrors.ChildError, c chan []string) {
 	}
 }
 
+func startRowsProcessing(fv flu_validator.IFluValidatorService, filePath string, fileName string, projectId uuid.UUID) {
+	readerFile, err := os.Open(filePath)
+	if err != nil {
+		panic(err)
+		return
+	}
+	fileReader := csv.NewReader(readerFile)
+
+	errFilePath := fmt.Sprintf("./uploads/error_%s_%s.csv", strconv.Itoa(int(time.Now().UnixNano())), projectId.String() )
+
+	errorCsv, err := os.Create(errFilePath)
+	if err != nil {
+		panic(err)
+		return
+	}
+	errorWriter := csv.NewWriter(errorCsv)
+
+	batcherChan := make(chan models.FeedLineUnit) //this channel will be used to batch the Flus
+	errorChan := make(chan plerrors.ChildError)   //this channel will be used to receive errors
+	errorWriterChan := make(chan []string)        //this channel is for writing data to error csv
+	validatorChan := make(chan models.FeedLineUnit)
+
+	go writeCsvError(errorWriter, errorWriterChan, projectId.String())
+	//This will be Used to collect flus from batcherChann and Create a batch of given size and returns bulk error in errorChann
+	go mongoBatcher(batcherChan, errorChan, 3000)
+
+	defer func() {
+		readerFile.Close()
+		err := os.Remove(filePath)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	var wg sync.WaitGroup
+	for i := 0; i < 50 ; i ++ {
+		go func(valChan chan models.FeedLineUnit) {
+			wg.Add(1)
+			for {
+				flu, ok := <-valChan
+				if ok {
+					isValid, err := fv.Validate(&flu)
+					if err != nil {
+						errorWriterChan <- []string{flu.ReferenceId, flu.Tag, flu.Build.String(), err.Error()}
+						continue
+					}
+					if !isValid {
+						errorWriterChan <- []string{flu.ReferenceId, flu.Tag, flu.Build.String(), err.Error()}
+						continue
+					}
+					batcherChan <- flu
+				} else {
+					break
+				}
+			}
+			wg.Done()
+		}(validatorChan)
+	}
+
+	//This Go routine will be used to fetch errors in bulk insert and will write them in error file
+	go func() {
+		receiveBulkError(errorChan, errorWriterChan)
+		close(errorWriterChan)
+		errorWriter.Flush()
+		errorCsv.Close()
+		fmt.Println("final", time.Now())
+	}()
+
+	cnt := 0
+	for {
+		row, err := fileReader.Read()
+		if err == io.EOF {
+			break
+		}
+
+		cnt++
+
+		//Updating cache Status
+		fus, _ := imdb.FluUploadCache.Get(projectId.String())
+		fus.CompletedFluCount = cnt
+		setUploadStatus(projectId, fus)
+
+		flu, err := getFlu(row, projectId)
+		if err != nil {
+			plog.Error(" csv reading error", err)
+			row = append(row, err.Error())
+			errorWriterChan <- row
+			continue
+		}
+		validatorChan <- flu
+	}
+	close(validatorChan)
+	wg.Wait()
+	close(batcherChan)
+}
 
 func checkCsvUploaded(projectId string) (bool, error) {
 	fus, err := imdb.FluUploadCache.Get(projectId)

@@ -139,7 +139,7 @@ func (i *inputQueue) BulkAdd(flu []models.FeedLineUnit) plerrors.BulkInsertError
 			ProjectIdString: flu[i].ProjectId.String(),
 		})
 	}
-	bulk := i.mgo.C("testing").Bulk()
+	bulk := i.mgo.C("feedline_input").Bulk()
 	bulk.Unordered()
 	bulk.Insert(bulkData...)
 

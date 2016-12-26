@@ -1,8 +1,13 @@
 package flu_monitor
 
-import "os"
+import (
+	"os"
+	"github.com/crowdflux/angel/app/models"
+	"net/http"
+)
 
 var (
+	//should we do this?
 	MaxWorker = os.Getenv("MAX_WORKERS")
 	MaxQueue  = os.Getenv("MAX_QUEUE")
 )
@@ -10,15 +15,23 @@ var (
 type Dispatcher struct {
 	// A pool of workers channels that are registered with the dispatcher
 	WorkerPool chan chan Job
+	MaxWorkers int
 }
 
 func NewDispatcher(maxWorkers int) *Dispatcher {
 	pool := make(chan chan Job, maxWorkers)
 	return &Dispatcher{WorkerPool: pool}
 }
-
+/*
+type Payload struct {
+	models.ProjectConfiguration
+	fluProjectResp []fluOutputStruct
+}
+*/
 type Job struct {
-	Payload Payload
+	Request http.Request
+	RetryCount int
+	RetryInterval
 }
 
 // A buffered channel that we can send work requests on.
@@ -40,8 +53,10 @@ func NewWorker(workerPool chan chan Job) Worker {
 
 func (d *Dispatcher) Run() {
 	// starting n number of workers
-	for i := 0; i < d.maxWorkers; i++ {
-		worker := NewWorker(d.pool)
+	//	for i := 0; i < d.maxWorkers; i++ {
+	for i := 0; i < d.MaxWorkers; i++ {
+
+		worker := NewWorker(d.WorkerPool)
 		worker.Start()
 	}
 
@@ -74,7 +89,7 @@ func (w Worker) Start() {
 			select {
 			case job := <-w.JobChannel:
 			// we have received a work request.
-			// make request
+				job.Do()
 			case <-w.quit:
 				// we have received a signal to stop
 				return

@@ -3,6 +3,9 @@ package flu_monitor
 import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
+	"fmt"
+	"github.com/crowdflux/angel/app/models/status_codes"
+	"net/http"
 )
 
 func makeRequest(projectConfig projectConfig) error {
@@ -21,9 +24,16 @@ func makeRequest(projectConfig projectConfig) error {
 		// adjust with the wait time in switch case channel
 		// some bufferred channel logic instead of counting in for loop?
 
-		if flu == nil {
-			delete(projectConfig, projectConfig.projectId)
-			break
+		select {
+		case flu, ok := <-receiver:
+			if ok {
+				defer flu.ConfirmReceive()
+			} else {
+				delete(activeProjects, projectConfig.projectId)
+				break
+			}
+		default:
+			fmt.Println("No value ready, moving on.")
 		}
 		result, ok := flu.Build[RESULT]
 		if !ok {
@@ -45,7 +55,20 @@ func makeRequest(projectConfig projectConfig) error {
 	// if success availableQps --
 	// defer flu.ConfirmReceive, if the server crashes before the httpcall it stays in queue??
 
-	go sendBackToClient(projectConfig, fluOutputObj)
+	sendBackToClient(projectConfig.config, fluOutputObj)
 
-	return
+	return nil
+}
+
+func (job Job) Do() (*FluResponse, status_codes.StatusCode){
+	client := &http.Client{}
+	resp, err := client.Do(&job.Request)
+	if err != nil {
+		plog.Error("HTTP Error:", err)
+		return &FluResponse{}, status_codes.UnknownFailure
+	}
+
+	fluResp, status := validationErrorCallback(resp)
+	fluResp.FluStatusCode = status
+	return fluResp, status
 }

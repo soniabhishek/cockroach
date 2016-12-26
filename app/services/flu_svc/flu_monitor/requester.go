@@ -58,14 +58,16 @@ func sendBackToClient(config models.ProjectConfiguration, fluProjectResp []fluOu
 	}
 	addSendBackAuth(req, config, jsonBytes)
 
-	// SEPARATE!!!
-	ch := make(chan Request)
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		plog.Error("HTTP Error:", err)
-		return &FluResponse{}, status_codes.UnknownFailure
-	}
+	job:=Job{Request:*req}
+	JobQueue<-job
+
+	// separate
+	//client := &http.Client{}
+	//resp, err := client.Do(req)
+	//if err != nil {
+	//	plog.Error("HTTP Error:", err)
+	//	return &FluResponse{}, status_codes.UnknownFailure
+	//}
 
 	fluResp, status := validationErrorCallback(resp)
 	fluResp.FluStatusCode = status

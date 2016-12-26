@@ -50,18 +50,20 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 		clientQ := feed_line.New(flu.ProjectId.String())
 		queues[flu.ProjectId] = clientQ
 	}
-	clientQ.Push(flu)
+	clientQ.Push(feed_line.FLU{FeedLineUnit: flu})
 
 	saveProjectConfig(flu)
 
 	fm.servicePoolStart()
-	//dispatcher := NewDispatcher(MaxWorker)
-	//dispatcher.Run()
 
-	return
+	// configure maxworkers
+	dispatcher := NewDispatcher(100)
+	dispatcher.Run()
+
+	return nil
 }
 
-func saveProjectConfig(flu models.FeedLineUnit) {
+func saveProjectConfig(flu models.FeedLineUnit) error{
 	value, valuePresent := activeProjects[flu.ProjectId]
 	if !valuePresent {
 		fpsRepo := project_configuration_repo.New()
@@ -79,4 +81,5 @@ func saveProjectConfig(flu models.FeedLineUnit) {
 		value = config{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency}
 		activeProjects[flu.ProjectId] = value
 	}
+	return nil
 }

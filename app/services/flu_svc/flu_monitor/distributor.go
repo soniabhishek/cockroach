@@ -12,13 +12,18 @@ func distributor() {
 	// divide our capacity/number of clients = availabilityPerClient
 	availabiltyPerClient := availableQps / clientCount
 
-	mutex.Lock // needed?
-	defer mutex.Unlock()
+	//mutex.Lock // needed?
+	//defer mutex.Unlock()
 	for _, v := range activeProjects {
-		actualCount := math.Min(availabiltyPerClient, v.queryFrequency)
+		var actualCount int
+		if availabiltyPerClient>v.queryFrequency{
+			actualCount = v.queryFrequency
+		}else{
+			actualCount = availabiltyPerClient
+		}
 		//make request in 1/actual_count time intervals
 		availableQps -= actualCount
-		rate := time.Second / actualCount
+		rate := time.Second / time.Duration(actualCount)
 
 		throttle := time.Tick(rate)
 		for {
@@ -29,6 +34,9 @@ func distributor() {
 			//make the request in another pool? use channel!! send to channel!!
 			// buffered channel?
 			// go spawnRequest(v)
+
+			// push to job queue
+			// async create and then call the request object
 			go makeRequest(v)
 			// retry logic?
 		}

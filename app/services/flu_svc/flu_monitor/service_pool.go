@@ -4,7 +4,7 @@ import "time"
 
 func (fm *FluMonitor) servicePoolStart() error {
 	if fm.PoolIsRunning {
-		return
+		return nil
 	}
 	fm.PoolIsRunning = true
 
@@ -16,5 +16,4 @@ func (fm *FluMonitor) servicePoolStart() error {
 		distributor() //call method to distribute every second
 	}
 
-	// make distributor and caller decoupled
 }

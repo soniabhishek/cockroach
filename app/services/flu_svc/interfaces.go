@@ -11,7 +11,6 @@ type IFluService interface {
 	AddFeedLineUnit(flu *models.FeedLineUnit) error
 	SyncInputFeedLine() error
 	GetFeedLineUnit(uuid.UUID) (models.FeedLineUnit, error)
-	CheckProjectExists(uuid.UUID) error
 	GetUploadStatus(projectId string) (models.FluUploadStats, error)
 	CsvCheckBasicValidation(file multipart.File, fileName string, projectId uuid.UUID) error
 }

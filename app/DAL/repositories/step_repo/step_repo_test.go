@@ -20,7 +20,6 @@ func TestStepRepo_GetStartStep(t *testing.T) {
 	workflow := models.WorkFlow{
 		ID:        uuid.NewV4(),
 		ProjectId: project.ID,
-		Tag:       "Test",
 	}
 
 	err = pgClient.Insert(&workflow)

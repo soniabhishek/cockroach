@@ -44,7 +44,7 @@ func (d *Dispatcher) dispatch() {
 				jobChan = <-d.workerPool
 			}
 
-			// Pass that worker to any jobManager which is
+			// Pass that worker's jobChannel to any jobManager which is
 			// ready to receive
 			select {
 			case jm.workerPool <- jobChan:

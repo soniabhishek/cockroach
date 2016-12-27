@@ -8,7 +8,7 @@ import (
 )
 
 type TestClient struct {
-	wm                *bulk_processor.WorkerManager
+	jobManager        *bulk_processor.JobManager
 	internalFluPerSec int
 	maxClientQps      int
 	waitMiliSec       int
@@ -19,14 +19,14 @@ func TestDispatcher_Start(t *testing.T) {
 
 	clients := []TestClient{
 		TestClient{
-			wm:                bulk_processor.NewWorkerManager(1, "1"),
+			jobManager:                bulk_processor.NewJobManager(1, "1"),
 			internalFluPerSec: 10,
 			maxClientQps:      1,
 			waitMiliSec:       3,
 			name:              "1",
 		},
 		TestClient{
-			wm:                bulk_processor.NewWorkerManager(10, "2"),
+			jobManager:                bulk_processor.NewJobManager(10, "2"),
 			internalFluPerSec: 1,
 			maxClientQps:      10,
 			waitMiliSec:       3,
@@ -34,10 +34,10 @@ func TestDispatcher_Start(t *testing.T) {
 		},
 	}
 
-	dispatcher := bulk_processor.NewDispatcher(0)
+	dispatcher := bulk_processor.NewDispatcher(1)
 
 	for _, c := range clients {
-		dispatcher.AddWorkerManager(c.wm)
+		dispatcher.AddJobManager(c.jobManager)
 	}
 
 	dispatcher.Start()
@@ -56,7 +56,7 @@ func SendData(c TestClient) {
 
 		for {
 			<-ticker
-			c.wm.PushJob(bulk_processor.NewJob(func() {
+			c.jobManager.PushJob(bulk_processor.NewJob(func() {
 				time.Sleep(time.Duration(c.waitMiliSec) * time.Millisecond)
 				fmt.Println("finished " + c.name)
 			}))

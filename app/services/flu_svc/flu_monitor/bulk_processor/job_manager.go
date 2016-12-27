@@ -4,27 +4,31 @@ import (
 	"time"
 )
 
-type WorkerManager struct {
+type JobManager struct {
 	// A pool of workers channels that are registered with the dispatcher
-	jobChannel chan jobChannel
+	workerPool chan jobChannel
+
+	// Used to throttle
 	throttler  <- chan time.Time
 
+	// To communicate from PushJob() To Run()
 	jobChan jobChannel
+
 	MaxJps  int
 	name    string
 }
 
-func (wm *WorkerManager) Run() {
+func (jm *JobManager) Run() {
 	go func() {
 		for {
 			// Throttle the loop according to input Jps
-			<-wm.throttler
+			<-jm.throttler
 
-			// Get the job from PushJob()
-			job := <-wm.jobChan
+			// Wait for a job from PushJob()
+			job := <-jm.jobChan
 
-			// Get the job channel
-			jobChannel := <-wm.jobChannel
+			// Get a worker (type JobChannel) from Worker Pool
+			jobChannel := <-jm.workerPool
 
 			// Push the job to job channel
 			jobChannel <- job
@@ -33,18 +37,21 @@ func (wm *WorkerManager) Run() {
 }
 
 // A blocking call to WorkerManager
-func (wm *WorkerManager) PushJob(j Job) {
-	wm.jobChan <- j
+func (jm *JobManager) PushJob(j Job) {
+	jm.jobChan <- j
 }
 
 //jps (Jobs per second) - Worker manager will throttle job execution according if it crosses maxJps
-func NewWorkerManager(maxJps int, name string) *WorkerManager {
+func NewJobManager(maxJps int, name string) *JobManager {
 
 	throttler := time.Tick(time.Duration(int(1000 / maxJps)) * time.Millisecond)
 
-	return &WorkerManager{
-		jobChannel: make(chan jobChannel),
+	return &JobManager{
+		// Zero size WorkerPool
+		workerPool: make(chan jobChannel),
+		// To throttle
 		throttler:  throttler,
+		// For communicating from PushJob() To Run()
 		jobChan:    make(jobChannel),
 		MaxJps:     maxJps,
 		name:       name,

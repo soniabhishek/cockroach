@@ -6,7 +6,7 @@ import (
 
 type JobManager struct {
 	// A pool of workers channels that are registered with the dispatcher
-	workerPool chan jobChannel
+	allocatedWorker chan jobChannel
 
 	// Used to throttle
 	throttler  <- chan time.Time
@@ -28,7 +28,7 @@ func (jm *JobManager) Run() {
 			job := <-jm.jobChan
 
 			// Get a worker (type JobChannel) from Worker Pool
-			jobChannel := <-jm.workerPool
+			jobChannel := <-jm.allocatedWorker
 
 			// Push the job to job channel
 			jobChannel <- job
@@ -48,7 +48,7 @@ func NewJobManager(maxJps int, name string) *JobManager {
 
 	return &JobManager{
 		// Zero size WorkerPool
-		workerPool: make(chan jobChannel),
+		allocatedWorker: make(chan jobChannel),
 		// To throttle
 		throttler:  throttler,
 		// For communicating from PushJob() To Run()

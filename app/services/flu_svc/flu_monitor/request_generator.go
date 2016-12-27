@@ -49,13 +49,9 @@ func makeRequest(projectConfig projectConfig) (http.Request, error) {
 		})
 	}
 
-	// http call and retry logic
-	// make request
-	// keep retrying in case of failure
-	// if success availableQps --
 	// defer flu.ConfirmReceive, if the server crashes before the httpcall it stays in queue??
 
-	createRequest(projectConfig.config, fluOutputObj)
+	req,err:=createRequest(projectConfig.config, fluOutputObj)
 
 	return req,nil
 }

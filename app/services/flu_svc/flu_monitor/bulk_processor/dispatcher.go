@@ -1,9 +1,12 @@
 package bulk_processor
 
+import "sync"
+
 type Dispatcher struct {
 	jobManagers []*JobManager
 	workerPool  chan jobChannel
 	maxWorkers  int
+	sync.RWMutex
 }
 
 func NewDispatcher(maxWorkers int) *Dispatcher {
@@ -14,7 +17,10 @@ func NewDispatcher(maxWorkers int) *Dispatcher {
 	}
 }
 
+//This Will Add a job manager to the list
 func (d *Dispatcher) AddJobManager(jm *JobManager) {
+	d.Lock()
+	defer d.Unlock()
 	d.jobManagers = append(d.jobManagers, jm)
 }
 
@@ -47,7 +53,7 @@ func (d *Dispatcher) dispatch() {
 			// Pass that worker's jobChannel to any jobManager which is
 			// ready to receive
 			select {
-			case jm.workerPool <- jobChan:
+			case jm.allocatedWorker <- jobChan:
 				jobChan = nil
 			default:
 			}

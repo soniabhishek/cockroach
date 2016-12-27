@@ -12,6 +12,7 @@ import (
 	"github.com/crowdflux/angel/utilities"
 	"sync"
 	"time"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
 )
 
 type FluMonitor struct {
@@ -43,6 +44,7 @@ var totalQps = 1000
 var availableQps = totalQps
 
 var dispatcherStater sync.Once
+var dispatcher = bulk_processor.NewDispatcher(0)
 
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
@@ -55,20 +57,30 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 	}
 	clientQ.Push(feed_line.FLU{FeedLineUnit: flu})
 
-	saveProjectConfig(flu)
+	checkProjectConfig(flu)
 
 	dispatcherStater.Do(func() {
 		fm.servicePoolStart()
 
 		// configure maxworkers
-		dispatcher := NewDispatcher(100)
-		dispatcher.Run()
+		dispatcher.Start()
 	})
+
+	dispatcher.AddJobManager(c.wm)
+
+
+	//SendData(c)
+
+	//generateRequest()
+
+	//generateJob()
+
+	//push to bulk_processor
 
 	return nil
 }
 
-func saveProjectConfig(flu models.FeedLineUnit) error{
+func checkProjectConfig(flu models.FeedLineUnit) error{
 
 	//TODO activeProjects to activeProjectConfigurations
 	value, valuePresent := activeProjects[flu.ProjectId]

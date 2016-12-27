@@ -57,15 +57,15 @@ func makeRequest(projectConfig projectConfig) error {
 	return nil
 }
 
-func (job Job) Do() (*FluResponse, status_codes.StatusCode){
+func Do(){
 	client := &http.Client{}
 	resp, err := client.Do(&job.Request)
 	if err != nil {
 		plog.Error("HTTP Error:", err)
-		return &FluResponse{}, status_codes.UnknownFailure
+		return
 	}
 
 	fluResp, status := validationErrorCallback(resp)
 	fluResp.FluStatusCode = status
-	return fluResp, status
+	return
 }

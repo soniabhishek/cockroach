@@ -25,10 +25,10 @@ type invalidFlu struct {
 	Message string `json:"message"`
 }
 
-func sendBackToClient(config models.ProjectConfiguration, fluProjectResp []fluOutputStruct) (*FluResponse, status_codes.StatusCode) {
+func sendBackToClient(config models.ProjectConfiguration, fluProjectResp []fluOutputStruct)  {
 
 	if len(fluProjectResp) < 1 {
-		return &FluResponse{}, status_codes.NoFluToSend
+		return
 	}
 
 	plog.Info("Flu output", "sendBackToClient", config.ProjectId)
@@ -42,7 +42,7 @@ func sendBackToClient(config models.ProjectConfiguration, fluProjectResp []fluOu
 	jsonBytes, err := json.Marshal(sendResp)
 	if err != nil {
 		plog.Error("JSON Marshalling Error:", err)
-		return &FluResponse{}, status_codes.UnknownFailure
+		return
 	}
 	jsonBytes = utilities.ReplaceEscapeCharacters(jsonBytes)
 	plog.Trace("Sending JSON:", string(jsonBytes))
@@ -61,15 +61,5 @@ func sendBackToClient(config models.ProjectConfiguration, fluProjectResp []fluOu
 	job:=Job{Request:*req}
 	JobQueue<-job
 
-	 //separate
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		plog.Error("HTTP Error:", err)
-		return &FluResponse{}, status_codes.UnknownFailure
-	}
-
-	fluResp, status := validationErrorCallback(resp)
-	fluResp.FluStatusCode = status
 	return fluResp, status
 }

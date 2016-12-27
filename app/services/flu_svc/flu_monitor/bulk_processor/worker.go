@@ -2,20 +2,17 @@ package bulk_processor
 
 import (
 	"github.com/crowdflux/angel/app/plog"
-	"fmt"
 )
 
 // Worker represents the worker that executes the job
 type Worker struct {
 	//TODO use JobChan
 	WorkerPool chan jobChannel
-	JobChannel chan Job
+	JobChannel jobChannel
 	quit       chan bool
 }
 
 func (w *Worker) Start() {
-
-	fmt.Println("worker started")
 
 	go func() {
 		for {
@@ -28,6 +25,7 @@ func (w *Worker) Start() {
 
 				plog.Trace("Bulk Processor", "Worker", "Starting Job")
 				// we have received a work request.
+
 				job.Do()
 
 				plog.Trace("Bulk Processor", "Worker", "Finished Job")

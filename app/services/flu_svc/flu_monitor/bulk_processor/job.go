@@ -1,13 +1,28 @@
 package bulk_processor
 
+import (
+	"github.com/crowdflux/angel/app/plog"
+	"errors"
+)
+
 type Job struct {
-	Do func()
+	do func()
 }
 
 func NewJob(do func()) Job {
 	return Job{
-		Do: do,
+		do: do,
 	}
+}
+
+func (j *Job) Do() {
+	defer func() {
+		if r := recover(); r != nil {
+			plog.Error("Job",errors.New("Panic occured in a Job"), r)
+		}
+	}()
+
+	j.do()
 }
 
 type jobChannel chan Job

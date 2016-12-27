@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"github.com/crowdflux/angel/app/models/status_codes"
 	"net/http"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 )
 
-func makeRequest(projectConfig projectConfig) error {
+func makeRequest(projectConfig projectConfig) (http.Request, error) {
 	// getFluOutputObj(projectConfig)
 	limit := projectConfig.maxFluCount
 	plog.Info("SENDING FLUs COUNT: ", limit)
@@ -52,20 +55,21 @@ func makeRequest(projectConfig projectConfig) error {
 	// if success availableQps --
 	// defer flu.ConfirmReceive, if the server crashes before the httpcall it stays in queue??
 
-	sendBackToClient(projectConfig.config, fluOutputObj)
+	createRequest(projectConfig.config, fluOutputObj)
 
-	return nil
+	return req,nil
 }
 
-func Do(){
-	client := &http.Client{}
-	resp, err := client.Do(&job.Request)
-	if err != nil {
-		plog.Error("HTTP Error:", err)
-		return
+func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bodyJsonBytes []byte) {
+	hmacKey := fpsModel.Options[HMAC_KEY]
+	if hmacKey != nil {
+		// ToDo add this when encrypted will be in DB
+		//hmacKey, _ := utilities.Decrypt(hmacKey.(string))
+		sig := hmac.New(sha256.New, []byte(hmacKey.(string)))
+		sig.Write([]byte(string(bodyJsonBytes)))
+		hmac := hex.EncodeToString(sig.Sum(nil))
+		req.Header.Set(HMAC_HEADER_KEY, hmac)
+		plog.Trace("HMAC", hmac)
 	}
-
-	fluResp, status := validationErrorCallback(resp)
-	fluResp.FluStatusCode = status
-	return
 }
+

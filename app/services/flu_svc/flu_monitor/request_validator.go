@@ -10,19 +10,6 @@ import (
 	"net/http"
 )
 
-func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bodyJsonBytes []byte) {
-	hmacKey := fpsModel.Options[HMAC_KEY]
-	if hmacKey != nil {
-		// ToDo add this when encrypted will be in DB
-		//hmacKey, _ := utilities.Decrypt(hmacKey.(string))
-		sig := hmac.New(sha256.New, []byte(hmacKey.(string)))
-		sig.Write([]byte(string(bodyJsonBytes)))
-		hmac := hex.EncodeToString(sig.Sum(nil))
-		req.Header.Set(HMAC_HEADER_KEY, hmac)
-		plog.Trace("HMAC", hmac)
-	}
-}
-
 func validationErrorCallback(resp *http.Response) (*FluResponse, status_codes.StatusCode) {
 	defer resp.Body.Close()
 

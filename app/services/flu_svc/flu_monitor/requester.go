@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/models/status_codes"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/utilities"
 	"net/http"
+	"github.com/pkg/errors"
 )
 
 type fluOutputStruct struct {
@@ -25,10 +25,11 @@ type invalidFlu struct {
 	Message string `json:"message"`
 }
 
-func sendBackToClient(config models.ProjectConfiguration, fluProjectResp []fluOutputStruct)  {
+func createRequest(config models.ProjectConfiguration, fluProjectResp []fluOutputStruct)  (http.Request, error){
 
+	//TODO change someshit
 	if len(fluProjectResp) < 1 {
-		return
+		return nil, errors.New("someshit")
 	}
 
 	plog.Info("Flu output", "sendBackToClient", config.ProjectId)
@@ -42,7 +43,7 @@ func sendBackToClient(config models.ProjectConfiguration, fluProjectResp []fluOu
 	jsonBytes, err := json.Marshal(sendResp)
 	if err != nil {
 		plog.Error("JSON Marshalling Error:", err)
-		return
+		return nil, err
 	}
 	jsonBytes = utilities.ReplaceEscapeCharacters(jsonBytes)
 	plog.Trace("Sending JSON:", string(jsonBytes))
@@ -58,6 +59,7 @@ func sendBackToClient(config models.ProjectConfiguration, fluProjectResp []fluOu
 	}
 	addSendBackAuth(req, config, jsonBytes)
 
+	return *req, nil
 	job:=Job{Request:*req}
 	JobQueue<-job
 

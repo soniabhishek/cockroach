@@ -1,7 +1,6 @@
 package flu_monitor
 
 import (
-	"errors"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/project_configuration_repo"
@@ -16,7 +15,6 @@ import (
 )
 
 type FluMonitor struct {
-	PoolIsRunning bool
 }
 
 type projectConfig struct {
@@ -40,8 +38,6 @@ var activeProjects = make(map[uuid.UUID]projectConfig) // Hash map to store conf
 var queues = make(map[uuid.UUID]feed_line.Fl)          // Hash map to store queues
 
 var defaultFluThresholdCount = utilities.GetInt(config.DEFAULT_FLU_THRESHOLD_COUNT.Get())
-var totalQps = 1000
-var availableQps = totalQps
 
 var dispatcherStater sync.Once
 var dispatcher = bulk_processor.NewDispatcher(0)
@@ -60,17 +56,12 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 	checkProjectConfig(flu)
 
 	dispatcherStater.Do(func() {
-		fm.servicePoolStart()
-
-		// configure maxworkers
 		dispatcher.Start()
 	})
 
-	dispatcher.AddJobManager(c.wm)
-
-
 	//SendData(c)
 
+	req,err:=makeRequest(activeProjects[flu.ProjectId])
 	//generateRequest()
 
 	//generateJob()
@@ -80,16 +71,15 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 	return nil
 }
 
-func checkProjectConfig(flu models.FeedLineUnit) error{
+func checkProjectConfig(flu models.FeedLineUnit) {
 
 	//TODO activeProjects to activeProjectConfigurations
 	value, valuePresent := activeProjects[flu.ProjectId]
 	if !valuePresent {
 		fpsRepo := project_configuration_repo.New()
 		fpsModel, err := fpsRepo.Get(flu.ProjectId)
-		if utilities.IsValidError(err) {
-			plog.Error("DB Error:", err)
-			return errors.New("No Project Configuration found for FluProject:" + flu.ProjectId.String())
+		if err!=nil {
+			plog.Error("Error while getting Project configuratin", err, " ProjectId:",flu.ProjectId)
 		}
 
 		// reconsider
@@ -100,5 +90,7 @@ func checkProjectConfig(flu models.FeedLineUnit) error{
 		value = projectConfig{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency}
 		activeProjects[flu.ProjectId] = value
 	}
-	return nil
+
+	jm:=bulk_processor.NewJobManager(1, flu.ProjectId.String())
+	dispatcher.AddJobManager(jm)
 }

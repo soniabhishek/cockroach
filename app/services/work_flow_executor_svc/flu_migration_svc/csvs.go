@@ -36,46 +36,61 @@ func GetFluIDsFromCSVReader(fluIdReadCloser io.ReadCloser) (uids []uuid.UUID, er
 }
 
 type FluMigrationCSVDetails struct {
-	CrowdsourcingBufferDeleteFile *os.File
-	UnificationBufferDeleteFile   *os.File
-	DeactivateFluFile             *os.File
+	CrowdsourcingBufferDeleteFile     *os.File
+	CrowdsourcingBufferDeleteFileName string
+
+	UnificationBufferDeleteFile     *os.File
+	UnificationBufferDeleteFileName string
+
+	DeactivateFluFile     *os.File
+	DeactivateFluFileName string
 }
 
 func WriteFluMigrationInfoCSV(fmi FluMigrationInfo, migrationRefName string) (fluMigrationCSVDetails FluMigrationCSVDetails, err error) {
 
-	var crowdBuffDelFile, unificationBuffDelFile, deactivateFile *os.File
-
 	crowdSourcingBufferToDelete := fmi.FluBufferToDelete[step_type.CrowdSourcing]
 	if len(crowdSourcingBufferToDelete) > 0 {
 
-		crowdBuffDelFile, err = os.Create(support.GetExposedDir() + "/flu_migration_info_crowd_buffer_to_delete_" + migrationRefName + ".csv")
+		name := "flu_migration_info_crowd_buffer_to_delete_" + migrationRefName + ".csv"
+		crowdBuffDelFile, err := os.Create(support.GetExposedDir() + "/" + name)
 		if err != nil {
 			return
 		}
 		defer crowdBuffDelFile.Close()
 		writeFluInfoCSVFile(crowdSourcingBufferToDelete, crowdBuffDelFile)
+
+		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFile = crowdBuffDelFile
+		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFileName = name
 	}
 
 	unificationBufferToDelete := fmi.FluBufferToDelete[step_type.CrowdSourcing]
 	if len(unificationBufferToDelete) > 0 {
-		unificationBuffDelFile, err = os.Create(support.GetExposedDir() + "flu_migration_info_unification_buffer_to_delete_" + migrationRefName + ".csv")
+		name := "flu_migration_info_unification_buffer_to_delete_" + migrationRefName + ".csv"
+		unificationBuffDelFile, err := os.Create(support.GetExposedDir() + "/")
 		if err != nil {
 			return
 		}
 		defer unificationBuffDelFile.Close()
 		writeFluInfoCSVFile(unificationBufferToDelete, unificationBuffDelFile)
+
+		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFile = unificationBuffDelFile
+		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFileName = name
 	}
 
 	if len(fmi.FlusToDeactivate) > 0 {
-		deactivateFile, err = os.Create(support.GetExposedDir() + "flu_migration_info_flu_to_deactivate_" + migrationRefName + ".csv")
+		name := "flu_migration_info_flu_to_deactivate_" + migrationRefName + ".csv"
+		deactivateFile, err := os.Create(support.GetExposedDir() + "/")
 		if err != nil {
 			return
 		}
 		defer deactivateFile.Close()
 		writeFluIDsCSVFile(fmi.FlusToDeactivate, deactivateFile)
+
+		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFile = deactivateFile
+		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFileName = name
 	}
 
-	return FluMigrationCSVDetails{crowdBuffDelFile, unificationBuffDelFile, deactivateFile}, nil
+	return
 }
 
 func writeFluInfoCSVFile(fluInfos []fluInfo, file *os.File) {

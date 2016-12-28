@@ -5,8 +5,6 @@ const (
 	HMAC_HEADER_KEY = "qc-uuid"
 	HMAC_KEY        = "hmac_key"
 	MAX_FLU_COUNT   = "max_flu_count"
-	RETRY_COUNT     = "retry_count"
-	RETRY_PERIOD     = "retry_period"
 	CLIENT_QPS = "client_qps"
 
 	RESULT    = "result"

@@ -10,7 +10,6 @@ import (
 	"github.com/crowdflux/angel/utilities"
 	"sync"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
-	"time"
 )
 
 type FluMonitor struct {

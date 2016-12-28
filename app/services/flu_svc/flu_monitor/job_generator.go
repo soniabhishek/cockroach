@@ -26,19 +26,16 @@ func doRequest(request *http.Request, retryPeriod time.Duration, retryLeft int){
 		return
 	}
 
-	fluResp, status := validationErrorCallback(resp)
-	fluResp.FluStatusCode = status
+	fluResp, shouldRetry := shouldRetry(resp)
 
-
-	if status == status_codes.Success {
-
-		go putDbLog(completedFLUs, SUCCESS, *fluResp)
-
-	} else if status == status_codes.CallBackFailure {
+	if shouldRetry {
 		go func(){
 			time.Sleep(retryPeriod)
 			doRequest(request, retryPeriod, retryLeft-1)
 		}()
+	} else if fluResp.HttpStatusCode == http.StatusOK{
+		go putDbLog(completedFLUs, SUCCESS, *fluResp)
+
 	} else {
 		go putDbLog(completedFLUs, "ERROR", *fluResp)
 	}

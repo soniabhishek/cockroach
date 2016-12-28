@@ -15,7 +15,7 @@ import (
 
 type  FluResponse struct {
 	HttpStatusCode int
-	FluStatusCode  status_codes.StatusCode
+	//FluStatusCode  status_codes.StatusCode
 	Invalid_Flus   []invalidFlu `json:"invalid_flus"`
 	RawResponse    string
 }
@@ -41,7 +41,7 @@ func ParseFluResponse(resp *http.Response) *FluResponse {
 
 		}*/
 
-		plog.Error("Response Parsing Error: ", err)
+		plog.Error("Response Parsing Error: ", err,"fluResponse",fluResp)
 		return fluResp
 	}
 	return fluResp

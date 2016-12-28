@@ -19,7 +19,9 @@ func checkRequestGenPool(projectConfig projectLookup) {
 	limit := projectConfig.maxFluCount
 	queue := queues[projectConfig.projectId]
 
+	//TODO make the number of pools configurable. 
 	if requestGenPoolCount[projectConfig.projectId]<1 {
+		requestGenPoolCount[projectConfig.projectId]++
 		for {
 			var fluOutputObj []fluOutputStruct
 			//TODO add wait time restriction may be. in case inbound flu rate is very less.

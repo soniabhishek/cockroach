@@ -38,6 +38,71 @@ func (e *fluRepo) GetById(id uuid.UUID) (models.FeedLineUnit, error) {
 	return flu, nil
 }
 
+func (e *fluRepo) GetByIDs(fluIDs []uuid.UUID) (flus []models.FluWithStep, err error) {
+
+	var idsString bytes.Buffer
+
+	for i, id := range fluIDs {
+		if i > 0 {
+			idsString.WriteString(",")
+		}
+		idsString.WriteString("'" + id.String() + "'")
+	}
+
+	results := []struct {
+		models.FeedLineUnit
+		models.Step
+	}{}
+
+	err = e.Db.SelectJoin(&results, `SELECT fl.*, s.* FROM feed_line fl
+	INNER JOIN step s ON s.id = fl.step_id
+	WHERE fl.id in (`+idsString.String()+`)`)
+	if err != nil {
+		return
+	}
+
+	flus = make([]models.FluWithStep, len(results))
+	for i, result := range results {
+		flus[i] = models.FluWithStep{
+			FeedLineUnit: result.FeedLineUnit,
+			Step:         result.Step,
+		}
+	}
+	return
+}
+
+func (flr *fluRepo) GetChildFLusByMasterIDs(masterFluIDs []uuid.UUID) (flus []models.FluWithStep, err error) {
+
+	var idsString bytes.Buffer
+	for i, id := range masterFluIDs {
+		if i > 0 {
+			idsString.WriteString(",")
+		}
+		idsString.WriteString("'" + id.String() + "'")
+	}
+
+	results := []struct {
+		models.FeedLineUnit
+		models.Step
+	}{}
+
+	err = flr.Db.SelectJoin(&results, `SELECT fl.*, s.* FROM feed_line fl
+	INNER JOIN step s ON s.id = fl.step_id
+	WHERE master_id in (`+idsString.String()+`) and is_master is false`)
+	if err != nil {
+		return
+	}
+
+	flus = make([]models.FluWithStep, len(results))
+	for i, result := range results {
+		flus[i] = models.FluWithStep{
+			FeedLineUnit: result.FeedLineUnit,
+			Step:         result.Step,
+		}
+	}
+	return
+}
+
 func (e *fluRepo) Save(i models.FeedLineUnit) {
 	panic(errors.New("Not implemented"))
 }

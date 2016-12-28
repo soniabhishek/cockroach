@@ -63,7 +63,7 @@ func WriteFluMigrationInfoCSV(fmi FluMigrationInfo, migrationRefName string) (fl
 		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFileName = name
 	}
 
-	unificationBufferToDelete := fmi.FluBufferToDelete[step_type.CrowdSourcing]
+	unificationBufferToDelete := fmi.FluBufferToDelete[step_type.Unification]
 	if len(unificationBufferToDelete) > 0 {
 		name := "flu_migration_info_unification_buffer_to_delete_" + migrationRefName + ".csv"
 		unificationBuffDelFile, err := os.Create(support.GetExposedDir() + "/" + name)

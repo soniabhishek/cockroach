@@ -11,6 +11,8 @@ import (
 
 type IFluRepo interface {
 	GetById(Id uuid.UUID) (models.FeedLineUnit, error)
+	GetByIDs(fluIDs []uuid.UUID) ([]models.FluWithStep, error)
+	GetChildFLusByMasterIDs(masterFluIDs []uuid.UUID) ([]models.FluWithStep, error)
 	Save(feedLineUnit models.FeedLineUnit)
 	BulkInsert(flus []models.FeedLineUnit) error
 	BulkUpdate(flus []models.FeedLineUnit) error
@@ -125,6 +127,14 @@ func (e *inMemFluRepo) BulkFluBuildUpdateByStepType(flus []models.FeedLineUnit, 
 func (e *inMemFluRepo) GetFlusNotSent(StepId uuid.UUID) (flus []models.FeedLineUnit, err error) {
 	panic("not implemented")
 	return
+}
+
+func (*inMemFluRepo) GetByIDs(fluIDs []uuid.UUID) ([]models.FluWithStep, error) {
+	panic("implement me")
+}
+
+func (*inMemFluRepo) GetChildFLusByMasterIDs(masterFluIDs []uuid.UUID) ([]models.FluWithStep, error) {
+	panic("implement me")
 }
 
 func Mock() IFluRepo {

@@ -26,7 +26,7 @@ func migrationDetailsHandler(fluMigrationService IFluMigrationService) gin.Handl
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
 				"error": plerrors.ErrorBody{
-					Code:    "MF_9999",
+					Code:    "FM_9999",
 					Message: "Unsupported action. Only allowed action is 'get_details'",
 				},
 			})
@@ -50,7 +50,7 @@ func migrationDetailsHandler(fluMigrationService IFluMigrationService) gin.Handl
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
 				"error": plerrors.ErrorBody{
-					Code:    "MF_0001",
+					Code:    "FM_0001",
 					Message: err.Error(),
 					MetaData: models.JsonF{
 						"raw_error": fmt.Sprint(err),
@@ -113,7 +113,7 @@ func showErrorResponse(c *gin.Context, err error) {
 	c.JSON(http.StatusInternalServerError, plerrors.ErrorResponse{
 		Success: false,
 		Error: plerrors.ErrorBody{
-			Code:    "MF_0002",
+			Code:    "FM_0002",
 			Message: fmt.Sprint(msg),
 		},
 	})

@@ -29,6 +29,10 @@ func FluMigrationHelper(fluRepo feed_line_repo.IFluRepo, masterFluIDs []uuid.UUI
 		return fmi, err
 	}
 
+	if len(masterFlusWithStep) == 0 {
+		return fmi, errors.New("No flus found in db from passed IDs")
+	}
+
 	for _, flu := range masterFlusWithStep {
 		if !flu.IsMaster {
 			return fmi, errors.New("Child flu found in Input IDs. FluID: " + flu.ID.String())

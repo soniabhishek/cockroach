@@ -56,7 +56,7 @@ func (e *fluRepo) GetByIDs(fluIDs []uuid.UUID) (flus []models.FluWithStep, err e
 
 	err = e.Db.SelectJoin(&results, `SELECT fl.*, s.* FROM feed_line fl
 	INNER JOIN step s ON s.id = fl.step_id
-	WHERE id in ($1)`, idsString.String())
+	WHERE fl.id in (`+idsString.String()+`)`)
 	if err != nil {
 		return
 	}
@@ -88,7 +88,7 @@ func (flr *fluRepo) GetChildFLusByMasterIDs(masterFluIDs []uuid.UUID) (flus []mo
 
 	err = flr.Db.SelectJoin(&results, `SELECT fl.*, s.* FROM feed_line fl
 	INNER JOIN step s ON s.id = fl.step_id
-	WHERE master_id in ($1) and is_master is false`, idsString.String())
+	WHERE master_id in (`+idsString.String()+`) and is_master is false`)
 	if err != nil {
 		return
 	}

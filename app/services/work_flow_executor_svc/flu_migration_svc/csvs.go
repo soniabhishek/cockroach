@@ -54,7 +54,7 @@ func WriteFluMigrationInfoCSV(fmi FluMigrationInfo, migrationRefName string) (fl
 		name := "flu_migration_info_crowd_buffer_to_delete_" + migrationRefName + ".csv"
 		crowdBuffDelFile, err := os.Create(support.GetExposedDir() + "/" + name)
 		if err != nil {
-			return
+			return fluMigrationCSVDetails, err
 		}
 		defer crowdBuffDelFile.Close()
 		writeFluInfoCSVFile(crowdSourcingBufferToDelete, crowdBuffDelFile)
@@ -68,7 +68,7 @@ func WriteFluMigrationInfoCSV(fmi FluMigrationInfo, migrationRefName string) (fl
 		name := "flu_migration_info_unification_buffer_to_delete_" + migrationRefName + ".csv"
 		unificationBuffDelFile, err := os.Create(support.GetExposedDir() + "/")
 		if err != nil {
-			return
+			return fluMigrationCSVDetails, err
 		}
 		defer unificationBuffDelFile.Close()
 		writeFluInfoCSVFile(unificationBufferToDelete, unificationBuffDelFile)
@@ -81,7 +81,7 @@ func WriteFluMigrationInfoCSV(fmi FluMigrationInfo, migrationRefName string) (fl
 		name := "flu_migration_info_flu_to_deactivate_" + migrationRefName + ".csv"
 		deactivateFile, err := os.Create(support.GetExposedDir() + "/")
 		if err != nil {
-			return
+			return fluMigrationCSVDetails, err
 		}
 		defer deactivateFile.Close()
 		writeFluIDsCSVFile(fmi.FlusToDeactivate, deactivateFile)

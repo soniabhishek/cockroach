@@ -20,6 +20,11 @@ type unificationStep struct {
 
 func (u *unificationStep) processFlu(flu feed_line.FLU) {
 
+	if step.IsSkipped(flu.ID) {
+		flu.ConfirmReceive()
+		return
+	}
+
 	unificationConfig, err := u.stepConfigSvc.GetUnificationStepConfig(flu.StepId)
 	if err != nil {
 		plog.Error("Unification Step", err, "error getting step", "fluId: "+flu.ID.String())

@@ -7,8 +7,8 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/utilities"
-	"net/http"
 	"github.com/pkg/errors"
+	"net/http"
 )
 
 type fluOutputStruct struct {
@@ -25,7 +25,7 @@ type invalidFlu struct {
 	Message string `json:"message"`
 }
 
-func createRequest(config models.ProjectConfiguration, fluProjectResp []fluOutputStruct)  (http.Request, error){
+func createRequest(config models.ProjectConfiguration, fluProjectResp []fluOutputStruct) (http.Request, error) {
 
 	//TODO change someshit
 	if len(fluProjectResp) < 1 {

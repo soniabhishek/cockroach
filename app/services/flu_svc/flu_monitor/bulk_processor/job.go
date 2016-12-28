@@ -1,8 +1,8 @@
 package bulk_processor
 
 import (
-	"github.com/crowdflux/angel/app/plog"
 	"errors"
+	"github.com/crowdflux/angel/app/plog"
 )
 
 type Job struct {
@@ -18,7 +18,7 @@ func NewJob(do func()) Job {
 func (j *Job) Do() {
 	defer func() {
 		if r := recover(); r != nil {
-			plog.Error("Job",errors.New("Panic occured in a Job"), r)
+			plog.Error("Job", errors.New("Panic occured in a Job"), r)
 		}
 	}()
 

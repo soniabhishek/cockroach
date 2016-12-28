@@ -2,7 +2,6 @@ package flu_monitor
 
 import (
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/models/status_codes"
 	"net/http"
 	"time"
 )

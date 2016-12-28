@@ -11,7 +11,7 @@ func shouldRetry(resp *http.Response) (*FluResponse, bool) {
 	shouldCallBack := HttpCodeForCallback(fluResp.HttpStatusCode)
 	plog.Trace("HTTPStatusCode: [", fluResp.HttpStatusCode, "] Should Call back: ", shouldCallBack)
 	if shouldCallBack {
-		return fluResp,true
+		return fluResp, true
 	} else {
 		//If any invalid flu response code is in our InvalidationCodeArray, then we log[ERROR] it
 		for _, invalidFlu := range fluResp.Invalid_Flus {
@@ -21,4 +21,5 @@ func shouldRetry(resp *http.Response) (*FluResponse, bool) {
 		}
 	}
 	return fluResp, true
+
 }

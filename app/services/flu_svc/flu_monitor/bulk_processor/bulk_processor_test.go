@@ -1,10 +1,10 @@
 package bulk_processor_test
 
 import (
-	"testing"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
-	"time"
 	"fmt"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
+	"testing"
+	"time"
 )
 
 type TestClient struct {
@@ -18,15 +18,16 @@ type TestClient struct {
 func TestDispatcher_Start(t *testing.T) {
 
 	clients := []TestClient{
+
 		TestClient{
-			jobManager:                bulk_processor.NewJobManager(1, "1"),
+			jobManager:        bulk_processor.NewJobManager(1, "1"),
 			internalFluPerSec: 10,
 			maxClientQps:      1,
 			waitMiliSec:       3,
 			name:              "1",
 		},
 		TestClient{
-			jobManager:                bulk_processor.NewJobManager(10, "2"),
+			jobManager:        bulk_processor.NewJobManager(10, "2"),
 			internalFluPerSec: 1,
 			maxClientQps:      10,
 			waitMiliSec:       3,
@@ -52,7 +53,7 @@ func TestDispatcher_Start(t *testing.T) {
 func SendData(c TestClient) {
 
 	go func() {
-		ticker := time.Tick(time.Duration(1000 / c.internalFluPerSec) * time.Millisecond)
+		ticker := time.Tick(time.Duration(1000/c.internalFluPerSec) * time.Millisecond)
 
 		for {
 			<-ticker

@@ -12,8 +12,8 @@ type Dispatcher struct {
 func NewDispatcher(maxWorkers int) *Dispatcher {
 
 	return &Dispatcher{
-		maxWorkers:    maxWorkers,
-		workerPool:    make(chan jobChannel, maxWorkers),
+		maxWorkers: maxWorkers,
+		workerPool: make(chan jobChannel, maxWorkers),
 	}
 }
 
@@ -76,7 +76,7 @@ func (d *Dispatcher) startWorkers(workerCount int) {
 }
 
 func (d *Dispatcher) startCheck() {
-	if d.maxWorkers <= 0{
+	if d.maxWorkers <= 0 {
 		panic("Max worker configured <= 0")
 	}
 

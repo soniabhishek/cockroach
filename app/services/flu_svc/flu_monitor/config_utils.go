@@ -1,9 +1,9 @@
 package flu_monitor
 
 import (
+	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/utilities"
-	"github.com/crowdflux/angel/app/config"
 	"time"
 )
 
@@ -21,6 +21,7 @@ func getQueryFrequency(fpsModel models.ProjectConfiguration) int {
 	queryFrequency := utilities.GetInt(val.(string))
 	if queryFrequency == 0 {
 		queryFrequency = defaultClientQps
+
 	}
 	return queryFrequency
 }

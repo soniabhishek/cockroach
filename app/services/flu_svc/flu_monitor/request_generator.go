@@ -1,26 +1,26 @@
 package flu_monitor
 
 import (
-	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/plog"
-	"fmt"
-	"net/http"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
-	"github.com/crowdflux/angel/app/models/uuid"
+	"fmt"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
+	"net/http"
 )
 
-var requestGenPoolCount = make(map[uuid.UUID]int)                // Hash map to store queues
+var requestGenPoolCount = make(map[uuid.UUID]int) // Hash map to store queues
 
 func checkRequestGenPool(projectConfig projectLookup) {
 	limit := projectConfig.maxFluCount
 	queue := queues[projectConfig.projectId]
 
 	//TODO make the number of pools configurable.
-	if requestGenPoolCount[projectConfig.projectId]<1 {
+	if requestGenPoolCount[projectConfig.projectId] < 1 {
 		requestGenPoolCount[projectConfig.projectId]++
 		for {
 			var fluOutputObj []fluOutputStruct
@@ -35,6 +35,7 @@ func checkRequestGenPool(projectConfig projectLookup) {
 				result, ok := flu.Build[RESULT]
 				if !ok {
 					result = models.JsonF{}
+
 				}
 
 				fluOutputObj = append(fluOutputObj, fluOutputStruct{
@@ -69,4 +70,3 @@ func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bo
 		plog.Trace("HMAC", hmac)
 	}
 }
-

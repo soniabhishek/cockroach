@@ -1,9 +1,9 @@
 package flu_monitor
 
 import (
-	"github.com/crowdflux/angel/app/models"
-	"encoding/json"
 	"database/sql"
+	"encoding/json"
+	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 )
 
@@ -27,5 +27,6 @@ func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp FluRespo
 		}
 		dbLogArr[i] = dbLog
 	}
+
 	flu_logger_svc.LogRaw(dbLogArr)
 }

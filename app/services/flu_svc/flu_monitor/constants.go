@@ -5,9 +5,9 @@ const (
 	HMAC_HEADER_KEY = "qc-uuid"
 	HMAC_KEY        = "hmac_key"
 	MAX_FLU_COUNT   = "max_flu_count"
-	CLIENT_QPS = "client_qps"
+	CLIENT_QPS      = "client_qps"
 
-	RESULT    = "result"
+	RESULT = "result"
 
 	//TODO Rename
 	STATUS_OK = "COMPLETED"

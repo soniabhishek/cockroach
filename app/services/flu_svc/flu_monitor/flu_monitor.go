@@ -7,9 +7,9 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
 	"github.com/crowdflux/angel/utilities"
 	"sync"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
 )
 
 type FluMonitor struct {
@@ -21,7 +21,7 @@ type projectLookup struct {
 	maxFluCount    int
 	postBackUrl    string
 	queryFrequency int
-	jobManager 	bulk_processor.JobManager
+	jobManager     bulk_processor.JobManager
 }
 
 var activeProjectsLookup = make(map[uuid.UUID]projectLookup) // Hash map to store config
@@ -35,12 +35,12 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 	projectQ, present := queues[flu.ProjectId]
 	if !present {
 		//TODO toString in config may be
-		clientQ := feed_line.New("Gate-Q-"+flu.ProjectId.String())
+		clientQ := feed_line.New("Gate-Q-" + flu.ProjectId.String())
 		queues[flu.ProjectId] = clientQ
 	}
 	projectQ.Push(feed_line.FLU{FeedLineUnit: flu})
 
-	pConfig:= checkProjectConfig(flu)
+	pConfig := checkProjectConfig(flu)
 
 	defer dispatcherStarter.Do(func() {
 		dispatcher.Start()
@@ -58,8 +58,8 @@ func checkProjectConfig(flu models.FeedLineUnit) projectLookup {
 	if !valuePresent {
 		fpsRepo := project_configuration_repo.New()
 		fpsModel, err := fpsRepo.Get(flu.ProjectId)
-		if err!=nil {
-			plog.Error("Error while getting Project configuratin", err, " ProjectId:",flu.ProjectId)
+		if err != nil {
+			plog.Error("Error while getting Project configuratin", err, " ProjectId:", flu.ProjectId)
 		}
 
 		// reconsider
@@ -68,7 +68,7 @@ func checkProjectConfig(flu models.FeedLineUnit) projectLookup {
 		//TODO Handle invalid url
 		queryFrequency := getQueryFrequency(fpsModel)
 
-		jm:=bulk_processor.NewJobManager(value.queryFrequency, flu.ProjectId.String())
+		jm := bulk_processor.NewJobManager(value.queryFrequency, flu.ProjectId.String())
 		dispatcher.AddJobManager(jm)
 
 		value = projectLookup{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency, *jm}

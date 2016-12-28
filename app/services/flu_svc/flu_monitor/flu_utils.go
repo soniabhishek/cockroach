@@ -13,11 +13,11 @@ import (
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 )
 
-type  FluResponse struct {
+type FluResponse struct {
 	HttpStatusCode int
 	//FluStatusCode  status_codes.StatusCode
-	Invalid_Flus   []invalidFlu `json:"invalid_flus"`
-	RawResponse    string
+	Invalid_Flus []invalidFlu `json:"invalid_flus"`
+	RawResponse  string
 }
 
 func ParseFluResponse(resp *http.Response) *FluResponse {
@@ -30,6 +30,7 @@ func ParseFluResponse(resp *http.Response) *FluResponse {
 	plog.Info("response Headers:", resp)
 	plog.Info("response Body:", string(body))
 	fluResp.RawResponse = string(body)
+
 	err := json.Unmarshal(body, fluResp)
 	if err != nil {
 
@@ -41,7 +42,7 @@ func ParseFluResponse(resp *http.Response) *FluResponse {
 
 		}*/
 
-		plog.Error("Response Parsing Error: ", err,"fluResponse",fluResp)
+		plog.Error("Response Parsing Error: ", err, "fluResponse", fluResp)
 		return fluResp
 	}
 	return fluResp
@@ -86,4 +87,3 @@ func IsValidInternalError(internalCode string) bool {
 	}
 	return false
 }
-

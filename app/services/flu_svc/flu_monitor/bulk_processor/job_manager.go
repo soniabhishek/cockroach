@@ -9,13 +9,13 @@ type JobManager struct {
 	allocatedWorker chan jobChannel
 
 	// Used to throttle
-	throttler  <- chan time.Time
+	throttler <-chan time.Time
 
 	// To communicate from PushJob() To Run()
 	jobChan jobChannel
 
-	MaxJps  int
-	name    string
+	MaxJps int
+	name   string
 }
 
 func (jm *JobManager) Run() {
@@ -32,6 +32,7 @@ func (jm *JobManager) Run() {
 
 			// Push the job to job channel
 			jobChannel <- job
+
 		}
 	}()
 }
@@ -44,16 +45,16 @@ func (jm *JobManager) PushJob(j Job) {
 //jps (Jobs per second) - JobManager will throttle job execution according if it crosses maxJps
 func NewJobManager(maxJps int, name string) *JobManager {
 
-	throttler := time.Tick(time.Duration(int(1000 / maxJps)) * time.Millisecond)
+	throttler := time.Tick(time.Duration(int(1000/maxJps)) * time.Millisecond)
 
 	return &JobManager{
 		// Zero size WorkerPool
 		allocatedWorker: make(chan jobChannel),
 		// To throttle
-		throttler:  throttler,
+		throttler: throttler,
 		// For communicating from PushJob() To Run()
-		jobChan:    make(jobChannel),
-		MaxJps:     maxJps,
-		name:       name,
+		jobChan: make(jobChannel),
+		MaxJps:  maxJps,
+		name:    name,
 	}
 }

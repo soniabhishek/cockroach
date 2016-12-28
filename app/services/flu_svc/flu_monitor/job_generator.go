@@ -14,7 +14,7 @@ func getCallBackJob(request *http.Request, retryPeriod time.Duration, retryCount
 
 }
 
-func doRequest(request *http.Request, retryPeriod time.Duration,retryLeft int){
+func doRequest(request *http.Request, retryPeriod time.Duration, retryLeft int){
 
 	if retryLeft==0{
 		return

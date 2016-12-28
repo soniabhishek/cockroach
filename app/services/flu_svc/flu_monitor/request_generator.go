@@ -9,51 +9,50 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 )
 
-func makeRequest(projectConfig projectLookup) (error) {
-	// getFluOutputObj(projectLookup)
+var requestGenPoolCount = make(map[uuid.UUID]int)                // Hash map to store queues
+
+func checkRequestGenPool(projectConfig projectLookup) {
 	limit := projectConfig.maxFluCount
-	plog.Info("SENDING FLUs COUNT: ", limit)
 	queue := queues[projectConfig.projectId]
-	var fluOutputObj []fluOutputStruct
-	for i := limit - 1; i >= 0; i-- {
-		receiver := queue.Receiver()
 
-		flu := <-receiver
+	if requestGenPoolCount[projectConfig.projectId]<1 {
+		for {
+			var fluOutputObj []fluOutputStruct
+			//TODO add wait time restriction may be. in case inbound flu rate is very less.
+			for i := limit - 1; i >= 0; i-- {
+				receiver := queue.Receiver()
 
-		defer flu.ConfirmReceive() // defer what happens
+				flu := <-receiver
 
-		// if queue empty, break
-		// adjust with the wait time in switch case channel
+				defer flu.ConfirmReceive()
 
-		select {
-		case flu := <-receiver:
-			defer flu.ConfirmReceive()
-		default:
-			fmt.Println("No value ready, moving on.")
+				result, ok := flu.Build[RESULT]
+				if !ok {
+					result = models.JsonF{}
+				}
+
+				fluOutputObj = append(fluOutputObj, fluOutputStruct{
+					ID:          flu.ID,
+					ReferenceId: flu.ReferenceId,
+					Tag:         flu.Tag,
+					Status:      STATUS_OK,
+					Result:      result,
+				})
+			}
+			plog.Info("SENDING FLUs COUNT: ", limit)
+			req, err := createRequest(projectConfig.config, fluOutputObj)
+			if err != nil {
+				plog.Error("Error while creating request", err, " fluOutputObj : ", fluOutputObj)
+			}
+
+			job := bulk_processor.NewJob(getCallBackJob(&req, projectConfig.retryPeriod, projectConfig.retryCount))
+			projectConfig.jobManager.PushJob(job)
 		}
-		result, ok := flu.Build[RESULT]
-		if !ok {
-			result = models.JsonF{}
-		}
-
-		fluOutputObj = append(fluOutputObj, fluOutputStruct{
-			ID:          flu.ID,
-			ReferenceId: flu.ReferenceId,
-			Tag:         flu.Tag,
-			Status:      STATUS_OK,
-			Result:      result,
-		})
 	}
-
-	req, err:=createRequest(projectConfig.config, fluOutputObj)
-	return err
-
-	job:= bulk_processor.NewJob(getCallBackJob(&req,projectConfig.retryPeriod,projectConfig.retryCount))
-	projectConfig.jobManager.PushJob(job)
-
-	return nil
 }
 
 func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bodyJsonBytes []byte) {

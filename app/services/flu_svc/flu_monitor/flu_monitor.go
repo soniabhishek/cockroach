@@ -27,11 +27,8 @@ type projectLookup struct {
 	jobManager 	bulk_processor.JobManager
 }
 
-//var mutex = &sync.RWMutex{}
-
 var activeProjectsLookup = make(map[uuid.UUID]projectLookup) // Hash map to store config
 var queues = make(map[uuid.UUID]feed_line.Fl)                // Hash map to store queues
-var jobManagers = make(map[uuid.UUID]bulk_processor.JobManager)
 var dispatcherStarter sync.Once
 var dispatcher = bulk_processor.NewDispatcher(utilities.GetInt(config.MAX_WORKERS.Get()))
 
@@ -52,11 +49,7 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 		dispatcher.Start()
 	})
 
-	err:=makeRequest(pConfig)
-
-	if err!=nil{
-		return err
-	}
+	checkRequestGenerationPool(pConfig)
 
 	return nil
 }

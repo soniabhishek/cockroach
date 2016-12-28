@@ -66,7 +66,7 @@ func WriteFluMigrationInfoCSV(fmi FluMigrationInfo, migrationRefName string) (fl
 	unificationBufferToDelete := fmi.FluBufferToDelete[step_type.CrowdSourcing]
 	if len(unificationBufferToDelete) > 0 {
 		name := "flu_migration_info_unification_buffer_to_delete_" + migrationRefName + ".csv"
-		unificationBuffDelFile, err := os.Create(support.GetExposedDir() + "/")
+		unificationBuffDelFile, err := os.Create(support.GetExposedDir() + "/" + name)
 		if err != nil {
 			return fluMigrationCSVDetails, err
 		}
@@ -79,7 +79,7 @@ func WriteFluMigrationInfoCSV(fmi FluMigrationInfo, migrationRefName string) (fl
 
 	if len(fmi.FlusToDeactivate) > 0 {
 		name := "flu_migration_info_flu_to_deactivate_" + migrationRefName + ".csv"
-		deactivateFile, err := os.Create(support.GetExposedDir() + "/")
+		deactivateFile, err := os.Create(support.GetExposedDir() + "/" + name)
 		if err != nil {
 			return fluMigrationCSVDetails, err
 		}

@@ -24,6 +24,7 @@ func checkRequestGenPool(projectConfig projectLookup) {
 		requestGenPoolCount[projectConfig.projectId]++
 		for {
 			var fluOutputObj []fluOutputStruct
+			var flusSent = make(map[uuid.UUID]feed_line.FLU)
 			//TODO add wait time restriction may be. in case inbound flu rate is very less.
 			for i := limit - 1; i >= 0; i-- {
 				receiver := queue.Receiver()
@@ -45,6 +46,7 @@ func checkRequestGenPool(projectConfig projectLookup) {
 					Status:      STATUS_OK,
 					Result:      result,
 				})
+				flusSent[flu.ID] = flu
 			}
 			plog.Info("SENDING FLUs COUNT: ", limit)
 			req, err := createRequest(projectConfig.config, fluOutputObj)
@@ -52,7 +54,7 @@ func checkRequestGenPool(projectConfig projectLookup) {
 				plog.Error("Error while creating request", err, " fluOutputObj : ", fluOutputObj)
 			}
 
-			job := bulk_processor.NewJob(getCallBackJob(&req, defaultRetryTimePeriod, defaultRetryCount))
+			job := bulk_processor.NewJob(getCallBackJob(&req, defaultRetryTimePeriod, defaultRetryCount, flusSent))
 			projectConfig.jobManager.PushJob(job)
 		}
 	}

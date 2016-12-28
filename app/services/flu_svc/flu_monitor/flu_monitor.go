@@ -42,11 +42,11 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 	pConfig := checkProjectConfig(flu)
 
+	checkRequestGenPool(pConfig)
+
 	dispatcherStarter.Do(func() {
 		dispatcher.Start()
 	})
-
-	checkRequestGenPool(pConfig)
 
 	return nil
 }

@@ -65,17 +65,17 @@ func migrationDetailsHandler(fluMigrationService IFluMigrationService) gin.Handl
 
 		if fluMigrationCSVDetails.CrowdsourcingBufferDeleteFile != nil {
 			migrationDetails["crowdsourcing_flu_buffer_delete_file"] = fluMigrationCSVDetails.CrowdsourcingBufferDeleteFileName
-			msg += "Delete Flus from crowdsourcing flu buffer: https://api.playment.in/downloads/" + fluMigrationCSVDetails.CrowdsourcingBufferDeleteFile.Name() + " . "
+			msg += "Delete Flus from crowdsourcing flu buffer: https://api.playment.in/downloads/" + fluMigrationCSVDetails.CrowdsourcingBufferDeleteFileName + " . "
 		}
 
 		if fluMigrationCSVDetails.UnificationBufferDeleteFile != nil {
 			migrationDetails["unification_buffer_delete_file"] = fluMigrationCSVDetails.UnificationBufferDeleteFileName
-			msg += "Delete Flus from unification flu buffer: https://api.playment.in/downloads/" + fluMigrationCSVDetails.UnificationBufferDeleteFile.Name() + " . "
+			msg += "Delete Flus from unification flu buffer: https://api.playment.in/downloads/" + fluMigrationCSVDetails.UnificationBufferDeleteFileName + " . "
 		}
 
 		if fluMigrationCSVDetails.DeactivateFluFile != nil {
 			migrationDetails["deactivate_flu_file"] = fluMigrationCSVDetails.DeactivateFluFileName
-			msg += "Flus to deactivate: https://api.playment.in/downloads/" + fluMigrationCSVDetails.DeactivateFluFile.Name() + " . "
+			msg += "Flus to deactivate: https://api.playment.in/downloads/" + fluMigrationCSVDetails.DeactivateFluFileName + " . "
 		}
 
 		if msg == "" {

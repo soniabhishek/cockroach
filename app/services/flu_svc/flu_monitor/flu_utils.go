@@ -73,7 +73,7 @@ func HttpCodeForCallback(httpStatusCode int) bool {
 	}
 	return false
 }
-/*
+
 func IsValidInternalError(internalCode string) bool {
 	switch internalCode {
 	case
@@ -86,5 +86,4 @@ func IsValidInternalError(internalCode string) bool {
 	}
 	return false
 }
-*/
 

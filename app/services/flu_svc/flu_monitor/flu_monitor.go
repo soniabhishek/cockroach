@@ -22,8 +22,6 @@ type projectLookup struct {
 	maxFluCount    int
 	postBackUrl    string
 	queryFrequency int
-	retryCount	int
-	retryPeriod	time.Duration
 	jobManager 	bulk_processor.JobManager
 }
 
@@ -49,7 +47,7 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 		dispatcher.Start()
 	})
 
-	checkRequestGenerationPool(pConfig)
+	checkRequestGenPool(pConfig)
 
 	return nil
 }
@@ -70,13 +68,11 @@ func checkProjectConfig(flu models.FeedLineUnit) projectLookup {
 		postbackUrl := fpsModel.PostBackUrl
 		//TODO Handle invalid url
 		queryFrequency := getQueryFrequency(fpsModel)
-		retryCount := getRetryCount(fpsModel)
-		retryPeriod := getRetryPeriod(fpsModel)
 
 		jm:=bulk_processor.NewJobManager(value.queryFrequency, flu.ProjectId.String())
 		dispatcher.AddJobManager(jm)
 
-		value = projectLookup{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency, retryCount, retryPeriod, *jm}
+		value = projectLookup{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency, *jm}
 		activeProjectsLookup[flu.ProjectId] = value
 	}
 	return value

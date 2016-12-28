@@ -9,19 +9,18 @@ import (
 
 var defaultFluThresholdCount = utilities.GetInt(config.DEFAULT_FLU_THRESHOLD_COUNT.Get())
 var defaultRetryCount = utilities.GetInt(config.FLU_RETRY_THRESHOLD.Get())
+var defaultClientQps = utilities.GetInt(config.DEFAULT_CLIENT_QPS.Get())
 var defaultRetryTimePeriod = time.Duration(utilities.GetInt(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
 var fluThresholdDuration = int64(utilities.GetInt(config.FLU_THRESHOLD_DURATION.Get()))
 
 func getQueryFrequency(fpsModel models.ProjectConfiguration) int {
 	val := fpsModel.Options[CLIENT_QPS]
 	if val == nil {
-		//TODO change later. take from config
-		return 5
+		return defaultClientQps
 	}
 	queryFrequency := utilities.GetInt(val.(string))
 	if queryFrequency == 0 {
-		//TODO change later. take from config
-		queryFrequency = 5
+		queryFrequency = defaultClientQps
 	}
 	return queryFrequency
 }
@@ -36,28 +35,4 @@ func getMaxFluCount(fpsModel models.ProjectConfiguration) int {
 		maxFluCount = defaultFluThresholdCount
 	}
 	return maxFluCount
-}
-
-func getRetryCount(fpsModel models.ProjectConfiguration) int {
-	val := fpsModel.Options[RETRY_COUNT]
-	if val == nil {
-		return defaultRetryCount
-	}
-	retryCount := utilities.GetInt(val.(string))
-	if retryCount == 0 {
-		retryCount = defaultRetryCount
-	}
-	return retryCount
-}
-
-func getRetryPeriod(fpsModel models.ProjectConfiguration) time.Duration {
-	val := fpsModel.Options[RETRY_PERIOD]
-	if val == nil {
-		return defaultRetryTimePeriod
-	}
-	retryPeriod := time.Duration(utilities.GetInt(val.(string)))*time.Millisecond
-	if retryPeriod == 0 {
-		retryPeriod = defaultRetryTimePeriod
-	}
-	return retryPeriod
 }

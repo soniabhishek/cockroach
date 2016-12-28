@@ -7,7 +7,6 @@ const (
 	MAX_FLU_COUNT   = "max_flu_count"
 	RETRY_COUNT     = "retry_count"
 	RETRY_PERIOD     = "retry_period"
-
 	CLIENT_QPS = "client_qps"
 
 	RESULT    = "result"

@@ -8,9 +8,7 @@ const (
 	RETRY_COUNT     = "retry_count"
 	RETRY_PERIOD     = "retry_period"
 
-
-	//TODO Rename
-	QUERY_FREQUENCY = "query_frequency"
+	CLIENT_QPS = "client_qps"
 
 	RESULT    = "result"
 

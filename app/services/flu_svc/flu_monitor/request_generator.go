@@ -11,8 +11,8 @@ import (
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
 )
 
-func makeRequest(projectConfig projectConfig) (error) {
-	// getFluOutputObj(projectConfig)
+func makeRequest(projectConfig projectLookup) (error) {
+	// getFluOutputObj(projectLookup)
 	limit := projectConfig.maxFluCount
 	plog.Info("SENDING FLUs COUNT: ", limit)
 	queue := queues[projectConfig.projectId]
@@ -48,12 +48,12 @@ func makeRequest(projectConfig projectConfig) (error) {
 	}
 
 	req, err:=createRequest(projectConfig.config, fluOutputObj)
-
-	job:= bulk_processor.NewJob(getCallBackJob(req))
-	job:=Job{Request:*req}
-	JobQueue<-job
-
 	return err
+
+	job:= bulk_processor.NewJob(getCallBackJob(&req,projectConfig.retryPeriod,projectConfig.retryCount))
+	projectConfig.jobManager.PushJob(job)
+
+	return nil
 }
 
 func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bodyJsonBytes []byte) {

@@ -2,7 +2,6 @@ package flu_monitor
 
 import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
-	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/project_configuration_repo"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
@@ -17,21 +16,21 @@ import (
 type FluMonitor struct {
 }
 
-type projectConfig struct {
+type projectLookup struct {
 	projectId      uuid.UUID
 	config         models.ProjectConfiguration
 	maxFluCount    int
 	postBackUrl    string
 	queryFrequency int
-	retryCount	time.Duration
+	retryCount	int
 	retryPeriod	time.Duration
 	jobManager 	bulk_processor.JobManager
 }
 
 //var mutex = &sync.RWMutex{}
 
-var activeProjectConfigs = make(map[uuid.UUID]projectConfig) // Hash map to store config
-var queues = make(map[uuid.UUID]feed_line.Fl)          // Hash map to store queues
+var activeProjectsLookup = make(map[uuid.UUID]projectLookup) // Hash map to store config
+var queues = make(map[uuid.UUID]feed_line.Fl)                // Hash map to store queues
 var jobManagers = make(map[uuid.UUID]bulk_processor.JobManager)
 var dispatcherStarter sync.Once
 var dispatcher = bulk_processor.NewDispatcher(utilities.GetInt(config.MAX_WORKERS.Get()))
@@ -49,19 +48,23 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 	pConfig:= checkProjectConfig(flu)
 
-	err:=makeRequest(pConfig)
-
-	dispatcherStarter.Do(func() {
+	defer dispatcherStarter.Do(func() {
 		dispatcher.Start()
 	})
+
+	err:=makeRequest(pConfig)
+
+	if err!=nil{
+		return err
+	}
 
 	return nil
 }
 
-func checkProjectConfig(flu models.FeedLineUnit) projectConfig{
+func checkProjectConfig(flu models.FeedLineUnit) projectLookup {
 
 	//TODO activeProjects to activeProjectConfigurations
-	value, valuePresent := activeProjectConfigs[flu.ProjectId]
+	value, valuePresent := activeProjectsLookup[flu.ProjectId]
 	if !valuePresent {
 		fpsRepo := project_configuration_repo.New()
 		fpsModel, err := fpsRepo.Get(flu.ProjectId)
@@ -75,12 +78,13 @@ func checkProjectConfig(flu models.FeedLineUnit) projectConfig{
 		//TODO Handle invalid url
 		queryFrequency := getQueryFrequency(fpsModel)
 		retryCount := getRetryCount(fpsModel)
+		retryPeriod := getRetryPeriod(fpsModel)
 
 		jm:=bulk_processor.NewJobManager(value.queryFrequency, flu.ProjectId.String())
 		dispatcher.AddJobManager(jm)
 
-		value = projectConfig{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency, retryCount, jm}
-		activeProjectConfigs[flu.ProjectId] = value
+		value = projectLookup{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency, retryCount, retryPeriod, *jm}
+		activeProjectsLookup[flu.ProjectId] = value
 	}
 	return value
 

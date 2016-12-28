@@ -73,8 +73,8 @@ func WriteFluMigrationInfoCSV(fmi FluMigrationInfo, migrationRefName string) (fl
 		defer unificationBuffDelFile.Close()
 		writeFluInfoCSVFile(unificationBufferToDelete, unificationBuffDelFile)
 
-		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFile = unificationBuffDelFile
-		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFileName = name
+		fluMigrationCSVDetails.UnificationBufferDeleteFile = unificationBuffDelFile
+		fluMigrationCSVDetails.UnificationBufferDeleteFileName = name
 	}
 
 	if len(fmi.FlusToDeactivate) > 0 {
@@ -86,8 +86,8 @@ func WriteFluMigrationInfoCSV(fmi FluMigrationInfo, migrationRefName string) (fl
 		defer deactivateFile.Close()
 		writeFluIDsCSVFile(fmi.FlusToDeactivate, deactivateFile)
 
-		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFile = deactivateFile
-		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFileName = name
+		fluMigrationCSVDetails.DeactivateFluFile = deactivateFile
+		fluMigrationCSVDetails.DeactivateFluFileName = name
 	}
 
 	return

@@ -283,7 +283,7 @@ func StartFluOutputTimer() {
 
 }
 
-func deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct) []models.FeedLineUnit {
+func 	deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct) []models.FeedLineUnit {
 	completedFLUs := make([]models.FeedLineUnit, 0)
 	if len(fluOutputObj) < 1 {
 		return completedFLUs

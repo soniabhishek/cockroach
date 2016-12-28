@@ -75,7 +75,7 @@
     "retry_time_period": "5000",
     "default_flu_threshold_count": "1000",
     "flu_threshold_duration": "5000",
-    "flu_retry_threshold" : 5
+    "max_workers" : "50"
   },
 
   "workflow_step" : {

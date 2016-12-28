@@ -60,8 +60,6 @@ func createRequest(config models.ProjectConfiguration, fluProjectResp []fluOutpu
 	addSendBackAuth(req, config, jsonBytes)
 
 	return *req, nil
-	job:=Job{Request:*req}
-	JobQueue<-job
 
 	return fluResp, status
 }

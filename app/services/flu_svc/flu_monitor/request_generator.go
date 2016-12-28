@@ -4,14 +4,14 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
 	"fmt"
-	"github.com/crowdflux/angel/app/models/status_codes"
 	"net/http"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
 )
 
-func makeRequest(projectConfig projectConfig) (http.Request, error) {
+func makeRequest(projectConfig projectConfig) (error) {
 	// getFluOutputObj(projectConfig)
 	limit := projectConfig.maxFluCount
 	plog.Info("SENDING FLUs COUNT: ", limit)
@@ -26,13 +26,11 @@ func makeRequest(projectConfig projectConfig) (http.Request, error) {
 
 		// if queue empty, break
 		// adjust with the wait time in switch case channel
-		// some bufferred channel logic instead of counting in for loop?
 
 		select {
 		case flu := <-receiver:
 			defer flu.ConfirmReceive()
 		default:
-			delete(activeProjects, projectConfig.projectId)
 			fmt.Println("No value ready, moving on.")
 		}
 		result, ok := flu.Build[RESULT]
@@ -49,11 +47,13 @@ func makeRequest(projectConfig projectConfig) (http.Request, error) {
 		})
 	}
 
-	// defer flu.ConfirmReceive, if the server crashes before the httpcall it stays in queue??
+	req, err:=createRequest(projectConfig.config, fluOutputObj)
 
-	req,err:=createRequest(projectConfig.config, fluOutputObj)
+	job:= bulk_processor.NewJob(getCallBackJob(req))
+	job:=Job{Request:*req}
+	JobQueue<-job
 
-	return req,nil
+	return err
 }
 
 func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bodyJsonBytes []byte) {

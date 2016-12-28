@@ -1,10 +1,6 @@
 package flu_monitor
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
-	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/status_codes"
 	"github.com/crowdflux/angel/app/plog"
 	"net/http"

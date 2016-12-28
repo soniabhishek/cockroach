@@ -2,11 +2,10 @@ package config
 
 import (
 	"os"
-	"runtime"
-	"strings"
 
 	"fmt"
 
+	"github.com/crowdflux/angel/app/support"
 	"github.com/spf13/viper"
 )
 
@@ -28,16 +27,8 @@ func init() {
 
 	fmt.Println("Using " + env + " environment")
 
-	var goPath string
-	// windows has ; separator vs linux has :
-	if runtime.GOOS == "windows" {
-		goPath = strings.Split(os.Getenv("GOPATH"), ";")[0]
-	} else {
-		goPath = strings.Split(os.Getenv("GOPATH"), ":")[0]
-	}
-
 	// Derive the config directory
-	configPath := goPath + "/src/github.com/crowdflux/angel/app/config"
+	configPath := support.GetAngelRootDir() + "/app/config"
 
 	configProvider.SetConfigFile(configPath + "/" + env + ".json")
 	err := configProvider.ReadInConfig()

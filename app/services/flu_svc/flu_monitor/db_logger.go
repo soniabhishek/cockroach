@@ -7,7 +7,7 @@ import (
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 )
 
-func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp FluResponse) {
+func putDbLog(completedFLUs []models.FeedLineUnit, message string, resp WebhookResponse) {
 
 	dbLogArr := make([]models.FeedLineLog, len(completedFLUs))
 	jsObj := models.JsonF{}

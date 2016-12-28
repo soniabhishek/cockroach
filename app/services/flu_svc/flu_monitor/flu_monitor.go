@@ -32,8 +32,8 @@ var dispatcher = bulk_processor.NewDispatcher(utilities.GetInt(config.MAX_WORKER
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 	//TODO rename clientQ to projectQ, present to ok
-	projectQ, present := queues[flu.ProjectId]
-	if !present {
+	projectQ, ok := queues[flu.ProjectId]
+	if !ok {
 		//TODO toString in config may be
 		clientQ := feed_line.New("Gate-Q-" + flu.ProjectId.String())
 		queues[flu.ProjectId] = clientQ
@@ -42,7 +42,7 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 	pConfig := checkProjectConfig(flu)
 
-	defer dispatcherStarter.Do(func() {
+	dispatcherStarter.Do(func() {
 		dispatcher.Start()
 	})
 
@@ -54,8 +54,8 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 func checkProjectConfig(flu models.FeedLineUnit) projectLookup {
 
 	//TODO activeProjects to activeProjectConfigurations
-	value, valuePresent := activeProjectsLookup[flu.ProjectId]
-	if !valuePresent {
+	projectLookup, ok := activeProjectsLookup[flu.ProjectId]
+	if !ok {
 		fpsRepo := project_configuration_repo.New()
 		fpsModel, err := fpsRepo.Get(flu.ProjectId)
 		if err != nil {
@@ -68,12 +68,12 @@ func checkProjectConfig(flu models.FeedLineUnit) projectLookup {
 		//TODO Handle invalid url
 		queryFrequency := getQueryFrequency(fpsModel)
 
-		jm := bulk_processor.NewJobManager(value.queryFrequency, flu.ProjectId.String())
+		jm := bulk_processor.NewJobManager(projectLookup.queryFrequency, flu.ProjectId.String())
 		dispatcher.AddJobManager(jm)
 
-		value = projectLookup{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency, *jm}
-		activeProjectsLookup[flu.ProjectId] = value
+		projectLookup = projectLookup{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency, *jm}
+		activeProjectsLookup[flu.ProjectId] = projectLookup
 	}
-	return value
+	return projectLookup
 
 }

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func shouldRetry(resp *http.Response) (*FluResponse, bool) {
+func shouldRetry(resp *http.Response) (*WebhookResponse, bool) {
 	defer resp.Body.Close()
 	fluResp := ParseFluResponse(resp)
 	shouldCallBack := HttpCodeForCallback(fluResp.HttpStatusCode)

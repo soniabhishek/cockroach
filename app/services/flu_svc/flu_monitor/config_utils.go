@@ -3,15 +3,16 @@ package flu_monitor
 import (
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/utilities"
 	"time"
 )
 
-var defaultFluThresholdCount = utilities.GetInt(config.DEFAULT_FLU_THRESHOLD_COUNT.Get())
-var defaultRetryCount = utilities.GetInt(config.FLU_RETRY_THRESHOLD.Get())
-var defaultClientQps = utilities.GetInt(config.DEFAULT_CLIENT_QPS.Get())
-var defaultRetryTimePeriod = time.Duration(utilities.GetInt(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
-var fluThresholdDuration = int64(utilities.GetInt(config.FLU_THRESHOLD_DURATION.Get()))
+var defaultFluThresholdCount = services.AtoiOrPanic(config.DEFAULT_FLU_THRESHOLD_COUNT.Get())
+var defaultRetryCount = services.AtoiOrPanic(config.FLU_RETRY_THRESHOLD.Get())
+var defaultClientQps = services.AtoiOrPanic(config.DEFAULT_CLIENT_QPS.Get())
+var defaultRetryTimePeriod = time.Duration(services.AtoiOrPanic(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
+var fluThresholdDuration = int64(services.AtoiOrPanic(config.FLU_THRESHOLD_DURATION.Get()))
 
 func getQueryFrequency(fpsModel models.ProjectConfiguration) int {
 	val := fpsModel.Options[CLIENT_QPS]

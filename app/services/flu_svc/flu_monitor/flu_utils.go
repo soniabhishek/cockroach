@@ -13,15 +13,15 @@ import (
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 )
 
-type FluResponse struct {
+type WebhookResponse struct {
 	HttpStatusCode int
 	//FluStatusCode  status_codes.StatusCode
 	Invalid_Flus []invalidFlu `json:"invalid_flus"`
 	RawResponse  string
 }
 
-func ParseFluResponse(resp *http.Response) *FluResponse {
-	fluResp := &FluResponse{}
+func ParseFluResponse(resp *http.Response) *WebhookResponse {
+	fluResp := &WebhookResponse{}
 	fluResp.HttpStatusCode = resp.StatusCode
 
 	body, _ := ioutil.ReadAll(resp.Body)

@@ -11,34 +11,34 @@ import (
 
 func TestNew(t *testing.T) {
 
-	fl := New("test1")
+	cr := New("test1")
 
-	fluId := uuid.NewV4()
+	fmcrId := uuid.NewV4()
 
-	fl.Push(FLU{
-		FeedLineUnit: models.FeedLineUnit{
-			ID: fluId,
+	cr.Push(FMCR{
+		Flu_monitor_client_request: models.Flu_monitor_client_request{
+			ID: fmcrId,
 		},
 	})
 
-	flu := <-fl.Receiver()
+	fmcr := <-cr.Receiver()
 
-	flu.ConfirmReceive()
+	fmcr.ConfirmReceive()
 
-	assert.EqualValues(t, fluId, flu.ID)
+	assert.EqualValues(t, fmcr, fmcr.ID)
 
 }
 
 func TestFeedline_Load(t *testing.T) {
-	fl := New("test12")
+	cr := New("test12")
 
-	flus := fl.Receiver()
+	fmcrs := cr.Receiver()
 
 	go func() {
 
 		for {
-			fl.Push(FLU{
-				FeedLineUnit: models.FeedLineUnit{
+			cr.Push(FMCR{
+				Flu_monitor_client_request: models.Flu_monitor_client_request{
 					ID: uuid.NewV4(),
 				},
 			})
@@ -49,8 +49,8 @@ func TestFeedline_Load(t *testing.T) {
 	go func() {
 
 		for {
-			flu := <-flus
-			flu.ConfirmReceive()
+			fmcr := <-fmcrs
+			fmcr.ConfirmReceive()
 
 		}
 	}()

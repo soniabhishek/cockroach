@@ -10,66 +10,66 @@ import (
 )
 
 // ShortHand for channel of FLUs i.e. FeedLine
-type Fl struct {
+type Fmcr struct {
 	mq rabbitmq.MQ
 
 	queueName string
 	once      sync.Once
 }
 
-func New(name string) Fl {
+func New(name string) Fmcr {
 
-	return Fl{
+	return Fmcr{
 
 		mq:        rabbitmq.New(name),
 		queueName: name,
 	}
 }
 
-func (fl *Fl) Push(flu FLU) {
+func (cr *Fmcr) Push(fmcr FMCR) {
 
 	// Send only the models.Feedline part of the flu in bytes
-	bty, _ := json.Marshal(flu.FeedLineUnit)
+	bty, _ := json.Marshal(fmcr.Flu_monitor_client_request)
 
 	// This is async
 	// TODO Think about a way to guarantee this operation also
-	fl.mq.Publish(bty)
+	cr.mq.Publish(bty)
 
 	// Just for safety: if someone forgets
 	// to ConfirmReceive the flu received from a queue
 	// then reconfirm it here as it will most
 	// probably be a bug
-	if flu.delivery.Acknowledger != nil {
-		flu.ConfirmReceive()
+	if fmcr.delivery.Acknowledger != nil {
+		fmcr.ConfirmReceive()
 	}
 
-	plog.Trace("feedline", "complete push from: ", fl.queueName, "id: ", flu.ID.String())
+	plog.Trace("feedline", "complete push from: ", cr.queueName, "id: ", fmcr.ID.String())
 }
 
-func (fl *Fl) Receiver() <-chan FLU {
+func (cr *Fmcr) Receiver() <-chan FMCR {
 
-	println("Feedline, subscribe request: ", fl.queueName)
+	println("Feedline, subscribe request: ", cr.queueName)
 
-	var fluChan chan FLU
+	var fmcrChan chan FMCR
 	var flag bool = false
 
-	fl.once.Do(func() {
+	cr.once.Do(func() {
 
-		fluChan = make(chan FLU)
+		fmcrChan = make(chan FMCR)
 
 		go func() {
 
-			for msg := range fl.mq.Consume() {
+			for msg := range cr.mq.Consume() {
 
-				flu := models.FeedLineUnit{}
-				json.Unmarshal(msg.Body, &flu)
+				fmcr := models.Flu_monitor_client_request{}
+				json.Unmarshal(msg.Body, &fmcr)
 
-				fluChan <- FLU{
-					FeedLineUnit: flu,
-					delivery:     msg,
-					once:         &sync.Once{},
+				fmcrChan <- FMCR{
+					Flu_monitor_client_request: fmcr,
+					delivery:                   msg,
+					once:                       &sync.Once{},
 				}
-				plog.Trace("feedline", "sent to FLU chan, name: ", fl.queueName, "id: ", flu.ID.String())
+				plog.Trace("feedline", "sent to FLU chan, name: ", cr.queueName, "id: ", fmcr.ID.String())
 			}
 		}()
 
@@ -77,9 +77,9 @@ func (fl *Fl) Receiver() <-chan FLU {
 	})
 
 	if flag {
-		return (<-chan FLU)(fluChan)
+		return (<-chan FMCR)(fmcrChan)
 	} else {
-		panic(errors.New("Feedline already subscribed, name: " + fl.queueName))
+		panic(errors.New("Feedline already subscribed, name: " + cr.queueName))
 	}
 
 }

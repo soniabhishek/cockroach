@@ -9,39 +9,41 @@ import (
 
 //--------------------------------------------------------------------------------//
 
-type FLU struct {
-	models.FeedLineUnit
+type FMCR struct {
+	models.Flu_monitor_client_request
 
 	delivery amqp.Delivery
 
 	once *sync.Once
 }
 
-func (flu *FLU) ConfirmReceive() {
+func (fmcr *FMCR) ConfirmReceive() {
 
 	defer func() {
 		// to handle if flu.once is nil
 		recover()
 	}()
 
-	flu.once.Do(func() {
+	fmcr.once.Do(func() {
 
-		err := flu.delivery.Ack(false)
+		err := fmcr.delivery.Ack(false)
 		if err != nil {
-			plog.Error("FLU", err, "error while ack", "fluId: "+flu.FeedLineUnit.ID.String())
+			plog.Error("FMCR", err, "error while ack", "fmcrId: "+fmcr.Flu_monitor_client_request.ID.String())
 			panic(err)
 		}
 	})
 }
 
-func (flu *FLU) Redelivered() bool {
-	return flu.delivery.Redelivered
+func (fmcr *FMCR) Redelivered() bool {
+	return fmcr.delivery.Redelivered
 }
 
-func (flu FLU) Copy() FLU {
+/*
+func (flu FMCR) Copy() FMCR {
 	flu.Build = flu.Build.Copy()
 
 	flu.delivery = amqp.Delivery{}
 	flu.once = &sync.Once{}
 	return flu
 }
+*/

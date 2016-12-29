@@ -33,7 +33,7 @@ func redial() chan chan session {
 	password := config.RABBITMQ_PASSWORD.Get()
 	host := config.RABBITMQ_HOST.Get()
 
-	go func()  {
+	go func() {
 		sess := make(chan session)
 		defer close(sessions)
 

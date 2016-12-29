@@ -39,7 +39,7 @@ const (
 	MONITOR_TIME_PERIOD         = configKey("fluMonitor.monitor_time_period")
 	RETRY_TIME_PERIOD           = configKey("fluMonitor.retry_time_period")
 	DEFAULT_FLU_THRESHOLD_COUNT = configKey("fluMonitor.default_flu_threshold_count")
-	DEFAULT_CLIENT_QPS = configKey("fluMonitor.default_client_qps")
+	DEFAULT_CLIENT_QPS          = configKey("fluMonitor.default_client_qps")
 	FLU_THRESHOLD_DURATION      = configKey("fluMonitor.flu_threshold_duration")
 	FLU_RETRY_THRESHOLD         = configKey("fluMonitor.flu_retry_threshold")
 	MAX_WORKERS                 = configKey("fluMonitor.total_qps")

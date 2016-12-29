@@ -1,6 +1,7 @@
 package status_codes
 
 type StatusCode int
+
 /*
 const (
 	Success         StatusCode = 1000

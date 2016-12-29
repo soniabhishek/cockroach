@@ -63,7 +63,7 @@ func WriteFluMigrationInfoCSV(fmi FluMigrationInfo, migrationRefName string) (fl
 		fluMigrationCSVDetails.CrowdsourcingBufferDeleteFileName = name
 	}
 
-	unificationBufferToDelete := fmi.FluBufferToDelete[step_type.CrowdSourcing]
+	unificationBufferToDelete := fmi.FluBufferToDelete[step_type.Unification]
 	if len(unificationBufferToDelete) > 0 {
 		name := "flu_migration_info_unification_buffer_to_delete_" + migrationRefName + ".csv"
 		unificationBuffDelFile, err := os.Create(support.GetExposedDir() + "/" + name)
@@ -99,6 +99,7 @@ func writeFluInfoCSVFile(fluInfos []fluInfo, file *os.File) {
 	for _, fluInfo := range fluInfos {
 		csvWriter.Write([]string{fluInfo.FluID.String(), fluInfo.StepID.String(), strconv.FormatBool(fluInfo.IsMaster), fluInfo.MasterID.String()})
 	}
+	csvWriter.Flush()
 }
 
 func writeFluIDsCSVFile(fluIDs []uuid.UUID, file *os.File) {
@@ -107,4 +108,5 @@ func writeFluIDsCSVFile(fluIDs []uuid.UUID, file *os.File) {
 	for _, fluID := range fluIDs {
 		csvWriter.Write([]string{fluID.String()})
 	}
+	csvWriter.Flush()
 }

@@ -27,6 +27,11 @@ type crowdsourcingGatewayClient interface {
 
 func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
+	if step.IsSkipped(flu.ID) {
+		flu.ConfirmReceive()
+		return
+	}
+
 	c.AddToBuffer(flu)
 
 	cc, err := c.stepConfigSvc.GetCrowdsourcingStepConfig(flu.StepId)

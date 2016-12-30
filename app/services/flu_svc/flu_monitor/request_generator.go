@@ -47,7 +47,7 @@ func checkRequestGenPool(projectConfig projectHandler) {
 					ID:          flu.ID,
 					ReferenceId: flu.ReferenceId,
 					Tag:         flu.Tag,
-					Status:      STATUS_OK,
+					Status:      STATUS_COMPLETED,
 					Result:      result,
 				})
 				flusSent[flu.ID] = flu
@@ -59,14 +59,14 @@ func checkRequestGenPool(projectConfig projectHandler) {
 }
 
 func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bodyJsonBytes []byte) {
-	hmacKey := fpsModel.Options[HMAC_KEY]
-	if hmacKey != nil {
-		// ToDo add this when encrypted will be in DB
-		//hmacKey, _ := utilities.Decrypt(hmacKey.(string))
-		sig := hmac.New(sha256.New, []byte(hmacKey.(string)))
-		sig.Write([]byte(string(bodyJsonBytes)))
-		hmac := hex.EncodeToString(sig.Sum(nil))
-		req.Header.Set(HMAC_HEADER_KEY, hmac)
-		plog.Trace("HMAC", hmac)
-	}
+	hmacKey := getHmacKey(fpsModel)
+	hmacHeader := getHmacHeader(fpsModel)
+
+	// ToDo add this when encrypted will be in DB
+	//hmacKey, _ := utilities.Decrypt(hmacKey.(string))
+	sig := hmac.New(sha256.New, []byte(hmacKey))
+	sig.Write([]byte(string(bodyJsonBytes)))
+	hmac := hex.EncodeToString(sig.Sum(nil))
+	req.Header.Set(hmacHeader, hmac)
+	plog.Trace("HMAC", hmac)
 }

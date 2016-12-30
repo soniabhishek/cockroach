@@ -15,8 +15,42 @@ var defaultMaxFluCount = 1
 var retryCount = services.AtoiOrPanic(config.FLU_RETRY_THRESHOLD.Get())
 var retryTimePeriod = time.Duration(services.AtoiOrPanic(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
 
-func getQueryFrequency(fpsModel models.ProjectConfiguration) int {
-	val := fpsModel.Options[CLIENT_QPS]
+// TODO change default in config
+var defaultHmacHeader = "qc-uuid"
+var defaultHmacKey = "hmac_key"
+
+func getHmacHeader(pcModel models.ProjectConfiguration) (hmacHeader string) {
+	hmacHeader = defaultHmacHeader
+
+	val := pcModel.Options[HMAC_HEADER_KEY]
+	if val == nil {
+		return
+	}
+	valString, ok := val.(string)
+	if !ok {
+		plog.Error("Flu monitor", errors.New("error parsing hmac_header from project_configuration. Not string. Using default."))
+		return
+	}
+	return valString
+}
+
+func getHmacKey(pcModel models.ProjectConfiguration) (hmacKey string) {
+	hmacKey = defaultHmacKey
+
+	val := pcModel.Options[HMAC_KEY]
+	if val == nil {
+		return
+	}
+	valString, ok := val.(string)
+	if !ok {
+		plog.Error("Flu monitor", errors.New("error parsing hmac_key from project_configuration. Not string. Using default."))
+		return
+	}
+	return valString
+}
+
+func getQueryFrequency(pcModel models.ProjectConfiguration) int {
+	val := pcModel.Options[CLIENT_QPS]
 	if val == nil {
 		return defaultClientQps
 	}
@@ -36,8 +70,8 @@ func getQueryFrequency(fpsModel models.ProjectConfiguration) int {
 	return queryFrequency
 }
 
-func getMaxFluCount(fpsModel models.ProjectConfiguration) int {
-	val := fpsModel.Options[MAX_FLU_COUNT]
+func getMaxFluCount(pcModel models.ProjectConfiguration) int {
+	val := pcModel.Options[MAX_FLU_COUNT]
 	if val == nil {
 		return defaultMaxFluCount
 	}

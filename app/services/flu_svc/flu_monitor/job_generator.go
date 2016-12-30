@@ -5,64 +5,73 @@ import (
 	"github.com/crowdflux/angel/app/DAL/http_request_unit_pipe"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
 	"net/http"
 	"time"
 )
 
 var retryQueues = http_request_pipe.New("Retry-Q")     // Hash map to store queues
 var requestQueues = http_request_pipe.New("Request-Q") // Hash map to store queues
+var jobGenPoolCount = make(map[uuid.UUID]int)          // Hash map to store queues
 
-func getCallBackJob(retryPeriod time.Duration, retryCount int) func() {
-	return func() { doRequest(retryPeriod, retryCount) }
-
-}
-
-func doRequest(retryPeriod time.Duration, retryLeft int) {
+func generateJobs(pHandler projectHandler) {
+	if jobGenPoolCount[pHandler.projectId] > 0 {
+		return
+	}
 
 	requestReceiver := requestQueues.Receiver()
 	retryReceiver := retryQueues.Receiver()
 
-	var temp_req http_request_pipe.FMCR
-	select {
-	case req := <-requestReceiver:
-		temp_req = req
-		defer req.ConfirmReceive()
-	case req := <-retryReceiver:
-		temp_req = req
-		defer req.ConfirmReceive()
+	for {
+		var temp_req http_request_pipe.FMCR
+		select {
+		case req := <-requestReceiver:
+			temp_req = req
+			defer req.ConfirmReceive()
+		case req := <-retryReceiver:
+			temp_req = req
+			defer req.ConfirmReceive()
 
+		}
+		for {
+			job := bulk_processor.NewJob(getCallBackJob(&temp_req, retryTimePeriod, retryCount))
+			pHandler.jobManager.PushJob(job)
+		}
 	}
+}
 
-	req, err := createRequest(temp_req.ProjectConfig, temp_req.FluOutputObj)
-	if err != nil {
-		plog.Error("Error while creating request", err, " fluOutputObj : ", temp_req.FluOutputObj)
-	}
-	if retryLeft == 0 {
-		return
-	}
-	client := http.DefaultClient
-	resp, err := client.Do(&req)
-	if err != nil {
-		plog.Error("HTTP Error:", err)
-		return
-	}
+func getCallBackJob(fmcr *http_request_pipe.FMCR, retryPeriod time.Duration, retryLeft int) func() {
+	return func() {
 
-	fluResp, shouldRetry := shouldRetry(resp, retryLeft)
+		req, err := createRequest(fmcr.ProjectConfig, fmcr.FluOutputObj)
+		if err != nil {
+			plog.Error("Error while creating request", err, " fluOutputObj : ", fmcr.FluOutputObj)
+		}
 
-	if shouldRetry {
-		go func() {
-			time.Sleep(retryPeriod)
-			retryQueues.Push(http_request_pipe.FMCR{FluOutputObj: temp_req.FluOutputObj, FlusSent: temp_req.FlusSent, ProjectConfig: temp_req.ProjectConfig, RetryCount: retryLeft - 1})
-		}()
-	} else if fluResp.HttpStatusCode == http.StatusOK {
-		go putDbLog(getAllFlus(temp_req.FlusSent), SUCCESS, *fluResp)
+		client := http.DefaultClient
+		resp, err := client.Do(&req)
+		if err != nil {
+			plog.Error("HTTP Error:", err)
+			return
+		}
 
-	} else {
-		validFlus, invalidFLus := getFlusStatus(temp_req.FlusSent, fluResp)
-		go func() {
-			putDbLog(invalidFLus, "ERROR", *fluResp)
-			putDbLog(validFlus, "SUCCESS", *fluResp)
-		}()
+		fluResp, shouldRetry := shouldRetry(resp, retryLeft)
+
+		if shouldRetry {
+			go func() {
+				time.Sleep(retryPeriod)
+				retryQueues.Push(http_request_pipe.FMCR{FluOutputObj: fmcr.FluOutputObj, FlusSent: fmcr.FlusSent, ProjectConfig: temp_req.ProjectConfig, RetryCount: retryLeft - 1})
+			}()
+		} else if fluResp.HttpStatusCode == http.StatusOK {
+			go putDbLog(getAllFlus(fmcr.FlusSent), "SUCCESS", *fluResp)
+
+		} else {
+			validFlus, invalidFLus := getFlusStatus(fmcr.FlusSent, fluResp)
+			go func() {
+				putDbLog(invalidFLus, "ERROR", *fluResp)
+				putDbLog(validFlus, "SUCCESS", *fluResp)
+			}()
+		}
 	}
 }
 

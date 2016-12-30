@@ -43,7 +43,7 @@ func createRequest(config models.ProjectConfiguration, fluProjectResp []models.F
 	//fmt.Println(hex.EncodeToString(sig.Sum(nil)))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBytes))
-	req.Header.Set(CONTENT_TYPE, TYPE_JSON)
+	req.Header.Set("Content-Type", "application/json")
 
 	for headerKey, headerVal := range config.Headers {
 		req.Header.Set(headerKey, headerVal.(string))

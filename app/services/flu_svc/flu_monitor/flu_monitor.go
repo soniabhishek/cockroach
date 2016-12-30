@@ -51,8 +51,7 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 		fm.bulkProcessor.Start()
 	})
 
-	job := bulk_processor.NewJob(getCallBackJob(retryTimePeriod, retryCount))
-	pHandler.jobManager.PushJob(job)
+	generateJobs(pHandler)
 
 	return nil
 }

@@ -1,17 +1,12 @@
 package flu_monitor
 
 const (
-	SUCCESS         = "SUCCESS"
-	HMAC_HEADER_KEY = "qc-uuid"
+	//TODO qc-uuid configure in db for active projects
+	HMAC_HEADER_KEY = "hmac_header"
 	HMAC_KEY        = "hmac_key"
 	MAX_FLU_COUNT   = "max_flu_count"
 	CLIENT_QPS      = "client_qps"
 
-	RESULT = "result"
-
-	//TODO Rename
-	STATUS_OK = "COMPLETED"
-
-	CONTENT_TYPE = "Content-Type"
-	TYPE_JSON    = "application/json"
+	STATUS_COMPLETED = "COMPLETED"
+	RESULT           = "result"
 )

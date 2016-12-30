@@ -40,6 +40,7 @@ func ParseFluResponse(resp *http.Response) *WebhookResponse {
 
 		plog.Error("Response Parsing Error: ", err, "fluResponse", fluResp)
 		return fluResp
+
 	}
 	return fluResp
 }

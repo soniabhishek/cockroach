@@ -1,4 +1,6 @@
-package flu_monitor_client_request
+package http_request_pipe
+
+/*
 
 import (
 	"testing"
@@ -16,8 +18,7 @@ func TestNew(t *testing.T) {
 	fmcrId := uuid.NewV4()
 
 	cr.Push(FMCR{
-		Flu_monitor_client_request: models.Flu_monitor_client_request{
-			ID: fmcrId,
+		CallBack: models.Flu_output_struct{
 		},
 	})
 
@@ -38,7 +39,7 @@ func TestFeedline_Load(t *testing.T) {
 
 		for {
 			cr.Push(FMCR{
-				Flu_monitor_client_request: models.Flu_monitor_client_request{
+				Flu_output_struct: models.Flu_output_struct{
 					ID: uuid.NewV4(),
 				},
 			})
@@ -58,3 +59,4 @@ func TestFeedline_Load(t *testing.T) {
 	time.Sleep(time.Duration(1) * time.Second)
 
 }
+*/

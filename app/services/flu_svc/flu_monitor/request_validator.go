@@ -5,9 +5,12 @@ import (
 	"net/http"
 )
 
-func shouldRetry(resp *http.Response) (*WebhookResponse, bool) {
+func shouldRetry(resp *http.Response, retryLeft int) (*WebhookResponse, bool) {
 	defer resp.Body.Close()
 	fluResp := ParseFluResponse(resp)
+	if retryLeft < 1 {
+		return fluResp, false
+	}
 	shouldCallBack := HttpCodeForCallback(fluResp.HttpStatusCode)
 	plog.Trace("HTTPStatusCode: [", fluResp.HttpStatusCode, "] Should Call back: ", shouldCallBack)
 	if shouldCallBack {

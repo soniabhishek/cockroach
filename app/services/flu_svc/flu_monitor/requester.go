@@ -11,21 +11,13 @@ import (
 	"net/http"
 )
 
-type fluOutputStruct struct {
-	ID          uuid.UUID   `json:"flu_id"`
-	ReferenceId string      `json:"reference_id"`
-	Tag         string      `json:"tag"`
-	Status      string      `json:"status"`
-	Result      interface{} `json:"result"`
-}
-
 type invalidFlu struct {
 	Flu_Id  string `json:"flu_id"`
 	Error   string `json:"error"`
 	Message string `json:"message"`
 }
 
-func createRequest(config models.ProjectConfiguration, fluProjectResp []fluOutputStruct) (http.Request, error) {
+func createRequest(config models.ProjectConfiguration, fluProjectResp []models.FluOutputStruct) (http.Request, error) {
 
 	//TODO change someshit
 	if len(fluProjectResp) < 1 {
@@ -38,7 +30,7 @@ func createRequest(config models.ProjectConfiguration, fluProjectResp []fluOutpu
 	//url := "http://localhost:8080/JServer/HelloServlet"
 	plog.Trace("URL:>", url, "|ID: ", config.ProjectId, "|Body:", fluProjectResp)
 
-	sendResp := make(map[string][]fluOutputStruct)
+	sendResp := make(map[string][]models.FluOutputStruct)
 	sendResp["feed_line_units"] = fluProjectResp
 	jsonBytes, err := json.Marshal(sendResp)
 	if err != nil {

@@ -5,29 +5,34 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
+	"github.com/crowdflux/angel/app/DAL/http_request_unit_pipe"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
 	"net/http"
 )
 
 var requestGenPoolCount = make(map[uuid.UUID]int) // Hash map to store queues
 
-func checkRequestGenPool(projectConfig projectLookup) {
+func checkRequestGenPool(projectConfig projectHandler) {
 	limit := projectConfig.maxFluCount
-	queue := queues[projectConfig.projectId]
+	queue := projectConfig.queue
 
 	//TODO make the number of pools configurable.
 	if requestGenPoolCount[projectConfig.projectId] < 1 {
 		requestGenPoolCount[projectConfig.projectId]++
 		for {
-			var fluOutputObj []fluOutputStruct
+			var fluOutputObj []models.FluOutputStruct
 			var flusSent = make(map[uuid.UUID]feed_line.FLU)
 			//TODO add wait time restriction may be. in case inbound flu rate is very less.
 			for i := limit - 1; i >= 0; i-- {
 				receiver := queue.Receiver()
 
+				select {
+				case flu := <-receiver:
+					defer flu.ConfirmReceive()
+
+				}
 				flu := <-receiver
 
 				defer flu.ConfirmReceive()
@@ -38,7 +43,7 @@ func checkRequestGenPool(projectConfig projectLookup) {
 
 				}
 
-				fluOutputObj = append(fluOutputObj, fluOutputStruct{
+				fluOutputObj = append(fluOutputObj, models.FluOutputStruct{
 					ID:          flu.ID,
 					ReferenceId: flu.ReferenceId,
 					Tag:         flu.Tag,
@@ -48,13 +53,7 @@ func checkRequestGenPool(projectConfig projectLookup) {
 				flusSent[flu.ID] = flu
 			}
 			plog.Info("SENDING FLUs COUNT: ", limit)
-			req, err := createRequest(projectConfig.config, fluOutputObj)
-			if err != nil {
-				plog.Error("Error while creating request", err, " fluOutputObj : ", fluOutputObj)
-			}
-
-			job := bulk_processor.NewJob(getCallBackJob(&req, defaultRetryTimePeriod, defaultRetryCount, flusSent))
-			projectConfig.jobManager.PushJob(job)
+			requestQueues.Push(http_request_pipe.FMCR{FluOutputObj: fluOutputObj})
 		}
 	}
 }

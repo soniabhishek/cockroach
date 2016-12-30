@@ -1,16 +1,25 @@
-package flu_monitor_client_request
+package http_request_pipe
 
 import (
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/streadway/amqp"
+	"net/http"
 	"sync"
 )
 
 //--------------------------------------------------------------------------------//
 
 type FMCR struct {
-	models.Flu_monitor_client_request
+	FluOutputObj []models.FluOutputStruct
+
+	FlusSent map[uuid.UUID]feed_line.FLU
+
+	ProjectConfig models.ProjectConfiguration
+
+	RetryCount int
 
 	delivery amqp.Delivery
 
@@ -28,7 +37,7 @@ func (fmcr *FMCR) ConfirmReceive() {
 
 		err := fmcr.delivery.Ack(false)
 		if err != nil {
-			plog.Error("FMCR", err, "error while ack", "fmcrId: "+fmcr.Flu_monitor_client_request.ID.String())
+			plog.Error("FMCR", err, "error while ack", "RequestOject: ", fmcr.CallBack)
 			panic(err)
 		}
 	})

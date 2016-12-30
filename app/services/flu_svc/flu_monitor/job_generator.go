@@ -2,43 +2,63 @@ package flu_monitor
 
 import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
+	"github.com/crowdflux/angel/app/DAL/http_request_unit_pipe"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"net/http"
 	"time"
 )
 
-func getCallBackJob(request *http.Request, retryPeriod time.Duration, retryCount int, flusSent map[uuid.UUID]feed_line.FLU) func() {
-	return func() {
-		doRequest(request, retryPeriod, retryCount, flusSent)
-	}
+var retryQueues = http_request_pipe.New("Retry-Q")     // Hash map to store queues
+var requestQueues = http_request_pipe.New("Request-Q") // Hash map to store queues
+
+func getCallBackJob(retryPeriod time.Duration, retryCount int) func() {
+	return func() { doRequest(retryPeriod, retryCount) }
 
 }
 
-func doRequest(request *http.Request, retryPeriod time.Duration, retryLeft int, flusSent map[uuid.UUID]feed_line.FLU) {
+func doRequest(retryPeriod time.Duration, retryLeft int) {
 
+	requestReceiver := requestQueues.Receiver()
+	retryReceiver := retryQueues.Receiver()
+
+	var temp_req http_request_pipe.FMCR
+	select {
+	case req := <-requestReceiver:
+		temp_req = req
+		defer req.ConfirmReceive()
+	case req := <-retryReceiver:
+		temp_req = req
+		defer req.ConfirmReceive()
+
+	}
+
+	req, err := createRequest(temp_req.ProjectConfig, temp_req.FluOutputObj)
+	if err != nil {
+		plog.Error("Error while creating request", err, " fluOutputObj : ", temp_req.FluOutputObj)
+	}
 	if retryLeft == 0 {
 		return
 	}
 	client := http.DefaultClient
-	resp, err := client.Do(request)
+	resp, err := client.Do(&req)
 	if err != nil {
 		plog.Error("HTTP Error:", err)
 		return
 	}
 
-	fluResp, shouldRetry := shouldRetry(resp)
+	fluResp, shouldRetry := shouldRetry(resp, retryLeft)
 
 	if shouldRetry {
 		go func() {
 			time.Sleep(retryPeriod)
-			doRequest(request, retryPeriod, retryLeft-1, flusSent)
+			retryQueues.Push(http_request_pipe.FMCR{FluOutputObj: temp_req.FluOutputObj, FlusSent: temp_req.FlusSent, ProjectConfig: temp_req.ProjectConfig, RetryCount: retryLeft - 1})
 		}()
 	} else if fluResp.HttpStatusCode == http.StatusOK {
-		go putDbLog(getAllFlus(flusSent), SUCCESS, *fluResp)
+		go putDbLog(getAllFlus(temp_req.FlusSent), SUCCESS, *fluResp)
 
 	} else {
-		validFlus, invalidFLus := getFlusStatus(flusSent, fluResp)
+		validFlus, invalidFLus := getFlusStatus(temp_req.FlusSent, fluResp)
 		go func() {
 			putDbLog(invalidFLus, "ERROR", *fluResp)
 			putDbLog(validFlus, "SUCCESS", *fluResp)

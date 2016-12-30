@@ -7,72 +7,79 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
 	"github.com/crowdflux/angel/utilities"
 	"sync"
 )
 
 type FluMonitor struct {
+	projectHandlers map[uuid.UUID]projectHandler
+	bulkProcessor   *bulk_processor.Dispatcher
 }
 
-type projectLookup struct {
+type projectHandler struct {
 	projectId      uuid.UUID
 	config         models.ProjectConfiguration
 	maxFluCount    int
 	postBackUrl    string
 	queryFrequency int
 	jobManager     bulk_processor.JobManager
+	queue          feed_line.Fl
 }
 
-var activeProjectsLookup = make(map[uuid.UUID]projectLookup) // Hash map to store config
-var queues = make(map[uuid.UUID]feed_line.Fl)                // Hash map to store queues
+func New() *FluMonitor {
+	return &FluMonitor{
+		projectHandlers: make(map[uuid.UUID]projectHandler),
+		bulkProcessor:   bulk_processor.NewDispatcher(services.AtoiOrPanic(config.MAX_WORKERS.Get())),
+	}
+}
+
 var dispatcherStarter sync.Once
-var dispatcher = bulk_processor.NewDispatcher(utilities.GetInt(config.MAX_WORKERS.Get()))
 
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
-	//TODO rename clientQ to projectQ, present to ok
-	projectQ, ok := queues[flu.ProjectId]
-	if !ok {
-		//TODO toString in config may be
-		clientQ := feed_line.New("Gate-Q-" + flu.ProjectId.String())
-		queues[flu.ProjectId] = clientQ
-	}
+	projectQ := fm.projectHandlers[flu.ProjectId].queue
+
 	projectQ.Push(feed_line.FLU{FeedLineUnit: flu})
 
-	pConfig := checkProjectConfig(flu)
+	pHandler := fm.getProjectHandler(flu)
 
-	checkRequestGenPool(pConfig)
+	checkRequestGenPool(pHandler)
 
-	dispatcherStarter.Do(func() {
-		dispatcher.Start()
+	defer dispatcherStarter.Do(func() {
+		fm.bulkProcessor.Start()
 	})
+
+	job := bulk_processor.NewJob(getCallBackJob(retryTimePeriod, retryCount))
+	pHandler.jobManager.PushJob(job)
 
 	return nil
 }
 
-func checkProjectConfig(flu models.FeedLineUnit) projectLookup {
+func (fm *FluMonitor) getProjectHandler(flu models.FeedLineUnit) projectHandler {
 
 	//TODO activeProjects to activeProjectConfigurations
-	projectLookup, ok := activeProjectsLookup[flu.ProjectId]
+	projectLookup, ok := fm.projectHandlers[flu.ProjectId]
 	if !ok {
-		fpsRepo := project_configuration_repo.New()
-		fpsModel, err := fpsRepo.Get(flu.ProjectId)
+		pcRepo := project_configuration_repo.New()
+		pc, err := pcRepo.Get(flu.ProjectId)
 		if err != nil {
 			plog.Error("Error while getting Project configuratin", err, " ProjectId:", flu.ProjectId)
 		}
 
 		// reconsider
-		maxFluCount := getMaxFluCount(fpsModel)
-		postbackUrl := fpsModel.PostBackUrl
+		maxFluCount := getMaxFluCount(pc)
+		postbackUrl := pc.PostBackUrl
 		//TODO Handle invalid url
-		queryFrequency := getQueryFrequency(fpsModel)
+		queryFrequency := getQueryFrequency(pc)
 
+		queue := feed_line.New("Gate-Q-" + flu.ProjectId.String())
 		jm := bulk_processor.NewJobManager(projectLookup.queryFrequency, flu.ProjectId.String())
-		dispatcher.AddJobManager(jm)
+		fm.bulkProcessor.AddJobManager(jm)
 
-		projectLookup = projectLookup{flu.ProjectId, fpsModel, maxFluCount, postbackUrl, queryFrequency, *jm}
-		activeProjectsLookup[flu.ProjectId] = projectLookup
+		projectLookup = projectHandler{flu.ProjectId, pc, maxFluCount, postbackUrl, queryFrequency, *jm, queue}
+		fm.bulkProcessor[flu.ProjectId] = projectLookup
 	}
 	return projectLookup
 

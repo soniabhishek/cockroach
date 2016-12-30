@@ -3,24 +3,33 @@ package flu_monitor
 import (
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services"
-	"github.com/crowdflux/angel/utilities"
+	"github.com/pkg/errors"
+	"strconv"
 	"time"
 )
 
-var defaultFluThresholdCount = services.AtoiOrPanic(config.DEFAULT_FLU_THRESHOLD_COUNT.Get())
-var defaultRetryCount = services.AtoiOrPanic(config.FLU_RETRY_THRESHOLD.Get())
 var defaultClientQps = services.AtoiOrPanic(config.DEFAULT_CLIENT_QPS.Get())
-var defaultRetryTimePeriod = time.Duration(services.AtoiOrPanic(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
-var fluThresholdDuration = int64(services.AtoiOrPanic(config.FLU_THRESHOLD_DURATION.Get()))
+var defaultMaxFluCount = 1
+var retryCount = services.AtoiOrPanic(config.FLU_RETRY_THRESHOLD.Get())
+var retryTimePeriod = time.Duration(services.AtoiOrPanic(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
 
 func getQueryFrequency(fpsModel models.ProjectConfiguration) int {
 	val := fpsModel.Options[CLIENT_QPS]
 	if val == nil {
 		return defaultClientQps
 	}
-	queryFrequency := utilities.GetInt(val.(string))
-	if queryFrequency == 0 {
+
+	valString, ok := val.(string)
+	if !ok {
+		plog.Error("Flu monitor", errors.New("error parsing client_qps from project_configuration. Not string. Using default."))
+		return defaultClientQps
+	}
+
+	queryFrequency, err := strconv.Atoi(valString)
+	if err != nil {
+		plog.Error("Flu monitor", errors.New("error parsing client_qps from project_configuration. Invalid string. Using default."))
 		queryFrequency = defaultClientQps
 
 	}
@@ -30,11 +39,20 @@ func getQueryFrequency(fpsModel models.ProjectConfiguration) int {
 func getMaxFluCount(fpsModel models.ProjectConfiguration) int {
 	val := fpsModel.Options[MAX_FLU_COUNT]
 	if val == nil {
-		return defaultFluThresholdCount
+		return defaultMaxFluCount
 	}
-	maxFluCount := utilities.GetInt(val.(string))
-	if maxFluCount == 0 {
-		maxFluCount = defaultFluThresholdCount
+
+	valString, ok := val.(string)
+	if !ok {
+		plog.Error("Flu monitor", errors.New("error parsing max_flu_count from project_configuration. Not string. Using default."))
+		return defaultMaxFluCount
 	}
-	return maxFluCount
+
+	queryFrequency, err := strconv.Atoi(valString)
+	if err != nil {
+		plog.Error("Flu monitor", errors.New("error parsing max_flu_count from project_configuration. Invalid string. Using default."))
+		queryFrequency = defaultMaxFluCount
+
+	}
+	return queryFrequency
 }

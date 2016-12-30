@@ -5,12 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"database/sql"
-
-	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/status_codes"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 )
 
 type WebhookResponse struct {

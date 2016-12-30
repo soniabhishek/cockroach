@@ -1,18 +1,20 @@
-package flu_monitor_client_request
+package http_request_pipe
 
 import (
 	"encoding/json"
 	"errors"
 	"github.com/crowdflux/angel/app/DAL/clients/rabbitmq"
+	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"net/http"
 	"sync"
 )
 
 // ShortHand for channel of FLUs i.e. FeedLine
 type Fmcr struct {
-	mq rabbitmq.MQ
-
+	mq        rabbitmq.MQ
 	queueName string
 	once      sync.Once
 }
@@ -29,7 +31,7 @@ func New(name string) Fmcr {
 func (cr *Fmcr) Push(fmcr FMCR) {
 
 	// Send only the models.Feedline part of the flu in bytes
-	bty, _ := json.Marshal(fmcr.Flu_monitor_client_request)
+	bty, _ := json.Marshal(fmcr.CallBack)
 
 	// This is async
 	// TODO Think about a way to guarantee this operation also
@@ -43,7 +45,7 @@ func (cr *Fmcr) Push(fmcr FMCR) {
 		fmcr.ConfirmReceive()
 	}
 
-	plog.Trace("feedline", "complete push from: ", cr.queueName, "id: ", fmcr.ID.String())
+	plog.Trace("feedline", "complete push from: ", cr.queueName, "CallBackRequest: ", fmcr.CallBack)
 }
 
 func (cr *Fmcr) Receiver() <-chan FMCR {
@@ -61,15 +63,15 @@ func (cr *Fmcr) Receiver() <-chan FMCR {
 
 			for msg := range cr.mq.Consume() {
 
-				fmcr := models.Flu_monitor_client_request{}
+				fmcr := http.Request{}
 				json.Unmarshal(msg.Body, &fmcr)
 
 				fmcrChan <- FMCR{
-					Flu_monitor_client_request: fmcr,
-					delivery:                   msg,
-					once:                       &sync.Once{},
+					CallBack: fmcr,
+					delivery: msg,
+					once:     &sync.Once{},
 				}
-				plog.Trace("feedline", "sent to FLU chan, name: ", cr.queueName, "id: ", fmcr.ID.String())
+				plog.Trace("feedline", "sent to FLU chan, name: ", cr.queueName, "Request: ", fmcr)
 			}
 		}()
 

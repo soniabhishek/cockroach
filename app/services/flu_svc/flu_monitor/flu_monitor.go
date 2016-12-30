@@ -65,7 +65,6 @@ func (fm *FluMonitor) getProjectHandler(flu models.FeedLineUnit) ProjectHandler 
 			plog.Error("Error while getting Project configuration", err, " ProjectId:", flu.ProjectId)
 		}
 
-		// reconsider
 		maxFluCount := getMaxFluCount(pc)
 		postbackUrl := pc.PostBackUrl
 		queryFrequency := getQueryFrequency(pc)

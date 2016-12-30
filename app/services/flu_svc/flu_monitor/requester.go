@@ -39,8 +39,6 @@ func createRequest(config models.ProjectConfiguration, fluProjectResp []models.F
 	jsonBytes = utilities.ReplaceEscapeCharacters(jsonBytes)
 	plog.Trace("Sending JSON:", string(jsonBytes))
 
-	//fmt.Println(hex.EncodeToString(sig.Sum(nil)))
-
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -48,7 +46,9 @@ func createRequest(config models.ProjectConfiguration, fluProjectResp []models.F
 		req.Header.Set(headerKey, headerVal.(string))
 
 	}
-	addSendBackAuth(req, config, jsonBytes)
+	if isHmacEnabled(config) {
+		addSendBackAuth(req, config, jsonBytes)
+	}
 
 	return *req, nil
 }

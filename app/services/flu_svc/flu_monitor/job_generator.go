@@ -10,9 +10,9 @@ import (
 	"time"
 )
 
-var retryQueues = call_back_unit_pipe.New("Retry-Q")     // Hash map to store queues
-var requestQueues = call_back_unit_pipe.New("Request-Q") // Hash map to store queues
-var jobGenPoolCount = make(map[uuid.UUID]int)            // Hash map to store queues
+var retryQueues = call_back_unit_pipe.New("Retry-Q")
+var requestQueues = call_back_unit_pipe.New("Request-Q")
+var jobGenPoolCount = make(map[uuid.UUID]int)
 
 func generateJobs(pHandler ProjectHandler) {
 	if jobGenPoolCount[pHandler.projectId] > 0 {

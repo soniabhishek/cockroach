@@ -59,6 +59,8 @@ func checkRequestGenPool(projectConfig ProjectHandler) {
 }
 
 func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bodyJsonBytes []byte) {
+
+	//TODO change this to file config instead of db
 	hmacKey := getHmacKey(fpsModel)
 	hmacHeader := getHmacHeader(fpsModel)
 

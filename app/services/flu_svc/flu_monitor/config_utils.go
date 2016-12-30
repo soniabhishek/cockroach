@@ -15,12 +15,7 @@ var defaultMaxFluCount = 1
 var retryCount = services.AtoiOrPanic(config.FLU_RETRY_THRESHOLD.Get())
 var retryTimePeriod = time.Duration(services.AtoiOrPanic(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
 
-// TODO change default in config
-var defaultHmacHeader = "qc-uuid"
-var defaultHmacKey = "hmac_key"
-
 func getHmacHeader(pcModel models.ProjectConfiguration) (hmacHeader string) {
-	hmacHeader = defaultHmacHeader
 
 	val := pcModel.Options[HMAC_HEADER_KEY]
 	if val == nil {
@@ -35,7 +30,6 @@ func getHmacHeader(pcModel models.ProjectConfiguration) (hmacHeader string) {
 }
 
 func getHmacKey(pcModel models.ProjectConfiguration) (hmacKey string) {
-	hmacKey = defaultHmacKey
 
 	val := pcModel.Options[HMAC_KEY]
 	if val == nil {
@@ -47,6 +41,20 @@ func getHmacKey(pcModel models.ProjectConfiguration) (hmacKey string) {
 		return
 	}
 	return valString
+}
+
+func isHmacEnabled(pcModel models.ProjectConfiguration) bool {
+
+	val := pcModel.Options[IS_HMAC_ENABLED]
+	if val == nil {
+		return false
+	}
+	valBool, ok := val.(bool)
+	if !ok {
+		plog.Error("Flu monitor", errors.New("error parsing is_hmac_enabled from project_configuration. Not string. Using default."))
+		return false
+	}
+	return valBool
 }
 
 func getQueryFrequency(pcModel models.ProjectConfiguration) int {

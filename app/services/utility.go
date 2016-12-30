@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
 	"net/http"

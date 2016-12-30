@@ -6,7 +6,6 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/streadway/amqp"
-	"net/http"
 	"sync"
 )
 

@@ -14,7 +14,7 @@ import (
 
 var requestGenPoolCount = make(map[uuid.UUID]int) // Hash map to store queues
 
-func checkRequestGenPool(projectConfig projectHandler) {
+func checkRequestGenPool(projectConfig ProjectHandler) {
 	limit := projectConfig.maxFluCount
 	queue := projectConfig.queue
 

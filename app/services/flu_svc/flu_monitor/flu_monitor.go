@@ -9,16 +9,15 @@ import (
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
-	"github.com/crowdflux/angel/utilities"
 	"sync"
 )
 
 type FluMonitor struct {
-	projectHandlers map[uuid.UUID]projectHandler
+	projectHandlers map[uuid.UUID]ProjectHandler
 	bulkProcessor   *bulk_processor.Dispatcher
 }
 
-type projectHandler struct {
+type ProjectHandler struct {
 	projectId      uuid.UUID
 	config         models.ProjectConfiguration
 	maxFluCount    int
@@ -30,7 +29,7 @@ type projectHandler struct {
 
 func New() *FluMonitor {
 	return &FluMonitor{
-		projectHandlers: make(map[uuid.UUID]projectHandler),
+		projectHandlers: make(map[uuid.UUID]ProjectHandler),
 		bulkProcessor:   bulk_processor.NewDispatcher(services.AtoiOrPanic(config.MAX_WORKERS.Get())),
 	}
 }
@@ -56,30 +55,27 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 	return nil
 }
 
-func (fm *FluMonitor) getProjectHandler(flu models.FeedLineUnit) projectHandler {
+func (fm *FluMonitor) getProjectHandler(flu models.FeedLineUnit) ProjectHandler {
 
-	//TODO activeProjects to activeProjectConfigurations
-	projectLookup, ok := fm.projectHandlers[flu.ProjectId]
+	projectHandler, ok := fm.projectHandlers[flu.ProjectId]
 	if !ok {
 		pcRepo := project_configuration_repo.New()
 		pc, err := pcRepo.Get(flu.ProjectId)
 		if err != nil {
-			plog.Error("Error while getting Project configuratin", err, " ProjectId:", flu.ProjectId)
+			plog.Error("Error while getting Project configuration", err, " ProjectId:", flu.ProjectId)
 		}
 
 		// reconsider
 		maxFluCount := getMaxFluCount(pc)
 		postbackUrl := pc.PostBackUrl
-		//TODO Handle invalid url
 		queryFrequency := getQueryFrequency(pc)
 
 		queue := feed_line.New("Gate-Q-" + flu.ProjectId.String())
-		jm := bulk_processor.NewJobManager(projectLookup.queryFrequency, flu.ProjectId.String())
+		jm := bulk_processor.NewJobManager(projectHandler.queryFrequency, flu.ProjectId.String())
 		fm.bulkProcessor.AddJobManager(jm)
 
-		projectLookup = projectHandler{flu.ProjectId, pc, maxFluCount, postbackUrl, queryFrequency, *jm, queue}
-		fm.bulkProcessor[flu.ProjectId] = projectLookup
+		projectHandler = ProjectHandler{flu.ProjectId, pc, maxFluCount, postbackUrl, queryFrequency, *jm, queue}
+		fm.projectHandlers[flu.ProjectId] = projectHandler
 	}
-	return projectLookup
-
+	return projectHandler
 }

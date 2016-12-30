@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/utilities"
 	"github.com/pkg/errors"
@@ -17,11 +16,11 @@ type invalidFlu struct {
 	Message string `json:"message"`
 }
 
-func createRequest(config models.ProjectConfiguration, fluProjectResp []models.FluOutputStruct) (http.Request, error) {
+func createRequest(config models.ProjectConfiguration, fluProjectResp []models.FluOutputStruct) (request http.Request, err error) {
 
 	//TODO change someshit
 	if len(fluProjectResp) < 1 {
-		return nil, errors.New("someshit")
+		return request, errors.New("someshit")
 	}
 
 	plog.Info("Flu output", "sendBackToClient", config.ProjectId)
@@ -35,7 +34,7 @@ func createRequest(config models.ProjectConfiguration, fluProjectResp []models.F
 	jsonBytes, err := json.Marshal(sendResp)
 	if err != nil {
 		plog.Error("JSON Marshalling Error:", err)
-		return nil, err
+		return request, err
 	}
 	jsonBytes = utilities.ReplaceEscapeCharacters(jsonBytes)
 	plog.Trace("Sending JSON:", string(jsonBytes))

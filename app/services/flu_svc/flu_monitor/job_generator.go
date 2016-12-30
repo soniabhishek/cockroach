@@ -14,7 +14,7 @@ var retryQueues = call_back_unit_pipe.New("Retry-Q")     // Hash map to store qu
 var requestQueues = call_back_unit_pipe.New("Request-Q") // Hash map to store queues
 var jobGenPoolCount = make(map[uuid.UUID]int)            // Hash map to store queues
 
-func generateJobs(pHandler projectHandler) {
+func generateJobs(pHandler ProjectHandler) {
 	if jobGenPoolCount[pHandler.projectId] > 0 {
 		return
 	}
@@ -24,20 +24,18 @@ func generateJobs(pHandler projectHandler) {
 	retryReceiver := retryQueues.Receiver()
 
 	for {
-		var temp_req call_back_unit_pipe.CBU
+		var req call_back_unit_pipe.CBU
 		select {
 		case req := <-requestReceiver:
-			temp_req = req
+			//temp_req = req
 			defer req.ConfirmReceive()
 		case req := <-retryReceiver:
-			temp_req = req
+			//temp_req = req
 			defer req.ConfirmReceive()
+		}
 
-		}
-		for {
-			job := bulk_processor.NewJob(getCallBackJob(&temp_req, retryTimePeriod, retryCount))
-			pHandler.jobManager.PushJob(job)
-		}
+		job := bulk_processor.NewJob(getCallBackJob(&req, retryTimePeriod, retryCount))
+		pHandler.jobManager.PushJob(job)
 	}
 }
 

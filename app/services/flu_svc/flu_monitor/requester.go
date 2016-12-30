@@ -2,6 +2,9 @@ package flu_monitor
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
@@ -11,15 +14,15 @@ import (
 )
 
 type invalidFlu struct {
-	Flu_Id  string `json:"flu_id"`
+	FluID   string `json:"flu_id"`
 	Error   string `json:"error"`
 	Message string `json:"message"`
 }
 
-func createRequest(config models.ProjectConfiguration, fluProjectResp []models.FluOutputStruct) (request http.Request, err error) {
+func createRequest(config models.ProjectConfiguration, fluOutputStructs []models.FluOutputStruct) (request http.Request, err error) {
 
 	//TODO change someshit
-	if len(fluProjectResp) < 1 {
+	if len(fluOutputStructs) < 1 {
 		return request, errors.New("someshit")
 	}
 
@@ -27,13 +30,14 @@ func createRequest(config models.ProjectConfiguration, fluProjectResp []models.F
 
 	url := config.PostBackUrl
 	//url := "http://localhost:8080/JServer/HelloServlet"
-	plog.Trace("URL:>", url, "|ID: ", config.ProjectId, "|Body:", fluProjectResp)
+	plog.Trace("URL:>", url, "|ID: ", config.ProjectId, "|Body:", fluOutputStructs)
 
-	sendResp := make(map[string][]models.FluOutputStruct)
-	sendResp["feed_line_units"] = fluProjectResp
-	jsonBytes, err := json.Marshal(sendResp)
+	jsonBytes, err := json.Marshal(struct {
+		FeedLineUnits []models.FluOutputStruct `json:"feed_line_units"`
+	}{fluOutputStructs})
+
 	if err != nil {
-		plog.Error("JSON Marshalling Error:", err)
+		plog.Error("FluMonitor", err, "JSON Marshalling Error:")
 		return request, err
 	}
 	jsonBytes = utilities.ReplaceEscapeCharacters(jsonBytes)
@@ -51,4 +55,19 @@ func createRequest(config models.ProjectConfiguration, fluProjectResp []models.F
 	}
 
 	return *req, nil
+}
+
+func addSendBackAuth(req *http.Request, fpsModel models.ProjectConfiguration, bodyJsonBytes []byte) {
+
+	//TODO change this to file config instead of db
+	hmacKey := getHmacKey(fpsModel)
+	hmacHeader := getHmacHeader(fpsModel)
+
+	// ToDo add this when encrypted will be in DB
+	//hmacKey, _ := utilities.Decrypt(hmacKey.(string))
+	sig := hmac.New(sha256.New, []byte(hmacKey))
+	sig.Write([]byte(string(bodyJsonBytes)))
+	hmac := hex.EncodeToString(sig.Sum(nil))
+	req.Header.Set(hmacHeader, hmac)
+	plog.Trace("HMAC", hmac)
 }

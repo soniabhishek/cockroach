@@ -13,18 +13,9 @@ import (
 )
 
 type FluMonitor struct {
-	projectHandlers map[uuid.UUID]ProjectHandler
-	bulkProcessor   *bulk_processor.Dispatcher
-}
-
-type ProjectHandler struct {
-	projectId      uuid.UUID
-	config         models.ProjectConfiguration
-	maxFluCount    int
-	postBackUrl    string
-	queryFrequency int
-	jobManager     bulk_processor.JobManager
-	queue          feed_line.Fl
+	projectHandlers   map[uuid.UUID]ProjectHandler
+	bulkProcessor     *bulk_processor.Dispatcher
+	dispatcherStarter sync.Once
 }
 
 func New() *FluMonitor {
@@ -34,28 +25,18 @@ func New() *FluMonitor {
 	}
 }
 
-var dispatcherStarter sync.Once
-
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
-	projectQ := fm.projectHandlers[flu.ProjectId].queue
+	pHandler := fm.getOrCreateProjectHandler(flu)
+	pHandler.queue.Push(feed_line.FLU{FeedLineUnit: flu})
 
-	projectQ.Push(feed_line.FLU{FeedLineUnit: flu})
-
-	pHandler := fm.getProjectHandler(flu)
-
-	checkRequestGenPool(pHandler)
-
-	defer dispatcherStarter.Do(func() {
+	fm.dispatcherStarter.Do(func() {
 		fm.bulkProcessor.Start()
 	})
-
-	generateJobs(pHandler)
-
 	return nil
 }
 
-func (fm *FluMonitor) getProjectHandler(flu models.FeedLineUnit) ProjectHandler {
+func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) ProjectHandler {
 
 	projectHandler, ok := fm.projectHandlers[flu.ProjectId]
 	if !ok {
@@ -65,16 +46,13 @@ func (fm *FluMonitor) getProjectHandler(flu models.FeedLineUnit) ProjectHandler 
 			plog.Error("Error while getting Project configuration", err, " ProjectId:", flu.ProjectId)
 		}
 
-		maxFluCount := getMaxFluCount(pc)
-		postbackUrl := pc.PostBackUrl
-		queryFrequency := getQueryFrequency(pc)
+		pHandler := NewProjectHandler(pc)
 
-		queue := feed_line.New("Gate-Q-" + flu.ProjectId.String())
-		jm := bulk_processor.NewJobManager(projectHandler.queryFrequency, flu.ProjectId.String())
-		fm.bulkProcessor.AddJobManager(jm)
-
-		projectHandler = ProjectHandler{flu.ProjectId, pc, maxFluCount, postbackUrl, queryFrequency, *jm, queue}
+		fm.bulkProcessor.AddJobManager(pHandler.jobManager)
 		fm.projectHandlers[flu.ProjectId] = projectHandler
+
+		go projectHandler.startFeedLineProcessor()
+		go projectHandler.startCBUProcessor()
 	}
 	return projectHandler
 }

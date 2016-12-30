@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-var defaultClientQps = services.AtoiOrPanic(config.DEFAULT_CLIENT_QPS.Get())
+var DEFAULT_CLIENT_QPS = services.AtoiOrPanic(config.DEFAULT_CLIENT_QPS.Get())
 var defaultMaxFluCount = 1
-var retryCount = services.AtoiOrPanic(config.FLU_RETRY_THRESHOLD.Get())
-var retryTimePeriod = time.Duration(services.AtoiOrPanic(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
+var MAX_RETRY_COUNT = services.AtoiOrPanic(config.FLU_RETRY_THRESHOLD.Get())
+var DEFAULT_RETRY_DELAY = time.Duration(services.AtoiOrPanic(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
 
 func getHmacHeader(pcModel models.ProjectConfiguration) (hmacHeader string) {
 
@@ -60,19 +60,19 @@ func isHmacEnabled(pcModel models.ProjectConfiguration) bool {
 func getQueryFrequency(pcModel models.ProjectConfiguration) int {
 	val := pcModel.Options[CLIENT_QPS]
 	if val == nil {
-		return defaultClientQps
+		return DEFAULT_CLIENT_QPS
 	}
 
 	valString, ok := val.(string)
 	if !ok {
 		plog.Error("Flu monitor", errors.New("error parsing client_qps from project_configuration. Not string. Using default."))
-		return defaultClientQps
+		return DEFAULT_CLIENT_QPS
 	}
 
 	queryFrequency, err := strconv.Atoi(valString)
 	if err != nil {
 		plog.Error("Flu monitor", errors.New("error parsing client_qps from project_configuration. Invalid string. Using default."))
-		queryFrequency = defaultClientQps
+		queryFrequency = DEFAULT_CLIENT_QPS
 
 	}
 	return queryFrequency

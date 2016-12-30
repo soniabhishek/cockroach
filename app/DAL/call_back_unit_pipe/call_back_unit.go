@@ -1,4 +1,4 @@
-package http_request_pipe
+package call_back_unit_pipe
 
 import (
 	"encoding/json"
@@ -13,25 +13,25 @@ import (
 )
 
 // ShortHand for channel of FLUs i.e. FeedLine
-type Fmcr struct {
+type CbuQ struct {
 	mq        rabbitmq.MQ
 	queueName string
 	once      sync.Once
 }
 
-func New(name string) Fmcr {
+func New(name string) CbuQ {
 
-	return Fmcr{
+	return CbuQ{
 
 		mq:        rabbitmq.New(name),
 		queueName: name,
 	}
 }
 
-func (cr *Fmcr) Push(fmcr FMCR) {
+func (cr *CbuQ) Push(fmcr CBU) {
 
 	// Send only the models.Feedline part of the flu in bytes
-	bty, _ := json.Marshal(fmcr.CallBack)
+	bty, _ := json.Marshal(fmcr.FluOutputObj)
 
 	// This is async
 	// TODO Think about a way to guarantee this operation also
@@ -45,31 +45,31 @@ func (cr *Fmcr) Push(fmcr FMCR) {
 		fmcr.ConfirmReceive()
 	}
 
-	plog.Trace("feedline", "complete push from: ", cr.queueName, "CallBackRequest: ", fmcr.CallBack)
+	plog.Trace("feedline", "complete push from: ", cr.queueName, "CallBackFLust: ", fmcr.FluOutputObj)
 }
 
-func (cr *Fmcr) Receiver() <-chan FMCR {
+func (cr *CbuQ) Receiver() <-chan CBU {
 
 	println("Feedline, subscribe request: ", cr.queueName)
 
-	var fmcrChan chan FMCR
+	var fmcrChan chan CBU
 	var flag bool = false
 
 	cr.once.Do(func() {
 
-		fmcrChan = make(chan FMCR)
+		fmcrChan = make(chan CBU)
 
 		go func() {
 
 			for msg := range cr.mq.Consume() {
 
-				fmcr := http.Request{}
+				fmcr := []models.FluOutputStruct{}
 				json.Unmarshal(msg.Body, &fmcr)
 
-				fmcrChan <- FMCR{
-					CallBack: fmcr,
-					delivery: msg,
-					once:     &sync.Once{},
+				fmcrChan <- CBU{
+					FluOutputObj: fmcr,
+					delivery:     msg,
+					once:         &sync.Once{},
 				}
 				plog.Trace("feedline", "sent to FLU chan, name: ", cr.queueName, "Request: ", fmcr)
 			}
@@ -79,7 +79,7 @@ func (cr *Fmcr) Receiver() <-chan FMCR {
 	})
 
 	if flag {
-		return (<-chan FMCR)(fmcrChan)
+		return (<-chan CBU)(fmcrChan)
 	} else {
 		panic(errors.New("Feedline already subscribed, name: " + cr.queueName))
 	}

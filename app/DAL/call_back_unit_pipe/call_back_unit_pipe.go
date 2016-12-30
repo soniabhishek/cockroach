@@ -1,4 +1,4 @@
-package http_request_pipe
+package call_back_unit_pipe
 
 import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
@@ -12,7 +12,7 @@ import (
 
 //--------------------------------------------------------------------------------//
 
-type FMCR struct {
+type CBU struct {
 	FluOutputObj []models.FluOutputStruct
 
 	FlusSent map[uuid.UUID]feed_line.FLU
@@ -26,7 +26,7 @@ type FMCR struct {
 	once *sync.Once
 }
 
-func (fmcr *FMCR) ConfirmReceive() {
+func (fmcr *CBU) ConfirmReceive() {
 
 	defer func() {
 		// to handle if flu.once is nil
@@ -37,18 +37,18 @@ func (fmcr *FMCR) ConfirmReceive() {
 
 		err := fmcr.delivery.Ack(false)
 		if err != nil {
-			plog.Error("FMCR", err, "error while ack", "RequestOject: ", fmcr.CallBack)
+			plog.Error("CBU", err, "error while ack", "RequestOject: ", fmcr.FluOutputObj)
 			panic(err)
 		}
 	})
 }
 
-func (fmcr *FMCR) Redelivered() bool {
+func (fmcr *CBU) Redelivered() bool {
 	return fmcr.delivery.Redelivered
 }
 
 /*
-func (flu FMCR) Copy() FMCR {
+func (flu CBU) Copy() CBU {
 	flu.Build = flu.Build.Copy()
 
 	flu.delivery = amqp.Delivery{}

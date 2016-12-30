@@ -1,4 +1,4 @@
-package http_request_pipe
+package call_back_unit_pipe
 
 /*
 
@@ -17,7 +17,7 @@ func TestNew(t *testing.T) {
 
 	fmcrId := uuid.NewV4()
 
-	cr.Push(FMCR{
+	cr.Push(CBU{
 		CallBack: models.Flu_output_struct{
 		},
 	})
@@ -38,7 +38,7 @@ func TestFeedline_Load(t *testing.T) {
 	go func() {
 
 		for {
-			cr.Push(FMCR{
+			cr.Push(CBU{
 				Flu_output_struct: models.Flu_output_struct{
 					ID: uuid.NewV4(),
 				},

@@ -1,8 +1,8 @@
 package flu_monitor
 
 import (
+	"github.com/crowdflux/angel/app/DAL/call_back_unit_pipe"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
-	"github.com/crowdflux/angel/app/DAL/http_request_unit_pipe"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
@@ -10,9 +10,9 @@ import (
 	"time"
 )
 
-var retryQueues = http_request_pipe.New("Retry-Q")     // Hash map to store queues
-var requestQueues = http_request_pipe.New("Request-Q") // Hash map to store queues
-var jobGenPoolCount = make(map[uuid.UUID]int)          // Hash map to store queues
+var retryQueues = call_back_unit_pipe.New("Retry-Q")     // Hash map to store queues
+var requestQueues = call_back_unit_pipe.New("Request-Q") // Hash map to store queues
+var jobGenPoolCount = make(map[uuid.UUID]int)            // Hash map to store queues
 
 func generateJobs(pHandler projectHandler) {
 	if jobGenPoolCount[pHandler.projectId] > 0 {
@@ -20,10 +20,11 @@ func generateJobs(pHandler projectHandler) {
 	}
 
 	requestReceiver := requestQueues.Receiver()
+
 	retryReceiver := retryQueues.Receiver()
 
 	for {
-		var temp_req http_request_pipe.FMCR
+		var temp_req call_back_unit_pipe.CBU
 		select {
 		case req := <-requestReceiver:
 			temp_req = req
@@ -40,12 +41,12 @@ func generateJobs(pHandler projectHandler) {
 	}
 }
 
-func getCallBackJob(fmcr *http_request_pipe.FMCR, retryPeriod time.Duration, retryLeft int) func() {
+func getCallBackJob(cbu *call_back_unit_pipe.CBU, retryPeriod time.Duration, retryLeft int) func() {
 	return func() {
 
-		req, err := createRequest(fmcr.ProjectConfig, fmcr.FluOutputObj)
+		req, err := createRequest(cbu.ProjectConfig, cbu.FluOutputObj)
 		if err != nil {
-			plog.Error("Error while creating request", err, " fluOutputObj : ", fmcr.FluOutputObj)
+			plog.Error("Error while creating request", err, " fluOutputObj : ", cbu.FluOutputObj)
 		}
 
 		client := http.DefaultClient
@@ -60,13 +61,13 @@ func getCallBackJob(fmcr *http_request_pipe.FMCR, retryPeriod time.Duration, ret
 		if shouldRetry {
 			go func() {
 				time.Sleep(retryPeriod)
-				retryQueues.Push(http_request_pipe.FMCR{FluOutputObj: fmcr.FluOutputObj, FlusSent: fmcr.FlusSent, ProjectConfig: temp_req.ProjectConfig, RetryCount: retryLeft - 1})
+				retryQueues.Push(call_back_unit_pipe.CBU{FluOutputObj: cbu.FluOutputObj, FlusSent: cbu.FlusSent, ProjectConfig: cbu.ProjectConfig, RetryCount: retryLeft - 1})
 			}()
 		} else if fluResp.HttpStatusCode == http.StatusOK {
-			go putDbLog(getAllFlus(fmcr.FlusSent), "SUCCESS", *fluResp)
+			go putDbLog(getAllFlus(cbu.FlusSent), "SUCCESS", *fluResp)
 
 		} else {
-			validFlus, invalidFLus := getFlusStatus(fmcr.FlusSent, fluResp)
+			validFlus, invalidFLus := getFlusStatus(cbu.FlusSent, fluResp)
 			go func() {
 				putDbLog(invalidFLus, "ERROR", *fluResp)
 				putDbLog(validFlus, "SUCCESS", *fluResp)

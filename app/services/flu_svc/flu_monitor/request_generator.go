@@ -4,8 +4,8 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/crowdflux/angel/app/DAL/call_back_unit_pipe"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
-	"github.com/crowdflux/angel/app/DAL/http_request_unit_pipe"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
@@ -53,7 +53,7 @@ func checkRequestGenPool(projectConfig projectHandler) {
 				flusSent[flu.ID] = flu
 			}
 			plog.Info("SENDING FLUs COUNT: ", limit)
-			requestQueues.Push(http_request_pipe.FMCR{FluOutputObj: fluOutputObj})
+			requestQueues.Push(call_back_unit_pipe.CBU{FluOutputObj: fluOutputObj})
 		}
 	}
 }

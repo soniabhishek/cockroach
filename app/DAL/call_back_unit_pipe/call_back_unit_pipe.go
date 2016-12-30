@@ -18,7 +18,7 @@ type CBU struct {
 
 	ProjectConfig models.ProjectConfiguration
 
-	RetryCount int
+	RetryLeft int
 
 	delivery amqp.Delivery
 

@@ -21,10 +21,6 @@ func ParseFluResponse(resp *http.Response) *WebhookResponse {
 	fluResp.HttpStatusCode = resp.StatusCode
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	plog.Info("response Status:", resp.Status)
-	plog.Info("response Headers:", resp.Header)
-	plog.Info("response Headers:", resp)
-	plog.Info("response Body:", string(body))
 	fluResp.RawResponse = string(body)
 
 	err := json.Unmarshal(body, fluResp)

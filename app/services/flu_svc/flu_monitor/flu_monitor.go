@@ -49,10 +49,11 @@ func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) Project
 		pHandler := NewProjectHandler(pc)
 
 		fm.bulkProcessor.AddJobManager(pHandler.jobManager)
-		fm.projectHandlers[flu.ProjectId] = projectHandler
+		fm.projectHandlers[flu.ProjectId] = pHandler
 
-		go projectHandler.startFeedLineProcessor()
-		go projectHandler.startCBUProcessor()
+		go pHandler.startFeedLineProcessor()
+		go pHandler.startCBUProcessor()
+		projectHandler = pHandler
 	}
 	return projectHandler
 }

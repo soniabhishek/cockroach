@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/crowdflux/angel/app/DAL/clients/rabbitmq"
-	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
 	"sync"
 )
 
-// ShortHand for channel of FLUs i.e. FeedLine
 type CbuQ struct {
 	mq        rabbitmq.MQ
 	queueName string
@@ -27,9 +25,7 @@ func New(name string) CbuQ {
 
 func (cr *CbuQ) Push(fmcr CBU) {
 
-	// Send only the models.Feedline part of the flu in bytes
-	bty, _ := json.Marshal(fmcr.FluOutputObj)
-
+	bty, _ := json.Marshal(fmcr)
 	// This is async
 	// TODO Think about a way to guarantee this operation also
 	cr.mq.Publish(bty)
@@ -42,12 +38,12 @@ func (cr *CbuQ) Push(fmcr CBU) {
 		fmcr.ConfirmReceive()
 	}
 
-	plog.Trace("feedline", "complete push from: ", cr.queueName, "CallBackFLust: ", fmcr.FluOutputObj)
+	plog.Trace("CBU", "complete push from: ", cr.queueName, "CallBackFLust: ", fmcr.FluOutputObj)
 }
 
 func (cr *CbuQ) Receiver() <-chan CBU {
 
-	println("Feedline, subscribe request: ", cr.queueName)
+	println("CBU, subscribe request: ", cr.queueName)
 
 	var fmcrChan chan CBU
 	var flag bool = false
@@ -60,15 +56,18 @@ func (cr *CbuQ) Receiver() <-chan CBU {
 
 			for msg := range cr.mq.Consume() {
 
-				fmcr := []models.FluOutputStruct{}
+				fmcr := CBU{}
 				json.Unmarshal(msg.Body, &fmcr)
 
 				fmcrChan <- CBU{
-					FluOutputObj: fmcr,
-					delivery:     msg,
-					once:         &sync.Once{},
+					FluOutputObj:  fmcr.FluOutputObj,
+					FlusSent:      fmcr.FlusSent,
+					ProjectConfig: fmcr.ProjectConfig,
+					RetryLeft:     fmcr.RetryLeft,
+					delivery:      msg,
+					once:          &sync.Once{},
 				}
-				plog.Trace("feedline", "sent to FLU chan, name: ", cr.queueName, "Request: ", fmcr)
+				plog.Trace("CBU", "sent to FLU chan, name: ", cr.queueName, "Request: ", fmcr)
 			}
 		}()
 
@@ -78,7 +77,7 @@ func (cr *CbuQ) Receiver() <-chan CBU {
 	if flag {
 		return (<-chan CBU)(fmcrChan)
 	} else {
-		panic(errors.New("Feedline already subscribed, name: " + cr.queueName))
+		panic(errors.New("CBU already subscribed, name: " + cr.queueName))
 	}
 
 }

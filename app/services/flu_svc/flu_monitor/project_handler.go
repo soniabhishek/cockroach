@@ -45,17 +45,16 @@ func (pHandler *ProjectHandler) startCBUProcessor() {
 	for {
 		select {
 		case cbu := <-requestQueueReceiver:
-			job := bulk_processor.NewJob(getCallBackJob(pHandler, &cbu, MAX_RETRY_COUNT))
+			job := bulk_processor.NewJob(getCallBackJob(pHandler, &cbu))
 			pHandler.jobManager.PushJob(job)
 			plog.Info("FluMonitor", "Job Pushed", "RequestQueue", "ProjectId: "+pHandler.projectId.String(), " FluIDs: ", getFluIds(cbu.FlusSent))
 
 		case retryCbu := <-retryQueueReceiver:
 			go func(cbu call_back_unit_pipe.CBU) {
 
-				if cbu.RetryLeft > 0 {
-
+				if cbu.RetryLeft >= 0 {
 					delayFluRetry(cbu.RetryLeft)
-					job := bulk_processor.NewJob(getCallBackJob(pHandler, &cbu, retryCbu.RetryLeft))
+					job := bulk_processor.NewJob(getCallBackJob(pHandler, &cbu))
 					pHandler.jobManager.PushJob(job)
 					plog.Info("FluMonitor", "Job Pushed", "RetryQueue",
 						"ProjectId: "+pHandler.projectId.String(), " FluIDs: ", getFluIds(cbu.FlusSent), "RetryCount: ", cbu.RetryLeft)
@@ -73,7 +72,7 @@ func (pHandler *ProjectHandler) startFeedLineProcessor() {
 	receiver := pHandler.queue.Receiver()
 
 	for {
-		cbu := call_back_unit_pipe.CBU{FlusSent: make(map[uuid.UUID]feed_line.FLU), RetryLeft: MAX_RETRY_COUNT}
+		cbu := call_back_unit_pipe.CBU{FlusSent: make(map[uuid.UUID]feed_line.FLU), ProjectConfig: pHandler.config, RetryLeft: MAX_RETRY_COUNT}
 		var timer <-chan time.Time
 
 		flu := <-receiver
@@ -91,7 +90,7 @@ func (pHandler *ProjectHandler) startFeedLineProcessor() {
 				break
 			}
 		}
-		plog.Info("RequestQueue Push ProjectId: "+pHandler.projectId.String()+" FLuCount: ", len(cbu.FluOutputObj), " FluIds: ", getFluIds(cbu.FlusSent))
+		plog.Info("Flu Monitor Project_Handler", "Push to : "+pHandler.projectId.String()+" FLuCount: ", len(cbu.FluOutputObj), " FluIds: ", getFluIds(cbu.FlusSent))
 		pHandler.requestQueue.Push(cbu)
 
 		for _, flu := range cbu.FlusSent {

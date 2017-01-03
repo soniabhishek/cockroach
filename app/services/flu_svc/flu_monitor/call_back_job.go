@@ -8,14 +8,12 @@ import (
 	"net/http"
 )
 
-func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU, retryCountLeft int) func() {
+func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU) func() {
 	return func() {
-
 		req, err := createRequest(cbu.ProjectConfig, cbu.FluOutputObj)
 		if err != nil {
 			plog.Error("FluMonitor", err, "Error while creating request", " fluOutputObj : ", cbu.FluOutputObj)
 		}
-
 		client := http.DefaultClient
 		resp, err := client.Do(&req)
 		if err != nil {
@@ -23,7 +21,9 @@ func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU, retr
 			return
 		}
 
-		fluResp, shouldRetry := shouldRetry(resp, retryCountLeft)
+		fluResp, shouldRetry := shouldRetry(resp, cbu.RetryLeft)
+
+		plog.Info("Flu monitor", "Reponse received", fluResp)
 
 		validFlus, invalidFLus := getFlusStatus(cbu.FlusSent, fluResp.Invalid_Flus)
 		putDbLog(invalidFLus, "ERROR", *fluResp)

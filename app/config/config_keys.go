@@ -42,7 +42,7 @@ const (
 	DEFAULT_CLIENT_QPS          = configKey("fluMonitor.default_client_qps")
 	FLU_THRESHOLD_DURATION      = configKey("fluMonitor.flu_threshold_duration")
 	FLU_RETRY_THRESHOLD         = configKey("fluMonitor.flu_retry_threshold")
-	MAX_WORKERS                 = configKey("fluMonitor.total_qps")
+	MAX_WORKERS                 = configKey("fluMonitor.max_workers")
 
 	INPUT_FEEDLINE_SYNC_TIME_PERIOD_SEC = configKey("workflow_step.input_feedline_sync_time_period_sec")
 

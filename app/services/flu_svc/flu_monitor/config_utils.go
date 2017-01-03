@@ -11,7 +11,7 @@ import (
 )
 
 var DEFAULT_CLIENT_QPS = services.AtoiOrPanic(config.DEFAULT_CLIENT_QPS.Get())
-var defaultMaxFluCount = 1
+var defaultMaxFluCount = services.AtoiOrPanic(config.DEFAULT_FLU_THRESHOLD_COUNT.Get())
 var MAX_RETRY_COUNT = services.AtoiOrPanic(config.FLU_RETRY_THRESHOLD.Get())
 var DEFAULT_RETRY_DELAY = time.Duration(services.AtoiOrPanic(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
 

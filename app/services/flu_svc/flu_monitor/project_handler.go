@@ -78,16 +78,16 @@ func (pHandler *ProjectHandler) startFeedLineProcessor() {
 		flu := <-receiver
 		addFluToCbu(flu, &cbu)
 
-		timer = time.After(time.Duration(3) * time.Second)
+		timer = time.After(time.Duration(1000/pHandler.queryFrequency) * time.Millisecond)
 
-		//TODO add wait time restriction may be. in case inbound flu rate is very less.
+	OutputObjectGeneratorLoop:
 		for i := pHandler.maxFluCount - 2; i >= 0; i-- {
 
 			select {
 			case flu := <-receiver:
 				addFluToCbu(flu, &cbu)
 			case <-timer:
-				break
+				break OutputObjectGeneratorLoop
 			}
 		}
 		plog.Info("Flu Monitor Project_Handler", "Push to : "+pHandler.projectId.String()+" FLuCount: ", len(cbu.FluOutputObj), " FluIds: ", getFluIds(cbu.FlusSent))

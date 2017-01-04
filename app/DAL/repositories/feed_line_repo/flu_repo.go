@@ -38,6 +38,39 @@ func (e *fluRepo) GetById(id uuid.UUID) (models.FeedLineUnit, error) {
 	return flu, nil
 }
 
+func (e *fluRepo) GetByIDs(fluIDs []uuid.UUID) (flus []models.FluWithStep, err error) {
+
+	var idsString bytes.Buffer
+
+	for i, id := range fluIDs {
+		if i > 0 {
+			idsString.WriteString(",")
+		}
+		idsString.WriteString("'" + id.String() + "'")
+	}
+
+	err = e.Db.SelectJoin(&flus, `SELECT fl.*, s.* FROM feed_line fl
+	INNER JOIN step s ON s.id = fl.step_id
+	WHERE fl.id in (`+idsString.String()+`)`)
+	return
+}
+
+func (flr *fluRepo) GetChildFLusByMasterIDs(masterFluIDs []uuid.UUID) (flus []models.FluWithStep, err error) {
+
+	var idsString bytes.Buffer
+	for i, id := range masterFluIDs {
+		if i > 0 {
+			idsString.WriteString(",")
+		}
+		idsString.WriteString("'" + id.String() + "'")
+	}
+
+	err = flr.Db.SelectJoin(&flus, `SELECT fl.*, s.* FROM feed_line fl
+	INNER JOIN step s ON s.id = fl.step_id
+	WHERE master_id in (`+idsString.String()+`) and is_master is false`)
+	return
+}
+
 func (e *fluRepo) Save(i models.FeedLineUnit) {
 	panic(errors.New("Not implemented"))
 }

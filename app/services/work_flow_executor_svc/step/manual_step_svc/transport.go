@@ -47,8 +47,7 @@ func fileDownloadHandler() gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			SUCCESS: true,
-			//FILEPATH: "/downloadedfiles" + string(os.PathSeparator) + manualStepId.String() + ".csv",
+			SUCCESS:  true,
 			FILEPATH: fileUrl,
 		})
 		plog.Info(c.Request.RequestURI, fileUrl)

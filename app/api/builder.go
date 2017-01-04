@@ -12,9 +12,11 @@ import (
 
 	"time"
 
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/flu_migration_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/crowdsourcing_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/manual_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
+	"github.com/crowdflux/angel/app/support"
 	"github.com/itsjamie/gin-cors"
 	"github.com/newrelic/go-agent"
 )
@@ -57,7 +59,7 @@ func Build() {
 		r.Use(NewRelicMiddleware(newrelicApp))
 	}
 
-	r.StaticFS("/downloadedfiles", http.Dir(config.DOWNLOAD_PATH.Get()))
+	r.StaticFS("/downloads", http.Dir(support.GetExposedDir()))
 
 	//Api prefix
 	api := r.Group("/api/v0")
@@ -69,6 +71,7 @@ func Build() {
 		crowdsourcing_step_svc.AddHttpTransport(api)
 		manual_step_svc.AddHttpTransport(api)
 		utils_api.AddHttpTransport(api)
+		flu_migration_svc.AddHttpTransport(api)
 	}
 
 	authorized_header := r.Group("/api/v0", auther.AuthorizeHeader())

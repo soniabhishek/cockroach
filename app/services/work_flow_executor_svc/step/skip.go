@@ -5,7 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/plog"
 )
 
-func getFluIdFromString (fluIdsString []string) []uuid.UUID {
+func getFluIdFromString(fluIdsString []string) []uuid.UUID {
 
 	fluIds := make([]uuid.UUID, len(fluIdsString))
 
@@ -22,8 +22,7 @@ func init() {
 	FluIDsToSkip = getFluIdFromString(fluIDToSkipString)
 }
 
-
-func IsSkipped( fluID uuid.UUID ) bool {
+func IsSkipped(fluID uuid.UUID) bool {
 
 	for _, fluIDToSkip := range FluIDsToSkip {
 

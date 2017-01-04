@@ -6,7 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
+	"github.com/crowdflux/angel/app/services/bulk_processor"
 	"github.com/pkg/errors"
 	"time"
 )

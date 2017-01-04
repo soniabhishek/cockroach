@@ -8,7 +8,7 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
+	"github.com/crowdflux/angel/app/services/bulk_processor"
 	"sync"
 )
 
@@ -17,6 +17,8 @@ type FluMonitor struct {
 	bulkProcessor     *bulk_processor.Dispatcher
 	dispatcherStarter sync.Once
 }
+
+var mutex = &sync.Mutex{}
 
 func New() *FluMonitor {
 	return &FluMonitor{
@@ -49,7 +51,10 @@ func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) Project
 		pHandler := NewProjectHandler(pc)
 
 		fm.bulkProcessor.AddJobManager(pHandler.jobManager)
+
+		mutex.Lock()
 		fm.projectHandlers[flu.ProjectId] = pHandler
+		mutex.Unlock()
 
 		go pHandler.startFeedLineProcessor()
 		go pHandler.startCBUProcessor()

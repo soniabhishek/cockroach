@@ -20,4 +20,11 @@ func newFluUploadCache() *fluUploadCache {
 	}
 }
 
+func newEvalExpressionCache() *evalExpressCache{
+	return &evalExpressCache{
+		imdb: new(),
+	}
+}
+
+var EvalExpressionCache = newEvalExpressionCache()
 var FluUploadCache = newFluUploadCache()

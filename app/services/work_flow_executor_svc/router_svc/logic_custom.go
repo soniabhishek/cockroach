@@ -7,10 +7,11 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"regexp"
 	"strings"
+	"github.com/crowdflux/angel/app/DAL/imdb"
 )
 
 // to cache the expressions to be reused
-var expressionCache = make(map[string]*govaluate.EvaluableExpression)
+var expressionCache = imdb.EvalExpressionCache
 
 // to cache the fields to be reused
 var fieldCache = make(map[string][]string)
@@ -179,13 +180,13 @@ func getParametersFromFlu(flu feed_line.FLU, fields []string, exp string) (param
 
 func getEvaluatableExpression(exp string) (expression *govaluate.EvaluableExpression, err error) {
 	//get from cache if it's there
-	expression, ok := expressionCache[exp]
-	if !ok {
+	expression, err = expressionCache.Get(exp)
+	if err != nil {
 		expression, err = govaluate.NewEvaluableExpressionWithFunctions(exp, getCustomFunctions())
 		if err != nil {
 			return expression, ErrMalformedLogicOptions
 		}
-		expressionCache[exp] = expression
+		expressionCache.Set(exp, expression)
 	}
 	return expression, nil
 }

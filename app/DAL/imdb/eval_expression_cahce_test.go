@@ -4,7 +4,6 @@ import (
 	"testing"
 	"github.com/Knetic/govaluate"
 	"github.com/stretchr/testify/assert"
-	"fmt"
 )
 
 func TestEvalExpressCache_Set(t *testing.T) {
@@ -13,7 +12,6 @@ func TestEvalExpressCache_Set(t *testing.T) {
 	assert.NoError(t, err)
 	idb.Set("hello", exp)
 	val, err := idb.Get("hello")
-	fmt.Println(val)
 	assert.NoError(t, err)
 	assert.Equal(t, val, exp)
 }

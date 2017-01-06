@@ -8,7 +8,7 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services"
-	"github.com/crowdflux/angel/app/services/bulk_processor"
+	"github.com/crowdflux/angel/bulk_processor"
 	"sync"
 )
 

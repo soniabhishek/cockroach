@@ -90,7 +90,7 @@ func (s *stepConfigSvc) GetBifurcationStepConfig(stepId uuid.UUID) (bc models.Bi
 
 	if bc.Multiplication < 1 {
 		err = ErrConfigNotFound
-		plog.Error("StepConfigSvc", ErrConfigMalformed, "stepId "+stepId.String())
+		plog.Error("StepConfigSvc", ErrConfigMalformed, plog.NewMessageWithParam("stepId ", stepId.String()))
 		return
 	}
 
@@ -110,7 +110,7 @@ func (s *stepConfigSvc) GetUnificationStepConfig(stepId uuid.UUID) (uc models.Un
 
 	if uc.Multiplication < 1 {
 		err = ErrConfigNotFound
-		plog.Error("StepConfigSvc", ErrConfigMalformed, "stepId "+stepId.String())
+		plog.Error("StepConfigSvc", ErrConfigMalformed, plog.NewMessageWithParam("stepId ", stepId.String()))
 		return
 	}
 

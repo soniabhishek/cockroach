@@ -21,14 +21,14 @@ func (t *transformationStep) processFlu(flu feed_line.FLU) {
 
 	tStep, err := t.stepConfigSvc.GetTransformationStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("transformation step", err, "fluId: "+flu.ID.String(), "stepid: "+flu.StepId.String(), flu.FeedLineUnit)
+		plog.Error("transformation step", err, plog.NewMessageWithParam("fluId: ", flu.ID.String()), plog.NewMessageWithParam("stepid: ", flu.StepId.String()), plog.NewMessageWithParam("flu", flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Transformation, "TransformationConfigError", flu.Redelivered())
 		return
 	}
 
 	transformedBuild, err := clients.GetMegatronClient().Transform(flu.Build, tStep.TemplateId)
 	if err != nil {
-		plog.Error("Transformation step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
+		plog.Error("Transformation step", err, plog.NewMessageWithParam("fluId: ", flu.ID.String()), plog.NewMessageWithParam("flu", flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Transformation, "TransformationError", flu.Redelivered())
 		return
 	}

@@ -22,7 +22,7 @@ func (u *unificationStep) processFlu(flu feed_line.FLU) {
 
 	unificationConfig, err := u.stepConfigSvc.GetUnificationStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("Unification Step", err, "error getting step", "fluId: "+flu.ID.String())
+		plog.Error("Unification Step", err, plog.NewMessage("error getting step"), plog.NewMessageWithParam("fluId: ", flu.ID.String()))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Unification, "Error getting unification Config", flu.Redelivered())
 		return
 	}
@@ -47,7 +47,7 @@ func (u *unificationStep) processFlu(flu feed_line.FLU) {
 				wFlu.IsActive = false
 				err := u.fluRepo.Update(wFlu.FeedLineUnit)
 				if err != nil {
-					plog.Error("Unification Step", err, "error updating flu", "fluid "+flu.ID.String(), "masterid "+flu.MasterId.String())
+					plog.Error("Unification Step", err, plog.NewMessage("error updating flu"), plog.NewMessageWithParam("fluid ", flu.ID.String()), plog.NewMessageWithParam("masterid ", flu.MasterId.String()))
 					return
 				}
 			}
@@ -66,13 +66,13 @@ func (u *unificationStep) processFlu(flu feed_line.FLU) {
 
 			err := u.fluRepo.Update(flu.FeedLineUnit)
 			if err != nil {
-				plog.Error("Unification Step", err, "error updating flu", "fluid "+flu.ID.String(), "masterid "+flu.MasterId.String())
+				plog.Error("Unification Step", err, plog.NewMessage("error updating flu"), plog.NewMessageWithParam("fluid ", flu.ID.String()), plog.NewMessageWithParam("masterid ", flu.MasterId.String()))
 				return
 			}
 
 			err = u.fluRepo.Update(masterFlu.FeedLineUnit)
 			if err != nil {
-				plog.Error("Unification Step", err, "error updating masterflu", "fluid "+masterFlu.ID.String(), "masterid "+flu.MasterId.String())
+				plog.Error("Unification Step", err, plog.NewMessage("error updating masterflu"), plog.NewMessageWithParam("fluid ", masterFlu.ID.String()), plog.NewMessageWithParam("masterid ", flu.MasterId.String()))
 				return
 			}
 

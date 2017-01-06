@@ -27,7 +27,7 @@ func (b *bifurcationStep) processFlu(flu feed_line.FLU) {
 
 	bifurcationConfig, err := b.stepConfigSvc.GetBifurcationStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("Bifurcation Step", err, "error getting step", "fluId: "+flu.ID.String())
+		plog.Error("Bifurcation Step", err, plog.NewMessage("error getting step"), plog.NewMessageWithParam("fluId: ", flu.ID.String()))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Bifurcation, "Error getting bifurcation Config", flu.Redelivered())
 		return
 	}
@@ -69,7 +69,7 @@ func (b *bifurcationStep) processFlu(flu feed_line.FLU) {
 		}
 
 	} else {
-		plog.Error("Bifurcation Step", fmt.Errorf("", "Multiplication count not greater than 0"), "flu_id "+flu.ID.String())
+		plog.Error("Bifurcation Step", fmt.Errorf("", "Multiplication count not greater than 0"), plog.NewMessageWithParam("flu_id ", flu.ID.String()))
 		b.finishFlu(flu)
 	}
 

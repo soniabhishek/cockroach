@@ -48,7 +48,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 		var err error
 		projectId, err = uuid.FromString(c.Param("projectId"))
 		if err != nil {
-			plog.Error("Invalid ProjectId from client", err, c.Param("projectId"))
+			plog.Error("Invalid ProjectId from client", err, plog.NewMessageWithParam("projectId", c.Param("projectId")))
 			showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
 			return
 		}
@@ -58,7 +58,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 			var body []byte
 			c.Request.Body.Read(body)
 			c.Request.Body.Close()
-			plog.Error("Error binding flu from client : ", err, "Body : ", body)
+			plog.Error("Error binding flu from client : ", err, plog.NewMessageWithParam("Body : ", body))
 			showErrorResponse(c, plerrors.ErrMalformedJson)
 			return
 		}
@@ -72,7 +72,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 				//Temporary hack. Wait for schema refactoring
 				err = plerrors.ServiceError{"PR_0001", "Project not found"}
 			}
-			plog.Error("Error while adding flu to workflow ", err, flu)
+			plog.Error("Error while adding flu to workflow ", err, plog.NewMessageWithParam("flu", flu))
 			showErrorResponse(c, err)
 			return
 		}

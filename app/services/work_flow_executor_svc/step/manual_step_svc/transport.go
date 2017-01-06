@@ -59,7 +59,7 @@ func fileUploadHandler() gin.HandlerFunc {
 
 		file, header, err := c.Request.FormFile(UPLOAD)
 		if err != nil {
-			plog.Error("Err", errors.New("problem in uploaded file"), err)
+			plog.Error("Err", errors.New("problem in uploaded file"), plog.NewMessageWithParam("Error:", err))
 			showError(c, err)
 			return
 		}
@@ -68,14 +68,14 @@ func fileUploadHandler() gin.HandlerFunc {
 
 		out, err := os.Create(TEMP_FOLDER + filename)
 		if err != nil {
-			plog.Error("Err", errors.New("Cannot create file"), err)
+			plog.Error("Err", errors.New("Cannot create file"), plog.NewMessageWithParam("Error", err))
 			showError(c, err)
 			return
 		}
 		defer out.Close()
 		_, err = io.Copy(out, file)
 		if err != nil {
-			plog.Error("Err", errors.New("Cannot copy file"), err)
+			plog.Error("Err", errors.New("Cannot copy file"), plog.NewMessageWithParam("Error", err))
 			showError(c, err)
 			return
 		}

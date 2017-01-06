@@ -31,14 +31,14 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
 	cc, err := c.stepConfigSvc.GetCrowdsourcingStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("crowdsourcing step", err, flu.ID.String())
+		plog.Error("crowdsourcing step", err, plog.NewMessageWithParam("flu_id", flu.ID.String()))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.CrowdSourcing, "ConfigNotFound", flu.Redelivered())
 		return
 	}
 
 	_, err = c.fluClient.PushFLU(flu.FeedLineUnit, cc.MicroTaskId)
 	if err != nil {
-		plog.Error("crowdsourcing step", err, flu.ID.String())
+		plog.Error("crowdsourcing step", err, plog.NewMessageWithParam("flu_id", flu.ID.String()))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.CrowdSourcing, "crowdySendFailure", flu.Redelivered())
 		return
 	} else {

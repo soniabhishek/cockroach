@@ -64,7 +64,7 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 			trans.Rollback()
 		}
 		if r := recover(); r != nil {
-			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), r)
+			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), plog.NewMessageWithParam("Recover", r))
 		}
 	}()
 	//Make repos transaction
@@ -134,7 +134,7 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 			trans.Rollback()
 		}
 		if r := recover(); r != nil {
-			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), r)
+			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), plog.NewMessageWithParam("Recover", r))
 		}
 	}()
 	//Make repos transaction

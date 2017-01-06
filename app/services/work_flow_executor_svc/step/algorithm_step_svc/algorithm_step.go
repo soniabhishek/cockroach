@@ -23,7 +23,7 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 	plog.Info("algorithm Step flu reached", flu.ID)
 	aStepConf, err := t.stepConfigSvc.GetAlgorithmStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), "stepid: "+flu.StepId.String(), flu.FeedLineUnit)
+		plog.Error("Algorithm step", err, plog.NewMessageWithParam("fluId: ", flu.ID.String()), plog.NewMessageWithParam("stepid: ", flu.StepId.String()), plog.NewMessageWithParam("Flu:", flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Algorithm, "Algorithm Config Error", flu.Redelivered())
 		return
 	}
@@ -36,7 +36,7 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 
 	algoResult, err, success := clients.GetAbacusClient().Predict(textSting)
 	if err != nil {
-		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
+		plog.Error("Algorithm step", err, plog.NewMessageWithParam("fluId: ", flu.ID.String()), plog.NewMessageWithParam("flu", flu.FeedLineUnit))
 	} else if success {
 		flu.Build[aStepConf.AnswerKey] = algoResult
 	}

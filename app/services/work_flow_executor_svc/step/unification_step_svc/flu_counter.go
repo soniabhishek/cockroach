@@ -47,7 +47,7 @@ func (f *fluCounter) UpdateCount(flu feed_line.FLU) {
 
 		if eFlu.ID == flu.ID {
 
-			plog.Error("FLU Counter", errors.New("Already updated counter for flu_id : "+flu.ID.String()), "Masterfluid: "+flu.MasterId.String())
+			plog.Error("FLU Counter", errors.New("Already updated counter for flu_id : "+flu.ID.String()), plog.NewMessageWithParam("Masterfluid: ", flu.MasterId.String()))
 			return
 		}
 	}

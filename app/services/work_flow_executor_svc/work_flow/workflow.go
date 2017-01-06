@@ -39,7 +39,7 @@ func newStdWorkFlow() WorkFlow {
 
 				startStep, err := stepRepo.GetStartStepOrDefault(flu.ProjectId, flu.Tag)
 				if err != nil {
-					plog.Error("Worflow", err, "error getting start step", "fluId: "+flu.ID.String(), "sending to manual step")
+					plog.Error("Worflow", err, plog.NewMessage("error getting start step"), plog.NewMessageWithParam("fluId: ", flu.ID.String()), plog.NewMessage("sending to manual step"))
 					manual_step_svc.StdManualStep.InQ.Push(flu)
 				} else {
 					flu.StepId = startStep.ID

@@ -69,7 +69,7 @@ func (i *inputQueue) Add(flu models.FeedLineUnit) (id uuid.UUID, err error) {
 		if e, ok := err.(*mgo.LastError); ok && e.Code == 11000 {
 			return uuid.Nil, ErrDuplicateReferenceId
 		} else {
-			plog.Error("Input queue", err, plog.Message{Message: "Mongo insert failed"})
+			plog.Error("Input queue", err, plog.NewMessage("Mongo insert failed"))
 		}
 	}
 	return flu.ID, err

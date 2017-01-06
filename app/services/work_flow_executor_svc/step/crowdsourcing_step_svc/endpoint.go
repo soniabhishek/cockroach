@@ -29,7 +29,7 @@ func FluUpdateHandler(updates []FluUpdate) error {
 
 		if !ok {
 			// Handle error
-			plog.Error("Flu Handler crowdy", errors.New("Flu Not present in the buffer"), update.FluId)
+			plog.Error("Flu Handler crowdy", errors.New("Flu Not present in the buffer"), plog.NewMessageWithParam("flu_id", update.FluId))
 			continue
 		}
 
@@ -86,7 +86,7 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 				nonUpdatableIds = append(nonUpdatableIds, flu.ID)
 			}
 
-			plog.Error("crowdy flu handler partially updated", err, "nonUpdatableIds: ", nonUpdatableIds)
+			plog.Error("crowdy flu handler partially updated", err, plog.NewMessageWithParam("nonUpdatableIds: ", nonUpdatableIds))
 			// this wont return
 			// this will continue
 		}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/getsentry/raven-go"
 	"gopkg.in/gorp.v1"
 )
 
@@ -53,14 +54,14 @@ func (pg *transactionalPostgres) SelectJoin(holder interface{}, query string, ar
 
 func (pg *transactionalPostgres) Commit() {
 	if err := pg.trans.Commit(); err != nil {
-		plog.Error("Postgres client", err, "Error occured while Commit transaction")
+		plog.Error("Postgres client", err, raven.Message{Message: "Error occured while Commit transaction"})
 		panic(err)
 	}
 }
 
 func (pg *transactionalPostgres) Rollback() {
 	if err := pg.trans.Rollback(); err != nil {
-		plog.Error("Postgres client", err, "Error occured in Rollback transaction")
+		plog.Error("Postgres client", err, raven.Message{Message: "Error occured in Rollback transaction"})
 		panic(err)
 	}
 }
@@ -69,7 +70,7 @@ func GetTransactionClient() *transactionalPostgres {
 
 	tx, err := gorpDbMap.Begin()
 	if err != nil {
-		plog.Error("Postgres client", err, "Error occured in creating transaction")
+		plog.Error("Postgres client", err, raven.Message{Message: "Error occured in creating transaction"})
 		panic(err)
 	}
 

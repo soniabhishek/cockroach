@@ -3,6 +3,7 @@ package plog
 import (
 	"fmt"
 	"github.com/Sirupsen/logrus"
+	"github.com/getsentry/raven-go"
 	"runtime"
 )
 
@@ -16,8 +17,10 @@ func Fatal(tag string, err error, args ...interface{}) {
 	}
 }
 
-func Error(tag string, err error, args ...interface{}) {
+// we can pass plog.Message here in place if raven.Interface
+func Error(tag string, err error, args ...Message) {
 	if levelError >= plogLevel {
+		raven.CaptureError(err, map[string]string{"tag": tag}, args...)
 		logr.WithFields(logrus.Fields{
 			"error": err,
 			"args":  fmt.Sprintf("%+v", args),

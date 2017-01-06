@@ -38,7 +38,7 @@ func putDbLog(flusToLog map[uuid.UUID]feed_line.FLU, resp WebhookResponse) {
 		val, ok := invalidFlusMap[fl.ID]
 		if ok {
 			message = "INVALID FLU"
-			jsObj.Merge(models.JsonF{"Error": val.Error, "Message": val.Message})
+			metadata.Merge(models.JsonF{"Error": val.Error, "Message": val.Message})
 		}
 
 		dbLog := models.FeedLineLog{

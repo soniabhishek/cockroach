@@ -39,7 +39,7 @@ func (w *Worker) Start() {
 }
 
 // Stop signals the worker to stop listening for work requests.
-func (w Worker) Stop() {
+func (w *Worker) Stop() {
 	go func() {
 		w.quit <- true
 	}()

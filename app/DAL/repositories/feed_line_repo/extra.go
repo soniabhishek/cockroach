@@ -132,7 +132,7 @@ func SyncAllBack() {
 
 		err = inpQ.mgo.C("feedline_input").UpdateId(updateFlu.ID, updateFlu)
 		if err != nil {
-			plog.Error("feedline", err, updateFlu)
+			plog.Error("feedline", err, plog.NewMessageWithParam("Updated flu", updateFlu))
 		}
 	}
 

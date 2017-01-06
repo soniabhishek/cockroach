@@ -20,7 +20,7 @@ func dbLogSyncer(fluLogger feed_line_repo.IFluLogger) {
 		err := fluLogger.Log(bufferedFlogs)
 
 		if err != nil {
-			plog.Error("Feedline logger", err, "error saving logs to db")
+			plog.Error("Feedline logger", err, plog.NewMessage("error saving logs to db"))
 		} else {
 
 			// confirm to the channel that the batch processing has been

@@ -1,6 +1,6 @@
 package plog
 
-type Message struct {
+type message struct {
 	// Required
 	Message string `json:"message"`
 
@@ -8,4 +8,17 @@ type Message struct {
 	Params []interface{} `json:"params,omitempty"`
 }
 
-func (m *Message) Class() string { return "logentry" }
+func (m message) Class() string { return "logentry" }
+
+func NewMessageWithParam(msg string, param interface{}) message {
+	return message{
+		Message: msg,
+		Params:  []interface{}{param},
+	}
+}
+
+func NewMessage(msg string) message {
+	return message{
+		Message: msg,
+	}
+}

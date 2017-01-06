@@ -26,7 +26,7 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 	flRepo := feed_line_repo.New()
 	flus, err := flRepo.GetByStepId(manualStepId)
 	if err != nil {
-		plog.Error("Manual Step", err, manualStepId)
+		plog.Error("Manual Step", err, plog.NewMessageWithParam("Manual StepId", manualStepId))
 		return constants.Empty, err
 	}
 	plog.Info("manual step flus going to be downloaded", len(flus), manualStepId)
@@ -36,7 +36,7 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 
 	file, numOfLines, err := createJSONFile(flus, path, manualStepId)
 	if err != nil {
-		plog.Error("Write file error", err, manualStepId)
+		plog.Error("Write file error", err, plog.NewMessageWithParam("Manual StepId", manualStepId))
 		return constants.Empty, err
 	}
 
@@ -47,7 +47,7 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 	url := config.MEGATRON_API.Get() + "/flats"
 	filename, err := FlattenCSV(file, url, manualStepId)
 	if err != nil {
-		plog.Error("Transformation error", err, manualStepId)
+		plog.Error("Transformation error", err, plog.NewMessageWithParam("Manual StepId", manualStepId))
 		return constants.Empty, errors.New("Transformation Error [" + err.Error() + "]")
 	}
 	return config.MEGATRON_API.Get() + filename, nil
@@ -60,7 +60,7 @@ func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.U
 	// creates a file , overwrites if exists
 	file, err := os.Create(filePath)
 	if err != nil {
-		plog.Error("Create file error", err, manualStepId)
+		plog.Error("Create file error", err, plog.NewMessageWithParam("Manual StepId", manualStepId))
 		return constants.Empty, 0, err
 	}
 	defer file.Close()
@@ -71,13 +71,13 @@ func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.U
 
 	bty, err := json.Marshal(megatronJson{flus})
 	if err != nil {
-		plog.Error("manual step", err, "Unable to create megatron json, manual step id : "+manualStepId.String())
+		plog.Error("manual step", err, plog.NewMessageWithParam("Unable to create megatron json, manual step id : ", manualStepId.String()))
 		return
 	}
 
 	l, err := file.Write(bty)
 	if err != nil {
-		plog.Error("manual step", err, "error writing megatron json file for manual step id: "+manualStepId.String())
+		plog.Error("manual step", err, plog.NewMessageWithParam("error writing megatron json file for manual step id: ", manualStepId.String()))
 	}
 	return filePath, l, err
 }
@@ -86,7 +86,7 @@ func UploadCsv(filename string) error {
 	file := TEMP_FOLDER + string(os.PathSeparator) + filename
 	csvFile, err := os.Open(file)
 	if err != nil {
-		plog.Error("Manual Step", err, "csv opening")
+		plog.Error("Manual Step", err, plog.NewMessage("csv opening"))
 		return err
 	}
 	defer csvFile.Close()
@@ -102,14 +102,14 @@ func UploadCsv(filename string) error {
 			break
 		}
 		if err != nil {
-			plog.Error("Manual Step", err, " csv reading error")
+			plog.Error("Manual Step", err, plog.NewMessage(" csv reading error"))
 			return err
 		}
 		cnt++
 
 		wrongCol, err := utilities.IsValidUTF8(row)
 		if wrongCol != -1 {
-			plog.Error("Manual Step", err, " csv is not in correct encoding[UTF-8]. [Row:"+strconv.Itoa(cnt)+", Col:"+strconv.Itoa(wrongCol)+"]")
+			plog.Error("Manual Step", err, plog.NewMessage(" csv is not in correct encoding[UTF-8]"), plog.NewMessageWithParam("Row:", strconv.Itoa(cnt)), plog.NewMessageWithParam("Col:", strconv.Itoa(wrongCol)))
 			return err
 		}
 
@@ -118,7 +118,7 @@ func UploadCsv(filename string) error {
 		}
 		flu, err := getFlu(row)
 		if err != nil {
-			plog.Error("Manual Step", err, " csv reading error")
+			plog.Error("Manual Step", err, plog.NewMessage(" csv reading error"))
 			return err
 		}
 

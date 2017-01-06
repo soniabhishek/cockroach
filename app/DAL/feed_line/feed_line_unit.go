@@ -28,7 +28,8 @@ func (flu *FLU) ConfirmReceive() {
 
 		err := flu.delivery.Ack(false)
 		if err != nil {
-			plog.Error("FLU", err, "error while ack", "fluId: "+flu.FeedLineUnit.ID.String())
+			p := models.JsonF{"fluId": flu.FeedLineUnit.ID.String()}
+			plog.Error("FLU", err, plog.NewMessageWithParam("Error while ack", p))
 			panic(err)
 		}
 	})

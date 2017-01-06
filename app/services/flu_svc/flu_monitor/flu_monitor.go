@@ -16,9 +16,8 @@ type FluMonitor struct {
 	projectHandlers   map[uuid.UUID]ProjectHandler
 	bulkProcessor     *bulk_processor.Dispatcher
 	dispatcherStarter sync.Once
+	mutex             sync.Mutex
 }
-
-var mutex = &sync.Mutex{}
 
 func New() *FluMonitor {
 	return &FluMonitor{
@@ -52,9 +51,9 @@ func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) Project
 
 		fm.bulkProcessor.AddJobManager(pHandler.jobManager)
 
-		mutex.Lock()
+		fm.mutex.Lock()
 		fm.projectHandlers[flu.ProjectId] = pHandler
-		mutex.Unlock()
+		fm.mutex.Unlock()
 
 		go pHandler.startFeedLineProcessor()
 		go pHandler.startCBUProcessor()

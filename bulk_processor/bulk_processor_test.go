@@ -2,7 +2,7 @@ package bulk_processor_test
 
 import (
 	"fmt"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor/bulk_processor"
+	"github.com/crowdflux/angel/bulk_processor"
 	"testing"
 	"time"
 )

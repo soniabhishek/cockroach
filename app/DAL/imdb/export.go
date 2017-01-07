@@ -8,9 +8,23 @@ type IAngelImdb interface {
 	ClearAll()
 }
 
+type ICmap interface {
+	get(key interface{}) (val interface{},ok bool)
+	set(key, value interface{})
+	delete(key interface{})
+	reset()
+}
+
+func NewCmap() ICmap {
+	return &cmap{
+		cmap: make(map[interface{}]interface{}),
+	}
+}
 func new() IAngelImdb {
 	return &imdb{
-		db: make(map[string]interface{}),
+		db: cmap{
+			cmap: make(map[interface{}]interface{}),
+		},
 	}
 }
 

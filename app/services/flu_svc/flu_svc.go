@@ -142,12 +142,12 @@ func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName strin
 
 	valid, err := checkCsvUploaded(projectId.String())
 	if !valid {
-		plog.Error("Already Exist", err, projectId.String())
+		plog.Error("FLU_SVC", err, projectId.String(), "Already Exist")
 		return err
 	}
 	err = checkProjectExists(i.projectsRepo, projectId)
 	if err != nil {
-		plog.Error("Invalid ProjectId in CSV upload", err, projectId)
+		plog.Error("FLU_SVC", err, projectId, "Invalid ProjectId in CSV upload")
 		return err
 	}
 
@@ -177,23 +177,24 @@ func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName strin
 		cnt++
 
 		if err != nil {
-			plog.Error(" csv reading error", err)
+			plog.Error("FLU_SVC", err, " csv reading error")
 			return err
 		}
 
 		wrongCol, err := utilities.IsValidUTF8(row)
 		if wrongCol != -1 {
-			plog.Error("Not in correct encoding[UTF-8]. [Row:"+strconv.Itoa(cnt)+", Col:"+strconv.Itoa(wrongCol)+"]", err)
+			plog.Error("FLU_SVC", err, "Not in correct encoding[UTF-8]. [Row:"+strconv.Itoa(cnt)+", Col:"+strconv.Itoa(wrongCol)+"]")
 			return err
 		}
 
+		//to skip the header row
 		if cnt == 0 {
 			continue
 		}
 
 		if _, ok := referenceIdMapper[row[0]]; ok {
 			err = errors.New("duplicate Reference Id uploaded")
-			plog.Error("Reference ID Duplicate", err)
+			plog.Error("FLU_SVC", err, "Reference ID Duplicate")
 			return err
 		} else {
 			referenceIdMapper[row[0]] = struct{}{}

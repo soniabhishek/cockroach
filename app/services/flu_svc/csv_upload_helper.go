@@ -10,7 +10,6 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
-	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"os"
 	"fmt"
@@ -43,14 +42,14 @@ func getFlu(row []string, projectId uuid.UUID) (flu models.FeedLineUnit, err err
 	return flu, nil
 }
 
-func mongoBatcher(c chan models.FeedLineUnit, err chan plerrors.ChildError, batchSize int) {
+func mongoBatcher(fluChan chan models.FeedLineUnit, err chan feed_line_repo.BulkError, batchSize int) {
 	fin := feed_line_repo.NewInputQueue()
 	fluBatch := make([]models.FeedLineUnit, 0, batchSize)
 	defer close(err)
 
 	count := 0
 	for {
-		flu, ok := <-c
+		flu, ok := <-fluChan
 		if ok {
 
 			fluBatch = append(fluBatch, flu)
@@ -118,43 +117,23 @@ func writeCsvError(csvWrite *csv.Writer, c chan []string, projectId, errFilePath
 	imdb.FluUploadCache.Set(projectId, fus)
 }
 
-func receiveBulkError(errChannel chan plerrors.ChildError, c chan []string) {
+func receiveBulkError(bulkErrChan chan feed_line_repo.BulkError, errRowChan chan []string) {
 	for {
-		childErr, ok := <-errChannel
+		childErr, ok := <-bulkErrChan
 		if !ok {
 			break
 		} else {
-			c <- []string{childErr.Flu.ReferenceId, childErr.Flu.Tag, childErr.Flu.Build.String(), childErr.Message}
+			errRowChan <- []string{childErr.Flu.ReferenceId, childErr.Flu.Tag, childErr.Flu.Build.String(), childErr.Message}
 		}
 	}
 }
 
 func startRowsProcessing(fv flu_validator.IFluValidatorService, filePath string, fileName string, projectId uuid.UUID) {
+	//This will Open file from disk and we are defering close and remove call to this file
 	readerFile, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
-		return
 	}
-	fileReader := csv.NewReader(readerFile)
-
-	errFilePath := fmt.Sprintf("./uploads/error_%s_%s.csv", strconv.Itoa(int(time.Now().UnixNano())), projectId.String() )
-
-	errorCsv, err := os.Create(errFilePath)
-	if err != nil {
-		panic(err)
-		return
-	}
-	errorWriter := csv.NewWriter(errorCsv)
-
-	batcherChan := make(chan models.FeedLineUnit) //this channel will be used to batch the Flus
-	errorChan := make(chan plerrors.ChildError)   //this channel will be used to receive errors
-	errorWriterChan := make(chan []string)        //this channel is for writing data to error csv
-	validatorChan := make(chan models.FeedLineUnit)
-
-	go writeCsvError(errorWriter, errorWriterChan, projectId.String(), errFilePath)
-	//This will be Used to collect flus from batcherChann and Create a batch of given size and returns bulk error in errorChann
-	go mongoBatcher(batcherChan, errorChan, 3000)
-
 	defer func() {
 		readerFile.Close()
 		err := os.Remove(filePath)
@@ -162,7 +141,32 @@ func startRowsProcessing(fv flu_validator.IFluValidatorService, filePath string,
 			panic(err)
 		}
 	}()
+	fileReader := csv.NewReader(readerFile)
 
+	//Error file creation
+	errFilePath := fmt.Sprintf("./uploads/error_%s_%s.csv", strconv.Itoa(int(time.Now().UnixNano())), projectId.String() )
+	errorCsv, err := os.Create(errFilePath)
+	if err != nil {
+		panic(err)
+	}
+	errorWriter := csv.NewWriter(errorCsv)
+
+
+	/**
+		Channels to communication between goroutines
+	 */
+	batcherChan := make(chan models.FeedLineUnit) //this channel will be used to batch the Flus
+	errorChan := make(chan feed_line_repo.BulkError)   //this channel will be used to receive errors
+	errorWriterChan := make(chan []string)        //this channel is for writing data to error csv
+	validatorChan := make(chan models.FeedLineUnit)
+
+
+	go writeCsvError(errorWriter, errorWriterChan, projectId.String(), errFilePath)
+	//This will be Used to collect flus from batcherChann and Create a batch of given size and returns bulk error in errorChann
+	go mongoBatcher(batcherChan, errorChan, 3000)
+
+
+	//starting concurrent validation request
 	var wg sync.WaitGroup
 	for i := 0; i < 50 ; i ++ {
 		go func(valChan chan models.FeedLineUnit) {

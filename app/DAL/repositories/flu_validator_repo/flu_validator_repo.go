@@ -24,6 +24,9 @@ func (f *fluValidatorRepo) GetValidatorsForProject(projectId uuid.UUID, tag stri
 	validators, err = f.imdb.Get(projectId)
 	if err != nil {
 		_, err = f.db.Select(&validators, "select * from input_flu_validator where project_id = $1 and (tag = $2 or tag = '*')", projectId, tag)
+		if err != nil{
+			return
+		}
 		f.imdb.Set(projectId, validators)
 	}
 	return

@@ -7,7 +7,6 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
-	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/lib/pq"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -116,7 +115,7 @@ func (i *inputQueue) MarkFinished(flus []models.FeedLineUnit) error {
 	return err
 }
 
-func (i *inputQueue) BulkAdd(flu []models.FeedLineUnit) plerrors.BulkInsertError {
+func (i *inputQueue) BulkAdd(flu []models.FeedLineUnit) BulkInsertError {
 	bulkData := make([]interface{}, 0, len(flu))
 
 	for i, _ := range flu {
@@ -145,17 +144,17 @@ func (i *inputQueue) BulkAdd(flu []models.FeedLineUnit) plerrors.BulkInsertError
 
 	_, err := bulk.Run()
 	if e, ok := err.(*mgo.BulkError); ok {
-		berr := plerrors.BulkInsertError{}
+		berr := BulkInsertError{}
 		berr.Error = flu_errors.ErrBulkError
 		for _, x := range e.Cases() {
-			berr.BulkError = append(berr.BulkError, plerrors.ChildError{
+			berr.BulkError = append(berr.BulkError, BulkError{
 				x.Err.Error(),
 				flu[x.Index],
 			})
 		}
 		return berr
 	} else {
-		bulkerr := plerrors.BulkInsertError{}
+		bulkerr := BulkInsertError{}
 		bulkerr.Error = err
 		return bulkerr
 	}

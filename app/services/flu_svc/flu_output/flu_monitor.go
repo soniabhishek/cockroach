@@ -88,13 +88,13 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 func checkupFeedLinePipe() {
 
 	var projectIdsToSend = make([]uuid.UUID, 0)
-	mutex.Lock()
+	mutex.RLock()
 	for projectId := range feedLinePipe {
 		if IsEligibleForSendingBack(projectId) {
 			projectIdsToSend = append(projectIdsToSend, projectId)
 		}
 	}
-	mutex.Unlock()
+	mutex.RUnlock()
 	if len(projectIdsToSend) > 0 {
 		sendBackResp(projectIdsToSend)
 	}

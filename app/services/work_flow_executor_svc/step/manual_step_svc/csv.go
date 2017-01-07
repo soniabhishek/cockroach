@@ -36,7 +36,7 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 
 	file, numOfLines, err := createJSONFile(flus, path, manualStepId)
 	if err != nil {
-		plog.Error("Write file error", err, plog.NewMessageWithParam("Manual StepId", manualStepId))
+		plog.Error("Manual Step", err, plog.NewMessageWithParam("Write file error. Manual StepId", manualStepId))
 		return constants.Empty, err
 	}
 
@@ -47,7 +47,7 @@ func DownloadCsv(manualStepId uuid.UUID) (string, error) {
 	url := config.MEGATRON_API.Get() + "/flats"
 	filename, err := FlattenCSV(file, url, manualStepId)
 	if err != nil {
-		plog.Error("Transformation error", err, plog.NewMessageWithParam("Manual StepId", manualStepId))
+		plog.Error("Manual Step", err, plog.NewMessageWithParam("Transformation error. Manual StepId", manualStepId))
 		return constants.Empty, errors.New("Transformation Error [" + err.Error() + "]")
 	}
 	return config.MEGATRON_API.Get() + filename, nil
@@ -60,7 +60,7 @@ func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.U
 	// creates a file , overwrites if exists
 	file, err := os.Create(filePath)
 	if err != nil {
-		plog.Error("Create file error", err, plog.NewMessageWithParam("Manual StepId", manualStepId))
+		plog.Error("Manual Step", err, plog.NewMessageWithParam("Create file error. Manual StepId", manualStepId))
 		return constants.Empty, 0, err
 	}
 	defer file.Close()
@@ -71,13 +71,13 @@ func createJSONFile(flus []models.FeedLineUnit, path string, manualStepId uuid.U
 
 	bty, err := json.Marshal(megatronJson{flus})
 	if err != nil {
-		plog.Error("manual step", err, plog.NewMessageWithParam("Unable to create megatron json, manual step id : ", manualStepId.String()))
+		plog.Error("Manual Step", err, plog.NewMessageWithParam("Unable to create megatron json, manual step id : ", manualStepId.String()))
 		return
 	}
 
 	l, err := file.Write(bty)
 	if err != nil {
-		plog.Error("manual step", err, plog.NewMessageWithParam("error writing megatron json file for manual step id: ", manualStepId.String()))
+		plog.Error("Manual Step", err, plog.NewMessageWithParam("error writing megatron json file for manual step id: ", manualStepId.String()))
 	}
 	return filePath, l, err
 }

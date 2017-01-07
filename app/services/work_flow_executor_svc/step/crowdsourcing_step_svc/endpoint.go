@@ -47,14 +47,14 @@ func FluUpdateHandler(updates []FluUpdate) error {
 
 	err := flr.BulkUpdate(feedLineUnits)
 	if err != nil {
-		plog.Error("Flu Handler Bulk Update, Aborting", err)
+		plog.Error("Flu Handler Crowdy", err, plog.NewMessage("Flu Handler Bulk Update, Aborting"))
 		return err
 	}
 
 	for _, flu := range updatable {
 		ok := Std.finishFlu(flu)
 		if !ok {
-			plog.Error("Flu Handler", errors.New("finishFlu false for "+flu.ID.String()))
+			plog.Error("Flu Handler Crowdy", errors.New("finishFlu false for "+flu.ID.String()))
 		}
 	}
 
@@ -77,7 +77,7 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 	updatedFlus, nonUpdableFlus, err := flr.BulkFluBuildUpdateByStepType(flus, step_type.CrowdSourcing)
 	if err != nil {
 		if err != feed_line_repo.ErrPartiallyUpdatedFlus && err != feed_line_repo.ErrNoUpdatableFlus {
-			plog.Error("Flu Handler Bulk Update, Aborting", err)
+			plog.Error("Flu Handler Crowdy", err, plog.NewMessage("Flu Handler Bulk Update, Aborting"))
 			return err
 		} else {
 
@@ -86,7 +86,7 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 				nonUpdatableIds = append(nonUpdatableIds, flu.ID)
 			}
 
-			plog.Error("crowdy flu handler partially updated", err, plog.NewMessageWithParam("nonUpdatableIds: ", nonUpdatableIds))
+			plog.Error("Flu Handler Crowdy", err, plog.NewMessageWithParam("Crowdy flu handler partially updated. NonUpdatableIds: ", nonUpdatableIds))
 			// this wont return
 			// this will continue
 		}
@@ -97,7 +97,7 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 		for _, flu := range updatedFlus {
 			ok := Std.finishFlu(feed_line.FLU{FeedLineUnit: flu})
 			if !ok {
-				plog.Error("Flu Handler", errors.New("finishFlu false for "+flu.ID.String()))
+				plog.Error("Flu Handler Crowdy", errors.New("finishFlu false for "+flu.ID.String()))
 			}
 		}
 	}()

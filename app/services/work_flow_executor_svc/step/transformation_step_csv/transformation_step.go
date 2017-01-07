@@ -17,11 +17,11 @@ type transformationStep struct {
 
 func (t *transformationStep) processFlu(flu feed_line.FLU) {
 	t.AddToBuffer(flu)
-	plog.Info("transformation Step flu reached", flu.ID)
+	plog.Info("Transformation Step flu reached", flu.ID)
 
 	tStep, err := t.stepConfigSvc.GetTransformationStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("transformation step", err, plog.NewMessageWithParam("fluId: ", flu.ID.String()), plog.NewMessageWithParam("stepid: ", flu.StepId.String()), plog.NewMessageWithParam("flu", flu.FeedLineUnit))
+		plog.Error("Transformation step", err, plog.NewMessageWithParam("fluId: ", flu.ID.String()), plog.NewMessageWithParam("stepid: ", flu.StepId.String()), plog.NewMessageWithParam("flu", flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Transformation, "TransformationConfigError", flu.Redelivered())
 		return
 	}
@@ -43,12 +43,12 @@ func (t *transformationStep) finishFlu(flu feed_line.FLU) bool {
 
 	err := t.RemoveFromBuffer(flu)
 	if err != nil {
-		plog.Trace("transformation step", "flu not present in buffer")
+		plog.Trace("Transformation step", "flu not present in buffer")
 		//return false
 	}
 	t.OutQ.Push(flu)
 	flu.ConfirmReceive()
-	plog.Info("transformation out", flu.ID)
+	plog.Info("Transformation out", flu.ID)
 	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Transformation, flu.Redelivered())
 
 	return true

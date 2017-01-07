@@ -98,7 +98,7 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 			//Image encryption
 			encUrls, err := GetEncryptedUrls(fieldValImgArray)
 			if err != nil {
-				plog.Error("Flu Validator", err, plog.NewMessage("error in luigi encryption"), plog.NewMessageWithParam("Flu", flu))
+				plog.Error("Flu Validator", err, plog.NewMessage("Error in Luigi Encryption"), plog.NewMessageWithParam("Flu", flu))
 				invalidImageLink.AddMetaDataField(name)
 				continue
 			}

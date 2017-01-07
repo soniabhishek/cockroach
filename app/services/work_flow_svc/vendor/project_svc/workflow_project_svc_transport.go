@@ -18,13 +18,14 @@ func fetchProjectsHandler(workFlowProjectService IWorkFlowProjetService) gin.Han
 	return func(c *gin.Context) {
 		clientId, err := uuid.FromString(c.Param("clientId"))
 		if err != nil {
-			plog.Error("Invalid Id", err)
+			plog.Error("Project_svc", err, plog.NewMessageWithParam("fetchProjectsHandler. Invalid ClientId", c.Param("clientId")))
+
 			services.SendBadRequest(c, "FETCHPROJECT", err.Error(), nil)
 			return
 		}
 		response, err := workFlowProjectService.FetchProjectsByClientId(clientId)
 		if err != nil {
-			plog.Error("Fetching Client Projects Error", err)
+			plog.Error("Project_svc", err, plog.NewMessageWithParam("fetchProjectsHandler. Fetching Client Projects Error. ClientId ", clientId))
 			services.SendFailureResponse(c, "FETCHPROJECT", err.Error(), nil)
 			return
 		}
@@ -55,7 +56,7 @@ func createProjectsHandler(workFlowProjectService IWorkFlowProjetService) gin.Ha
 		response, err := workFlowProjectService.CreateProject(obj)
 		if err != nil {
 			services.SendFailureResponse(c, "FETCHPROJECT", err.Error(), nil)
-			plog.Error("Creating client Error", err)
+			plog.Error("Project_svc", err, plog.NewMessageWithParam("CreateProjectHandler. Creating client Error. CreatorId", obj.CreatorId))
 			return
 		}
 		services.SendSuccessResponse(c, response)

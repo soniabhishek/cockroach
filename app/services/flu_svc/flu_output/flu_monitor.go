@@ -71,7 +71,7 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 			fpsRepo := project_configuration_repo.New()
 			fpsModel, err := fpsRepo.Get(flu.ProjectId)
 			if utilities.IsValidError(err) {
-				plog.Error("DB Error:", err)
+				plog.Error("Flu_monitor", err, plog.NewMessage("DB Error"))
 				return errors.New("No Project Configuration found for FluProject:" + flu.ProjectId.String())
 			}
 			maxFluCount := giveMaxFluCount(fpsModel)

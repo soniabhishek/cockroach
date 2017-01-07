@@ -86,7 +86,7 @@ func UploadCsv(filename string) error {
 	file := TEMP_FOLDER + string(os.PathSeparator) + filename
 	csvFile, err := os.Open(file)
 	if err != nil {
-		plog.Error("Manual Step", err, plog.NewMessage("csv opening"))
+		plog.Error("Manual Step", err, plog.NewMessageWithParam("Csv Opening error", filename))
 		return err
 	}
 	defer csvFile.Close()
@@ -102,14 +102,14 @@ func UploadCsv(filename string) error {
 			break
 		}
 		if err != nil {
-			plog.Error("Manual Step", err, plog.NewMessage(" csv reading error"))
+			plog.Error("Manual Step", err, plog.NewMessageWithParam(" csv reading error", filename))
 			return err
 		}
 		cnt++
 
 		wrongCol, err := utilities.IsValidUTF8(row)
 		if wrongCol != -1 {
-			plog.Error("Manual Step", err, plog.NewMessage(" csv is not in correct encoding[UTF-8]"), plog.NewMessageWithParam("Row:", strconv.Itoa(cnt)), plog.NewMessageWithParam("Col:", strconv.Itoa(wrongCol)))
+			plog.Error("Manual Step", err, plog.NewMessageWithParam(" csv is not in correct encoding[UTF-8]", filename), plog.NewMessageWithParam("Row:", strconv.Itoa(cnt)), plog.NewMessageWithParam("Col:", strconv.Itoa(wrongCol)))
 			return err
 		}
 
@@ -118,7 +118,7 @@ func UploadCsv(filename string) error {
 		}
 		flu, err := getFlu(row)
 		if err != nil {
-			plog.Error("Manual Step", err, plog.NewMessage(" csv reading error"))
+			plog.Error("Manual Step", err, plog.NewMessageWithParam(" csv reading error", filename))
 			return err
 		}
 
@@ -154,14 +154,14 @@ func getFlu(row []string) (flu models.FeedLineUnit, err error) {
 	fluId := row[FLU_ID_INDEX]
 	id, err := uuid.FromString(fluId)
 	if err != nil {
-		plog.Error("Error ID:", err)
+		plog.Error("Manual Step", err, plog.NewMessageWithParam("getFlu. Error in converting fluid string to uuid. Fluid", fluId))
 		return flu, errors.New("ID is not valid. [" + fluId + "]")
 	}
 
 	build := models.JsonF{}
 	buildVal := row[BUILD_INDEX]
 	if err := build.Scan(buildVal); err != nil {
-		plog.Error("Error Build:", err)
+		plog.Error("Manual Step", err, plog.NewMessageWithParam("getFlu. Error reading row in Build:", buildVal), plog.NewMessageWithParam("Flu_id", fluId))
 		return flu, errors.New("Build field is not valid. [" + buildVal + "]")
 	}
 
@@ -197,7 +197,7 @@ func writeCSV(filepath string, records [][]string) error {
 	for _, record := range records {
 		err := writer.Write(record)
 		if err != nil {
-			plog.Error("Error while writing CSV", err)
+			plog.Error("Error while writing CSV", err, plog.NewMessageWithParam("Path", filepath))
 			return err
 		}
 	}

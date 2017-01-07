@@ -62,7 +62,7 @@ func createUserHandler() gin.HandlerFunc {
 				},
 			})
 		} else {
-			plog.Error("Error while creating user: ", err)
+			plog.Error("utils_api", err, plog.NewMessage("createUserHandler. Error while creating user"))
 			validator.ShowErrorResponseOverHttp(c, err)
 		}
 

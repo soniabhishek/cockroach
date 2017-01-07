@@ -113,13 +113,13 @@ func FlattenCSV(file string, url string, manualStepId uuid.UUID) (fileUrl string
 	// Add your image file
 	f, err := os.Open(file)
 	if err != nil {
-		plog.Error("Error", err)
+		plog.Error("Manual Step", err, plog.NewMessage("Flatten Csv. Error while opening file"))
 		return constants.Empty, err
 	}
 	defer f.Close()
 	fw, err := w.CreateFormFile(PARAM_FILES, file)
 	if err != nil {
-		plog.Error("Error", err)
+		plog.Error("Manual Step", err, plog.NewMessage("Flatten Csv. Error while creating form file"))
 		return constants.Empty, err
 	}
 	if _, err = io.Copy(fw, f); err != nil {
@@ -128,12 +128,12 @@ func FlattenCSV(file string, url string, manualStepId uuid.UUID) (fileUrl string
 	// Add the other fields
 	//TODO check these, are they needed
 	if fw, err = w.CreateFormField("key"); err != nil {
-		plog.Error("Error", err)
+		plog.Error("Manual Step", err, plog.NewMessage("Flatten Csv. Error while creating form field"))
 		return
 	}
 	// TODO this one too.
 	if _, err = fw.Write([]byte("KEY")); err != nil {
-		plog.Error("Error", err)
+		plog.Error("Manual Step", err, plog.NewMessage("Flatten Csv. Error while writing to file"))
 		return
 	}
 	// Don't forget to close the multipart writer.
@@ -143,7 +143,7 @@ func FlattenCSV(file string, url string, manualStepId uuid.UUID) (fileUrl string
 	// Now that you have a form, you can submit it to your handler.
 	req, err := http.NewRequest("POST", url, &b)
 	if err != nil {
-		plog.Error("Error", err)
+		plog.Error("Manual Step", err, plog.NewMessage("Flatten Csv. Error in Post request"))
 		return constants.Empty, err
 	}
 	// Don't forget to set the content type, this will contain the boundary.
@@ -167,7 +167,7 @@ func FlattenCSV(file string, url string, manualStepId uuid.UUID) (fileUrl string
 
 	response, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		plog.Error("Error", err)
+		plog.Error("Manual Step", err, plog.NewMessage("Flatten Csv. Error in reading file"))
 		return constants.Empty, err
 	}
 

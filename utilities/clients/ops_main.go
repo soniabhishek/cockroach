@@ -31,7 +31,7 @@ func main() {
 	header := models.JsonF{}
 	err := header.Scan(*headerStr)
 	if err != nil {
-		plog.Error("ops main", err, *headerStr)
+		plog.Error("ops main", err, plog.NewMessageWithParam("headerString", *headerStr))
 		return
 	}
 
@@ -84,7 +84,7 @@ func main() {
 		}
 		plog.Info(result.StringPretty())
 	} else {
-		plog.Error("Error while creating user: ", err)
+		plog.Error("ops_main", err, plog.NewMessage("Error while creating user: "))
 		validator.ShowErrorResponse(err)
 	}
 }

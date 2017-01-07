@@ -30,7 +30,7 @@ func workFlowGetHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 		}
 		response, err := workFlowService.GetWorkflowContainer(workflowId)
 		if err != nil {
-			plog.Error("WorkflowFetching : ", err)
+			plog.Error("Work_flow_io_svc", err, plog.NewMessageWithParam("workFlowGetHandler. Error fetching workflow. work_flow_id", workflowId))
 			services.SendFailureResponse(c, "WFGET", err.Error(), nil)
 			return
 		}
@@ -47,7 +47,7 @@ func addWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 		}
 		response, err := workFlowService.AddWorkflowContainer(workflowContainer)
 		if err != nil {
-			plog.Error("WorkflowAdd : ", err)
+			plog.Error("Work_flow_io_svc", err, plog.NewMessage("addWorkFlowHandler. Error adding workflow"))
 			services.SendFailureResponse(c, "WFADD", err.Error(), nil)
 			return
 		}
@@ -64,7 +64,7 @@ func updateWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 		}
 		response, err := workFlowService.UpdateWorkflowContainer(workflowContainer)
 		if err != nil {
-			plog.Error("WorkflowUpdate : ", err)
+			plog.Error("Work_flow_io_svc", err, plog.NewMessage("updateWorkFlowHandler. Error updating workflow"))
 			services.SendFailureResponse(c, "WFUPDATE", err.Error(), nil)
 			return
 		}
@@ -106,7 +106,7 @@ func fetchWorkflowsHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 
 		response, err := workFlowService.FetchWorkflows(projectId, tag)
 		if err != nil {
-			plog.Error("Fetching Projects workflows Error", err)
+			plog.Error("Work_flow_io_svc", err, plog.NewMessage("fetchWorkflowsHandler. Fetching Projects workflows Error"), plog.NewMessageWithParam("tag", tag))
 			services.SendFailureResponse(c, "WFFETCH", err.Error(), nil)
 			return
 		}

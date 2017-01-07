@@ -77,7 +77,7 @@ func (i *fluService) SyncInputFeedLine() error {
 
 	if err != nil {
 
-		plog.Error("Error occured while getting data", err)
+		plog.Error("Flu_svc", err, plog.NewMessage("Error occured while getting data"))
 		return err
 	}
 
@@ -93,7 +93,7 @@ func (i *fluService) SyncInputFeedLine() error {
 		err = i.fluRepo.BulkInsert(flus)
 
 		if err != nil {
-			plog.Error("Bulk insert failed", err)
+			plog.Error("Flu_svc", err, plog.NewMessage("Bulk insert failed"))
 			return err
 		}
 
@@ -109,7 +109,7 @@ func (i *fluService) SyncInputFeedLine() error {
 		err = fluInputQueue.MarkFinished(flus)
 
 		if err != nil {
-			plog.Error("Changing queue status failed", err)
+			plog.Error("Flu_svc", err, plog.NewMessage("Changing queue status failed"))
 			return err
 		}
 		//plog.Info(len(flus), "flus processed")

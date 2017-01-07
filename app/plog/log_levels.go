@@ -5,6 +5,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/getsentry/raven-go"
 	"runtime"
+	"github.com/crowdflux/angel/app/config"
 )
 
 func Fatal(tag string, err error, args ...interface{}) {
@@ -20,7 +21,9 @@ func Fatal(tag string, err error, args ...interface{}) {
 // we can pass plog.Message here in place if raven.Interface
 func Error(tag string, err error, args ...raven.Interface) {
 	if levelError >= plogLevel {
-		raven.CaptureError(err, map[string]string{"tag": tag}, args...)
+		if(config.IsProduction(){
+			raven.CaptureError(err, map[string]string{"tag": tag}, args...)
+		}
 		logr.WithFields(logrus.Fields{
 			"error": err,
 			"args":  fmt.Sprintf("%+v", args),

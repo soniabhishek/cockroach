@@ -136,7 +136,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
 		for _, item := range result {
 
-			if strings.EqualFold(strings.TrimSpace(item), strings.TrimSpace(fieldValueString)) {
+			if strings.TrimSpace(item) == strings.TrimSpace(fieldValueString) {
 
 				return shouldBeContained, nil
 			}

@@ -9,6 +9,7 @@ app/config/development.json
 app/api/auther/prod.go
 
 node_modules
+uploads
 
 ### Windows ###
 # Windows image file caches

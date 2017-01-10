@@ -1,10 +1,15 @@
 package flu_svc
 
 import (
+	"encoding/csv"
+	"errors"
+	"fmt"
+	"github.com/crowdflux/angel/app/DAL/imdb"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/flu_upload_status"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services"
@@ -12,6 +17,11 @@ import (
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc"
 	"time"
+	"github.com/crowdflux/angel/utilities"
+	"io"
+	"mime/multipart"
+	"os"
+	"strconv"
 )
 
 type fluService struct {
@@ -128,9 +138,87 @@ func (i *fluService) GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, erro
 	return flu, err
 }
 
+func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName string, projectId uuid.UUID) error {
+
+	allowed, err := allowCsvUpload(projectId.String())
+	if !allowed {
+		return err
+	}
+	err = checkProjectExists(i.projectsRepo, projectId)
+	if err != nil {
+		return err
+	}
+
+	updateUploadStatus(projectId, flu_upload_status.Pending)
+	reader := csv.NewReader(file)
+	reader.FieldsPerRecord = 3 // so the reader will always check how many records are present in each row sequence ['Reference Id', 'Tag', 'Body']
+
+	filePath := fmt.Sprintf("./uploads/%s_%s.csv", strconv.Itoa(int(time.Now().UnixNano())), projectId.String())
+	uploadFile, err := os.Create(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer uploadFile.Close()
+
+	uploadWriter := csv.NewWriter(uploadFile)
+
+	referenceIdMapper := make(map[string]struct{})
+
+	var cnt int = -1
+	for {
+		row, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+
+		cnt++
+
+		if err != nil {
+			plog.Error("FLU_SVC", err, " csv reading error")
+			return err
+		}
+
+		wrongCol, err := utilities.IsValidUTF8(row)
+		if wrongCol != -1 {
+			return err
+		}
+
+		//to skip the header row
+		if cnt == 0 {
+			continue
+		}
+
+		if _, ok := referenceIdMapper[row[0]]; ok {
+			err = errors.New("duplicate Reference Id uploaded")
+			return err
+		} else {
+			referenceIdMapper[row[0]] = struct{}{}
+		}
+
+		uploadWriter.Write(row)
+	}
+	uploadWriter.Flush()
+
+	fls, err := i.GetUploadStatus(projectId.String())
+	if err != nil {
+		panic(err)
+	}
+	fls.TotalFluCount = cnt
+	fls.Status = flu_upload_status.Processing
+	setUploadStatus(projectId, fls)
+
+	go processCSV(i.fluValidator, filePath, fileName, projectId)
+	return nil
+}
+
+func (i *fluService) GetUploadStatus(projectId string) (models.FluUploadStats, error) {
+	return imdb.FluUploadCache.Get(projectId)
+}
+
 //--------------------------------------------------------------------------------//
 //CHECK PROJECT
 //--------------------------------------------------------------------------------//
+
 
 func checkProjectExists(r projects_repo.IProjectsRepo, mId uuid.UUID) error {
 	_, err := r.GetById(mId)

@@ -57,15 +57,18 @@ func fileUploadHandler() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
+		plog.Trace("MANUAL", "Upload request reached")
+
 		file, header, err := c.Request.FormFile(UPLOAD)
 		if err != nil {
 			plog.Error("Err", errors.New("problem in uploaded file"), err)
 			showError(c, err)
 			return
 		}
+		defer file.Close()
 
 		filename := header.Filename
-
+		plog.Trace("MANUAL", "File reached")
 		out, err := os.Create(TEMP_FOLDER + filename)
 		if err != nil {
 			plog.Error("Err", errors.New("Cannot create file"), err)
@@ -73,6 +76,7 @@ func fileUploadHandler() gin.HandlerFunc {
 			return
 		}
 		defer out.Close()
+		plog.Trace("COPY", "File copy is starting")
 		_, err = io.Copy(out, file)
 		if err != nil {
 			plog.Error("Err", errors.New("Cannot copy file"), err)

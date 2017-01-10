@@ -329,14 +329,7 @@ func didWeSendThis(fl models.FeedLineUnit, fluOutputObj []fluOutputStruct) bool 
 }
 
 func printFluBuff(flag string) {
-	if plog.IsTraceEnabled() {
-		mutex.RLock()
-		plog.Trace(flag, "OUTPUT FLU BUFF")
-		for projectId := range feedLinePipe {
-			plog.Trace("PROJ_ID:", projectId, "|BUFF-SIZE:", len(feedLinePipe[projectId].feedLine))
-		}
-		mutex.RUnlock()
-	}
+
 }
 
 func shouldRetryHttp(projectId uuid.UUID) bool {

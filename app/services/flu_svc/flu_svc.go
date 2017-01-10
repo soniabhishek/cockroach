@@ -16,12 +16,12 @@ import (
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc"
-	"time"
 	"github.com/crowdflux/angel/utilities"
 	"io"
 	"mime/multipart"
 	"os"
 	"strconv"
+	"time"
 )
 
 type fluService struct {
@@ -218,7 +218,6 @@ func (i *fluService) GetUploadStatus(projectId string) (models.FluUploadStats, e
 //--------------------------------------------------------------------------------//
 //CHECK PROJECT
 //--------------------------------------------------------------------------------//
-
 
 func checkProjectExists(r projects_repo.IProjectsRepo, mId uuid.UUID) error {
 	_, err := r.GetById(mId)

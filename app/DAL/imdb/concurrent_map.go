@@ -7,7 +7,7 @@ type cmap struct {
 	rw   sync.RWMutex
 }
 
-func (c *cmap) get(key interface{}) (val interface{},ok bool) {
+func (c *cmap) get(key interface{}) (val interface{}, ok bool) {
 	c.rw.RLock()
 	defer c.rw.RUnlock()
 	val, ok = c.cmap[key]
@@ -26,7 +26,7 @@ func (c *cmap) delete(key interface{}) {
 	delete(c.cmap, key)
 }
 
-func (c *cmap) reset()  {
+func (c *cmap) reset() {
 	c.rw.Lock()
 	defer c.rw.Unlock()
 	c.cmap = make(map[interface{}]interface{})

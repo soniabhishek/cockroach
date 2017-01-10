@@ -140,14 +140,12 @@ func (i *fluService) GetFeedLineUnit(fluId uuid.UUID) (models.FeedLineUnit, erro
 
 func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName string, projectId uuid.UUID) error {
 
-	valid, err := checkCsvUploaded(projectId.String())
-	if !valid {
-		plog.Error("FLU_SVC", err, projectId.String(), "Already Exist")
+	allowed, err := allowCsvUpload(projectId.String())
+	if !allowed {
 		return err
 	}
 	err = checkProjectExists(i.projectsRepo, projectId)
 	if err != nil {
-		plog.Error("FLU_SVC", err, projectId, "Invalid ProjectId in CSV upload")
 		return err
 	}
 
@@ -157,7 +155,6 @@ func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName strin
 
 	filePath := fmt.Sprintf("./uploads/%s_%s.csv", strconv.Itoa(int(time.Now().UnixNano())), projectId.String())
 	uploadFile, err := os.Create(filePath)
-
 	if err != nil {
 		panic(err)
 	}
@@ -183,7 +180,6 @@ func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName strin
 
 		wrongCol, err := utilities.IsValidUTF8(row)
 		if wrongCol != -1 {
-			plog.Error("FLU_SVC", err, "Not in correct encoding[UTF-8]. [Row:"+strconv.Itoa(cnt)+", Col:"+strconv.Itoa(wrongCol)+"]")
 			return err
 		}
 
@@ -194,7 +190,6 @@ func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName strin
 
 		if _, ok := referenceIdMapper[row[0]]; ok {
 			err = errors.New("duplicate Reference Id uploaded")
-			plog.Error("FLU_SVC", err, "Reference ID Duplicate")
 			return err
 		} else {
 			referenceIdMapper[row[0]] = struct{}{}
@@ -212,7 +207,7 @@ func (i *fluService) CsvCheckBasicValidation(file multipart.File, fileName strin
 	fls.Status = flu_upload_status.Processing
 	setUploadStatus(projectId, fls)
 
-	go startRowsProcessing(i.fluValidator, filePath, fileName, projectId)
+	go processCSV(i.fluValidator, filePath, fileName, projectId)
 	return nil
 }
 

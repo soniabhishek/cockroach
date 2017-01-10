@@ -32,7 +32,7 @@ func Error(tag string, err error, args ...message) {
 					sentryItems[key] = value
 
 				} else {
-					sentryItems[key] = val + " || " + value
+					sentryItems[key] = val + " ; " + value
 				}
 			}
 			raven.DefaultClient.CaptureError(err, sentryItems)

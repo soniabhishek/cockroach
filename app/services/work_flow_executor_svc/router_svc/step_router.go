@@ -9,6 +9,7 @@ import (
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/algorithm_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/bifurcation_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/crowdsourcing_step_svc"
@@ -78,7 +79,7 @@ func (sr *stepRouter) getRoute(flu *feed_line.FLU) (route *feed_line.Fl) {
 	// Get that step or send it to error step
 	if flu.StepId == uuid.Nil {
 
-		plog.Error("Router", err, plog.NewMessage("StepId is nil"), plog.NewMessageWithParam("fluId: ", flu.ID.String()))
+		plog.Error("Router", err, plog.Message("StepId is nil"), plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()))
 		return sr.routeTable[step_type.Error]
 
 	} else {
@@ -86,7 +87,7 @@ func (sr *stepRouter) getRoute(flu *feed_line.FLU) (route *feed_line.Fl) {
 		nextStep, err = sr.routeGetter.GetNextStep(*flu)
 		if err != nil {
 			// Error getting the next step
-			plog.Error("Router", err, plog.NewMessage("error while getting evaluating logics in get route"), plog.NewMessageWithParam("fluId: ", flu.ID.String()))
+			plog.Error("Router", err, plog.Message("error while getting evaluating logics in get route"), plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()))
 			return sr.routeTable[step_type.Error]
 		}
 	}
@@ -97,7 +98,7 @@ func (sr *stepRouter) getRoute(flu *feed_line.FLU) (route *feed_line.Fl) {
 		flu.StepId = nextStep.ID
 		err := sr.fluRepo.Update(flu.FeedLineUnit)
 		if err != nil {
-			plog.Error("Router", err, plog.NewMessage("error occured while saving flu in router"))
+			plog.Error("Router", err, plog.Message("error occured while saving flu in router"))
 			return sr.routeTable[step_type.Error]
 		}
 

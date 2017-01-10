@@ -19,10 +19,23 @@ func Fatal(tag string, err error, args ...interface{}) {
 }
 
 // we can pass plog.Message here in place if raven.Interface
-func Error(tag string, err error, args ...raven.Interface) {
+func Error(tag string, err error, args ...message) {
 	if levelError >= plogLevel {
-		if config.IsProduction() {
-			raven.CaptureError(err, map[string]string{"tag": tag}, args...)
+		if !config.IsProduction() {
+			sentryItems := map[string]string{"tag": tag}
+			for _, arg := range args {
+				key := string(arg.Tag.Type)
+				value := fmt.Sprintf("%+v", arg.Params)
+
+				val, ok := sentryItems[key]
+				if !ok {
+					sentryItems[key] = value
+
+				} else {
+					sentryItems[key] = val + " || " + value
+				}
+			}
+			raven.DefaultClient.CaptureError(err, sentryItems)
 		}
 		logr.WithFields(logrus.Fields{
 			"error": err,

@@ -1,24 +1,25 @@
 package plog
 
-type message struct {
-	// Required
-	Message string `json:"message"`
+import (
+	"github.com/crowdflux/angel/app/plog/log_tags"
+	"tag"
+)
 
-	// Optional
-	Params []interface{} `json:"params,omitempty"`
+type message struct {
+	Tag    tag.Tag     `json:"Tag"`
+	Params interface{} `json:"params,omitempty"`
 }
 
-func (m message) Class() string { return "logentry" }
-
-func NewMessageWithParam(msg string, param interface{}) message {
+func MessageWithParam(tag *tag.Tag, param interface{}) message {
 	return message{
-		Message: msg,
-		Params:  []interface{}{param},
+		Tag:    *tag,
+		Params: param,
 	}
 }
 
-func NewMessage(msg string) message {
+func Message(param interface{}) message {
 	return message{
-		Message: msg,
+		Tag:    *log_tags.MESSAGE,
+		Params: param,
 	}
 }

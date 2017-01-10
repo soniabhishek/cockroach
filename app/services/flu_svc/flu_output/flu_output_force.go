@@ -136,7 +136,7 @@ func sendBackToClientCustom(fpsModel models.ProjectConfiguration, fluProjectResp
 	sendResp["feed_line_units"] = fluProjectResp
 	jsonBytes, err := json.Marshal(sendResp)
 	if err != nil {
-		plog.Error("Flu_output", err, plog.NewMessage("JSON Marshalling Error:"))
+		plog.Error("Flu_output", err, plog.Message("JSON Marshalling Error:"))
 		return &FluResponse{}, status_codes.UnknownFailure
 	}
 	jsonBytes = utilities.ReplaceEscapeCharacters(jsonBytes)
@@ -156,7 +156,7 @@ func sendBackToClientCustom(fpsModel models.ProjectConfiguration, fluProjectResp
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		plog.Error("Flu_output", err, plog.NewMessage("HTTP Error:"))
+		plog.Error("Flu_output", err, plog.Message("HTTP Error:"))
 		return &FluResponse{}, status_codes.UnknownFailure
 	}
 

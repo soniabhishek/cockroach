@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/repositories/flu_validator_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 )
 
@@ -98,7 +99,7 @@ func validateFlu(v flu_validator_repo.IFluValidatorRepo, fluOb *models.FeedLineU
 			//Image encryption
 			encUrls, err := GetEncryptedUrls(fieldValImgArray)
 			if err != nil {
-				plog.Error("Flu Validator", err, plog.NewMessage("Error in Luigi Encryption"), plog.NewMessageWithParam("Flu", flu))
+				plog.Error("Flu Validator", err, plog.Message("Error in Luigi Encryption"), plog.MessageWithParam(log_tags.FLU, flu))
 				invalidImageLink.AddMetaDataField(name)
 				continue
 			}

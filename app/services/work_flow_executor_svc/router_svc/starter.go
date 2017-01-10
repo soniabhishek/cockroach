@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 )
 
 func start(sr *stepRouter) {
@@ -33,7 +34,7 @@ func start(sr *stepRouter) {
 				defer func() {
 
 					if r := recover(); r != nil {
-						plog.Error("Router", errors.New("Panic occured in router"), plog.NewMessageWithParam("Recover", r))
+						plog.Error("Router", errors.New("Panic occured in router"), plog.MessageWithParam(log_tags.RECOVER, r))
 						(*sr.routeTable[step_type.Error]).Push(flu)
 						plog.Info("Router", "Sent to manual after panic", flu)
 					}

@@ -4,6 +4,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services"
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +31,7 @@ func workFlowGetHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 		}
 		response, err := workFlowService.GetWorkflowContainer(workflowId)
 		if err != nil {
-			plog.Error("Work_flow_io_svc", err, plog.NewMessageWithParam("workFlowGetHandler. Error fetching workflow. work_flow_id", workflowId))
+			plog.Error("Work_flow_io_svc", err, plog.Message("workFlowGetHandler. Error fetching workflow. work_flow_id"), plog.MessageWithParam(log_tags.WORKFLOW_ID, workflowId))
 			services.SendFailureResponse(c, "WFGET", err.Error(), nil)
 			return
 		}
@@ -47,7 +48,7 @@ func addWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerFunc
 		}
 		response, err := workFlowService.AddWorkflowContainer(workflowContainer)
 		if err != nil {
-			plog.Error("Work_flow_io_svc", err, plog.NewMessage("addWorkFlowHandler. Error adding workflow"))
+			plog.Error("Work_flow_io_svc", err, plog.Message("addWorkFlowHandler. Error adding workflow"))
 			services.SendFailureResponse(c, "WFADD", err.Error(), nil)
 			return
 		}
@@ -64,7 +65,7 @@ func updateWorkFlowHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 		}
 		response, err := workFlowService.UpdateWorkflowContainer(workflowContainer)
 		if err != nil {
-			plog.Error("Work_flow_io_svc", err, plog.NewMessage("updateWorkFlowHandler. Error updating workflow"))
+			plog.Error("Work_flow_io_svc", err, plog.Message("updateWorkFlowHandler. Error updating workflow"))
 			services.SendFailureResponse(c, "WFUPDATE", err.Error(), nil)
 			return
 		}
@@ -106,7 +107,7 @@ func fetchWorkflowsHandler(workFlowService IWorkflowBuilderService) gin.HandlerF
 
 		response, err := workFlowService.FetchWorkflows(projectId, tag)
 		if err != nil {
-			plog.Error("Work_flow_io_svc", err, plog.NewMessage("fetchWorkflowsHandler. Fetching Projects workflows Error"), plog.NewMessageWithParam("tag", tag))
+			plog.Error("Work_flow_io_svc", err, plog.Message("fetchWorkflowsHandler. Fetching Projects workflows Error"), plog.MessageWithParam(log_tags.PROJECT_TAG, tag))
 			services.SendFailureResponse(c, "WFFETCH", err.Error(), nil)
 			return
 		}

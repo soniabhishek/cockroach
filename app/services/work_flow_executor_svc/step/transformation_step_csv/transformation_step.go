@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
@@ -21,14 +22,14 @@ func (t *transformationStep) processFlu(flu feed_line.FLU) {
 
 	tStep, err := t.stepConfigSvc.GetTransformationStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("Transformation step", err, plog.NewMessageWithParam("fluId: ", flu.ID.String()), plog.NewMessageWithParam("stepid: ", flu.StepId.String()), plog.NewMessageWithParam("flu", flu.FeedLineUnit))
+		plog.Error("Transformation step", err, plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()), plog.MessageWithParam(log_tags.STEP_ID, flu.StepId.String()), plog.MessageWithParam(log_tags.FLU, flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Transformation, "TransformationConfigError", flu.Redelivered())
 		return
 	}
 
 	transformedBuild, err := clients.GetMegatronClient().Transform(flu.Build, tStep.TemplateId)
 	if err != nil {
-		plog.Error("Transformation step", err, plog.NewMessageWithParam("fluId: ", flu.ID.String()), plog.NewMessageWithParam("flu", flu.FeedLineUnit))
+		plog.Error("Transformation step", err, plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()), plog.MessageWithParam(log_tags.FLU, flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Transformation, "TransformationError", flu.Redelivered())
 		return
 	}

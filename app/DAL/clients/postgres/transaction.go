@@ -53,14 +53,14 @@ func (pg *transactionalPostgres) SelectJoin(holder interface{}, query string, ar
 
 func (pg *transactionalPostgres) Commit() {
 	if err := pg.trans.Commit(); err != nil {
-		plog.Error("Postgres client", err, plog.NewMessage("Error occured while Commit transaction"))
+		plog.Error("Postgres client", err, plog.Message("Error occured while Commit transaction"))
 		panic(err)
 	}
 }
 
 func (pg *transactionalPostgres) Rollback() {
 	if err := pg.trans.Rollback(); err != nil {
-		plog.Error("Postgres client", err, plog.NewMessage("Error occured in Rollback transaction"))
+		plog.Error("Postgres client", err, plog.Message("Error occured in Rollback transaction"))
 		panic(err)
 	}
 }
@@ -69,7 +69,7 @@ func GetTransactionClient() *transactionalPostgres {
 
 	tx, err := gorpDbMap.Begin()
 	if err != nil {
-		plog.Error("Postgres client", err, plog.NewMessage("Error occured in creating transaction"))
+		plog.Error("Postgres client", err, plog.Message("Error occured in creating transaction"))
 		panic(err)
 	}
 

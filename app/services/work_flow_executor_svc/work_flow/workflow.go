@@ -4,6 +4,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/step_repo"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/counter"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/router_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/manual_step_svc"
@@ -39,7 +40,7 @@ func newStdWorkFlow() WorkFlow {
 
 				startStep, err := stepRepo.GetStartStepOrDefault(flu.ProjectId, flu.Tag)
 				if err != nil {
-					plog.Error("Worflow", err, plog.NewMessage("error getting start step"), plog.NewMessageWithParam("fluId: ", flu.ID.String()), plog.NewMessage("sending to manual step"))
+					plog.Error("Worflow", err, plog.Message("error getting start step"), plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()), plog.Message("sending to manual step"))
 					manual_step_svc.StdManualStep.InQ.Push(flu)
 				} else {
 					flu.StepId = startStep.ID

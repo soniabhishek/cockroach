@@ -7,6 +7,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/utilities/clients/models"
 	"github.com/crowdflux/angel/utilities/clients/operations"
 	"github.com/crowdflux/angel/utilities/clients/validator"
@@ -31,7 +32,7 @@ func main() {
 	header := models.JsonF{}
 	err := header.Scan(*headerStr)
 	if err != nil {
-		plog.Error("ops main", err, plog.NewMessageWithParam("headerString", *headerStr))
+		plog.Error("ops main", err, plog.MessageWithParam(log_tags.HEADER, *headerStr))
 		return
 	}
 
@@ -84,7 +85,7 @@ func main() {
 		}
 		plog.Info(result.StringPretty())
 	} else {
-		plog.Error("ops_main", err, plog.NewMessage("Error while creating user: "))
+		plog.Error("ops_main", err, plog.Message("Error while creating user: "))
 		validator.ShowErrorResponse(err)
 	}
 }

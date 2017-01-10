@@ -3,6 +3,7 @@ package feed_line
 import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/streadway/amqp"
 	"sync"
 )
@@ -28,8 +29,7 @@ func (flu *FLU) ConfirmReceive() {
 
 		err := flu.delivery.Ack(false)
 		if err != nil {
-			p := models.JsonF{"fluId": flu.FeedLineUnit.ID.String()}
-			plog.Error("FLU", err, plog.NewMessageWithParam("Error while ack", p))
+			plog.Error("FLU", err, plog.Message("Error while ack "), plog.MessageWithParam(log_tags.FLU_ID, flu.FeedLineUnit.ID))
 			panic(err)
 		}
 	})

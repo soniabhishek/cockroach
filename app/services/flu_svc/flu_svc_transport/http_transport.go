@@ -8,6 +8,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/flu_svc"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
@@ -48,7 +49,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 		var err error
 		projectId, err = uuid.FromString(c.Param("projectId"))
 		if err != nil {
-			plog.Error("http_transport", err, plog.NewMessageWithParam("Invalid ProjectId from client", c.Param("projectId")))
+			plog.Error("http_transport", err, plog.Message("Invalid ProjectId from client"), plog.MessageWithParam(log_tags.PROJECT_ID, c.Param("projectId")))
 			showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
 			return
 		}
@@ -58,7 +59,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 			var body []byte
 			c.Request.Body.Read(body)
 			c.Request.Body.Close()
-			plog.Error("http_transport", err, plog.NewMessageWithParam("Error binding flu from client. Body : ", body))
+			plog.Error("http_transport", err, plog.Message("Error binding flu from client"), plog.MessageWithParam(log_tags.RESPONSE_BODY, body))
 			showErrorResponse(c, plerrors.ErrMalformedJson)
 			return
 		}
@@ -72,7 +73,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 				//Temporary hack. Wait for schema refactoring
 				err = plerrors.ServiceError{"PR_0001", "Project not found"}
 			}
-			plog.Error("http_transport", err, plog.NewMessageWithParam("Error while adding flu to workflow. Flu : ", flu))
+			plog.Error("http_transport", err, plog.Message("Error while adding flu to workflow"), plog.MessageWithParam(log_tags.FLU, flu))
 			showErrorResponse(c, err)
 			return
 		}

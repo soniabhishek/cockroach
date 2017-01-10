@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
@@ -22,7 +23,7 @@ func (u *unificationStep) processFlu(flu feed_line.FLU) {
 
 	unificationConfig, err := u.stepConfigSvc.GetUnificationStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("Unification Step", err, plog.NewMessage("error getting step"), plog.NewMessageWithParam("fluId: ", flu.ID.String()))
+		plog.Error("Unification Step", err, plog.Message("error getting step"), plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Unification, "Error getting unification Config", flu.Redelivered())
 		return
 	}
@@ -47,7 +48,7 @@ func (u *unificationStep) processFlu(flu feed_line.FLU) {
 				wFlu.IsActive = false
 				err := u.fluRepo.Update(wFlu.FeedLineUnit)
 				if err != nil {
-					plog.Error("Unification Step", err, plog.NewMessage("error updating flu"), plog.NewMessageWithParam("fluid ", flu.ID.String()), plog.NewMessageWithParam("masterid ", flu.MasterId.String()))
+					plog.Error("Unification Step", err, plog.Message("error updating flu"), plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()), plog.MessageWithParam(log_tags.MASTER_FLU_ID, flu.MasterId.String()))
 					return
 				}
 			}
@@ -66,13 +67,13 @@ func (u *unificationStep) processFlu(flu feed_line.FLU) {
 
 			err := u.fluRepo.Update(flu.FeedLineUnit)
 			if err != nil {
-				plog.Error("Unification Step", err, plog.NewMessage("error updating flu"), plog.NewMessageWithParam("fluid ", flu.ID.String()), plog.NewMessageWithParam("masterid ", flu.MasterId.String()))
+				plog.Error("Unification Step", err, plog.Message("error updating flu"), plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()), plog.MessageWithParam(log_tags.MASTER_FLU_ID, flu.MasterId.String()))
 				return
 			}
 
 			err = u.fluRepo.Update(masterFlu.FeedLineUnit)
 			if err != nil {
-				plog.Error("Unification Step", err, plog.NewMessage("error updating masterflu"), plog.NewMessageWithParam("fluid ", masterFlu.ID.String()), plog.NewMessageWithParam("masterid ", flu.MasterId.String()))
+				plog.Error("Unification Step", err, plog.Message("error updating masterflu"), plog.MessageWithParam(log_tags.MASTER_FLU_ID, masterFlu.ID.String()))
 				return
 			}
 

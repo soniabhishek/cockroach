@@ -1,9 +1,9 @@
 package imdb
 
 import (
-	"testing"
 	"github.com/Knetic/govaluate"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestEvalExpressCache_Set(t *testing.T) {

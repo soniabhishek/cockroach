@@ -1,8 +1,8 @@
 package imdb
 
 import (
-	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
 )
 
 type FluValidateCache struct {
@@ -35,4 +35,3 @@ func (f *FluValidateCache) SafeSet(key uuid.UUID, val []models.FLUValidator) (re
 func (f *FluValidateCache) ClearAll() {
 	f.imdb.ClearAll()
 }
-

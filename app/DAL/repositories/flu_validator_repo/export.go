@@ -7,7 +7,7 @@ import (
 
 func New() IFluValidatorRepo {
 	return &fluValidatorRepo{
-		db: postgres.GetPostgresClient(),
+		db:   postgres.GetPostgresClient(),
 		imdb: imdb.NewFluValidateCache(),
 	}
 }

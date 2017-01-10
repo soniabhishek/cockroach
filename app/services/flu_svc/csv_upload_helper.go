@@ -3,6 +3,7 @@ package flu_svc
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"github.com/crowdflux/angel/app/DAL/imdb"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/models"
@@ -11,7 +12,6 @@ import (
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"os"
-	"fmt"
 	"strconv"
 	"time"
 )
@@ -40,7 +40,7 @@ func writeCsvError(csvWrite *csv.Writer, c chan []string, projectId, errFilePath
 	} else {
 		fus.Status = flu_upload_status.Success
 		err := os.Remove(errFilePath)
-		if err != nil{
+		if err != nil {
 			panic(err)
 		}
 	}
@@ -73,16 +73,16 @@ func processCSV(fv flu_validator.IFluValidatorService, filePath string, fileName
 	}()
 
 	//Error file creation
-	errFilePath := fmt.Sprintf("./uploads/error_%s_%s.csv", strconv.Itoa(int(time.Now().UnixNano())), projectId.String() )
+	errFilePath := fmt.Sprintf("./uploads/error_%s_%s.csv", strconv.Itoa(int(time.Now().UnixNano())), projectId.String())
 	errorCsv, errorWriter, err := generateFileAndWriter(errFilePath)
 	if err != nil {
 		panic(err)
 	}
 
 	//Channels to communication between goroutines
-	batcherChan := make(chan models.FeedLineUnit) //this channel will be used to batch the Flus
-	errorChan := make(chan feed_line_repo.BulkError)   //this channel will be used to receive errors
-	errorWriterChan := make(chan []string)        //this channel is for writing data to error csv
+	batcherChan := make(chan models.FeedLineUnit)    //this channel will be used to batch the Flus
+	errorChan := make(chan feed_line_repo.BulkError) //this channel will be used to receive errors
+	errorWriterChan := make(chan []string)           //this channel is for writing data to error csv
 	validatorChan := make(chan models.FeedLineUnit)
 
 	go writeCsvError(errorWriter, errorWriterChan, projectId.String(), errFilePath)
@@ -101,7 +101,7 @@ func processCSV(fv flu_validator.IFluValidatorService, filePath string, fileName
 	}()
 
 	//this func will start fetching row from csv, will update upload status and then push to validator chan
-	processFluFromCSV(fileReader,projectId, errorWriterChan, validatorChan)
+	processFluFromCSV(fileReader, projectId, errorWriterChan, validatorChan)
 	close(validatorChan)
 }
 
@@ -128,4 +128,3 @@ func updateUploadStatus(projectId uuid.UUID, status flu_upload_status.FluUploadS
 func setUploadStatus(projectId uuid.UUID, fus models.FluUploadStats) {
 	imdb.FluUploadCache.Set(projectId.String(), fus)
 }
-

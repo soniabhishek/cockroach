@@ -1,8 +1,8 @@
 package feed_line_repo
 
 import (
-	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/services/plerrors"
 )
 
 var ErrDuplicateReferenceId plerrors.ServiceError = plerrors.ServiceError{"FLR_0001", "Duplicate Reference Id"}

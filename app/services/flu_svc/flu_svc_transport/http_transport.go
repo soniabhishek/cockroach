@@ -9,6 +9,7 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/plog/log_tags"
+	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/app/services/flu_svc"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
@@ -23,6 +24,9 @@ func AddHttpTransport(routerGroup *gin.RouterGroup) {
 	fluService := flu_svc.NewWithExposedValidators()
 
 	routerGroup.POST("/project/:projectId/feedline", feedLineInputHandler(fluService))
+	routerGroup.POST("project/:projectId/csv/feedline", csvFLUGenerator(fluService))
+
+	routerGroup.GET("project/:projectId/upload/status", getUploadStatus(fluService))
 	routerGroup.GET("/project/:projectId/feedline/:feedlineId", feedLineGetHandler(fluService))
 
 	routerGroup.GET("/project/:projectId/validator", validatorGetHandler(fluService))
@@ -95,6 +99,57 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 					Tag:         flu.Tag,
 				},
 			})
+		}
+	}
+}
+
+//This Handler is for Generating flus via csv upload
+//csv should be 3 column wide as [reference_id, tag, build]
+//This Handler will first Copy all content on the disk it can be varied upon on requirement to take directly in memory.
+//Once file would be successfully written to disk a empty response would be sent back to user.
+func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		//Validating ProjectId and checking if exist in database.
+		projectId, err := uuid.FromString(c.Param("projectId"))
+		if err != nil {
+			plog.Error("http_transport", err, plog.Message("Invalid ProjectId in CSV upload"), plog.MessageWithParam(log_tags.PROJECT_ID, c.Param("projectId")))
+			services.SendBadRequest(c, "FLS000", err.Error(), nil)
+			return
+		}
+
+		//Fetching descriptors for uploaded multipart file
+		file, header, err := c.Request.FormFile("upload")
+		if err != nil {
+			plog.Error("http_transport", err, plog.Message("problem in uploaded file"))
+			services.SendBadRequest(c, "FLS002", err.Error(), nil)
+			return
+		}
+		defer file.Close()
+
+		filename := header.Filename
+
+		plog.Info("Sent file for upload: ", filename)
+
+		if err := fluService.CsvCheckBasicValidation(file, filename, projectId); err != nil {
+			plog.Error("http_transport", err, plog.Message("Validation Failed for csv"))
+			services.SendBadRequest(c, "Fail", err.Error(), nil)
+			return
+		}
+
+		//return response for file upload
+		services.SendSuccessResponse(c, nil)
+	}
+
+}
+
+func getUploadStatus(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		response, err := fluService.GetUploadStatus(c.Param("projectId"))
+		if err != nil {
+			services.SendSuccessResponse(c, "No Such ProjectID Exist")
+		} else {
+			services.SendSuccessResponse(c, response)
 		}
 	}
 }

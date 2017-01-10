@@ -135,6 +135,7 @@ func UploadCsv(filename string) error {
 			return err
 		}
 	}
+	plog.Trace("MANUAL STEP", "bulk update finished")
 
 	go func() {
 

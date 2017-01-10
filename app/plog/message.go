@@ -10,6 +10,9 @@ type message struct {
 	Params interface{} `json:"params,omitempty"`
 }
 
+var MP = MessageWithParam
+var M = Message
+
 func MessageWithParam(tag *tag.Tag, param interface{}) message {
 	return message{
 		Tag:    *tag,

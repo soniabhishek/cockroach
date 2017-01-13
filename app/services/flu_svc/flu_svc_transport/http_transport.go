@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"encoding/json"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
@@ -49,21 +50,28 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 	return func(c *gin.Context) {
 
 		requestTime := time.Now()
-		var flu models.FeedLineUnit
 
-		var projectId uuid.UUID
-		var err error
-		projectId, err = uuid.FromString(c.Param("projectId"))
-		var body []byte
+		projectId, err := uuid.FromString(c.Param("projectId"))
 
 		if err != nil {
 			plog.Error("Invalid ProjectId from client", err, c.Param("projectId"))
 			httpCode, resp := showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
+			requestLogger.Info(formatLog(requestTime, []byte{}, time.Since(requestTime), httpCode, resp))
+			return
+		}
+
+		var body []byte
+		_, err = c.Request.Body.Read(body)
+		if err != nil {
+			plog.Error("Error reading flu body from client : ", err, "Body : ", body)
+			httpCode, resp := showErrorResponse(c, plerrors.ErrMalformedJson)
 			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))
 			return
 		}
-		// Validating JSON
-		if err = c.BindJSON(&flu); err != nil {
+
+		// JSON to FLU
+		var flu models.FeedLineUnit
+		if err = json.Unmarshal(body, &flu); err != nil {
 			plog.Error("Error binding flu from client : ", err, "Body : ", body)
 			httpCode, resp := showErrorResponse(c, plerrors.ErrMalformedJson)
 			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))
@@ -116,7 +124,7 @@ func formatLog(requestTime time.Time, body []byte, duration time.Duration, httpC
 
 	return []interface{}{
 		models.JsonF{"request_time": requestTime},
-		models.JsonF{"body": body},
+		models.JsonF{"body": string(body)},
 		models.JsonF{"request_duration_ms": duration / time.Millisecond},
 		models.JsonF{"http_code": httpCode},
 		models.JsonF{"response": response},

@@ -41,6 +41,8 @@ type fluPostResponse struct {
 	Tag         string    `json:"tag"`
 }
 
+var requestLogger = plog.NewLogger("inbound_request", "INFO", "FILE")
+
 //Inserts into mongo
 func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 
@@ -52,19 +54,19 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 		var projectId uuid.UUID
 		var err error
 		projectId, err = uuid.FromString(c.Param("projectId"))
+		var body []byte
+
 		if err != nil {
 			plog.Error("Invalid ProjectId from client", err, c.Param("projectId"))
-			showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
+			httpCode, resp := showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))
 			return
 		}
-
 		// Validating JSON
 		if err = c.BindJSON(&flu); err != nil {
-			var body []byte
-			c.Request.Body.Read(body)
-			c.Request.Body.Close()
 			plog.Error("Error binding flu from client : ", err, "Body : ", body)
-			showErrorResponse(c, plerrors.ErrMalformedJson)
+			httpCode, resp := showErrorResponse(c, plerrors.ErrMalformedJson)
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))
 			return
 		}
 		flu.ProjectId = projectId
@@ -78,12 +80,18 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 				err = plerrors.ServiceError{"PR_0001", "Project not found"}
 			}
 			plog.Error("Error while adding flu to workflow ", err, flu)
-			showErrorResponse(c, err)
+			httpCode, resp := showErrorResponse(c, err)
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))
 			return
 		}
 
 		// This has to be done for chutiya paytm dev
 		if c.Keys["show_old"] == true {
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), http.StatusOK, models.JsonF{"success": true,
+				"flu_id":       flu.ID,
+				"reference_id": flu.ReferenceId,
+				"tag":          flu.Tag}))
+
 			c.JSON(http.StatusOK, gin.H{
 				"success":      true,
 				"flu_id":       flu.ID,
@@ -91,16 +99,31 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 				"tag":          flu.Tag,
 			})
 		} else {
+			fluResp := fluPostResponse{Id: flu.ID,
+				ReferenceId: flu.ReferenceId,
+				Tag:         flu.Tag}
+
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), http.StatusOK, models.JsonF{"success": true,
+				"feed_line_unit": fluResp}))
+
 			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"feed_line_unit": fluPostResponse{
-					Id:          flu.ID,
-					ReferenceId: flu.ReferenceId,
-					Tag:         flu.Tag,
-				},
+				"success":        true,
+				"feed_line_unit": fluResp,
 			})
 		}
 	}
+}
+
+func formatLog(requestTime time.Time, body []byte, duration time.Duration, httpCode int, response models.JsonF) []interface{} {
+
+	return []interface{}{
+		models.JsonF{"request_time": requestTime},
+		models.JsonF{"body": body},
+		models.JsonF{"request_duration": duration},
+		models.JsonF{"http_code": httpCode},
+		models.JsonF{"response": response},
+	}
+
 }
 
 //This Handler is for Generating flus via csv upload
@@ -271,7 +294,7 @@ func validatorUpdateHandler(validatorSvc flu_validator.IFluValidatorService) gin
 //--------------------------------------------------------------------------------//
 //Helper
 
-func showErrorResponse(c *gin.Context, err error) {
+func showErrorResponse(c *gin.Context, err error) (statusCode int, resp models.JsonF) {
 
 	var msg interface{}
 
@@ -293,13 +316,16 @@ func showErrorResponse(c *gin.Context, err error) {
 		msg = err.Error()
 	}
 
-	statusCode := http.StatusOK
+	statusCode = http.StatusOK
 	if err == flu_errors.ErrRequestTimedOut {
 		statusCode = http.StatusGatewayTimeout
 	}
+	resp = models.JsonF{"error": msg,
+		"success": false}
 
 	c.JSON(statusCode, gin.H{
 		"error":   msg,
 		"success": false,
 	})
+	return
 }

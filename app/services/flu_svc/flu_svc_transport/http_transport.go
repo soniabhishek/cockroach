@@ -16,6 +16,7 @@ import (
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"io/ioutil"
 )
 
 //TODO Create another file for validator http transport. In future we may have to make a separate service for validatorss
@@ -60,8 +61,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 			return
 		}
 
-		var body []byte
-		_, err = c.Request.Body.Read(body)
+		body, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
 			plog.Error("Error reading flu body from client : ", err, "Body : ", body)
 			httpCode, resp := showErrorResponse(c, plerrors.ErrMalformedJson)

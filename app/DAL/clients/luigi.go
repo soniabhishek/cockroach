@@ -45,12 +45,12 @@ func (*luigiClient) GetEncryptedUrls(images []string) (map[string]LuigiResponse,
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.New("Error occured in luigi. Non 200 Response. Check image urls. Status: " + res.Status)
 	}
 
-	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {

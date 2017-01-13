@@ -47,7 +47,9 @@ var path, _ = filepath.Abs(config.PLOG_LOCATION.Get())
 
 func init() {
 
-	setLogger()
+	logTypeStr := strings.ToUpper(config.PLOG_TYPE.Get())
+
+	setLogger(logr, path, logTypeStr)
 
 	logLevelStr := strings.ToUpper(config.PLOG_LEVEL.Get())
 
@@ -58,33 +60,31 @@ func init() {
 	}
 }
 
-func setLogger() {
+func setLogger(logger *logrus.Logger, logPath string, logType string) {
 
-	logr.Formatter = &logrus.JSONFormatter{}
+	logger.Formatter = &logrus.JSONFormatter{}
 
-	logr.Level = logrus.DebugLevel
+	logger.Level = logrus.DebugLevel
 
-	_ = os.Mkdir(path, os.ModePerm)
+	_ = os.Mkdir(logPath, os.ModePerm)
 
-	setLogOutput()
+	setLogOutput(logger, logType)
 }
-func setLogOutput() {
-
-	logTypeStr := strings.ToUpper(config.PLOG_TYPE.Get())
+func setLogOutput(logger *logrus.Logger, logTypeStr string) {
 
 	switch logTypeStr {
 	case STR_TYPE_CONSOLE:
-		logr.Out = os.Stdout
+		logger.Out = os.Stdout
 	case STR_TYPE_FILE:
-		setFileIO()
+		setFileIO(logger)
 		log_file_scheduler := gocron.NewScheduler()
-		log_file_scheduler.Every(1).Day().At("00.00").Do(setFileIO)
+		log_file_scheduler.Every(1).Day().At("00.00").Do(setFileIO, logger)
 		log_file_scheduler.Start()
 	case STR_TYPE_ERROR:
-		logr.Out = os.Stderr
+		logger.Out = os.Stderr
 
 	default:
-		logr.Out = os.Stdout
+		logger.Out = os.Stdout
 	}
 }
 
@@ -106,10 +106,10 @@ func getFileName() string {
 	return "log_" + dateString + ".txt"
 }
 
-func setFileIO() {
+func setFileIO(logger *logrus.Logger) {
 	file_location := path + "/" + getFileName()
 	createFile(file_location)
-	logr.Out, _ = os.OpenFile(file_location, os.O_RDWR|os.O_APPEND, 0660)
+	logger.Out, _ = os.OpenFile(file_location, os.O_RDWR|os.O_APPEND, 0660)
 }
 
 func createFile(file_location string) {

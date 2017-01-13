@@ -18,19 +18,21 @@ import (
 )
 
 //TODO Create another file for validator http transport. In future we may have to make a separate service for validatorss
+var fluService = flu_svc.NewWithExposedValidators()
 
 func AddHttpTransport(routerGroup *gin.RouterGroup) {
 
-	fluService := flu_svc.NewWithExposedValidators()
-
 	routerGroup.POST("/project/:projectId/feedline", feedLineInputHandler(fluService))
-	routerGroup.POST("project/:projectId/csv/feedline", csvFLUGenerator(fluService))
 
-	routerGroup.GET("project/:projectId/upload/status", getUploadStatus(fluService))
 	routerGroup.GET("/project/:projectId/feedline/:feedlineId", feedLineGetHandler(fluService))
 
 	routerGroup.GET("/project/:projectId/validator", validatorGetHandler(fluService))
 	routerGroup.POST("/project/:projectId/validator", validatorUpdateHandler(fluService))
+}
+
+func HttpCSVFLUTransport(routerGroup *gin.RouterGroup) {
+	routerGroup.POST("project/:projectId/csv/feedline", csvFLUGenerator(fluService))
+	routerGroup.GET("project/:projectId/upload/status", getUploadStatus(fluService))
 }
 
 //--------------------------------------------------------------------------------//

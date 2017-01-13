@@ -14,7 +14,6 @@ type CustomLogger struct {
 
 func NewLogger(name string, levelString string, typeString string) *CustomLogger {
 
-	Info("newlogger", name, levelString)
 	level, ok := levels[levelString]
 	if !ok {
 		panic("Invalid level string: " + levelString)

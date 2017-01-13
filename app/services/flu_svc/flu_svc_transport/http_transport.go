@@ -124,10 +124,10 @@ func formatLog(requestTime time.Time, body []byte, duration time.Duration, httpC
 
 	return []interface{}{
 		models.JsonF{"request_time": requestTime},
-		models.JsonF{"body": string(body)},
-		models.JsonF{"request_duration_ms": duration / time.Millisecond},
+		models.JsonF{"request_duration_ms": duration.Seconds() * 1000},
 		models.JsonF{"http_code": httpCode},
 		models.JsonF{"response": response},
+		models.JsonF{"body": string(body)},
 	}
 
 }

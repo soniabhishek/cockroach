@@ -41,12 +41,13 @@ type fluPostResponse struct {
 	Tag         string    `json:"tag"`
 }
 
+var requestLogger = plog.NewLogger("inbound_request", "INFO", "FILE")
+
 //Inserts into mongo
 func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
-		requestLogger := plog.NewLogger("inbound_request", "INFO")
 		requestTime := time.Now()
 		var flu models.FeedLineUnit
 

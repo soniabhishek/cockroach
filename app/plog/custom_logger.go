@@ -12,15 +12,16 @@ type CustomLogger struct {
 	logger *logrus.Logger
 }
 
-func NewLogger(name string, levelString string) *CustomLogger {
+func NewLogger(name string, levelString string, typeString string) *CustomLogger {
 
+	Info("newlogger", name, levelString)
 	level, ok := levels[levelString]
 	if !ok {
 		panic("Invalid level string: " + levelString)
 	}
 
 	logger := logrus.New()
-	setLogger(logger, path+"/"+name, levelString)
+	setLogger(logger, path+"/"+name, typeString)
 	return &CustomLogger{name, level, logger}
 }
 

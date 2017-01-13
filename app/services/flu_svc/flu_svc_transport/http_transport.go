@@ -116,6 +116,14 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 
 func formatLog(requestTime time.Time, body []byte, duration time.Duration, httpCode int, response models.JsonF) []interface{} {
 
+	return []interface{}{
+		models.JsonF{"request_time": requestTime},
+		models.JsonF{"body": body},
+		models.JsonF{"request_duration": duration},
+		models.JsonF{"http_code": httpCode},
+		models.JsonF{"response": response},
+	}
+
 }
 
 //This Handler is for Generating flus via csv upload

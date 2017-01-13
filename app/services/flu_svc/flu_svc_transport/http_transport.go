@@ -71,8 +71,6 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 		}
 		flu.ProjectId = projectId
 
-		plog.Info("Request Inbound. Reference: ", flu.ReferenceId, " Time : ", requestTime, " Tag : ", flu.Tag, " ProjectId : ", flu.ProjectId)
-
 		err = fluService.AddFeedLineUnit(&flu)
 		if err != nil {
 			if err == projects_repo.ErrProjectNotFound {
@@ -119,7 +117,7 @@ func formatLog(requestTime time.Time, body []byte, duration time.Duration, httpC
 	return []interface{}{
 		models.JsonF{"request_time": requestTime},
 		models.JsonF{"body": body},
-		models.JsonF{"request_duration": duration},
+		models.JsonF{"request_duration_ms": duration / time.Millisecond},
 		models.JsonF{"http_code": httpCode},
 		models.JsonF{"response": response},
 	}

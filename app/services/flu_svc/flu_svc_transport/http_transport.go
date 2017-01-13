@@ -64,8 +64,6 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 		}
 		// Validating JSON
 		if err = c.BindJSON(&flu); err != nil {
-			c.Request.Body.Read(body)
-			c.Request.Body.Close()
 			plog.Error("Error binding flu from client : ", err, "Body : ", body)
 			httpCode, resp := showErrorResponse(c, plerrors.ErrMalformedJson)
 			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))

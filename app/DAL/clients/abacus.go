@@ -39,13 +39,13 @@ func (*abacusClient) Predict(text string) (string, error, bool) {
 	if err != nil {
 		return "", err, false
 	}
+	defer res.Body.Close()
 
 	// TODO return error from abacus
 	if res.StatusCode != http.StatusOK {
 		return "", errors.New("Error occured in abacus"), false
 	}
 
-	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 
 	var algoResponse algorithmResponser

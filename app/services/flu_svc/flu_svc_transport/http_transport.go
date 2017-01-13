@@ -93,29 +93,27 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 
 		// This has to be done for chutiya paytm dev
 		if c.Keys["show_old"] == true {
-			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), http.StatusOK, models.JsonF{"success": true,
-				"flu_id":       flu.ID,
-				"reference_id": flu.ReferenceId,
-				"tag":          flu.Tag}))
-
 			c.JSON(http.StatusOK, gin.H{
 				"success":      true,
 				"flu_id":       flu.ID,
 				"reference_id": flu.ReferenceId,
 				"tag":          flu.Tag,
 			})
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), http.StatusOK, models.JsonF{"success": true,
+				"flu_id":       flu.ID,
+				"reference_id": flu.ReferenceId,
+				"tag":          flu.Tag}))
 		} else {
 			fluResp := fluPostResponse{Id: flu.ID,
 				ReferenceId: flu.ReferenceId,
 				Tag:         flu.Tag}
 
-			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), http.StatusOK, models.JsonF{"success": true,
-				"feed_line_unit": fluResp}))
-
 			c.JSON(http.StatusOK, gin.H{
 				"success":        true,
 				"feed_line_unit": fluResp,
 			})
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), http.StatusOK, models.JsonF{"success": true,
+				"feed_line_unit": fluResp}))
 		}
 	}
 }

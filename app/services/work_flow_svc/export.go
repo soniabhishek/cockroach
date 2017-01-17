@@ -9,6 +9,7 @@ import (
 type IStepConfigSvc interface {
 	GetCrowdsourcingStepConfig(stepId uuid.UUID) (models.CrowdsourcingConfig, error)
 	GetTransformationStepConfig(stepId uuid.UUID) (models.TransformationConfig, error)
+	GetValidationStepConfig(stepId uuid.UUID) (models.ValidationConfig, error)
 	GetBifurcationStepConfig(stepId uuid.UUID) (models.BifurcationConfig, error)
 	GetUnificationStepConfig(stepId uuid.UUID) (models.UnificationConfig, error)
 	GetAlgorithmStepConfig(stepId uuid.UUID) (models.AlgorithmConfig, error)

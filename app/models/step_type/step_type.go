@@ -21,6 +21,7 @@ const (
 	StartStep
 	EmptyStep
 	Test
+	Validation
 )
 
 func (s *StepType) Value() (driver.Value, error) {
@@ -57,6 +58,7 @@ var stepTypeNames = map[StepType]string{
 	StartStep:        "StartStep",
 	EmptyStep:        "EmptyStep",
 	Test:             "Test",
+	Validation:       "Validation",
 }
 
 func (s StepType) String() string {

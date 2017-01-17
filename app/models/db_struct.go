@@ -243,17 +243,6 @@ type KnexMigrationsLock struct {
 	IsLocked sql.NullInt64 `db:"is_locked" json:"is_locked" bson:"is_locked"`
 }
 
-type LogicGate struct {
-	ID            uuid.UUID `db:"id" json:"id" bson:"_id"`
-	InputTemplate JsonF     `db:"input_template" json:"input_template" bson:"input_template"`
-	Formula       int       `db:"formula" json:"formula" bson:"formula"`
-}
-
-type LogicGateFormula struct {
-	ID   int            `db:"id" json:"id" bson:"_id"`
-	Name sql.NullString `db:"name" json:"name" bson:"name"`
-}
-
 type MacroTask struct {
 	ID        uuid.UUID   `db:"id" json:"id" bson:"_id"`
 	Label     string      `db:"label" json:"label" bson:"label"`

@@ -20,9 +20,9 @@ var expression_field = "expression"
 
 var expRegEx = "{((.*?))}"
 
-func LogicCustom(flu feed_line.FLU, l models.LogicGate) (value bool, err error) {
+func LogicCustom(flu feed_line.FLU, l models.JsonF) (value bool, err error) {
 
-	options, ok1 := l.InputTemplate["options"].(map[string]interface{})
+	options, ok1 := l["options"].(map[string]interface{})
 	exp, ok2 := options[expression_field].(string)
 	if !ok1 || !ok2 {
 		return false, ErrMalformedLogicOptions

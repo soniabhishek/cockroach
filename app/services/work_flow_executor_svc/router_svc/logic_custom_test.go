@@ -11,66 +11,72 @@ func TestLogicCustom(t *testing.T) {
 
 	var logicGateTestCases = []logicGateTestCase{
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "StringContains({xyz},ToUpper('ma'),'MAN')",
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "StringContains({efgh},1)",
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "StringLength({xyz})==3",
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "IsNull({arc})",
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "IsNull({arc}) || {arc}==2",
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  ErrPropNotFoundInFluBuild,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "IsNull({arc})?false:{arc}>3",
-					},
+					}},
 				},
 			},
 			Result: false,
@@ -78,77 +84,84 @@ func TestLogicCustom(t *testing.T) {
 		},
 
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "IsNull({nostring})",
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "IsNull({nilfield})",
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "IsNull({efgh})",
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "{bcd}==1",
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  ErrPropNotFoundInFluBuild,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "(ToUpper({ijkl})+ToLower({xyz}))=='DOGman'",
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "{pqrs} && {abcd} <3 && {xyz} == 'MAN' && !IsNull({arc})",
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
+					"logic": "custom",
 					"options": map[string]interface{}{
 						expression_field: "{pqrs} && {abCD} <3 && {xyz} in ('man','woman') && !IsNull({arc})",
-					},
+					}},
 				},
 			},
 			Result: false,
@@ -170,7 +183,7 @@ func TestLogicCustom(t *testing.T) {
 	}
 	for i, testCase := range logicGateTestCases {
 
-		out, err := LogicCustom(flu, testCase.LogicGate)
+		out, err := EvaluateLogics(flu, testCase.LogicGate)
 		assert.Equal(t, testCase.Error, err, "index:", i)
 		assert.EqualValues(t, testCase.Result, out, "index:", i)
 	}
@@ -179,11 +192,12 @@ func TestLogicCustom(t *testing.T) {
 
 func BenchmarkLogic2(b *testing.B) {
 
-	logicGate := models.LogicGate{
-		InputTemplate: models.JsonF{
+	logicGate := LogicGate{
+		InputTemplate: []models.JsonF{{
+			"logic": "custom",
 			"options": map[string]interface{}{
 				expression_field: "abcd >1 || xyz == 'man' || IsNull(arc)",
-			},
+			}},
 		},
 	}
 
@@ -199,7 +213,7 @@ func BenchmarkLogic2(b *testing.B) {
 				},
 			},
 		}
-		LogicCustom(flu, logicGate)
+		EvaluateLogics(flu, logicGate)
 	}
 
 }

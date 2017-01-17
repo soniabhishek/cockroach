@@ -1,16 +1,16 @@
 package router_svc
 
 import (
-	"fmt"
 	"testing"
 
+	"fmt"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/stretchr/testify/assert"
 )
 
 type logicGateTestCase struct {
-	LogicGate models.LogicGate
+	LogicGate LogicGate
 	Result    bool
 	Error     error
 }
@@ -19,37 +19,37 @@ func TestLogic_Continue(t *testing.T) {
 
 	var logicGateTestCases = []logicGateTestCase{
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "continue",
-				},
+				}},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "continues",
-				},
+				}},
 			},
 			Result: false,
 			Error:  ErrLogicNotFound,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic12": "continue",
-				},
+				}},
 			},
 			Result: false,
 			Error:  ErrLogicKeyNotFound,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": 123,
-				},
+				}},
 			},
 			Result: false,
 			Error:  ErrLogicKeyNotValid,
@@ -59,7 +59,7 @@ func TestLogic_Continue(t *testing.T) {
 	var flu feed_line.FLU
 	for i, testCase := range logicGateTestCases {
 
-		out, err := Logic(flu, testCase.LogicGate)
+		out, err := EvaluateLogics(flu, testCase.LogicGate)
 		assert.Equal(t, testCase.Error, err, "index:", i)
 		assert.EqualValues(t, testCase.Result, out, "index:", i)
 	}
@@ -70,73 +70,73 @@ func TestLogic_Boolean(t *testing.T) {
 
 	var logicGateTestCases = []logicGateTestCase{
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "boolean",
-				},
+				}},
 			},
 			Result: false,
 			Error:  ErrMalformedLogicOptions,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "boolean",
 					"options": map[string]interface{}{
 						"blah": "blah",
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  ErrMalformedLogicOptions,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "boolean",
 					"options": map[string]interface{}{
 						"field_name":     "blah",
 						"should_be_true": "asd",
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  ErrMalformedLogicOptions,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "boolean",
 					"options": map[string]interface{}{
 						"field_name":     "blah",
 						"should_be_true": true,
-					},
+					}},
 				},
 			},
 			Result: false,
-			Error:  nil,
+			Error:  ErrMalformedLogicOptions,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "boolean",
 					"options": map[string]interface{}{
 						"field_name":     "abcd",
 						"should_be_true": true,
-					},
+					}},
 				},
 			},
 			Result: false,
-			Error:  nil,
+			Error:  ErrMalformedLogicOptions,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "boolean",
 					"options": map[string]interface{}{
 						"field_name":     "pqrs",
 						"should_be_true": true,
-					},
+					}},
 				},
 			},
 			Result: true,
@@ -154,7 +154,7 @@ func TestLogic_Boolean(t *testing.T) {
 	}
 	for i, testCase := range logicGateTestCases {
 
-		out, err := Logic(flu, testCase.LogicGate)
+		out, err := EvaluateLogics(flu, testCase.LogicGate)
 		assert.Equal(t, testCase.Error, err, "index:", i)
 		assert.EqualValues(t, testCase.Result, out, "index:", i)
 	}
@@ -165,51 +165,51 @@ func TestLogic_StringEquality(t *testing.T) {
 
 	var logicGateTestCases = []logicGateTestCase{
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "string_equal",
-				},
+				}},
 			},
 			Result: false,
 			Error:  ErrMalformedLogicOptions,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "string_equal",
 					"options": map[string]interface{}{
 						"field_name":      "mnop",
 						"should_be_equal": true,
 						"field_value":     "Hello",
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "string_equal",
 					"options": map[string]interface{}{
 						"field_name":      "mnop",
 						"should_be_equal": false,
 						"field_value":     "Lollo",
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "string_equal",
 					"options": map[string]interface{}{
 						"field_name":      "mnop",
 						"should_be_equal": false,
 						"field_value":     map[string]interface{}{"asd": 1},
-					},
+					}},
 				},
 			},
 			Result: false,
@@ -228,7 +228,7 @@ func TestLogic_StringEquality(t *testing.T) {
 	}
 	for i, testCase := range logicGateTestCases {
 
-		out, err := Logic(flu, testCase.LogicGate)
+		out, err := EvaluateLogics(flu, testCase.LogicGate)
 		assert.Equal(t, testCase.Error, err, "index:", i)
 		assert.EqualValues(t, testCase.Result, out, "index:", i)
 	}
@@ -239,65 +239,65 @@ func TestLogic_ContainedIn(t *testing.T) {
 
 	var logicGateTestCases = []logicGateTestCase{
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "contained_in",
 					"options": map[string]interface{}{
 						"field_name":             "mnop",
 						"should_be_contained_in": true,
 						"field_value":            "Hello, Sallo, Fallo, Halo",
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "contained_in",
 					"options": map[string]interface{}{
 						"field_name":             "mnop",
 						"should_be_contained_in": true,
 						"field_value":            "Hell",
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "contained_in",
 					"options": map[string]interface{}{
 						"field_name":             "mnop",
 						"should_be_contained_in": false,
 						"field_value":            map[string]interface{}{"asd": 1},
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  ErrMalformedLogicOptions,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "contained_in",
-				},
+				}},
 			},
 			Result: false,
 			Error:  ErrMalformedLogicOptions,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "contained_in",
 					"options": map[string]interface{}{
 						"field_name":             "abcd",
 						"should_be_contained_in": true,
 						"field_value":            "1,2",
-					},
+					}},
 				},
 			},
 			Result: true,
@@ -316,7 +316,7 @@ func TestLogic_ContainedIn(t *testing.T) {
 	}
 	for i, testCase := range logicGateTestCases {
 
-		out, err := Logic(flu, testCase.LogicGate)
+		out, err := EvaluateLogics(flu, testCase.LogicGate)
 		assert.Equal(t, testCase.Error, err, "index:", i)
 		assert.EqualValues(t, testCase.Result, out, "index:", i)
 	}
@@ -327,88 +327,88 @@ func TestLogic_IsNull(t *testing.T) {
 
 	var logicGateTestCases = []logicGateTestCase{
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "is_null",
 					"options": map[string]interface{}{
 						"field_name":     "mnop",
 						"should_be_null": true,
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "is_null",
 					"options": map[string]interface{}{
 						"field_name":     "abcd",
 						"should_be_null": true,
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "is_null",
 					"options": map[string]interface{}{
 						"field_name":     "pqrs",
 						"should_be_null": true,
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "is_null",
 					"options": map[string]interface{}{
 						"field_name":     "mnop",
 						"should_be_null": false,
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "is_null",
 					"options": map[string]interface{}{
 						"field_name":     "xyz",
 						"should_be_null": false,
-					},
+					}},
 				},
 			},
 			Result: false,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "is_null",
 					"options": map[string]interface{}{
 						"field_name":     "nilfield",
 						"should_be_null": true,
-					},
+					}},
 				},
 			},
 			Result: true,
 			Error:  nil,
 		},
 		logicGateTestCase{
-			LogicGate: models.LogicGate{
-				InputTemplate: models.JsonF{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{{
 					"logic": "is_null",
-				},
+				}},
 			},
 			Result: false,
 			Error:  ErrMalformedLogicOptions,
@@ -428,7 +428,7 @@ func TestLogic_IsNull(t *testing.T) {
 	}
 	for i, testCase := range logicGateTestCases {
 
-		out, err := Logic(flu, testCase.LogicGate)
+		out, err := EvaluateLogics(flu, testCase.LogicGate)
 		assert.Equal(t, testCase.Error, err, "index:", i)
 		assert.EqualValues(t, testCase.Result, out, "index:", i)
 	}

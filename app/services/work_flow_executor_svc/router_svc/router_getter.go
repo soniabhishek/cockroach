@@ -19,6 +19,10 @@ type routeGetter struct {
 	stepRepo       step_repo.IStepRepo
 }
 
+type LogicGate struct {
+	InputTemplate []models.JsonF `db:"input_template" json:"input_template" bson:"input_template"`
+}
+
 func (r *routeGetter) GetNextStep(flu feed_line.FLU) (models.Step, error) {
 
 	var step models.Step
@@ -30,9 +34,17 @@ func (r *routeGetter) GetNextStep(flu feed_line.FLU) (models.Step, error) {
 
 	for _, route := range routes {
 
-		var logicGate models.LogicGate
-		logicGate.InputTemplate = route.Config
-		correct, err := Logic(flu, logicGate)
+		var logicGate LogicGate
+
+		config := route.Config["input_template"].([]interface{})
+
+		logicGate.InputTemplate = make([]models.JsonF, len(config))
+
+		for index, value := range config {
+			logicGate.InputTemplate[index].Scan(value)
+		}
+
+		correct, err := EvaluateLogics(flu, logicGate)
 		if err != nil {
 			return step, err
 		} else if correct {

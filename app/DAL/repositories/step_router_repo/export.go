@@ -9,7 +9,6 @@ import (
 
 type IStepRoutesRepo interface {
 	GetRoutesByStepId(stepId uuid.UUID) ([]models.Route, error)
-	GetRoutesWithLogicByStepId(stepId uuid.UUID) ([]models.RouteWithLogicGate, error)
 	Save(models.Route) error
 	UpdateMany([]models.Route) (int64, error)
 	DeleteMany([]models.Route) (int64, error)

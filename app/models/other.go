@@ -44,11 +44,6 @@ type BatchProcess struct {
 	MacroTaskId uuid.UUID
 }
 
-type RouteWithLogicGate struct {
-	Route
-	LogicGate LogicGate
-}
-
 type WorkflowContainer struct {
 	WorkFlow
 	Steps  []Step                  `json:"steps"`

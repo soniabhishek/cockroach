@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/Knetic/govaluate"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
+	"github.com/crowdflux/angel/app/DAL/imdb"
 	"github.com/crowdflux/angel/app/models"
 	"regexp"
 	"strings"
-	"github.com/crowdflux/angel/app/DAL/imdb"
 )
 
 // to cache the expressions to be reused

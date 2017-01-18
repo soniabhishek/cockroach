@@ -1,18 +1,18 @@
 package flu_svc
 
 import (
-	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
-	"github.com/crowdflux/angel/app/plog"
-	"github.com/crowdflux/angel/app/models/uuid"
-	"github.com/crowdflux/angel/app/models"
-	"errors"
-	"os"
 	"encoding/csv"
-	"sync"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
+	"errors"
 	"github.com/crowdflux/angel/app/DAL/imdb"
+	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
+	"github.com/crowdflux/angel/app/models"
+	"github.com/crowdflux/angel/app/models/uuid"
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"io"
+	"os"
+	"sync"
 )
 
 //This will Initialize and Return a Flu from a csv row
@@ -100,9 +100,9 @@ func generateFileAndWriter(filePath string) (file *os.File, fileWriter *csv.Writ
 	return
 }
 
-func validateFluInBatch(fv flu_validator.IFluValidatorService, errorWriterChan chan []string, batcherChan, validatorChan chan models.FeedLineUnit){
+func validateFluInBatch(fv flu_validator.IFluValidatorService, errorWriterChan chan []string, batcherChan, validatorChan chan models.FeedLineUnit) {
 	var wg sync.WaitGroup
-	for i := 0; i < 50 ; i ++ {
+	for i := 0; i < 50; i++ {
 		wg.Add(1)
 		go func(valChan chan models.FeedLineUnit) {
 			for {
@@ -129,7 +129,7 @@ func validateFluInBatch(fv flu_validator.IFluValidatorService, errorWriterChan c
 	close(batcherChan)
 }
 
-func processFluFromCSV(fileReader *csv.Reader, projectId uuid.UUID, errorWriterChan chan []string, validatorChan chan models.FeedLineUnit){
+func processFluFromCSV(fileReader *csv.Reader, projectId uuid.UUID, errorWriterChan chan []string, validatorChan chan models.FeedLineUnit) {
 	cnt := 0
 	for {
 		row, err := fileReader.Read()

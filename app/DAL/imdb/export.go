@@ -9,7 +9,7 @@ type IAngelImdb interface {
 }
 
 type ICmap interface {
-	get(key interface{}) (val interface{},ok bool)
+	get(key interface{}) (val interface{}, ok bool)
 	set(key, value interface{})
 	delete(key interface{})
 	reset()

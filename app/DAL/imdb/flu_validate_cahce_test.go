@@ -1,9 +1,9 @@
 package imdb
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"github.com/crowdflux/angel/app/models"
+	"github.com/stretchr/testify/assert"
+	"testing"
 
 	"github.com/crowdflux/angel/app/models/uuid"
 )

@@ -26,14 +26,14 @@ func (v *validationStep) processFlu(flu feed_line.FLU) {
 		return
 	}
 
-	transformedBuild, err := clients.GetMegatronClient().Validate(flu.Build, vStep.TemplateId)
+	isValidated, err := clients.GetMegatronClient().Validate(flu.Build, vStep.TemplateId)
 	if err != nil {
 		plog.Error("validation step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Validation, "ValidationError", flu.Redelivered())
 		return
 	}
 
-	flu.Build[vStep.AnswerKey] = transformedBuild
+	flu.Build[vStep.AnswerKey] = isValidated
 
 	v.finishFlu(flu)
 

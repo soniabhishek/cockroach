@@ -61,6 +61,11 @@ func (s *stepConfigSvcMock) GetAlgorithmStepConfig(stepId uuid.UUID) (config mod
 func (s *stepConfigSvcMock) GetTransformationStepConfig(stepId uuid.UUID) (config models.TransformationConfig, err error) {
 	return
 }
+
+func (s *stepConfigSvcMock) GetValidationStepConfig(stepId uuid.UUID) (config models.ValidationConfig, err error) {
+	return
+}
+
 func (s *stepConfigSvcMock) GetBifurcationStepConfig(stepId uuid.UUID) (config models.BifurcationConfig, err error) {
 	return
 }

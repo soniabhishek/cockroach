@@ -33,7 +33,7 @@ func (v *validationStep) processFlu(flu feed_line.FLU) {
 		return
 	}
 
-	flu.Build.Merge(transformedBuild)
+	flu.Build[vStep.AnswerKey] = transformedBuild
 
 	v.finishFlu(flu)
 

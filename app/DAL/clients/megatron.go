@@ -47,7 +47,7 @@ func (*megatronClient) Transform(input models.JsonF, templateId string) (models.
 
 	bty, _ := json.Marshal(transformationRequest{templateId, input})
 
-	req, _ := http.NewRequest("POST", validationUrl, bytes.NewBuffer(bty))
+	req, _ := http.NewRequest("POST", transformationUrl, bytes.NewBuffer(bty))
 	req.Header.Add("content-type", "application/json")
 
 	res, err := http.DefaultClient.Do(req)
@@ -76,18 +76,18 @@ func (*megatronClient) Validate(input models.JsonF, templateId string) (bool, er
 
 	bty, _ := json.Marshal(validationRequest{templateId, input})
 
-	req, _ := http.NewRequest("POST", transformationUrl, bytes.NewBuffer(bty))
+	req, _ := http.NewRequest("POST", validationUrl, bytes.NewBuffer(bty))
 	req.Header.Add("content-type", "application/json")
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 
-		return nil, errors.New("Error occured in megatron")
+		return false, errors.New("Error occured in megatron")
 	}
 
 	body, _ := ioutil.ReadAll(res.Body)

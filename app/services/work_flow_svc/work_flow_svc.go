@@ -90,11 +90,13 @@ func (s *stepConfigSvc) GetValidationStepConfig(stepId uuid.UUID) (tc models.Val
 		return
 	}
 	templateIdString, ok := templateID.(string)
-	if !ok {
+	answerKeyString, ok2 := answerKey.(string)
+	if !ok || !ok2 {
 		err = ErrConfigNotFound
 		return
 	}
 	tc.TemplateId = strings.TrimSpace(templateIdString)
+	tc.TemplateId = strings.TrimSpace(answerKeyString)
 	return
 }
 

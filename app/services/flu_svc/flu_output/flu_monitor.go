@@ -206,6 +206,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*F
 		plog.Error("HTTP Error:", err)
 		return &FluResponse{}, status_codes.UnknownFailure
 	}
+	defer resp.Body.Close()
 
 	fluResp, status := validationErrorCallback(resp)
 	fluResp.FluStatusCode = status
@@ -329,14 +330,7 @@ func didWeSendThis(fl models.FeedLineUnit, fluOutputObj []fluOutputStruct) bool 
 }
 
 func printFluBuff(flag string) {
-	if plog.IsTraceEnabled() {
-		mutex.RLock()
-		plog.Trace(flag, "OUTPUT FLU BUFF")
-		for projectId := range feedLinePipe {
-			plog.Trace("PROJ_ID:", projectId, "|BUFF-SIZE:", len(feedLinePipe[projectId].feedLine))
-		}
-		mutex.RUnlock()
-	}
+
 }
 
 func shouldRetryHttp(projectId uuid.UUID) bool {

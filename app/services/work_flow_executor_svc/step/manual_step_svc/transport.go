@@ -161,7 +161,7 @@ func FlattenCSV(file string, url string, manualStepId uuid.UUID) (fileUrl string
 		plog.Error("Error", err)
 		return constants.Empty, err
 	}
-
+	defer res.Body.Close()
 	// Check the response
 	if res.StatusCode != http.StatusOK {
 		err = fmt.Errorf("bad status: %s", res.Status)

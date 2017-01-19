@@ -184,7 +184,7 @@ func getUploadStatus(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		response, err := fluService.GetUploadStatus(c.Param("projectId"))
 		if err != nil {
-			services.SendFailureResponse(c, "FLUSVC", "No Such ProjectID Exist", nil)
+			services.SendFailureResponse(c, "FLS_040", "No Such ProjectID Exist", nil)
 		} else {
 			services.SendSuccessResponse(c, response)
 		}

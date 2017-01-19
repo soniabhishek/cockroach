@@ -69,4 +69,5 @@ type FluUploadStats struct {
 	TotalFluCount     int                               `json:"total_flu_count"`
 	CompletedFluCount int                               `json:"completed_flu_count"`
 	ErrorFluCount     int                               `json:"error_flu_count"`
+	ErrorCSVFile      string                            `json:"error_csv_file, omitempty"`
 }

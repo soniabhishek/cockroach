@@ -96,7 +96,7 @@ func (s *stepConfigSvc) GetValidationStepConfig(stepId uuid.UUID) (tc models.Val
 		return
 	}
 	tc.TemplateId = strings.TrimSpace(templateIdString)
-	tc.TemplateId = strings.TrimSpace(answerKeyString)
+	tc.AnswerKey = strings.TrimSpace(answerKeyString)
 	return
 }
 

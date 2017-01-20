@@ -24,6 +24,10 @@ func (*stepConfigSvcMock) GetCrowdsourcingStepConfig(stepId uuid.UUID) (models.C
 	panic("implement me")
 }
 
+func (s *stepConfigSvcMock) GetValidationStepConfig(stepId uuid.UUID) (config models.ValidationConfig, err error) {
+	return
+}
+
 func (s *stepConfigSvcMock) GetTransformationStepConfig(stepId uuid.UUID) (config models.TransformationConfig, err error) {
 	return
 }

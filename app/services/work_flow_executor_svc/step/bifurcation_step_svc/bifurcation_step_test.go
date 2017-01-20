@@ -22,6 +22,10 @@ func (s *stepConfigSvcMock) GetTransformationStepConfig(stepId uuid.UUID) (confi
 func (s *stepConfigSvcMock) GetAlgorithmStepConfig(stepId uuid.UUID) (config models.AlgorithmConfig, err error) {
 	return
 }
+func (s *stepConfigSvcMock) GetValidationStepConfig(stepId uuid.UUID) (config models.ValidationConfig, err error) {
+	return
+}
+
 func (s *stepConfigSvcMock) GetCrowdsourcingStepConfig(stepId uuid.UUID) (config models.CrowdsourcingConfig, err error) {
 	return
 }

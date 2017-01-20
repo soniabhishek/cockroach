@@ -43,13 +43,13 @@ func (*megatronClient) Transform(input models.JsonF, templateId string) (models.
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 
 		return nil, errors.New("Error occured in megatron")
 	}
 
-	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 
 	var transformResp transformationResponse

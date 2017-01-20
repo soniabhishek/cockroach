@@ -73,3 +73,18 @@ func TestCreateJsonFile(t *testing.T) {
 	_, _, err := createJSONFile(flus, "./", uuid.FromStringOrNil("f90f4e0c-c616-43ca-a83c-7d7b8dcf5bd5"))
 	assert.NoError(t, err)
 }
+
+func TestCsvBatcher(t *testing.T) {
+	c := make(chan models.FeedLineUnit)
+	tim := time.Tick(time.Second * 20)
+	fmt.Println("Reached Here")
+	Batcher(c, 100)
+	go func() {
+		for range tim {
+			close(c)
+			break
+		}
+	}()
+	fmt.Println("Will it Reach Here")
+	c <- models.FeedLineUnit{}
+}

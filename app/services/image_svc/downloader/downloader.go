@@ -67,13 +67,13 @@ func download(image models.ImageContainer, folderName string, c chan int) {
 		fmt.Println("Error in getting image: ", err)
 		return
 	}
+	defer resp.Body.Close()
 
 	// Read the content
 	var bodyBytes []byte
 	if resp.Body != nil {
 		bodyBytes, _ = ioutil.ReadAll(resp.Body)
 	}
-	defer resp.Body.Close()
 
 	err = clients.GetS3Client().Upload(bytes.NewReader(bodyBytes), "playmentproduction", "/public/"+folderName+"/"+image.Id+".jpeg")
 	if err != nil {

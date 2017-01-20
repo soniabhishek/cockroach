@@ -56,7 +56,7 @@ func Debug(tag string, args ...interface{}) {
 
 func Trace(tag string, args ...interface{}) {
 
-	if IsTraceEnabled() {
+	if levelTrace >= plogLevel {
 		_, fn, line, _ := runtime.Caller(1)
 		logr.WithFields(logrus.Fields{
 			"level": "trace",
@@ -65,8 +65,4 @@ func Trace(tag string, args ...interface{}) {
 			"args":  fmt.Sprintf("%+v", args),
 		}).Debugln(tag)
 	}
-}
-
-func IsTraceEnabled() bool {
-	return levelTrace >= plogLevel
 }

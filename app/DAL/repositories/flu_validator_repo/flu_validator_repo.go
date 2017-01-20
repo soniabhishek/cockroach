@@ -3,6 +3,7 @@ package flu_validator_repo
 import (
 	"time"
 
+	"github.com/crowdflux/angel/app/DAL/imdb"
 	"github.com/crowdflux/angel/app/DAL/repositories"
 	"github.com/crowdflux/angel/app/DAL/repositories/queries"
 	"github.com/crowdflux/angel/app/models"
@@ -13,13 +14,21 @@ import (
 const fluValidatorTable string = "input_flu_validator"
 
 type fluValidatorRepo struct {
-	db repositories.IDatabase
+	db   repositories.IDatabase
+	imdb *imdb.FluValidateCache
 }
 
 var _ IFluValidatorRepo = &fluValidatorRepo{}
 
 func (f *fluValidatorRepo) GetValidatorsForProject(projectId uuid.UUID, tag string) (validators []models.FLUValidator, err error) {
-	_, err = f.db.Select(&validators, "select * from input_flu_validator where project_id = $1 and (tag = $2 or tag = '*')", projectId, tag)
+	validators, err = f.imdb.Get(projectId)
+	if err != nil {
+		_, err = f.db.Select(&validators, "select * from input_flu_validator where project_id = $1 and (tag = $2 or tag = '*')", projectId, tag)
+		if err != nil {
+			return
+		}
+		f.imdb.Set(projectId, validators)
+	}
 	return
 }
 

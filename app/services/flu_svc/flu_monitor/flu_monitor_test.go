@@ -33,9 +33,9 @@ func TestFluMonitor_AddToOutputQueue(t *testing.T) {
 	fm := New()
 	sendFlus(*fm)
 
-	time.Sleep(time.Duration(25) * time.Second)
+	time.Sleep(time.Duration(10) * time.Second)
 	//project with flu_count limit 1
-	assert.Equal(t, 60, requestCountP1)
+	assert.Equal(t, 9, requestCountP1)
 	//project with no flu_count limit per request
 	assert.Equal(t, 1, requestCountP2)
 }
@@ -45,7 +45,7 @@ func sendFlus(fm FluMonitor) {
 	pID2 := uuid.FromStringOrNil("afa0c4f4-4998-4412-b3f2-039ae32b13ab")
 
 	go func() {
-		for i := 0; i < 20; i++ {
+		for i := 0; i < 3; i++ {
 			flu := models.FeedLineUnit{
 				ID:          uuid.NewV4(),
 				ReferenceId: "38a27427-9474-4e76-bd77-bc7dee2463e5",
@@ -63,7 +63,7 @@ func sendFlus(fm FluMonitor) {
 		}
 	}()
 	go func() {
-		for i := 0; i < 40; i++ {
+		for i := 0; i < 10; i++ {
 			flu := models.FeedLineUnit{
 				ID:          uuid.NewV4(),
 				ReferenceId: "38a27427-9474-4e76-bd77-bc7dee2463e5",

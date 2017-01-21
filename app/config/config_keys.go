@@ -36,7 +36,7 @@ const (
 	CROWDY_AUTH_KEY        = configKey("crowdy.authKey")
 	AUTHER_PLAYMENT_SECRET = configKey("auther.playment_secret")
 
-	RETRY_TIME_PERIOD           = configKey("fluMonitor.retry_time_period")
+	RETRY_TIME_PERIOD           = configKey("fluMonitor.retry_time_period_ms")
 	DEFAULT_FLU_THRESHOLD_COUNT = configKey("fluMonitor.default_flu_threshold_count")
 	DEFAULT_CLIENT_QPS          = configKey("fluMonitor.default_client_qps")
 	FLU_RETRY_THRESHOLD         = configKey("fluMonitor.flu_retry_threshold")

@@ -16,6 +16,7 @@ import (
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/manual_step_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/transformation_step_csv"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/unification_step_svc"
+	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step/validation_step_svc"
 )
 
 type routeTable map[step_type.StepType]*feed_line.Fl
@@ -49,6 +50,7 @@ func (sr *stepRouter) connectAll() {
 	var unificationStepConn IConnector = unification_step_svc.StdUnificationStep
 	var emptyStepConn IConnector = empty_step_svc.StdEmptyStep
 	var algorithmStepConn IConnector = algorithm_step_svc.StdAlgorithmStep
+	var validationStepConn IConnector = validation_step_svc.StdValidationStep
 
 	sr.routeTable = routeTable{
 
@@ -61,6 +63,7 @@ func (sr *stepRouter) connectAll() {
 		step_type.Unification:      unificationStepConn.Connect(&sr.InQ),
 		step_type.Error:            manualStepConn.Connect(&sr.InQ),
 		step_type.EmptyStep:        emptyStepConn.Connect(&sr.InQ),
+		step_type.Validation:       validationStepConn.Connect(&sr.InQ),
 
 		// Special case
 		// Map route end to Processed Flu Queue (ProcessedFluQ)

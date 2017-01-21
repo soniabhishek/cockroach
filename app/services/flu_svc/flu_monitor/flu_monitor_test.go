@@ -34,9 +34,9 @@ func TestFluMonitor_AddToOutputQueue(t *testing.T) {
 	sendFlus(*fm)
 
 	time.Sleep(time.Duration(10) * time.Second)
-	//project with flu_count limit 3
-	assert.Equal(t, 3, requestCountP1)
-	//project with no flu_count limit per request
+	//project with flu_count limit 3, invalid response with 2 retries
+	assert.Equal(t, 12, requestCountP1)
+	//project with no flu_count limit per request, valid response
 	assert.Equal(t, 10, requestCountP2)
 }
 
@@ -45,7 +45,7 @@ func sendFlus(fm FluMonitor) {
 	pID2 := uuid.FromStringOrNil("afa0c4f4-4998-4412-b3f2-039ae32b13ab")
 
 	go func() {
-		for i := 0; i < 9; i++ {
+		for i := 0; i < 10; i++ {
 			flu := models.FeedLineUnit{
 				ID:          uuid.NewV4(),
 				ReferenceId: "38a27427-9474-4e76-bd77-bc7dee2463e5",

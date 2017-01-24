@@ -22,10 +22,10 @@ type megatronClient struct {
 }
 
 type transformationResponse struct {
-	Output   models.JsonF `json:"output"`
-	Warnings []string     `json:"warnings"`
-	Success  bool         `json:"success"`
-	Error    interface{}  `json:"error"`
+	Output   models.JsonF  `json:"output"`
+	Warnings []interface{} `json:"warnings"`
+	Success  bool          `json:"success"`
+	Error    interface{}   `json:"error"`
 }
 
 type validationResponse struct {

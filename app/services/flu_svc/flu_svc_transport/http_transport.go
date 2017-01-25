@@ -90,11 +90,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 				err = plerrors.ServiceError{"PR_0001", "Project not found"}
 			}
 
-			if _, ok := err.(flu_validator.DataValidationError); !ok {
-				plog.Error("Error while adding flu to workflow ", err, flu)
-			} else {
-				plog.Info("FluSvc", "Error occured while adding flu", err.Error(), "ReferenceID: "+flu.ReferenceId)
-			}
+			plog.Error("Error while adding flu to workflow. ", err, flu)
 
 			httpCode, resp := showErrorResponse(c, err)
 			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))

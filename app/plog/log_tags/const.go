@@ -8,6 +8,8 @@ var USER_ID = &tag.Tag{"user_id"}
 var CLIENT_ID = &tag.Tag{"client_id"}
 
 var RESPONSE_BODY = &tag.Tag{"response_body"}
+var REQUEST_BODY = &tag.Tag{"request_body"}
+
 var HEADER = &tag.Tag{"header"}
 
 var RECOVER = &tag.Tag{"recover"}

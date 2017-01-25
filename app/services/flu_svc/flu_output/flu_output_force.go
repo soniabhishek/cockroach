@@ -159,7 +159,7 @@ func sendBackToClientCustom(fpsModel models.ProjectConfiguration, fluProjectResp
 		plog.Error("Flu_output", err, plog.Message("HTTP Error:"))
 		return &FluResponse{}, status_codes.UnknownFailure
 	}
-
+	defer resp.Body.Close()
 	fluResp, status := validationErrorCallback(resp)
 	fluResp.FluStatusCode = status
 	return fluResp, status

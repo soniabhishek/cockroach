@@ -86,6 +86,34 @@ func TestStepConfigSvc_GetBifurcationStepConfig(t *testing.T) {
 	assert.EqualValues(t, 2, bc.Multiplication)
 
 }
+func TestStepConfigSvc_GetValidationStepConfig(t *testing.T) {
+	stepRepo := &stepRepoMock{IStepRepo: step_repo.New()}
+	stepConfigSvc := stepConfigSvc{
+		stepRepo: stepRepo,
+	}
+
+	stepRepo.StepToReturn = models.Step{}
+	_, err := stepConfigSvc.GetValidationStepConfig(uuid.NewV4())
+	assert.Error(t, err)
+
+	stepRepo.StepToReturn = models.Step{Config: models.JsonF{}}
+	_, err = stepConfigSvc.GetValidationStepConfig(uuid.NewV4())
+	assert.Error(t, err)
+
+	stepRepo.StepToReturn = models.Step{Config: models.JsonF{answerKey: 121, templateId: "123"}}
+	_, err = stepConfigSvc.GetValidationStepConfig(uuid.NewV4())
+	assert.Error(t, err)
+
+	stepRepo.StepToReturn = models.Step{Config: models.JsonF{answerKey: "121", templateId: 123}}
+	_, err = stepConfigSvc.GetValidationStepConfig(uuid.NewV4())
+	assert.Error(t, err)
+
+	stepRepo.StepToReturn = models.Step{Config: models.JsonF{answerKey: "ans", templateId: "temp"}}
+	vc, err := stepConfigSvc.GetValidationStepConfig(uuid.NewV4())
+	assert.NoError(t, err)
+	assert.EqualValues(t, "temp", vc.TemplateId)
+	assert.EqualValues(t, "ans", vc.AnswerKey)
+}
 
 func TestStepConfigSvc_GetAlgorithmStepConfig(t *testing.T) {
 

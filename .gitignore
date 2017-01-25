@@ -10,6 +10,7 @@ app/api/auther/prod.go
 
 node_modules
 uploads
+app_logs
 
 ### Windows ###
 # Windows image file caches

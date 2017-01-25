@@ -35,6 +35,7 @@ func BenchmarkFluUpload(b *testing.B) {
 	req, err := http.NewRequest("POST", "http://localhost:8999/api/v0/project/9e9f84e2-1ab7-4118-bd73-51af7a9ded61/csv/feedline", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	response, err := client.Do(req)
+	response.Body.Close()
 	fmt.Println(response, err)
 
 }

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"encoding/json"
 	"github.com/crowdflux/angel/app/DAL/repositories/projects_repo"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
@@ -15,22 +16,27 @@ import (
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 )
 
 //TODO Create another file for validator http transport. In future we may have to make a separate service for validatorss
 
 func AddHttpTransport(routerGroup *gin.RouterGroup) {
-
-	fluService := flu_svc.NewWithExposedValidators()
+	var fluService = flu_svc.NewWithExposedValidators()
 
 	routerGroup.POST("/project/:projectId/feedline", feedLineInputHandler(fluService))
-	routerGroup.POST("project/:projectId/csv/feedline", csvFLUGenerator(fluService))
 
-	routerGroup.GET("project/:projectId/upload/status", getUploadStatus(fluService))
 	routerGroup.GET("/project/:projectId/feedline/:feedlineId", feedLineGetHandler(fluService))
 
 	routerGroup.GET("/project/:projectId/validator", validatorGetHandler(fluService))
 	routerGroup.POST("/project/:projectId/validator", validatorUpdateHandler(fluService))
+}
+
+func HttpCSVFLUTransport(routerGroup *gin.RouterGroup) {
+	var fluService = flu_svc.NewWithExposedValidators()
+
+	routerGroup.POST("project/:projectId/csv/feedline", csvFLUGenerator(fluService))
+	routerGroup.GET("project/:projectId/upload/status", getUploadStatus(fluService))
 }
 
 //--------------------------------------------------------------------------------//
@@ -41,35 +47,41 @@ type fluPostResponse struct {
 	Tag         string    `json:"tag"`
 }
 
+var requestLogger = plog.NewLogger("inbound_request", "INFO", "FILE")
+
 //Inserts into mongo
 func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
 		requestTime := time.Now()
-		var flu models.FeedLineUnit
 
-		var projectId uuid.UUID
-		var err error
-		projectId, err = uuid.FromString(c.Param("projectId"))
+		projectId, err := uuid.FromString(c.Param("projectId"))
+
 		if err != nil {
-			plog.Error("http_transport", err, plog.Message("Invalid ProjectId from client"), plog.MessageWithParam(log_tags.PROJECT_ID, c.Param("projectId")))
-			showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
+			plog.Error("http_transport", err, plog.M("Invalid ProjectId from client"), plog.MP(log_tags.PROJECT_ID, c.Param("projectId")))
+			httpCode, resp := showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
+			requestLogger.Info(formatLog(requestTime, []byte{}, time.Since(requestTime), httpCode, resp))
 			return
 		}
 
-		// Validating JSON
-		if err = c.BindJSON(&flu); err != nil {
-			var body []byte
-			c.Request.Body.Read(body)
-			c.Request.Body.Close()
-			plog.Error("http_transport", err, plog.Message("Error binding flu from client"), plog.MessageWithParam(log_tags.RESPONSE_BODY, body))
-			showErrorResponse(c, plerrors.ErrMalformedJson)
+		body, err := ioutil.ReadAll(c.Request.Body)
+		if err != nil {
+			plog.Error("http_transport", err, plog.M("Error reading flu body from client"), plog.MessageWithParam(log_tags.REQUEST_BODY, body))
+			httpCode, resp := showErrorResponse(c, plerrors.ErrMalformedJson)
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))
+			return
+		}
+
+		// JSON to FLU
+		var flu models.FeedLineUnit
+		if err = json.Unmarshal(body, &flu); err != nil {
+			plog.Error("http_transport", err, plog.M("Error binding flu from client"), plog.MessageWithParam(log_tags.REQUEST_BODY, body))
+			httpCode, resp := showErrorResponse(c, plerrors.ErrMalformedJson)
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))
 			return
 		}
 		flu.ProjectId = projectId
-
-		plog.Info("Request Inbound. Reference: ", flu.ReferenceId, " Time : ", requestTime, " Tag : ", flu.Tag, " ProjectId : ", flu.ProjectId)
 
 		err = fluService.AddFeedLineUnit(&flu)
 		if err != nil {
@@ -77,8 +89,15 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 				//Temporary hack. Wait for schema refactoring
 				err = plerrors.ServiceError{"PR_0001", "Project not found"}
 			}
-			plog.Error("http_transport", err, plog.Message("Error while adding flu to workflow"), plog.MessageWithParam(log_tags.FLU, flu))
-			showErrorResponse(c, err)
+
+			if _, ok := err.(flu_validator.DataValidationError); !ok {
+				plog.Error("http_transport", err, plog.M("Error while adding flu to workflow "), plog.MessageWithParam(log_tags.FLU, flu))
+			} else {
+				plog.Info("FluSvc", "Error occured while adding flu", err.Error(), "ReferenceID: "+flu.ReferenceId)
+			}
+
+			httpCode, resp := showErrorResponse(c, err)
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))
 			return
 		}
 
@@ -90,17 +109,35 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 				"reference_id": flu.ReferenceId,
 				"tag":          flu.Tag,
 			})
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), http.StatusOK, models.JsonF{"success": true,
+				"flu_id":       flu.ID,
+				"reference_id": flu.ReferenceId,
+				"tag":          flu.Tag}))
 		} else {
+			fluResp := fluPostResponse{Id: flu.ID,
+				ReferenceId: flu.ReferenceId,
+				Tag:         flu.Tag}
+
 			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"feed_line_unit": fluPostResponse{
-					Id:          flu.ID,
-					ReferenceId: flu.ReferenceId,
-					Tag:         flu.Tag,
-				},
+				"success":        true,
+				"feed_line_unit": fluResp,
 			})
+			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), http.StatusOK, models.JsonF{"success": true,
+				"feed_line_unit": fluResp}))
 		}
 	}
+}
+
+func formatLog(requestTime time.Time, body []byte, duration time.Duration, httpCode int, response models.JsonF) []interface{} {
+
+	return []interface{}{
+		models.JsonF{"request_time": requestTime},
+		models.JsonF{"request_duration_ms": duration.Seconds() * 1000},
+		models.JsonF{"http_code": httpCode},
+		models.JsonF{"response": response},
+		models.JsonF{"body": string(body)},
+	}
+
 }
 
 //This Handler is for Generating flus via csv upload
@@ -113,7 +150,7 @@ func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 		//Validating ProjectId and checking if exist in database.
 		projectId, err := uuid.FromString(c.Param("projectId"))
 		if err != nil {
-			plog.Error("http_transport", err, plog.Message("Invalid ProjectId in CSV upload"), plog.MessageWithParam(log_tags.PROJECT_ID, c.Param("projectId")))
+			plog.Error("http_transport", err, plog.M("Invalid ProjectId in CSV upload"), plog.MP(log_tags.PROJECT_ID, c.Param("projectId")))
 			services.SendBadRequest(c, "FLS000", err.Error(), nil)
 			return
 		}
@@ -121,7 +158,7 @@ func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 		//Fetching descriptors for uploaded multipart file
 		file, header, err := c.Request.FormFile("upload")
 		if err != nil {
-			plog.Error("http_transport", err, plog.Message("problem in uploaded file"))
+			plog.Error("http_transport", err, plog.M("problem in uploaded file"))
 			services.SendBadRequest(c, "FLS002", err.Error(), nil)
 			return
 		}
@@ -132,7 +169,7 @@ func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 		plog.Info("Sent file for upload: ", filename)
 
 		if err := fluService.CsvCheckBasicValidation(file, filename, projectId); err != nil {
-			plog.Error("http_transport", err, plog.Message("Validation Failed for csv"))
+			plog.Error("http_transport", err, plog.M("Validation Failed for csv"))
 			services.SendBadRequest(c, "Fail", err.Error(), nil)
 			return
 		}
@@ -147,7 +184,7 @@ func getUploadStatus(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		response, err := fluService.GetUploadStatus(c.Param("projectId"))
 		if err != nil {
-			services.SendSuccessResponse(c, "No Such ProjectID Exist")
+			services.SendFailureResponse(c, "FLS_040", "No Such ProjectID Exist", nil)
 		} else {
 			services.SendSuccessResponse(c, response)
 		}
@@ -271,7 +308,7 @@ func validatorUpdateHandler(validatorSvc flu_validator.IFluValidatorService) gin
 //--------------------------------------------------------------------------------//
 //Helper
 
-func showErrorResponse(c *gin.Context, err error) {
+func showErrorResponse(c *gin.Context, err error) (statusCode int, resp models.JsonF) {
 
 	var msg interface{}
 
@@ -293,13 +330,16 @@ func showErrorResponse(c *gin.Context, err error) {
 		msg = err.Error()
 	}
 
-	statusCode := http.StatusOK
+	statusCode = http.StatusOK
 	if err == flu_errors.ErrRequestTimedOut {
 		statusCode = http.StatusGatewayTimeout
 	}
+	resp = models.JsonF{"error": msg,
+		"success": false}
 
 	c.JSON(statusCode, gin.H{
 		"error":   msg,
 		"success": false,
 	})
+	return
 }

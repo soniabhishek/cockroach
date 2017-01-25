@@ -78,6 +78,29 @@ func (s *stepConfigSvc) GetTransformationStepConfig(stepId uuid.UUID) (tc models
 	return
 }
 
+func (s *stepConfigSvc) GetValidationStepConfig(stepId uuid.UUID) (tc models.ValidationConfig, err error) {
+	step, err := s.stepRepo.GetById(stepId)
+	if err != nil {
+		return
+	}
+
+	templateID, ok := step.Config[templateId]
+	answerKey, ok2 := step.Config[answerKey]
+	if !ok || !ok2 {
+		err = ErrConfigNotFound
+		return
+	}
+	templateIdString, ok := templateID.(string)
+	answerKeyString, ok2 := answerKey.(string)
+	if !ok || !ok2 {
+		err = ErrConfigNotFound
+		return
+	}
+	tc.TemplateId = strings.TrimSpace(templateIdString)
+	tc.AnswerKey = strings.TrimSpace(answerKeyString)
+	return
+}
+
 func (s *stepConfigSvc) GetBifurcationStepConfig(stepId uuid.UUID) (bc models.BifurcationConfig, err error) {
 	step, err := s.stepRepo.GetById(stepId)
 	if err != nil {

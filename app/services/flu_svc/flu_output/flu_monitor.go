@@ -206,6 +206,7 @@ func sendBackToClient(projectId uuid.UUID, fluProjectResp []fluOutputStruct) (*F
 		plog.Error("HTTP Error:", err)
 		return &FluResponse{}, status_codes.UnknownFailure
 	}
+	defer resp.Body.Close()
 
 	fluResp, status := validationErrorCallback(resp)
 	fluResp.FluStatusCode = status

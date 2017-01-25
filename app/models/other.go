@@ -65,8 +65,9 @@ type WorkFlowCloneModel struct {
 }
 
 type FluUploadStats struct {
-	Status            flu_upload_status.FluUploadStatus
-	TotalFluCount     int
-	CompletedFluCount int
-	ErrorFluCount     int
+	Status            flu_upload_status.FluUploadStatus `json:"status"`
+	TotalFluCount     int                               `json:"total_flu_count"`
+	CompletedFluCount int                               `json:"completed_flu_count"`
+	ErrorFluCount     int                               `json:"error_flu_count"`
+	ErrorCSVFile      string                            `json:"error_csv_file, omitempty"`
 }

@@ -3,14 +3,19 @@ package algorithm_step_svc
 import (
 	"testing"
 
+	"encoding/json"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
+	"github.com/crowdflux/angel/app/config"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/jarcoal/httpmock.v1"
+	"io/ioutil"
+	"net/http"
 	"time"
 )
 
@@ -36,7 +41,9 @@ var flu = feed_line.FLU{
 		Data: models.JsonF{
 			"review_body": "Good product",
 		},
-		Build: models.JsonF{},
+		Build: models.JsonF{
+			"review_body": "Good product",
+		},
 	},
 }
 
@@ -48,7 +55,10 @@ var badFlu = feed_line.FLU{
 		Data: models.JsonF{
 			"review_body": "Darth Vader",
 		},
-		Build: models.JsonF{"Luke": "I am your father"},
+		Build: models.JsonF{
+			"review_body": "Darth Vader",
+			"Luke":        "I am your father",
+		},
 	},
 }
 
@@ -61,6 +71,11 @@ func (s *stepConfigSvcMock) GetAlgorithmStepConfig(stepId uuid.UUID) (config mod
 func (s *stepConfigSvcMock) GetTransformationStepConfig(stepId uuid.UUID) (config models.TransformationConfig, err error) {
 	return
 }
+
+func (s *stepConfigSvcMock) GetValidationStepConfig(stepId uuid.UUID) (config models.ValidationConfig, err error) {
+	return
+}
+
 func (s *stepConfigSvcMock) GetBifurcationStepConfig(stepId uuid.UUID) (config models.BifurcationConfig, err error) {
 	return
 }
@@ -72,23 +87,38 @@ func (s *stepConfigSvcMock) GetCrowdsourcingStepConfig(stepId uuid.UUID) (config
 	return
 }
 
-// WORKS ONLY 10% OF THE TIME DUE TO 10% SUCCESS LOGIC IN ABACUS
+type algorithmRequest struct {
+	Input string `json:"review"`
+}
+
 func TestSuccessfulPrediction(t *testing.T) {
 
 	fluRepo := feed_line_repo.Mock()
 
 	fluRepo.Save(flu.FeedLineUnit)
 
-	cs := algorithmStep{
+	as := algorithmStep{
 		Step:          step.New(step_type.Test),
 		stepConfigSvc: &stepConfigSvcMock{},
 	}
 
-	cs.SetFluProcessor(cs.processFlu)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
 
-	cs.Start()
+	var request algorithmRequest
+	var err error
+	httpmock.RegisterResponder("POST", config.ABACUS_API.Get()+"/api/review", func(req *http.Request) (*http.Response, error) {
+		body, _ := ioutil.ReadAll(req.Body)
+		err = json.Unmarshal(body, &request)
+		return httpmock.NewStringResponse(200, `{"prediction":"Approve", "success":true}`), nil
+	},
+	)
 
-	cs.InQ.Push(flu)
+	as.SetFluProcessor(as.processFlu)
+
+	as.Start()
+
+	as.InQ.Push(flu)
 
 	// Giving it time to finish adding to buffer
 	// as its happening in another goroutine
@@ -96,11 +126,12 @@ func TestSuccessfulPrediction(t *testing.T) {
 
 	var fluNew feed_line.FLU
 	select {
-	case fluNew = <-cs.OutQ.Receiver():
+	case fluNew = <-as.OutQ.Receiver():
 		fluNew.ConfirmReceive()
 		assert.EqualValues(t, flu.ID, fluNew.ID)
+		assert.EqualValues(t, "Good product", request.Input)
 		assert.EqualValues(t, "Approve", fluNew.Build["algo_result"])
-	case <-time.After(time.Duration(2) * time.Second):
+	case <-time.After(time.Duration(4) * time.Second):
 		assert.FailNow(t, "nothing came out of crowdsourcing queue")
 	}
 
@@ -117,6 +148,17 @@ func TestUnSuccessfulPrediction(t *testing.T) {
 		stepConfigSvc: &stepConfigSvcMock{},
 	}
 
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	var request algorithmRequest
+	var err error
+	httpmock.RegisterResponder("POST", config.ABACUS_API.Get()+"/api/review", func(req *http.Request) (*http.Response, error) {
+		body, _ := ioutil.ReadAll(req.Body)
+		err = json.Unmarshal(body, &request)
+		return httpmock.NewStringResponse(200, `{ "success":false}`), nil
+	},
+	)
 	cs.SetFluProcessor(cs.processFlu)
 
 	cs.Start()

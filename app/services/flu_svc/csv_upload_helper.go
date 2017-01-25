@@ -11,8 +11,10 @@ import (
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
+	"github.com/crowdflux/angel/app/support"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -37,6 +39,7 @@ func writeCsvError(csvWrite *csv.Writer, c chan []string, projectId, errFilePath
 	fus, _ := imdb.FluUploadCache.Get(projectId)
 	if count != 0 {
 		fus.Status = flu_upload_status.PartialUpload
+		fus.ErrorCSVFile = strings.Split(errFilePath, "/external/")[1]
 	} else {
 		fus.Status = flu_upload_status.Success
 		err := os.Remove(errFilePath)
@@ -73,7 +76,7 @@ func processCSV(fv flu_validator.IFluValidatorService, filePath string, fileName
 	}()
 
 	//Error file creation
-	errFilePath := fmt.Sprintf("./uploads/error_%s_%s.csv", strconv.Itoa(int(time.Now().UnixNano())), projectId.String())
+	errFilePath := fmt.Sprintf("%s/error_%s_%s.csv", support.GetExposedDir(), strconv.Itoa(int(time.Now().UnixNano())), projectId.String())
 	errorCsv, errorWriter, err := generateFileAndWriter(errFilePath)
 	if err != nil {
 		panic(err)

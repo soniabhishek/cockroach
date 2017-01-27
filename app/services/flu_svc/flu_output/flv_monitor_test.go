@@ -148,7 +148,7 @@ func TestGetFluOutputObj(t *testing.T) {
 	val, _ := feedLinePipe.Get(projId)
 	fmt.Println(len(val.(feedLineValue).feedLine))
 	deleteFromFeedLinePipe(projId, out)
-	val, ok := feedLinePipe.Get(projId)
-	fmt.Println(len(val.(feedLineValue).feedLine), ok)
+	val, _ = feedLinePipe.Get(projId)
+	fmt.Println(len(val.(feedLineValue).feedLine))
 
 }

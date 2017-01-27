@@ -12,6 +12,7 @@ import (
 	"encoding/hex"
 	"errors"
 
+	"github.com/crowdflux/angel/app/DAL/imdb"
 	"github.com/crowdflux/angel/app/DAL/repositories/feed_line_repo"
 	"github.com/crowdflux/angel/app/DAL/repositories/project_configuration_repo"
 	"github.com/crowdflux/angel/app/config"
@@ -22,7 +23,7 @@ import (
 	"github.com/crowdflux/angel/utilities"
 )
 
-var feedLinePipe = make(map[uuid.UUID]feedLineValue)
+var feedLinePipe = imdb.NewCmap()
 var retryCount = make(map[uuid.UUID]int)
 var mutex = &sync.RWMutex{}
 var dbLogger = feed_line_repo.NewLogger()
@@ -66,7 +67,8 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 	defer mutex.Unlock()
 
 	for _, flu := range fluBundle {
-		value, valuePresent := feedLinePipe[flu.ProjectId]
+		var value feedLineValue
+		res, valuePresent := feedLinePipe.Get(flu.ProjectId)
 		if valuePresent == false {
 			fpsRepo := project_configuration_repo.New()
 			fpsModel, err := fpsRepo.Get(flu.ProjectId)
@@ -77,9 +79,10 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 			maxFluCount := giveMaxFluCount(fpsModel)
 			value = feedLineValue{maxFluCount, utilities.TimeInMillis(), []models.FeedLineUnit{flu}}
 		} else {
+			value = res.(feedLineValue)
 			value.feedLine = append(value.feedLine, flu)
 		}
-		feedLinePipe[flu.ProjectId] = value
+		feedLinePipe.Set(flu.ProjectId, value)
 	}
 
 	return nil
@@ -88,13 +91,11 @@ func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) erro
 func checkupFeedLinePipe() {
 
 	var projectIdsToSend = make([]uuid.UUID, 0)
-	mutex.Lock()
-	for projectId := range feedLinePipe {
-		if IsEligibleForSendingBack(projectId) {
-			projectIdsToSend = append(projectIdsToSend, projectId)
+	for tuple := range feedLinePipe.Iter() {
+		if IsEligibleForSendingBack(tuple.Key.(uuid.UUID)) {
+			projectIdsToSend = append(projectIdsToSend, tuple.Key.(uuid.UUID))
 		}
 	}
-	mutex.Unlock()
 	if len(projectIdsToSend) > 0 {
 		sendBackResp(projectIdsToSend)
 	}
@@ -107,10 +108,11 @@ func sendBackResp(projectIdsToSend []uuid.UUID) {
 
 	retryIdsList := make([]uuid.UUID, 0)
 	for _, projectId := range projectIdsToSend {
-		flp, ok := feedLinePipe[projectId]
+		res, ok := feedLinePipe.Get(projectId)
 		if ok == false {
 			continue
 		}
+		flp := res.(feedLineValue)
 		fluOutObj := getFluOutputObj(flp)
 
 		fluResp, status := sendBackToClient(projectId, fluOutObj)
@@ -246,11 +248,11 @@ func validationErrorCallback(resp *http.Response) (*FluResponse, status_codes.St
 }
 
 func IsEligibleForSendingBack(key uuid.UUID) bool {
-	flp, ok := feedLinePipe[key]
+	res, ok := feedLinePipe.Get(key)
 	if !ok {
 		return false
 	}
-
+	flp := res.(feedLineValue)
 	if len(flp.feedLine) < 1 {
 		return false
 	}
@@ -290,9 +292,10 @@ func deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct)
 		return completedFLUs
 	}
 	printFluBuff("BEFORE DELETION")
-	mutex.Lock()
-	flv, ok := feedLinePipe[projectId]
+	var flv feedLineValue
+	res, ok := feedLinePipe.Get(projectId)
 	if ok {
+		flv = res.(feedLineValue)
 		for i := len(flv.feedLine) - 1; i >= 0; i-- {
 			fl := flv.feedLine[i]
 			// Condition to decide if current element has to be deleted:
@@ -305,8 +308,7 @@ func deleteFromFeedLinePipe(projectId uuid.UUID, fluOutputObj []fluOutputStruct)
 			}
 		}
 	}
-	feedLinePipe[projectId] = flv
-	mutex.Unlock()
+	feedLinePipe.Set(projectId, flv)
 	printFluBuff("AFTER DELETION")
 	return completedFLUs
 }

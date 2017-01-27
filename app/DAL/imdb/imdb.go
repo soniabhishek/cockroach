@@ -11,7 +11,7 @@ type imdb struct {
 }
 
 func (imdb *imdb) Get(key string) (interface{}, error) {
-	val, ok := imdb.db.get(key)
+	val, ok := imdb.db.Get(key)
 	if !ok {
 		return nil, errors.New("NO Such Key Exist")
 	} else {
@@ -20,13 +20,13 @@ func (imdb *imdb) Get(key string) (interface{}, error) {
 }
 
 func (imdb *imdb) Set(key string, value interface{}) {
-	imdb.db.set(key, value)
+	imdb.db.Set(key, value)
 }
 
 func (imdb *imdb) Remove(key string) error {
-	_, ok := imdb.db.get(key)
+	_, ok := imdb.db.Get(key)
 	if ok {
-		imdb.db.delete(key)
+		imdb.db.Delete(key)
 		return nil
 	} else {
 		return errors.New("No Such Key Exist")
@@ -35,9 +35,9 @@ func (imdb *imdb) Remove(key string) error {
 
 //Returns error if key already exist in cache.
 func (imdb *imdb) SafeSet(key string, value interface{}) (interface{}, error) {
-	val, ok := imdb.db.get(key)
+	val, ok := imdb.db.Get(key)
 	if !ok {
-		imdb.db.set(key, value)
+		imdb.db.Set(key, value)
 		return nil, nil
 	} else {
 		return val, errors.New("Key Already Exist")
@@ -45,5 +45,5 @@ func (imdb *imdb) SafeSet(key string, value interface{}) (interface{}, error) {
 }
 
 func (imdb *imdb) ClearAll() {
-	imdb.db.reset()
+	imdb.db.Reset()
 }

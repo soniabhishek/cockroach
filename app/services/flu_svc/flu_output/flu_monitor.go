@@ -24,7 +24,7 @@ import (
 )
 
 var feedLinePipe = imdb.NewCmap()
-var retryCount = make(map[uuid.UUID]int)
+var retryCount = imdb.NewCmap()
 var dbLogger = feed_line_repo.NewLogger()
 
 var retryTimePeriod = time.Duration(utilities.GetInt(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
@@ -332,12 +332,14 @@ func printFluBuff(flag string) {
 }
 
 func shouldRetryHttp(projectId uuid.UUID) bool {
-	prevRetryCnt, present := retryCount[projectId]
+	res, present := retryCount.Get(projectId)
+	prevRetryCnt := res.(int)
 	if present == false || prevRetryCnt < retryThreshold {
-		retryCount[projectId]++
+		newCount := prevRetryCnt + 1
+		retryCount.Set(projectId, newCount)
 		return true
 	} else {
-		delete(retryCount, projectId)
+		retryCount.Delete(projectId)
 		return false
 	}
 }

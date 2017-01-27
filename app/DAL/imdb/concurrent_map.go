@@ -37,11 +37,13 @@ func (c *cmap) Reset() {
 
 func (c *cmap) Iter() <-chan models.Tuple {
 	ch := make(chan models.Tuple)
-	c.rw.RLock()
-	for key, value := range c.cmap {
-		ch <- models.Tuple{key, value}
-	}
-	c.rw.RUnlock()
-	close(ch)
+	go func() {
+		c.rw.RLock()
+		for key, value := range c.cmap {
+			ch <- models.Tuple{key, value}
+		}
+		c.rw.RUnlock()
+		close(ch)
+	}()
 	return ch
 }

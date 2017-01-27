@@ -25,7 +25,6 @@ import (
 
 var feedLinePipe = imdb.NewCmap()
 var retryCount = make(map[uuid.UUID]int)
-var mutex = &sync.RWMutex{}
 var dbLogger = feed_line_repo.NewLogger()
 
 var retryTimePeriod = time.Duration(utilities.GetInt(config.RETRY_TIME_PERIOD.Get())) * time.Millisecond
@@ -62,9 +61,6 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 func (fm *FluMonitor) AddManyToOutputQueue(fluBundle []models.FeedLineUnit) error {
 
 	plog.Info("FLu Monitor, flubundle count:", len(fluBundle))
-
-	mutex.Lock()
-	defer mutex.Unlock()
 
 	for _, flu := range fluBundle {
 		var value feedLineValue

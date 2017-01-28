@@ -144,10 +144,11 @@ func TestGetFluOutputObj(t *testing.T) {
 	fmt.Println(len(out), out)
 
 	projId := uuid.NewV4()
-	feedLinePipe[projId] = flp
-
-	fmt.Println(len(feedLinePipe[projId].feedLine))
+	feedLinePipe.Set(projId, flp)
+	val, _ := feedLinePipe.Get(projId)
+	fmt.Println(len(val.(feedLineValue).feedLine))
 	deleteFromFeedLinePipe(projId, out)
-	fmt.Println(len(feedLinePipe[projId].feedLine))
+	val, _ = feedLinePipe.Get(projId)
+	fmt.Println(len(val.(feedLineValue).feedLine))
 
 }

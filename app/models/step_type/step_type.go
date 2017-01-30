@@ -9,7 +9,8 @@ import (
 type StepType uint
 
 const (
-	CrowdSourcing StepType = iota + 1
+	Test StepType = iota
+	CrowdSourcing
 	InternalSourcing
 	Transformation
 	Algorithm
@@ -20,7 +21,7 @@ const (
 	Error
 	StartStep
 	EmptyStep
-	Test
+	Validation
 )
 
 func (s *StepType) Value() (driver.Value, error) {
@@ -45,6 +46,7 @@ func (s *StepType) Scan(src interface{}) error {
 }
 
 var stepTypeNames = map[StepType]string{
+	Test:             "Test",
 	CrowdSourcing:    "CrowdSourcing",
 	InternalSourcing: "InternalSourcing",
 	Transformation:   "Transformation",
@@ -56,7 +58,7 @@ var stepTypeNames = map[StepType]string{
 	Error:            "Error",
 	StartStep:        "StartStep",
 	EmptyStep:        "EmptyStep",
-	Test:             "Test",
+	Validation:       "Validation",
 }
 
 func (s StepType) String() string {

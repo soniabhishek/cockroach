@@ -1,5 +1,7 @@
 package imdb
 
+import "github.com/crowdflux/angel/app/models"
+
 type IAngelImdb interface {
 	Set(key string, value interface{})
 	Get(key string) (value interface{}, err error)
@@ -9,10 +11,11 @@ type IAngelImdb interface {
 }
 
 type ICmap interface {
-	get(key interface{}) (val interface{}, ok bool)
-	set(key, value interface{})
-	delete(key interface{})
-	reset()
+	Get(key interface{}) (val interface{}, ok bool)
+	Set(key, value interface{})
+	Delete(key interface{})
+	Reset()
+	Iter() <-chan models.Tuple
 }
 
 func NewCmap() ICmap {

@@ -16,6 +16,11 @@ type TransformationConfig struct {
 	TemplateId string
 }
 
+type ValidationConfig struct {
+	TemplateId string
+	AnswerKey  string
+}
+
 type UnificationConfig struct {
 	Multiplication int
 }

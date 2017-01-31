@@ -39,6 +39,7 @@ func NewProjectHandler(pc models.ProjectConfiguration) ProjectHandler {
 
 func (pHandler *ProjectHandler) startCBUProcessor() {
 
+	plog.Info("FluMonitor", "Starting CBU processor")
 	requestQueueReceiver := pHandler.requestQueue.Receiver()
 	retryQueueReceiver := pHandler.retryQueue.Receiver()
 
@@ -71,6 +72,7 @@ func (pHandler *ProjectHandler) startCBUProcessor() {
 func (pHandler *ProjectHandler) startFeedLineProcessor() {
 	receiver := pHandler.queue.Receiver()
 
+	plog.Info("Flu Monitor Project_Handler", "Feedline processor starting")
 	for {
 		cbu := call_back_unit_pipe.CBU{FlusSent: make(map[uuid.UUID]feed_line.FLU), ProjectConfig: pHandler.config, RetryLeft: MAX_RETRY_COUNT}
 		var timer <-chan time.Time

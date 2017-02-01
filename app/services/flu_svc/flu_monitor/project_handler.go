@@ -43,62 +43,66 @@ func (pHandler *ProjectHandler) startCBUProcessor() {
 	requestQueueReceiver := pHandler.requestQueue.Receiver()
 	retryQueueReceiver := pHandler.retryQueue.Receiver()
 
-	for {
-		select {
-		case cbu := <-requestQueueReceiver:
-			job := bulk_processor.NewJob(getCallBackJob(pHandler, &cbu))
-			pHandler.jobManager.PushJob(job)
-			plog.Info("FluMonitor", "Job Pushed", "RequestQueue", "ProjectId: "+pHandler.projectId.String(), " FluIDs: ", getFluIds(cbu.FlusSent))
+	go func() {
+		for {
+			select {
+			case cbu := <-requestQueueReceiver:
+				job := bulk_processor.NewJob(getCallBackJob(pHandler, &cbu))
+				pHandler.jobManager.PushJob(job)
+				plog.Info("FluMonitor", "Job Pushed", "RequestQueue", "ProjectId: "+pHandler.projectId.String(), " FluIDs: ", getFluIds(cbu.FlusSent))
 
-		case retryCbu := <-retryQueueReceiver:
-			go func(cbu call_back_unit_pipe.CBU) {
+			case retryCbu := <-retryQueueReceiver:
+				go func(cbu call_back_unit_pipe.CBU) {
 
-				if cbu.RetryLeft >= 0 {
-					delayFluRetry(cbu.RetryLeft)
-					job := bulk_processor.NewJob(getCallBackJob(pHandler, &cbu))
-					pHandler.jobManager.PushJob(job)
-					plog.Info("FluMonitor", "Job Pushed", "RetryQueue",
-						"ProjectId: "+pHandler.projectId.String(), " FluIDs: ", getFluIds(cbu.FlusSent), "RetryCount: ", cbu.RetryLeft)
+					if cbu.RetryLeft >= 0 {
+						delayFluRetry(cbu.RetryLeft)
+						job := bulk_processor.NewJob(getCallBackJob(pHandler, &cbu))
+						pHandler.jobManager.PushJob(job)
+						plog.Info("FluMonitor", "Job Pushed", "RetryQueue",
+							"ProjectId: "+pHandler.projectId.String(), " FluIDs: ", getFluIds(cbu.FlusSent), "RetryCount: ", cbu.RetryLeft)
 
-				} else {
-					plog.Error("FluMonitor", errors.New("0 Retries left but pushed to retry queue"))
-				}
+					} else {
+						plog.Error("FluMonitor", errors.New("0 Retries left but pushed to retry queue"))
+					}
 
-			}(retryCbu)
+				}(retryCbu)
+			}
 		}
-	}
+	}()
 }
 
 func (pHandler *ProjectHandler) startFeedLineProcessor() {
 	receiver := pHandler.queue.Receiver()
 
 	plog.Info("Flu Monitor", "Starting feedline processor ", pHandler.config.ProjectId)
-	for {
-		cbu := call_back_unit_pipe.CBU{FlusSent: make(map[uuid.UUID]feed_line.FLU), ProjectConfig: pHandler.config, RetryLeft: MAX_RETRY_COUNT}
-		var timer <-chan time.Time
+	go func() {
+		for {
+			cbu := call_back_unit_pipe.CBU{FlusSent: make(map[uuid.UUID]feed_line.FLU), ProjectConfig: pHandler.config, RetryLeft: MAX_RETRY_COUNT}
+			var timer <-chan time.Time
 
-		flu := <-receiver
-		addFluToCbu(flu, &cbu)
+			flu := <-receiver
+			addFluToCbu(flu, &cbu)
 
-		timer = time.After(time.Duration(1000/pHandler.queryFrequency) * time.Millisecond)
+			timer = time.After(time.Duration(1000/pHandler.queryFrequency) * time.Millisecond)
 
-	OutputObjectGeneratorLoop:
-		for i := pHandler.maxFluCount - 2; i >= 0; i-- {
+		OutputObjectGeneratorLoop:
+			for i := pHandler.maxFluCount - 2; i >= 0; i-- {
 
-			select {
-			case flu := <-receiver:
-				addFluToCbu(flu, &cbu)
-			case <-timer:
-				break OutputObjectGeneratorLoop
+				select {
+				case flu := <-receiver:
+					addFluToCbu(flu, &cbu)
+				case <-timer:
+					break OutputObjectGeneratorLoop
+				}
+			}
+			plog.Info("Flu Monitor Project_Handler", "Push to : "+pHandler.projectId.String()+" FLuCount: ", len(cbu.FluOutputObj), " FluIds: ", getFluIds(cbu.FlusSent))
+			pHandler.requestQueue.Push(cbu)
+
+			for _, flu := range cbu.FlusSent {
+				flu.ConfirmReceive()
 			}
 		}
-		plog.Info("Flu Monitor Project_Handler", "Push to : "+pHandler.projectId.String()+" FLuCount: ", len(cbu.FluOutputObj), " FluIds: ", getFluIds(cbu.FlusSent))
-		pHandler.requestQueue.Push(cbu)
-
-		for _, flu := range cbu.FlusSent {
-			flu.ConfirmReceive()
-		}
-	}
+	}()
 }
 
 func addFluToCbu(flu feed_line.FLU, cbu *call_back_unit_pipe.CBU) {

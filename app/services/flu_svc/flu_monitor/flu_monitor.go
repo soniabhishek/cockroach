@@ -59,8 +59,8 @@ func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) Project
 
 		projectHandler = pHandler
 
-		go projectHandler.startFeedLineProcessor()
-		go projectHandler.startCBUProcessor()
+		projectHandler.startFeedLineProcessor()
+		projectHandler.startCBUProcessor()
 		plog.Info("Flu Monitor", "Project Handler Set", projectHandler.config.ProjectId)
 	}
 	return projectHandler

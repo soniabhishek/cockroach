@@ -7,6 +7,7 @@ import (
 )
 
 func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU) func() {
+	plog.Trace("FluMonitor", "Getting Callback job", cbu.FlusSent)
 	return func() {
 		req, err := createRequest(cbu.ProjectConfig, cbu.FluOutputObj)
 		if err != nil {

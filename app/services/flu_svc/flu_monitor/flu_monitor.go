@@ -33,7 +33,9 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
 	fm.dispatcherStarter.Do(func() {
 		fm.bulkProcessor.Start()
+		plog.Info("Flu Monitor", "Bulk Processor started")
 	})
+
 	return nil
 }
 
@@ -55,9 +57,11 @@ func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) Project
 		fm.projectHandlers[flu.ProjectId] = pHandler
 		fm.mutex.Unlock()
 
-		go pHandler.startFeedLineProcessor()
-		go pHandler.startCBUProcessor()
 		projectHandler = pHandler
+
+		go projectHandler.startFeedLineProcessor()
+		go projectHandler.startCBUProcessor()
+		plog.Info("Flu Monitor", "Project Handler Set", projectHandler.config.ProjectId)
 	}
 	return projectHandler
 }

@@ -28,8 +28,14 @@ func New() *FluMonitor {
 
 func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 
-	pHandler := fm.getOrCreateProjectHandler(flu)
+	pHandler, isFirstFlu := fm.getOrCreateProjectHandler(flu)
+
 	pHandler.queue.Push(feed_line.FLU{FeedLineUnit: flu})
+
+	if isFirstFlu {
+		go pHandler.startFeedLineProcessor()
+		go pHandler.startCBUProcessor()
+	}
 
 	fm.dispatcherStarter.Do(func() {
 		fm.bulkProcessor.Start()
@@ -39,7 +45,7 @@ func (fm *FluMonitor) AddToOutputQueue(flu models.FeedLineUnit) error {
 	return nil
 }
 
-func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) ProjectHandler {
+func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) (projectHandler ProjectHandler, isFirstFlu bool) {
 
 	projectHandler, ok := fm.projectHandlers[flu.ProjectId]
 	if !ok {
@@ -57,11 +63,9 @@ func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) Project
 		fm.projectHandlers[flu.ProjectId] = pHandler
 		fm.mutex.Unlock()
 
+		isFirstFlu = true
 		projectHandler = pHandler
-
-		projectHandler.startFeedLineProcessor()
-		projectHandler.startCBUProcessor()
 		plog.Info("Flu Monitor", "Project Handler Set", projectHandler.config.ProjectId)
 	}
-	return projectHandler
+	return
 }

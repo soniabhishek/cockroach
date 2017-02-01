@@ -19,8 +19,8 @@ type ProjectHandler struct {
 	queryFrequency int
 	jobManager     *bulk_processor.JobManager
 	queue          feed_line.Fl
-	requestQueue   call_back_unit_pipe.CbuQ
-	retryQueue     call_back_unit_pipe.CbuQ
+	requestQueue   *call_back_unit_pipe.CbuQ
+	retryQueue     *call_back_unit_pipe.CbuQ
 }
 
 func NewProjectHandler(pc models.ProjectConfiguration) ProjectHandler {
@@ -34,7 +34,7 @@ func NewProjectHandler(pc models.ProjectConfiguration) ProjectHandler {
 	requestQueue := call_back_unit_pipe.New("Request-Q-" + pc.ProjectId.String())
 	retryQueue := call_back_unit_pipe.New("Retry-Q-" + pc.ProjectId.String())
 
-	return ProjectHandler{pc.ProjectId, pc, maxFluCount, postBackUrl, queryFrequency, jm, queue, requestQueue, retryQueue}
+	return ProjectHandler{pc.ProjectId, pc, maxFluCount, postBackUrl, queryFrequency, jm, queue, &requestQueue, &retryQueue}
 }
 
 func (pHandler *ProjectHandler) startCBUProcessor() {

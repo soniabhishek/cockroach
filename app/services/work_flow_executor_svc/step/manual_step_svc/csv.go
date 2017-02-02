@@ -93,6 +93,7 @@ func UploadCsv(filename string) error {
 
 	reader := csv.NewReader(csvFile)
 	reader.FieldsPerRecord = 2 // so the reader will always check how many records are present in each row
+	reader.TrimLeadingSpace = true
 
 	flus := make([]models.FeedLineUnit, 0)
 	var cnt int = -1

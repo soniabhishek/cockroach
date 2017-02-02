@@ -36,11 +36,11 @@ const (
 	CROWDY_AUTH_KEY        = configKey("crowdy.authKey")
 	AUTHER_PLAYMENT_SECRET = configKey("auther.playment_secret")
 
-	MONITOR_TIME_PERIOD         = configKey("fluMonitor.monitor_time_period")
-	RETRY_TIME_PERIOD           = configKey("fluMonitor.retry_time_period")
+	RETRY_TIME_PERIOD           = configKey("fluMonitor.retry_time_period_ms")
 	DEFAULT_FLU_THRESHOLD_COUNT = configKey("fluMonitor.default_flu_threshold_count")
-	FLU_THRESHOLD_DURATION      = configKey("fluMonitor.flu_threshold_duration")
+	DEFAULT_CLIENT_QPS          = configKey("fluMonitor.default_client_qps")
 	FLU_RETRY_THRESHOLD         = configKey("fluMonitor.flu_retry_threshold")
+	MAX_WORKERS                 = configKey("fluMonitor.max_workers")
 
 	INPUT_FEEDLINE_SYNC_TIME_PERIOD_SEC = configKey("workflow_step.input_feedline_sync_time_period_sec")
 

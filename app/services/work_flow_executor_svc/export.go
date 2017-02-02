@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/crowdflux/angel/app/models"
-	"github.com/crowdflux/angel/app/services/flu_svc/flu_output"
+	"github.com/crowdflux/angel/app/services/flu_svc/flu_monitor"
 )
 
 type IWorkFlowSvc interface {
@@ -13,7 +13,7 @@ type IWorkFlowSvc interface {
 
 func newStd() IWorkFlowSvc {
 
-	fOut := flu_output.New()
+	fOut := flu_monitor.New()
 
 	completeHandler := func(flu models.FeedLineUnit) {
 		fmt.Println("on complete handler called", flu.ID)

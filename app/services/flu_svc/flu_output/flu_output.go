@@ -7,7 +7,9 @@ type FluOutput interface {
 	AddManyToOutputQueue([]models.FeedLineUnit) error
 }
 
+/*
 func New() FluOutput {
 	StartFluOutputTimer()
 	return &FluMonitor{}
 }
+*/

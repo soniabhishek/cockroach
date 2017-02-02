@@ -70,7 +70,7 @@ func publish(sessions chan chan session, messages <-chan message, qName string) 
 		plog.Trace("publishing...")
 
 		if _, err := pub.QueueDeclare(qName, true, false, false, false, nil); err != nil {
-			log.Printf("cannot consume from exclusive queue: %q, %v", qName, err)
+			log.Printf("cannot declare queue while publishing: %q, %v", qName, err)
 			return
 		}
 
@@ -121,6 +121,11 @@ func subscribe(sessions chan chan session, messages chan<- amqp.Delivery, qName 
 
 	for session := range sessions {
 		sub := <-session
+
+		if _, err := sub.QueueDeclare(qName, true, false, false, false, nil); err != nil {
+			log.Printf("cannot declare queue while subscribing: %q, %v", qName, err)
+			return
+		}
 
 		deliveries, err := sub.Consume(qName, "", false, false, false, false, nil)
 		if err != nil {

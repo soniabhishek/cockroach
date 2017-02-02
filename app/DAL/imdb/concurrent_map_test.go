@@ -8,28 +8,17 @@ import (
 func TestNewFluValidateCache(t *testing.T) {
 	c := cmap{}
 	c.cmap = make(map[interface{}]interface{})
-	c.Set(1, 1)
-	fmt.Println(c.Get(1))
+	c.set(1, 1)
+	fmt.Println(c.get(1))
 }
 
 func Test(t *testing.T) {
 	c := NewCmap()
-	c.Set(1, 1)
-	c.Set(2, 2)
-	c.Reset()
+	c.set(1, 1)
+	c.set(2, 2)
+	c.reset()
 
-	fmt.Println(c.Get(1))
-	fmt.Println(c.Get(2))
+	fmt.Println(c.get(1))
+	fmt.Println(c.get(2))
 
-}
-
-func TestCmap_Iter(t *testing.T) {
-	c := cmap{}
-	c.cmap = make(map[interface{}]interface{})
-	c.Set("abhishek", "1")
-	c.Set("soni", "2")
-	c.Set("jaipur", "3")
-	for tuple := range c.Iter() {
-		fmt.Println(tuple)
-	}
 }

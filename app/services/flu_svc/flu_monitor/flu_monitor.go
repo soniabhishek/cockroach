@@ -44,6 +44,8 @@ func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) Project
 
 	projectHandler, ok := fm.projectHandlers[flu.ProjectId]
 	if !ok {
+		fm.mutex.Lock()
+		defer fm.mutex.Unlock()
 		pcRepo := project_configuration_repo.New()
 		pc, err := pcRepo.Get(flu.ProjectId)
 		if err != nil {
@@ -54,9 +56,7 @@ func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) Project
 
 		fm.bulkProcessor.AddJobManager(pHandler.jobManager)
 
-		fm.mutex.Lock()
 		fm.projectHandlers[flu.ProjectId] = pHandler
-		fm.mutex.Unlock()
 
 		go pHandler.startFeedLineProcessor()
 		go pHandler.startCBUProcessor()

@@ -71,11 +71,11 @@
   },
 
   "fluMonitor" : {
-    "monitor_time_period" : "1000000",
-    "retry_time_period": "5000",
-    "default_flu_threshold_count": "1000",
-    "flu_threshold_duration": "5000",
-    "flu_retry_threshold" : 5
+    "retry_time_period_ms": "30000",
+    "default_flu_threshold_count": "1",
+    "default_client_qps": "5",
+    "max_workers" : "100",
+    "flu_retry_threshold":"2"
   },
 
   "workflow_step" : {

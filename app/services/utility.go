@@ -44,3 +44,11 @@ func AtoiOrDefault(s string, defaultVal int) (integer int) {
 	}
 	return
 }
+
+func AtoiOrPanic(s string) (integer int) {
+	integer, err := strconv.Atoi(s)
+	if err != nil {
+		panic("Invalid string conversion to integer : " + s)
+	}
+	return
+}

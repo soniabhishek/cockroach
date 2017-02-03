@@ -154,7 +154,7 @@ func IsValidUTF8(rows []string) (int, error) {
 	for i, row := range rows {
 		row = strings.TrimRight(row, "\n")
 		if !utf8.ValidString(row) {
-			return i, errors.New("!utf8.ValidString")
+			return i, errors.New("!utf8.ValidString - Make sure your file is in UTF-8 format")
 		}
 	}
 	return -1, nil

@@ -10,7 +10,6 @@ import (
 func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU) func() {
 	plog.Trace("FluMonitor", "Getting Callback job", cbu.FlusSent)
 	return func() {
-		defer cbu.ConfirmReceive()
 		req, err := createRequest(cbu.ProjectConfig, cbu.FluOutputObj)
 		if err != nil {
 			plog.Error("FluMonitor", err, "Error while creating request", " fluOutputObj : ", cbu.FluOutputObj)
@@ -20,6 +19,7 @@ func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU) func
 		if err != nil {
 			plog.Error("HTTP Error:", err)
 			putDbLogCustom(cbu.FlusSent, "Error", models.JsonF{"HTTP Error": err.Error()})
+			cbu.ConfirmReceive()
 			return
 		}
 
@@ -30,6 +30,7 @@ func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU) func
 		//validFlus, invalidFLus := getFlusStatus(cbu.FlusSent, fluResp.Invalid_Flus)
 
 		putDbLog(cbu.FlusSent, *fluResp)
+		cbu.ConfirmReceive()
 
 		if shouldRetry(fluResp, cbu.RetryLeft) {
 			cbu.RetryLeft--

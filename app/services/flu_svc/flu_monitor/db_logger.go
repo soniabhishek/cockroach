@@ -3,6 +3,7 @@ package flu_monitor
 import (
 	"database/sql"
 	"encoding/json"
+	"github.com/aws/aws-sdk-go/aws/client/metadata"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
@@ -40,6 +41,30 @@ func putDbLog(flusToLog map[uuid.UUID]feed_line.FLU, resp WebhookResponse) {
 			message = "INVALID FLU"
 			metadata.Merge(models.JsonF{"Error": val.Error, "Message": val.Message})
 		}
+
+		dbLog := models.FeedLineLog{
+			//ID         int            `db:"id" json:"id" bson:"_id"`
+			FluId:       fl.ID,
+			Message:     sql.NullString{message, true},
+			MetaData:    metadata,
+			Event:       10,
+			StepType:    sql.NullInt64{int64(12), true},
+			StepId:      fl.StepId,
+			CreatedAt:   fl.CreatedAt,
+			MasterFluId: fl.MasterId,
+		}
+		dbLogArr[i] = dbLog
+		i++
+	}
+
+	flu_logger_svc.LogRaw(dbLogArr)
+}
+
+func putDbLogCustom(flusToLog map[uuid.UUID]feed_line.FLU, message string, metadata models.JsonF) {
+
+	dbLogArr := make([]models.FeedLineLog, len(flusToLog))
+	i := 0
+	for _, fl := range flusToLog {
 
 		dbLog := models.FeedLineLog{
 			//ID         int            `db:"id" json:"id" bson:"_id"`

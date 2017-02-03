@@ -3,7 +3,6 @@ package flu_monitor
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/aws/aws-sdk-go/aws/client/metadata"
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"

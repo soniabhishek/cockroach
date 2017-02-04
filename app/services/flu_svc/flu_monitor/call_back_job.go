@@ -2,6 +2,7 @@ package flu_monitor
 
 import (
 	"github.com/crowdflux/angel/app/DAL/call_back_unit_pipe"
+	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
 	"net/http"
 )
@@ -17,6 +18,8 @@ func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU) func
 		resp, err := client.Do(&req)
 		if err != nil {
 			plog.Error("HTTP Error:", err)
+			putDbLogCustom(cbu.FlusSent, "Error", models.JsonF{"HTTP Error": err.Error()})
+			cbu.ConfirmReceive()
 			return
 		}
 
@@ -33,6 +36,7 @@ func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU) func
 			pHandler.retryQueue.Push(*cbu)
 		}
 		cbu.ConfirmReceive()
+
 		plog.Info("FluMonitor", "Job Executed", "ProjectId: "+pHandler.projectId.String(), "FluIDs: ", getFluIds(cbu.FlusSent))
 	}
 }

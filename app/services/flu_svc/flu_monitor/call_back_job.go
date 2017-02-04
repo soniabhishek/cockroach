@@ -30,12 +30,12 @@ func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU) func
 		//validFlus, invalidFLus := getFlusStatus(cbu.FlusSent, fluResp.Invalid_Flus)
 
 		putDbLog(cbu.FlusSent, *fluResp)
-		cbu.ConfirmReceive()
 
 		if shouldRetry(fluResp, cbu.RetryLeft) {
 			cbu.RetryLeft--
 			pHandler.retryQueue.Push(*cbu)
 		}
+		cbu.ConfirmReceive()
 
 		plog.Info("FluMonitor", "Job Executed", "ProjectId: "+pHandler.projectId.String(), "FluIDs: ", getFluIds(cbu.FlusSent))
 	}

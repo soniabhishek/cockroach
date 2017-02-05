@@ -39,6 +39,7 @@ func TestDispatcher_Start(t *testing.T) {
 
 	for _, c := range clients {
 		dispatcher.AddJobManager(c.jobManager)
+		c.jobManager.Run()
 	}
 
 	dispatcher.Start()

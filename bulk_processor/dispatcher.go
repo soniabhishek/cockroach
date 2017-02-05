@@ -28,8 +28,6 @@ func (d *Dispatcher) Start() (started bool) {
 
 	d.startCheck()
 
-	runJobManagers(d.jobManagers)
-
 	d.startWorkers(d.maxWorkers)
 
 	go d.dispatch()

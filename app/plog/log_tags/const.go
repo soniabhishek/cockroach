@@ -27,3 +27,6 @@ var PROJECT_ID = &tag.Tag{"project_id"}
 var WORKFLOW_ID = &tag.Tag{"workflow_id"}
 var PROJECT_TAG = &tag.Tag{"project_tag"}
 var STEP_ID = &tag.Tag{"step_id"}
+
+var POSTBACK_REQUEST = &tag.Tag{"postback_request"}
+var POSTBACK_RESPONSE = &tag.Tag{"postback_reponse"}

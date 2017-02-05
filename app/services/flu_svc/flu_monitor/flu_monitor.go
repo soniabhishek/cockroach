@@ -7,6 +7,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/bulk_processor"
 	"sync"
@@ -49,7 +50,7 @@ func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) Project
 		pcRepo := project_configuration_repo.New()
 		pc, err := pcRepo.Get(flu.ProjectId)
 		if err != nil {
-			plog.Error("Error while getting Project configuration", err, " ProjectId:", flu.ProjectId)
+			plog.Error("Error while getting Project configuration", err, plog.MP(log_tags.PROJECT_ID, flu.ProjectId))
 		}
 
 		pHandler := NewProjectHandler(pc)

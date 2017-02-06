@@ -5,7 +5,7 @@ exports.up = function(knex, Promise) {
         yield knex.schema.table('routes', t=> {t.dropColumn('logic_gate_id')})
         yield knex.schema.dropTableIfExists('logic_gate')
         yield knex.schema.dropTableIfExists('logic_gate_formula')
-        yield knex.raw(`update routes set config = concat('{"input_template":[',r2.config, ']}')::jsonb from routes as r1 join routes as r2 on r1.id = r2.id`)
+        yield knex.raw(`update routes set config = concat('{"input_template":[',config,']}')::jsonb`)
     })
 };
 

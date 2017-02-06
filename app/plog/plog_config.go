@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/crowdflux/angel/app/config"
+	"github.com/getsentry/raven-go"
 	"github.com/jasonlvhit/gocron"
 	"os"
 	"path/filepath"
@@ -50,6 +51,8 @@ func init() {
 	logTypeStr := strings.ToUpper(config.PLOG_TYPE.Get())
 
 	setLogger(logr, path, logTypeStr)
+
+	raven.SetDSN("https://b76a676d4e9744ffbdbfe40e522c4fb1:e45f73ced14342c1ac13ef537f13c2a1@sentry.playment.in/4")
 
 	logLevelStr := strings.ToUpper(config.PLOG_LEVEL.Get())
 

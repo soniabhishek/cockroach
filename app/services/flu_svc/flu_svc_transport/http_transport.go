@@ -9,13 +9,13 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/app/services/flu_svc"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_errors"
 	"github.com/crowdflux/angel/app/services/flu_svc/flu_validator"
 	"github.com/crowdflux/angel/app/services/plerrors"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"io/ioutil"
 )
 
@@ -59,7 +59,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 		projectId, err := uuid.FromString(c.Param("projectId"))
 
 		if err != nil {
-			plog.Error("Invalid ProjectId from client", err, c.Param("projectId"))
+			plog.Error("http_transport", err, plog.M("Invalid ProjectId from client"), plog.MP(log_tags.PROJECT_ID, c.Param("projectId")))
 			httpCode, resp := showErrorResponse(c, plerrors.ErrIncorrectUUID("projectId"))
 			requestLogger.Info(formatLog(requestTime, []byte{}, time.Since(requestTime), httpCode, resp))
 			return
@@ -67,7 +67,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 
 		body, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
-			plog.Error("Error reading flu body from client : ", err, "Body : ", body)
+			plog.Error("http_transport", err, plog.M("Error reading flu body from client"), plog.MessageWithParam(log_tags.REQUEST_BODY, body))
 			httpCode, resp := showErrorResponse(c, plerrors.ErrMalformedJson)
 			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))
 			return
@@ -76,7 +76,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 		// JSON to FLU
 		var flu models.FeedLineUnit
 		if err = json.Unmarshal(body, &flu); err != nil {
-			plog.Error("Error binding flu from client : ", err, "Body : ", body)
+			plog.Error("http_transport", err, plog.M("Error binding flu from client"), plog.MessageWithParam(log_tags.REQUEST_BODY, body))
 			httpCode, resp := showErrorResponse(c, plerrors.ErrMalformedJson)
 			requestLogger.Info(formatLog(requestTime, body, time.Since(requestTime), httpCode, resp))
 			return
@@ -91,7 +91,7 @@ func feedLineInputHandler(fluService flu_svc.IFluServiceExtended) gin.HandlerFun
 			}
 
 			if _, ok := err.(flu_validator.DataValidationError); !ok {
-				plog.Error("Error while adding flu to workflow ", err, flu)
+				plog.Error("http_transport", err, plog.M("Error while adding flu to workflow "), plog.MessageWithParam(log_tags.FLU, flu))
 			} else {
 				plog.Info("FluSvc", "Error occured while adding flu", err.Error(), "ReferenceID: "+flu.ReferenceId)
 			}
@@ -150,7 +150,7 @@ func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 		//Validating ProjectId and checking if exist in database.
 		projectId, err := uuid.FromString(c.Param("projectId"))
 		if err != nil {
-			plog.Error("Invalid ProjectId in CSV upload", err, c.Param("projectId"))
+			plog.Error("http_transport", err, plog.M("Invalid ProjectId in CSV upload"), plog.MP(log_tags.PROJECT_ID, c.Param("projectId")))
 			services.SendBadRequest(c, "FLS000", err.Error(), nil)
 			return
 		}
@@ -158,7 +158,7 @@ func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 		//Fetching descriptors for uploaded multipart file
 		file, header, err := c.Request.FormFile("upload")
 		if err != nil {
-			plog.Error("Err", errors.New("problem in uploaded file"), err)
+			plog.Error("http_transport", err, plog.M("problem in uploaded file"))
 			services.SendBadRequest(c, "FLS002", err.Error(), nil)
 			return
 		}
@@ -169,7 +169,7 @@ func csvFLUGenerator(fluService flu_svc.IFluServiceExtended) gin.HandlerFunc {
 		plog.Info("Sent file for upload: ", filename)
 
 		if err := fluService.CsvCheckBasicValidation(file, filename, projectId); err != nil {
-			plog.Error("Err", errors.New("Validation Failed for csv"), err)
+			plog.Error("http_transport", err, plog.M("Validation Failed for csv"))
 			services.SendBadRequest(c, "Fail", err.Error(), nil)
 			return
 		}

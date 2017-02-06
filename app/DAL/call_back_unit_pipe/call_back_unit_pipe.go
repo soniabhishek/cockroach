@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/streadway/amqp"
 	"sync"
 )
@@ -36,7 +37,7 @@ func (fmcr *CBU) ConfirmReceive() {
 
 		err := fmcr.delivery.Ack(false)
 		if err != nil {
-			plog.Error("CBU", err, "error while ack", "RequestOject: ", fmcr.FluOutputObj)
+			plog.Error("CBU", err, plog.M("Error while ack"), plog.MP(log_tags.POSTBACK_REQUEST, fmcr.FluOutputObj))
 			panic(err)
 		}
 	})

@@ -11,6 +11,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/pkg/errors"
 )
 
@@ -64,7 +65,7 @@ func (w *workFlowBuilderService) AddWorkflowContainer(receivedWorkflowContainer 
 			trans.Rollback()
 		}
 		if r := recover(); r != nil {
-			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), r)
+			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), plog.MessageWithParam(log_tags.RECOVER, r))
 		}
 	}()
 	//Make repos transaction
@@ -134,7 +135,7 @@ func (w *workFlowBuilderService) UpdateWorkflowContainer(receivedWorkflowContain
 			trans.Rollback()
 		}
 		if r := recover(); r != nil {
-			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), r)
+			plog.Error("Workflow Builder Svc", errors.New("Panic in UpdateWorkflowContainer"), plog.MessageWithParam(log_tags.RECOVER, r))
 		}
 	}()
 	//Make repos transaction

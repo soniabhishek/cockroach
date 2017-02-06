@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
@@ -21,14 +22,14 @@ func (v *validationStep) processFlu(flu feed_line.FLU) {
 
 	vStep, err := v.stepConfigSvc.GetValidationStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("validation step", err, "fluId: "+flu.ID.String(), "stepid: "+flu.StepId.String(), flu.FeedLineUnit)
+		plog.Error("validation step", err, plog.MP(log_tags.FLU_ID, flu.ID.String()), plog.MP(log_tags.STEP_ID, flu.StepId.String()), plog.MP(log_tags.FLU, flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Validation, "ValidationConfigError", flu.Redelivered())
 		return
 	}
 
 	isValidated, err := clients.GetMegatronClient().Validate(flu.Build, vStep.TemplateId)
 	if err != nil {
-		plog.Error("validation step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
+		plog.Error("validation step", err, plog.MP(log_tags.FLU_ID, flu.ID.String()), plog.MP(log_tags.FLU, flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Validation, "ValidationError", flu.Redelivered())
 		return
 	}

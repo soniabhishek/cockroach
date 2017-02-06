@@ -32,7 +32,7 @@ func writeCsvError(csvWrite *csv.Writer, c chan []string, projectId, errFilePath
 			imdb.FluUploadCache.Set(projectId, fus)
 
 			if err := csvWrite.Write(row); err != nil {
-				plog.Error("CSVERR001", err, "error while writning csv")
+				plog.Error("csv_upload_helper", err, plog.M("error while writning csv"))
 			}
 		}
 	}

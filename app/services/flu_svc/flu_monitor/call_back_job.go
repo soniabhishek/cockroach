@@ -4,6 +4,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/call_back_unit_pipe"
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"net/http"
 )
 
@@ -12,7 +13,7 @@ func getCallBackJob(pHandler *ProjectHandler, cbu *call_back_unit_pipe.CBU) func
 	return func() {
 		req, err := createRequest(cbu.ProjectConfig, cbu.FluOutputObj)
 		if err != nil {
-			plog.Error("FluMonitor", err, "Error while creating request", " fluOutputObj : ", cbu.FluOutputObj)
+			plog.Error("FluMonitor", err, plog.M("Error while creating request"), plog.MP(log_tags.POSTBACK_REQUEST, cbu.FluOutputObj))
 		}
 		client := http.DefaultClient
 		resp, err := client.Do(&req)

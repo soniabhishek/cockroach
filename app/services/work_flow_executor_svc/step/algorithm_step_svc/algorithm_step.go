@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
@@ -23,7 +24,7 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 	plog.Info("algorithm Step flu reached", flu.ID)
 	aStepConf, err := t.stepConfigSvc.GetAlgorithmStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), "stepid: "+flu.StepId.String(), flu.FeedLineUnit)
+		plog.Error("Algorithm step", err, plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()), plog.MessageWithParam(log_tags.STEP_ID, flu.StepId.String()), plog.MessageWithParam(log_tags.FLU, flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Algorithm, "Algorithm Config Error", flu.Redelivered())
 		return
 	}
@@ -36,7 +37,7 @@ func (t *algorithmStep) processFlu(flu feed_line.FLU) {
 
 	algoResult, err, success := clients.GetAbacusClient().Predict(textSting)
 	if err != nil {
-		plog.Error("Algorithm step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
+		plog.Error("Algorithm step", err, plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()), plog.MessageWithParam(log_tags.FLU, flu.FeedLineUnit))
 	} else if success {
 		flu.Build[aStepConf.AnswerKey] = algoResult
 	}

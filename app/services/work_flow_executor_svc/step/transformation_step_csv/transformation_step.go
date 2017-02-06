@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
@@ -17,18 +18,18 @@ type transformationStep struct {
 
 func (t *transformationStep) processFlu(flu feed_line.FLU) {
 	t.AddToBuffer(flu)
-	plog.Info("transformation Step flu reached", flu.ID)
+	plog.Info("Transformation Step flu reached", flu.ID)
 
 	tStep, err := t.stepConfigSvc.GetTransformationStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("transformation step", err, "fluId: "+flu.ID.String(), "stepid: "+flu.StepId.String(), flu.FeedLineUnit)
+		plog.Error("Transformation step", err, plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()), plog.MessageWithParam(log_tags.STEP_ID, flu.StepId.String()), plog.MessageWithParam(log_tags.FLU, flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Transformation, "TransformationConfigError", flu.Redelivered())
 		return
 	}
 
 	transformedBuild, err := clients.GetMegatronClient().Transform(flu.Build, tStep.TemplateId)
 	if err != nil {
-		plog.Error("Transformation step", err, "fluId: "+flu.ID.String(), flu.FeedLineUnit)
+		plog.Error("Transformation step", err, plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()), plog.MessageWithParam(log_tags.FLU, flu.FeedLineUnit))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Transformation, "TransformationError", flu.Redelivered())
 		return
 	}
@@ -43,12 +44,12 @@ func (t *transformationStep) finishFlu(flu feed_line.FLU) bool {
 
 	err := t.RemoveFromBuffer(flu)
 	if err != nil {
-		plog.Trace("transformation step", "flu not present in buffer")
+		plog.Trace("Transformation step", "flu not present in buffer")
 		//return false
 	}
 	t.OutQ.Push(flu)
 	flu.ConfirmReceive()
-	plog.Info("transformation out", flu.ID)
+	plog.Info("Transformation out", flu.ID)
 	flu_logger_svc.LogStepExit(flu.FeedLineUnit, step_type.Transformation, flu.Redelivered())
 
 	return true

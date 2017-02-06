@@ -37,7 +37,7 @@ func createRequest(config models.ProjectConfiguration, fluOutputStructs []models
 	}{fluOutputStructs})
 
 	if err != nil {
-		plog.Error("FluMonitor", err, "JSON Marshalling Error:")
+		plog.Error("FluMonitor", err, plog.M("JSON Marshalling Error:"))
 		return request, err
 	}
 	jsonBytes = utilities.ReplaceEscapeCharacters(jsonBytes)

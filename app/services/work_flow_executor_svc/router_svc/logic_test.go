@@ -15,6 +15,114 @@ type logicGateTestCase struct {
 	Error     error
 }
 
+func TestMultipleLogic(t *testing.T) {
+	var logicGateTestCases = []logicGateTestCase{
+
+		logicGateTestCase{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{
+					{
+						"logic": "boolean",
+						"options": map[string]interface{}{
+							"field_name":     "pqrs",
+							"should_be_true": false,
+						}},
+					{
+						"logic": "contained_in",
+						"options": map[string]interface{}{
+							"field_name":             "nonexistent",
+							"should_be_contained_in": true,
+							"field_value":            "1,2",
+						}},
+				},
+			},
+			Result: false,
+			Error:  nil,
+		},
+		logicGateTestCase{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{
+					{
+						"logic": "boolean",
+						"options": map[string]interface{}{
+							"field_name":     "pqrs",
+							"should_be_true": true,
+						}},
+					{
+						"logic": "contained_in",
+						"options": map[string]interface{}{
+							"field_name":             "nonexistent",
+							"should_be_contained_in": true,
+							"field_value":            "1,2",
+						}},
+				},
+			},
+			Result: false,
+			Error:  ErrPropNotFoundInFluBuild,
+		},
+		logicGateTestCase{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{
+					{
+						"logic": "boolean",
+						"options": map[string]interface{}{
+							"field_name":     "pqrs",
+							"should_be_true": true,
+						}},
+					{
+						"logic": "contained_in",
+						"options": map[string]interface{}{
+							"field_name":             "abcd",
+							"should_be_contained_in": true,
+							"field_value":            "1,2",
+						}},
+				},
+			},
+			Result: true,
+			Error:  nil,
+		},
+		logicGateTestCase{
+			LogicGate: LogicGate{
+				InputTemplate: []models.JsonF{
+					{
+						"logic": "boolean",
+						"options": map[string]interface{}{
+							"field_name":     "pqrs",
+							"should_be_true": true,
+						}},
+					{
+						"logic": "contained_in",
+						"options": map[string]interface{}{
+							"field_name":             "abcd",
+							"should_be_contained_in": false,
+							"field_value":            "1,2",
+						}},
+				},
+			},
+			Result: false,
+			Error:  nil,
+		},
+	}
+	flu := feed_line.FLU{
+		FeedLineUnit: models.FeedLineUnit{
+			Build: models.JsonF{
+				"abcd":     1,
+				"pqrs":     true,
+				"lmno":     "",
+				"nilfield": nil,
+				"mnop":     "Hello",
+			},
+		},
+	}
+	for i, testCase := range logicGateTestCases {
+
+		out, err := EvaluateLogics(flu, testCase.LogicGate)
+		assert.Equal(t, testCase.Error, err, "index:", i)
+		assert.EqualValues(t, testCase.Result, out, "index:", i)
+	}
+
+}
+
 func TestLogic_Continue(t *testing.T) {
 
 	var logicGateTestCases = []logicGateTestCase{

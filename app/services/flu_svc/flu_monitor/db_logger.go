@@ -58,3 +58,27 @@ func putDbLog(flusToLog map[uuid.UUID]feed_line.FLU, resp WebhookResponse) {
 
 	flu_logger_svc.LogRaw(dbLogArr)
 }
+
+func putDbLogCustom(flusToLog map[uuid.UUID]feed_line.FLU, message string, metadata models.JsonF) {
+
+	dbLogArr := make([]models.FeedLineLog, len(flusToLog))
+	i := 0
+	for _, fl := range flusToLog {
+
+		dbLog := models.FeedLineLog{
+			//ID         int            `db:"id" json:"id" bson:"_id"`
+			FluId:       fl.ID,
+			Message:     sql.NullString{message, true},
+			MetaData:    metadata,
+			Event:       10,
+			StepType:    sql.NullInt64{int64(12), true},
+			StepId:      fl.StepId,
+			CreatedAt:   fl.CreatedAt,
+			MasterFluId: fl.MasterId,
+		}
+		dbLogArr[i] = dbLog
+		i++
+	}
+
+	flu_logger_svc.LogRaw(dbLogArr)
+}

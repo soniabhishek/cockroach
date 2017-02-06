@@ -20,15 +20,15 @@ func TestDispatcher_Start(t *testing.T) {
 	clients := []TestClient{
 
 		TestClient{
-			jobManager:        bulk_processor.NewJobManager(1, "1"),
-			internalFluPerSec: 10,
+			jobManager:        bulk_processor.NewJobManager(1000, "1"),
+			internalFluPerSec: 1000,
 			maxClientQps:      1,
 			waitMiliSec:       3,
 			name:              "1",
 		},
 		TestClient{
 			jobManager:        bulk_processor.NewJobManager(10, "2"),
-			internalFluPerSec: 1,
+			internalFluPerSec: 10,
 			maxClientQps:      10,
 			waitMiliSec:       3,
 			name:              "2",
@@ -39,6 +39,7 @@ func TestDispatcher_Start(t *testing.T) {
 
 	for _, c := range clients {
 		dispatcher.AddJobManager(c.jobManager)
+		c.jobManager.Run()
 	}
 
 	dispatcher.Start()

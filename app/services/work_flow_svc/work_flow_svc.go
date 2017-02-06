@@ -6,6 +6,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"strings"
 )
 
@@ -113,7 +114,7 @@ func (s *stepConfigSvc) GetBifurcationStepConfig(stepId uuid.UUID) (bc models.Bi
 
 	if bc.Multiplication < 1 {
 		err = ErrConfigNotFound
-		plog.Error("StepConfigSvc", ErrConfigMalformed, "stepId "+stepId.String())
+		plog.Error("StepConfigSvc", ErrConfigMalformed, plog.Message("Bifurcation step. Invalid mulitplication value"), plog.MessageWithParam(log_tags.STEP_ID, stepId.String()))
 		return
 	}
 
@@ -133,7 +134,7 @@ func (s *stepConfigSvc) GetUnificationStepConfig(stepId uuid.UUID) (uc models.Un
 
 	if uc.Multiplication < 1 {
 		err = ErrConfigNotFound
-		plog.Error("StepConfigSvc", ErrConfigMalformed, "stepId "+stepId.String())
+		plog.Error("StepConfigSvc", ErrConfigMalformed, plog.MessageWithParam(log_tags.STEP_ID, stepId.String()))
 		return
 	}
 

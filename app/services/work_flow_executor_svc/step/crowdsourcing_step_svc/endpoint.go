@@ -9,6 +9,7 @@ import (
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 )
 
 type FluUpdate struct {
@@ -29,7 +30,7 @@ func FluUpdateHandler(updates []FluUpdate) error {
 
 		if !ok {
 			// Handle error
-			plog.Error("Flu Handler crowdy", errors.New("Flu Not present in the buffer"), update.FluId)
+			plog.Error("Flu Handler crowdy", errors.New("Flu Not present in the buffer"), plog.MessageWithParam(log_tags.FLU_ID, update.FluId))
 			continue
 		}
 
@@ -47,14 +48,14 @@ func FluUpdateHandler(updates []FluUpdate) error {
 
 	err := flr.BulkUpdate(feedLineUnits)
 	if err != nil {
-		plog.Error("Flu Handler Bulk Update, Aborting", err)
+		plog.Error("Flu Handler Crowdy", err, plog.Message("Flu Handler Bulk Update, Aborting"))
 		return err
 	}
 
 	for _, flu := range updatable {
 		ok := Std.finishFlu(flu)
 		if !ok {
-			plog.Error("Flu Handler", errors.New("finishFlu false for "+flu.ID.String()))
+			plog.Error("Flu Handler Crowdy", errors.New("finishFlu false for "+flu.ID.String()))
 		}
 	}
 
@@ -77,7 +78,7 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 	updatedFlus, nonUpdableFlus, err := flr.BulkFluBuildUpdateByStepType(flus, step_type.CrowdSourcing)
 	if err != nil {
 		if err != feed_line_repo.ErrPartiallyUpdatedFlus && err != feed_line_repo.ErrNoUpdatableFlus {
-			plog.Error("Flu Handler Bulk Update, Aborting", err)
+			plog.Error("Flu Handler Crowdy", err, plog.Message("Flu Handler Bulk Update, Aborting"))
 			return err
 		} else {
 
@@ -86,7 +87,7 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 				nonUpdatableIds = append(nonUpdatableIds, flu.ID)
 			}
 
-			plog.Error("crowdy flu handler partially updated", err, "nonUpdatableIds: ", nonUpdatableIds)
+			plog.Error("Flu Handler Crowdy", err, plog.Message("Crowdy flu handler partially updated. Non_Updated flu_ids"), plog.MessageWithParam(log_tags.FLU_ID, nonUpdatableIds))
 			// this wont return
 			// this will continue
 		}
@@ -97,7 +98,7 @@ func FluUpdateHandlerCustom(updates []FluUpdate) error {
 		for _, flu := range updatedFlus {
 			ok := Std.finishFlu(feed_line.FLU{FeedLineUnit: flu})
 			if !ok {
-				plog.Error("Flu Handler", errors.New("finishFlu false for "+flu.ID.String()))
+				plog.Error("Flu Handler Crowdy", errors.New("finishFlu false for "+flu.ID.String()))
 			}
 		}
 	}()

@@ -7,6 +7,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services"
 	"github.com/crowdflux/angel/bulk_processor"
 	"sync"
@@ -44,22 +45,23 @@ func (fm *FluMonitor) getOrCreateProjectHandler(flu models.FeedLineUnit) Project
 
 	projectHandler, ok := fm.projectHandlers[flu.ProjectId]
 	if !ok {
+		fm.mutex.Lock()
+		defer fm.mutex.Unlock()
 		pcRepo := project_configuration_repo.New()
 		pc, err := pcRepo.Get(flu.ProjectId)
 		if err != nil {
-			plog.Error("Error while getting Project configuration", err, " ProjectId:", flu.ProjectId)
+			plog.Error("Error while getting Project configuration", err, plog.MP(log_tags.PROJECT_ID, flu.ProjectId))
 		}
 
 		pHandler := NewProjectHandler(pc)
 
 		fm.bulkProcessor.AddJobManager(pHandler.jobManager)
-
-		fm.mutex.Lock()
 		fm.projectHandlers[flu.ProjectId] = pHandler
-		fm.mutex.Unlock()
 
 		go pHandler.startFeedLineProcessor()
 		go pHandler.startCBUProcessor()
+
+		pHandler.jobManager.Run()
 
 		projectHandler = pHandler
 		plog.Info("Flu Monitor", "Project Handler Set", projectHandler.config.ProjectId)

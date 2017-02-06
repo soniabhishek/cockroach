@@ -7,6 +7,7 @@ import (
 
 	"github.com/crowdflux/angel/app/models/status_codes"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 )
 
 type WebhookResponse struct {
@@ -34,7 +35,7 @@ func ParseFluResponse(resp *http.Response) *WebhookResponse {
 
 		}*/
 
-		plog.Error("Response Parsing Error: ", err, "fluResponse", fluResp)
+		plog.Error("Response Parsing Error: ", err, plog.MP(log_tags.POSTBACK_RESPONSE, fluResp))
 		return fluResp
 
 	}

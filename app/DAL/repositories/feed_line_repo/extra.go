@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -132,7 +133,7 @@ func SyncAllBack() {
 
 		err = inpQ.mgo.C("feedline_input").UpdateId(updateFlu.ID, updateFlu)
 		if err != nil {
-			plog.Error("feedline", err, updateFlu)
+			plog.Error("feedline", err, plog.Message("Flu not updated"), plog.MessageWithParam(log_tags.FLU, updateFlu))
 		}
 	}
 

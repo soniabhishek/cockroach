@@ -8,6 +8,7 @@ import (
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
@@ -27,7 +28,7 @@ func (b *bifurcationStep) processFlu(flu feed_line.FLU) {
 
 	bifurcationConfig, err := b.stepConfigSvc.GetBifurcationStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("Bifurcation Step", err, "error getting step", "fluId: "+flu.ID.String())
+		plog.Error("Bifurcation Step", err, plog.Message("error getting step"), plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.Bifurcation, "Error getting bifurcation Config", flu.Redelivered())
 		return
 	}
@@ -69,7 +70,7 @@ func (b *bifurcationStep) processFlu(flu feed_line.FLU) {
 		}
 
 	} else {
-		plog.Error("Bifurcation Step", fmt.Errorf("", "Multiplication count not greater than 0"), "flu_id "+flu.ID.String())
+		plog.Error("Bifurcation Step", fmt.Errorf("", "Multiplication count not greater than 0"), plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()))
 		b.finishFlu(flu)
 	}
 

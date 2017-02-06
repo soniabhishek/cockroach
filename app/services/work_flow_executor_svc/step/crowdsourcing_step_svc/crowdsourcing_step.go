@@ -8,6 +8,7 @@ import (
 	"github.com/crowdflux/angel/app/models/step_type"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"github.com/crowdflux/angel/app/services/flu_logger_svc"
 	"github.com/crowdflux/angel/app/services/work_flow_executor_svc/step"
 	"github.com/crowdflux/angel/app/services/work_flow_svc"
@@ -31,14 +32,14 @@ func (c *crowdSourcingStep) processFlu(flu feed_line.FLU) {
 
 	cc, err := c.stepConfigSvc.GetCrowdsourcingStepConfig(flu.StepId)
 	if err != nil {
-		plog.Error("crowdsourcing step", err, flu.ID.String())
+		plog.Error("Crowdsourcing Step", err, plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.CrowdSourcing, "ConfigNotFound", flu.Redelivered())
 		return
 	}
 
 	_, err = c.fluClient.PushFLU(flu.FeedLineUnit, cc.MicroTaskId)
 	if err != nil {
-		plog.Error("crowdsourcing step", err, flu.ID.String())
+		plog.Error("Crowdsourcing Step", err, plog.MessageWithParam(log_tags.FLU_ID, flu.ID.String()))
 		flu_logger_svc.LogStepError(flu.FeedLineUnit, step_type.CrowdSourcing, "crowdySendFailure", flu.Redelivered())
 		return
 	} else {

@@ -5,6 +5,7 @@ import (
 	"github.com/crowdflux/angel/app/DAL/feed_line"
 	"github.com/crowdflux/angel/app/models/uuid"
 	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"sync"
 )
 
@@ -47,7 +48,7 @@ func (f *fluCounter) UpdateCount(flu feed_line.FLU) {
 
 		if eFlu.ID == flu.ID {
 
-			plog.Error("FLU Counter", errors.New("Already updated counter for flu_id : "+flu.ID.String()), "Masterfluid: "+flu.MasterId.String())
+			plog.Error("FLU Counter", errors.New("Already updated counter for flu_id : "+flu.ID.String()), plog.MessageWithParam(log_tags.MASTER_FLU_ID, flu.MasterId.String()))
 			return
 		}
 	}

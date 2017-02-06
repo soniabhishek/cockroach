@@ -1,12 +1,19 @@
-package plog
+package plog_test
 
 import (
+	"github.com/crowdflux/angel/app/plog"
+	"github.com/crowdflux/angel/app/plog/log_tags"
 	"testing"
 	"time"
 )
 
 type s1 struct {
 	Id int
+}
+
+type s2 struct {
+	Id int
+	pc string
 }
 
 func (s1) Error() string {
@@ -16,14 +23,15 @@ func (s1) Error() string {
 func TestErrorMail(t *testing.T) {
 
 	t.SkipNow()
-	Error("testing", s1{124}, "")
-	Error("testing", s1{125}, "with message")
-	Error("testing", s1{124}, "with message & args", 123, "Asd")
+	plog.Error("testing", s1{124}, plog.MessageWithParam(log_tags.FLU_ID, s2{1212, "asdokads"}), plog.Message("Asd"))
+	plog.Error("testing", s1{124})
+	plog.Error("testing", s1{125}, plog.M("with message"))
+	plog.Error("testing", s1{124}, plog.MessageWithParam(log_tags.ROW_NUM, 123))
 	time.Sleep(time.Duration(10) * time.Second)
 }
 
 func TestCustomLogger(t *testing.T) {
-	c := NewLogger("somelog", "INFO", "FILE")
+	c := plog.NewLogger("somelog", "INFO", "FILE")
 
 	c.Info("testingjhoh", s1{124}, "")
 	c.Info("testihihjing", s1{125}, "with message")

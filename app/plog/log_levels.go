@@ -21,7 +21,7 @@ func Fatal(tag string, err error, args ...interface{}) {
 // we can pass plog.Message here in place if raven.Interface
 func Error(tag string, err error, args ...message) {
 	if levelError >= plogLevel {
-		if !config.IsProduction() {
+		if config.IsProduction() {
 			sentryItems := map[string]string{"tag": tag}
 			for _, arg := range args {
 				key := string(arg.Tag.Type)

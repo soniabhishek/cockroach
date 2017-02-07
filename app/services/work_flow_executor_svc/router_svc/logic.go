@@ -18,9 +18,23 @@ var ErrIndexNotFoundInFluBuild = errors.New("index (integer) property not found"
 
 var ErrPropNotFoundInFluBuild = errors.New("property not found in flu build")
 
-func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
+func EvaluateLogics(flu feed_line.FLU, ls LogicGate) (bool, error) {
 
-	templateType, ok := l.InputTemplate["logic"]
+	logicArray := ls.InputTemplate
+	for _, item := range logicArray {
+		result, err := Logic(flu, item)
+
+		if result == false {
+			return result, err
+		}
+	}
+	return true, nil
+
+}
+
+func Logic(flu feed_line.FLU, l models.JsonF) (bool, error) {
+
+	templateType, ok := l["logic"]
 	if !ok {
 		return false, ErrLogicKeyNotFound
 	}
@@ -37,7 +51,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		return true, nil
 	case "boolean":
 
-		options, ok1 := l.InputTemplate["options"].(map[string]interface{})
+		options, ok1 := l["options"].(map[string]interface{})
 		shouldBeTrue, ok2 := options["should_be_true"].(bool)
 		fieldName, ok3 := options["field_name"].(string)
 
@@ -59,7 +73,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		return b.True(), nil
 	case "string_equal":
 
-		options, ok1 := l.InputTemplate["options"].(map[string]interface{})
+		options, ok1 := l["options"].(map[string]interface{})
 		shouldBeEqual, ok2 := options["should_be_equal"].(bool)
 		fieldName, ok3 := options["field_name"].(string)
 		expectedFieldVal, ok4 := options["field_value"].(string)
@@ -81,7 +95,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 
 		return s.True(), nil
 	case "bifurcation":
-		options, ok := l.InputTemplate["options"].(map[string]interface{})
+		options, ok := l["options"].(map[string]interface{})
 		if !ok {
 			return false, ErrMalformedLogicOptions
 		}
@@ -89,7 +103,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		return options["index"] == flu.Build["index"], nil
 
 	case "is_null":
-		options, ok1 := l.InputTemplate["options"].(map[string]interface{})
+		options, ok1 := l["options"].(map[string]interface{})
 		shouldBeNull, ok2 := options["should_be_null"].(bool)
 		fieldName, ok3 := options["field_name"].(string)
 
@@ -106,7 +120,7 @@ func Logic(flu feed_line.FLU, l models.LogicGate) (bool, error) {
 		return !shouldBeNull, nil
 
 	case "contained_in":
-		options, ok1 := l.InputTemplate["options"].(map[string]interface{})
+		options, ok1 := l["options"].(map[string]interface{})
 		shouldBeContained, ok2 := options["should_be_contained_in"].(bool)
 		fieldName, ok3 := options["field_name"].(string)
 		expectedFieldVal, ok4 := options["field_value"].(string)

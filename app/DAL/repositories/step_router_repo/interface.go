@@ -29,10 +29,7 @@ func (i *inMemStepRouteRepo) GetRoutesByStepId(stepId uuid.UUID) (routes []model
 	}
 	return routes, nil
 }
-func (i *inMemStepRouteRepo) GetRoutesWithLogicByStepId(stepId uuid.UUID) (routes []models.RouteWithLogicGate, err error) {
-	panic("not implemented")
-	return routes, nil
-}
+
 func (i *inMemStepRouteRepo) GetRoutesByWorkFlowId(stepId uuid.UUID) (routes []models.Route, err error) {
 	return
 }

@@ -243,17 +243,6 @@ type KnexMigrationsLock struct {
 	IsLocked sql.NullInt64 `db:"is_locked" json:"is_locked" bson:"is_locked"`
 }
 
-type LogicGate struct {
-	ID            uuid.UUID `db:"id" json:"id" bson:"_id"`
-	InputTemplate JsonF     `db:"input_template" json:"input_template" bson:"input_template"`
-	Formula       int       `db:"formula" json:"formula" bson:"formula"`
-}
-
-type LogicGateFormula struct {
-	ID   int            `db:"id" json:"id" bson:"_id"`
-	Name sql.NullString `db:"name" json:"name" bson:"name"`
-}
-
 type MacroTask struct {
 	ID        uuid.UUID   `db:"id" json:"id" bson:"_id"`
 	Label     string      `db:"label" json:"label" bson:"label"`
@@ -485,15 +474,14 @@ type Roles struct {
 }
 
 type Route struct {
-	ID          uuid.UUID    `db:"id" json:"id" bson:"_id"`
-	StepId      uuid.UUID    `db:"step_id" json:"step_id" bson:"step_id"`
-	LogicGateId uuid.UUID    `db:"logic_gate_id" json:"logic_gate_id" bson:"logic_gate_id"`
-	NextStepId  uuid.UUID    `db:"next_step_id" json:"next_step_id" bson:"next_step_id"`
-	IsDeleted   sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
-	Label       string       `db:"label" json:"label" bson:"label"`
-	CreatedAt   pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
-	UpdatedAt   pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
-	Config      JsonF        `db:"config" json:"config" bson:"config"`
+	ID         uuid.UUID    `db:"id" json:"id" bson:"_id"`
+	StepId     uuid.UUID    `db:"step_id" json:"step_id" bson:"step_id"`
+	NextStepId uuid.UUID    `db:"next_step_id" json:"next_step_id" bson:"next_step_id"`
+	IsDeleted  sql.NullBool `db:"is_deleted" json:"is_deleted" bson:"is_deleted"`
+	Label      string       `db:"label" json:"label" bson:"label"`
+	CreatedAt  pq.NullTime  `db:"created_at" json:"created_at" bson:"created_at"`
+	UpdatedAt  pq.NullTime  `db:"updated_at" json:"updated_at" bson:"updated_at"`
+	Config     JsonF        `db:"config" json:"config" bson:"config"`
 }
 
 type Step struct {

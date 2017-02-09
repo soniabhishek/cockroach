@@ -8,6 +8,7 @@ import (
 	"github.com/crowdflux/angel/app/models"
 	"regexp"
 	"strings"
+	"sync"
 )
 
 // to cache the expressions to be reused
@@ -19,6 +20,8 @@ var fieldCache = make(map[string][]string)
 var expression_field = "expression"
 
 var expRegEx = "{((.*?))}"
+
+var mutex = sync.Mutex{}
 
 func LogicCustom(flu feed_line.FLU, l models.JsonF) (value bool, err error) {
 
@@ -161,6 +164,8 @@ func getFieldsFromExpression(exp string) (fields []string) {
 	for i, field := range fields {
 		fields[i] = strings.TrimLeft(strings.TrimRight(field, "}"), "{")
 	}
+	mutex.Lock()
+	defer mutex.Unlock()
 	fieldCache[exp] = fields
 	return
 }
@@ -170,7 +175,6 @@ func getParametersFromFlu(flu feed_line.FLU, fields []string, exp string) (param
 	parameters = make(map[string]interface{}, len(fields))
 	for _, field := range fields {
 		parameters[field] = flu.Build[field]
-
 		if parameters[field] == nil && strings.Contains(strings.Replace(exp, "IsNull("+field, "", -1), field) {
 			return nil, ErrPropNotFoundInFluBuild
 		}

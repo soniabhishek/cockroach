@@ -18,7 +18,7 @@ func AuthorizeAccess() gin.HandlerFunc {
 		value := c.Request.Header.Get("authorization")
 		authHeader := strings.Split(value, " ")
 		if len(authHeader) != 2 {
-			ShowAuthenticationErrorOverHttp(c, "Auth Failed Invalid Token")
+			ShowAuthenticationErrorOverHttp(c, "Authentication Failed. Invalid Token")
 			return
 		}
 		token, err := jwt.Parse(authHeader[1], func(token *jwt.Token) (interface{}, error) {
@@ -28,7 +28,7 @@ func AuthorizeAccess() gin.HandlerFunc {
 			return []byte(jwtKey), nil
 		})
 		if err != nil || !token.Valid {
-			ShowAuthenticationErrorOverHttp(c, "Auth Failed Invalid Access")
+			ShowAuthenticationErrorOverHttp(c, "Authentication Failed. Restricted Access")
 			return
 		}
 		valid, err := roles.ValidateRequest(value, roles.FetchWorkflowRoles(), heimdallApi)
@@ -37,13 +37,13 @@ func AuthorizeAccess() gin.HandlerFunc {
 			return
 		}
 		if !valid {
-			ShowAuthenticationErrorOverHttp(c, "Auth Failed Invalid Access")
+			ShowAuthenticationErrorOverHttp(c, "Authentication Failed. Restricted Access")
 			return
 		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
 			c.Set("userId", claims["id"])
 		} else {
-			ShowAuthenticationErrorOverHttp(c, "Invalid Claims")
+			ShowAuthenticationErrorOverHttp(c, "Authentication Failed. Invalid Claims")
 			return
 		}
 

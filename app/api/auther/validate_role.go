@@ -16,6 +16,7 @@ func AuthorizeAccess() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		value := c.Request.Header.Get("authorization")
+		fmt.Println("value", value)
 		authHeader := strings.Split(value, " ")
 		if len(authHeader) != 2 {
 			ShowAuthenticationErrorOverHttp(c, "Auth Failed Invalid Token")
@@ -31,7 +32,7 @@ func AuthorizeAccess() gin.HandlerFunc {
 			ShowAuthenticationErrorOverHttp(c, "Auth Failed Invalid Access")
 			return
 		}
-
+		fmt.Println("sending request")
 		valid, err := roles.ValidateRequest(value, roles.FetchWorkflowRoles(), heimdallApi)
 		if err != nil {
 			ShowInternalErrorOverHttp(c, err.Error())

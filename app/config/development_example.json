@@ -118,5 +118,10 @@
   },
   "feed_line_api" : {
     "input_timeout_sec" : "1"
+  },
+  "heimdall" :{
+    "base" : {
+      "api" : "http://10.0.0.22/api/auth/v1"
+    }
   }
 }

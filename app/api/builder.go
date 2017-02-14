@@ -74,7 +74,7 @@ func Build() {
 		flu_migration_svc.AddHttpTransport(api)
 	}
 
-	authorized_header := r.Group("/api/v0", auther.AuthorizeHeader())
+	authorized_header := r.Group("/api/v0", auther.AuthorizeAccess())
 	{
 		work_flow_svc.AddHttpTransport(authorized_header)
 		flu_svc_transport.HttpCSVFLUTransport(authorized_header)

@@ -61,6 +61,7 @@ const (
 	JWT_SECRET_KEY = configKey("jwt.secret")
 
 	FEEDLINE_API_TIMEOUT_SEC = configKey("feed_line_api.input_timeout_sec")
+	HEIMDALL_BASE_API        = configKey("heimdall.base.api")
 )
 
 // Gets the value for given key from the config file.

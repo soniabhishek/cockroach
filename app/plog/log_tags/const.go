@@ -30,3 +30,4 @@ var STEP_ID = &tag.Tag{"step_id"}
 
 var POSTBACK_REQUEST = &tag.Tag{"postback_request"}
 var POSTBACK_RESPONSE = &tag.Tag{"postback_reponse"}
+var ERROR_CODE = &tag.Tag{"error_code"}

@@ -2,15 +2,17 @@ package auther
 
 import (
 	"fmt"
+	"github.com/crowdflux/angel/app/api/roles"
 	"github.com/crowdflux/angel/app/config"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
-func AuthorizeHeader() gin.HandlerFunc {
+func AuthorizeAccess() gin.HandlerFunc {
 
 	jwtKey := config.JWT_SECRET_KEY.Get()
+	heimdallApi := config.HEIMDALL_BASE_API.Get()
 
 	return func(c *gin.Context) {
 		value := c.Request.Header.Get("authorization")
@@ -30,6 +32,15 @@ func AuthorizeHeader() gin.HandlerFunc {
 			return
 		}
 
+		valid, err := roles.ValidateRequest(value, roles.FetchWorkflowRoles(), heimdallApi)
+		if err != nil {
+			ShowInternalErrorOverHttp(c, err.Error())
+			return
+		}
+		if !valid {
+			ShowAuthenticationErrorOverHttp(c, "Auth Failed Invalid Access")
+			return
+		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
 			c.Set("userId", claims["id"])
 		} else {

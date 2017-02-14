@@ -3,7 +3,6 @@ package roles
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/crowdflux/angel/app/models/acl_type"
 	"github.com/crowdflux/angel/app/plog"
 	"github.com/crowdflux/angel/app/plog/log_tags"
@@ -21,7 +20,6 @@ func ValidateRequest(token string, roles []string, url string) (bool, error) {
 		plog.Error("ACL", err)
 		return false, err
 	}
-	fmt.Println("creating request")
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 	if err != nil {
 		plog.Error("ACL", err)
@@ -40,7 +38,6 @@ func ValidateRequest(token string, roles []string, url string) (bool, error) {
 		plog.Error("ACL", err)
 		return false, err
 	}
-	fmt.Println("response", acl_response)
 	if acl_response.Success {
 		if acl_response.Response.IsPermitted {
 			return true, nil
